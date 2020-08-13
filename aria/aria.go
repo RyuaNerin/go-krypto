@@ -27,8 +27,8 @@ func NewCipher(key []byte) (cipher.Block, error) {
 		return nil, KeySizeError(l)
 	}
 
-	cb := new(aria)
-	cb.rounds = (l*8 + 256) / 32
+	block := new(aria)
+	block.rounds = (l*8 + 256) / 32
 
 	////////////////////////////////////////
 
@@ -40,11 +40,11 @@ func NewCipher(key []byte) (cipher.Block, error) {
 	}
 
 	dl(t[:], w1[:])
-	if cb.rounds == 14 {
+	if block.rounds == 14 {
 		for i := 0; i < 8; i++ {
 			w1[i] ^= key[16+i]
 		}
-	} else if cb.rounds == 16 {
+	} else if block.rounds == 16 {
 		for i := 0; i < 16; i++ {
 			w1[i] ^= key[16+i]
 		}
@@ -77,67 +77,67 @@ func NewCipher(key []byte) (cipher.Block, error) {
 		w3[i] ^= w1[i]
 	}
 
-	for i := 0; i < 16*(cb.rounds+1); i++ {
-		cb.ek[i] = 0
+	for i := 0; i < 16*(block.rounds+1); i++ {
+		block.ek[i] = 0
 	}
 
-	rotXOR(key, 0, cb.ek[:], 0)
-	rotXOR(w1[:], 19, cb.ek[:], 0)
-	rotXOR(w1[:], 0, cb.ek[:], 16)
-	rotXOR(w2[:], 19, cb.ek[:], 16)
-	rotXOR(w2[:], 0, cb.ek[:], 32)
-	rotXOR(w3[:], 19, cb.ek[:], 32)
-	rotXOR(w3[:], 0, cb.ek[:], 48)
-	rotXOR(key, 19, cb.ek[:], 48)
-	rotXOR(key, 0, cb.ek[:], 64)
-	rotXOR(w1[:], 31, cb.ek[:], 64)
-	rotXOR(w1[:], 0, cb.ek[:], 80)
-	rotXOR(w2[:], 31, cb.ek[:], 80)
-	rotXOR(w2[:], 0, cb.ek[:], 96)
-	rotXOR(w3[:], 31, cb.ek[:], 96)
-	rotXOR(w3[:], 0, cb.ek[:], 112)
-	rotXOR(key, 31, cb.ek[:], 112)
-	rotXOR(key, 0, cb.ek[:], 128)
-	rotXOR(w1[:], 67, cb.ek[:], 128)
-	rotXOR(w1[:], 0, cb.ek[:], 144)
-	rotXOR(w2[:], 67, cb.ek[:], 144)
-	rotXOR(w2[:], 0, cb.ek[:], 160)
-	rotXOR(w3[:], 67, cb.ek[:], 160)
-	rotXOR(w3[:], 0, cb.ek[:], 176)
-	rotXOR(key, 67, cb.ek[:], 176)
-	rotXOR(key, 0, cb.ek[:], 192)
-	rotXOR(w1[:], 97, cb.ek[:], 192)
-	if cb.rounds > 12 {
-		rotXOR(w1[:], 0, cb.ek[:], 208)
-		rotXOR(w2[:], 97, cb.ek[:], 208)
-		rotXOR(w2[:], 0, cb.ek[:], 224)
-		rotXOR(w3[:], 97, cb.ek[:], 224)
+	rotXOR(key, 0, block.ek[:], 0)
+	rotXOR(w1[:], 19, block.ek[:], 0)
+	rotXOR(w1[:], 0, block.ek[:], 16)
+	rotXOR(w2[:], 19, block.ek[:], 16)
+	rotXOR(w2[:], 0, block.ek[:], 32)
+	rotXOR(w3[:], 19, block.ek[:], 32)
+	rotXOR(w3[:], 0, block.ek[:], 48)
+	rotXOR(key, 19, block.ek[:], 48)
+	rotXOR(key, 0, block.ek[:], 64)
+	rotXOR(w1[:], 31, block.ek[:], 64)
+	rotXOR(w1[:], 0, block.ek[:], 80)
+	rotXOR(w2[:], 31, block.ek[:], 80)
+	rotXOR(w2[:], 0, block.ek[:], 96)
+	rotXOR(w3[:], 31, block.ek[:], 96)
+	rotXOR(w3[:], 0, block.ek[:], 112)
+	rotXOR(key, 31, block.ek[:], 112)
+	rotXOR(key, 0, block.ek[:], 128)
+	rotXOR(w1[:], 67, block.ek[:], 128)
+	rotXOR(w1[:], 0, block.ek[:], 144)
+	rotXOR(w2[:], 67, block.ek[:], 144)
+	rotXOR(w2[:], 0, block.ek[:], 160)
+	rotXOR(w3[:], 67, block.ek[:], 160)
+	rotXOR(w3[:], 0, block.ek[:], 176)
+	rotXOR(key, 67, block.ek[:], 176)
+	rotXOR(key, 0, block.ek[:], 192)
+	rotXOR(w1[:], 97, block.ek[:], 192)
+	if block.rounds > 12 {
+		rotXOR(w1[:], 0, block.ek[:], 208)
+		rotXOR(w2[:], 97, block.ek[:], 208)
+		rotXOR(w2[:], 0, block.ek[:], 224)
+		rotXOR(w3[:], 97, block.ek[:], 224)
 	}
-	if cb.rounds > 14 {
-		rotXOR(w3[:], 0, cb.ek[:], 240)
-		rotXOR(key, 97, cb.ek[:], 240)
-		rotXOR(key, 0, cb.ek[:], 256)
-		rotXOR(w1[:], 109, cb.ek[:], 256)
+	if block.rounds > 14 {
+		rotXOR(w3[:], 0, block.ek[:], 240)
+		rotXOR(key, 97, block.ek[:], 240)
+		rotXOR(key, 0, block.ek[:], 256)
+		rotXOR(w1[:], 109, block.ek[:], 256)
 	}
 
 	////////////////////////////////////////
 
-	copy(cb.dk[:], cb.ek[:])
+	copy(block.dk[:], block.ek[:])
 
 	for j := 0; j < 16; j++ {
-		t[j] = cb.dk[j]
-		cb.dk[j] = cb.dk[16*cb.rounds+j]
-		cb.dk[16*cb.rounds+j] = t[j]
+		t[j] = block.dk[j]
+		block.dk[j] = block.dk[16*block.rounds+j]
+		block.dk[16*block.rounds+j] = t[j]
 	}
-	for i := 1; i <= cb.rounds/2; i++ {
-		dl(cb.dk[i*16:], t[:])
-		dl(cb.dk[(cb.rounds-i)*16:], cb.dk[i*16:])
+	for i := 1; i <= block.rounds/2; i++ {
+		dl(block.dk[i*16:], t[:])
+		dl(block.dk[(block.rounds-i)*16:], block.dk[i*16:])
 		for j := 0; j < 16; j++ {
-			cb.dk[(cb.rounds-i)*16+j] = t[j]
+			block.dk[(block.rounds-i)*16+j] = t[j]
 		}
 	}
 
-	return cb, nil
+	return block, nil
 }
 
 func (s *aria) BlockSize() int {

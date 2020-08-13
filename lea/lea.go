@@ -636,25 +636,25 @@ func (key *lea_key) lea_encrypt(ct, pt []byte) {
 	_ct[3] = loadU32(X3);
 	*/
 
-	ct[0] = 0xFF & byte(X0)
-	ct[1] = 0xFF & byte(X0>>8)
-	ct[2] = 0xFF & byte(X0>>16)
-	ct[3] = 0xFF & byte(X0>>24)
+	ct[0] = byte(X0)
+	ct[1] = byte(X0 >> 8)
+	ct[2] = byte(X0 >> 16)
+	ct[3] = byte(X0 >> 24)
 
-	ct[4] = 0xFF & byte(X1)
-	ct[5] = 0xFF & byte(X1>>8)
-	ct[6] = 0xFF & byte(X1>>16)
-	ct[7] = 0xFF & byte(X1>>24)
+	ct[4] = byte(X1)
+	ct[5] = byte(X1 >> 8)
+	ct[6] = byte(X1 >> 16)
+	ct[7] = byte(X1 >> 24)
 
-	ct[8] = 0xFF & byte(X2)
-	ct[9] = 0xFF & byte(X2>>8)
-	ct[10] = 0xFF & byte(X2>>16)
-	ct[11] = 0xFF & byte(X2>>24)
+	ct[8] = byte(X2)
+	ct[9] = byte(X2 >> 8)
+	ct[10] = byte(X2 >> 16)
+	ct[11] = byte(X2 >> 24)
 
-	ct[12] = 0xFF & byte(X3)
-	ct[13] = 0xFF & byte(X3>>8)
-	ct[14] = 0xFF & byte(X3>>16)
-	ct[15] = 0xFF & byte(X3>>24)
+	ct[12] = byte(X3)
+	ct[13] = byte(X3 >> 8)
+	ct[14] = byte(X3 >> 16)
+	ct[15] = byte(X3 >> 24)
 }
 
 func (key *lea_key) lea_decrypt(pt, ct []byte) {
@@ -778,23 +778,23 @@ func (key *lea_key) lea_decrypt(pt, ct []byte) {
 	_pt[3] = loadU32(X3)
 	*/
 
-	pt[0] = 0xFF & byte(X0)
-	pt[1] = 0xFF & byte(X0>>8)
-	pt[2] = 0xFF & byte(X0>>16)
-	pt[3] = 0xFF & byte(X0>>24)
+	pt[0] = byte(X0)
+	pt[1] = byte(X0 >> 8)
+	pt[2] = byte(X0 >> 16)
+	pt[3] = byte(X0 >> 24)
 
-	pt[4] = 0xFF & byte(X1)
-	pt[5] = 0xFF & byte(X1>>8)
-	pt[6] = 0xFF & byte(X1>>16)
-	pt[7] = 0xFF & byte(X1>>24)
+	pt[4] = byte(X1)
+	pt[5] = byte(X1 >> 8)
+	pt[6] = byte(X1 >> 16)
+	pt[7] = byte(X1 >> 24)
 
-	pt[8] = 0xFF & byte(X2)
-	pt[9] = 0xFF & byte(X2>>8)
-	pt[10] = 0xFF & byte(X2>>16)
-	pt[11] = 0xFF & byte(X2>>24)
+	pt[8] = byte(X2)
+	pt[9] = byte(X2 >> 8)
+	pt[10] = byte(X2 >> 16)
+	pt[11] = byte(X2 >> 24)
 
-	pt[12] = 0xFF & byte(X3)
-	pt[13] = 0xFF & byte(X3>>8)
-	pt[14] = 0xFF & byte(X3>>16)
-	pt[15] = 0xFF & byte(X3>>24)
+	pt[12] = byte(X3)
+	pt[13] = byte(X3 >> 8)
+	pt[14] = byte(X3 >> 16)
+	pt[15] = byte(X3 >> 24)
 }

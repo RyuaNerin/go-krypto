@@ -21,10 +21,10 @@ func NewCipher(key []byte) (cipher.Block, error) {
 		return nil, KeySizeError(l)
 	}
 
-	s := lea_key{}
-	s.lea_set_key_generic(key, l)
+	block := new(lea_key)
+	block.lea_set_key_generic(key, l)
 
-	return &s, nil
+	return block, nil
 }
 
 type lea_key struct {

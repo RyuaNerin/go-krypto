@@ -11,7 +11,7 @@ type seed128 struct {
 }
 
 func new128(key []byte) cipher.Block {
-	s := new(seed128)
+	block := new(seed128)
 
 	var A uint32 = (uint32(key[3]) << 24) | (uint32(key[2]) << 16) | (uint32(key[1]) << 8) | (uint32(key[0]))
 	var B uint32 = (uint32(key[7]) << 24) | (uint32(key[6]) << 16) | (uint32(key[5]) << 8) | (uint32(key[4]))
@@ -30,8 +30,8 @@ func new128(key []byte) cipher.Block {
 		if (i % 2) == 0 {
 			T0 = A + C - kc[i]
 			T1 = B - D + kc[i]
-			s.pdwRoundKey[i*2+0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
-			s.pdwRoundKey[i*2+1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
+			block.pdwRoundKey[i*2+0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
+			block.pdwRoundKey[i*2+1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
 			T0 = A
 
 			A = (A >> 8) ^ (B << 24)
@@ -39,8 +39,8 @@ func new128(key []byte) cipher.Block {
 		} else {
 			T0 = A + C - kc[i]
 			T1 = B - D + kc[i]
-			s.pdwRoundKey[i*2+0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
-			s.pdwRoundKey[i*2+1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
+			block.pdwRoundKey[i*2+0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
+			block.pdwRoundKey[i*2+1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
 			T0 = C
 
 			C = (C << 8) ^ (D >> 24)
@@ -48,7 +48,7 @@ func new128(key []byte) cipher.Block {
 		}
 	}
 
-	return s
+	return block
 }
 
 func (s *seed128) BlockSize() int {

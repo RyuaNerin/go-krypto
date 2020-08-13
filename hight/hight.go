@@ -21,25 +21,25 @@ func NewCipher(key []byte) (cipher.Block, error) {
 		return nil, KeySizeError(l)
 	}
 
-	s := hight{}
+	block := new(hight)
 
 	var i, j int32
 
 	for i = 0; i < 4; i++ {
-		s.pdwRoundKey[i] = key[i+12]
-		s.pdwRoundKey[i+4] = key[i]
+		block.pdwRoundKey[i] = key[i+12]
+		block.pdwRoundKey[i+4] = key[i]
 	}
 
 	for i = 0; i < 8; i++ {
 		for j = 0; j < 8; j++ {
-			s.pdwRoundKey[8+16*i+j] = key[(j-i)&7] + delta[16*i+j]
+			block.pdwRoundKey[8+16*i+j] = key[(j-i)&7] + delta[16*i+j]
 		}
 		for j = 0; j < 8; j++ {
-			s.pdwRoundKey[8+16*i+j+8] = key[((j-i)&7)+8] + delta[16*i+j+8]
+			block.pdwRoundKey[8+16*i+j+8] = key[((j-i)&7)+8] + delta[16*i+j+8]
 		}
 	}
 
-	return &s, nil
+	return block, nil
 }
 
 func (s *hight) BlockSize() int {

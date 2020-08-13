@@ -15,7 +15,7 @@ var (
 )
 
 func new256(key []byte) cipher.Block {
-	s := new(seed256)
+	block := new(seed256)
 
 	var A uint32 = (uint32(key[3]) << 24) | (uint32(key[2]) << 16) | (uint32(key[1]) << 8) | (uint32(key[0]))
 	var B uint32 = (uint32(key[7]) << 24) | (uint32(key[6]) << 16) | (uint32(key[5]) << 8) | (uint32(key[4]))
@@ -42,8 +42,8 @@ func new256(key []byte) cipher.Block {
 
 	T0 = (((A + C) ^ E) - F) ^ kc[0]
 	T1 = (((B - D) ^ G) + H) ^ kc[0]
-	s.pdwRoundKey[0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
-	s.pdwRoundKey[1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
+	block.pdwRoundKey[0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
+	block.pdwRoundKey[1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
 
 	for i := 1; i < 24; i++ {
 		rot = seed256rot[i%6]
@@ -65,11 +65,11 @@ func new256(key []byte) cipher.Block {
 		T0 = (((A + C) ^ E) - F) ^ kc[i]
 		T1 = (((B - D) ^ G) + H) ^ kc[i]
 
-		s.pdwRoundKey[i*2+0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
-		s.pdwRoundKey[i*2+1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
+		block.pdwRoundKey[i*2+0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
+		block.pdwRoundKey[i*2+1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
 	}
 
-	return s
+	return block
 }
 
 func (s *seed256) BlockSize() int {
