@@ -2,8 +2,6 @@ package hight
 
 const (
 	BlockSize = 8
-
-	pdwRoundKeySize = 136
 )
 
 var (

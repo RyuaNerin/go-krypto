@@ -12,7 +12,7 @@ func (k KeySizeError) Error() string {
 }
 
 type hight struct {
-	pdwRoundKey [pdwRoundKeySize]byte
+	pdwRoundKey [136]byte
 }
 
 func NewCipher(key []byte) (cipher.Block, error) {
@@ -23,18 +23,16 @@ func NewCipher(key []byte) (cipher.Block, error) {
 
 	block := new(hight)
 
-	var i, j int32
-
-	for i = 0; i < 4; i++ {
+	for i := 0; i < 4; i++ {
 		block.pdwRoundKey[i] = key[i+12]
 		block.pdwRoundKey[i+4] = key[i]
 	}
 
-	for i = 0; i < 8; i++ {
-		for j = 0; j < 8; j++ {
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 8; j++ {
 			block.pdwRoundKey[8+16*i+j] = key[(j-i)&7] + delta[16*i+j]
 		}
-		for j = 0; j < 8; j++ {
+		for j := 0; j < 8; j++ {
 			block.pdwRoundKey[8+16*i+j+8] = key[((j-i)&7)+8] + delta[16*i+j+8]
 		}
 	}
