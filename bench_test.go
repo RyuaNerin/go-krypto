@@ -8,7 +8,7 @@ import (
 	"kipher/aria"
 	"kipher/hight"
 	"kipher/lea"
-	"kipher/seed128"
+	"kipher/seed"
 )
 
 func cbc_1k(b *testing.B, encrypt bool, block cipher.Block) {
@@ -39,11 +39,20 @@ func Benchmark_CBC_Decrypt_1K_AES(b *testing.B) {
 }
 
 func Benchmark_CBC_Encrypt_1K_SEED128(b *testing.B) {
-	c, _ := seed128.NewCipher(make([]byte, 16))
+	c, _ := seed.NewCipher(make([]byte, 16))
 	cbc_1k(b, true, c)
 }
 func Benchmark_CBC_Decrypt_1K_SEED128(b *testing.B) {
-	c, _ := seed128.NewCipher(make([]byte, 16))
+	c, _ := seed.NewCipher(make([]byte, 16))
+	cbc_1k(b, false, c)
+}
+
+func Benchmark_CBC_Encrypt_1K_SEED256(b *testing.B) {
+	c, _ := seed.NewCipher(make([]byte, 32))
+	cbc_1k(b, true, c)
+}
+func Benchmark_CBC_Decrypt_1K_SEED256(b *testing.B) {
+	c, _ := seed.NewCipher(make([]byte, 32))
 	cbc_1k(b, false, c)
 }
 

@@ -1,4 +1,4 @@
-package seed128
+package seed
 
 import (
 	"unsafe"
@@ -18,4 +18,9 @@ func init() {
 	default:
 		panic("Could not determine native endianness.")
 	}
+}
+
+func endianChange(dwS uint32) uint32 {
+	return (((dwS << 8) | (dwS >> 24)) & uint32(0x00ff00ff)) |
+		(((dwS << 24) | (dwS >> 8)) & uint32(0xff00ff00))
 }

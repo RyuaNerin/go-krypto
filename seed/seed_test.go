@@ -1,4 +1,4 @@
-package seed128
+package seed
 
 import (
 	"bytes"
