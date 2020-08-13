@@ -1,5 +1,203 @@
 package aria
 
+import (
+	"crypto/cipher"
+	"fmt"
+)
+
+type KeySizeError int
+
+func (k KeySizeError) Error() string {
+	return fmt.Sprintf("kipher/aria: invalid key size %d", int(k))
+}
+
+type aria struct {
+	rounds int
+	ek     [rkSize]byte
+	dk     [rkSize]byte
+}
+
+func NewCipher(key []byte) (cipher.Block, error) {
+	l := len(key)
+	switch l {
+	case 16:
+	case 24:
+	case 32:
+	default:
+		return nil, KeySizeError(l)
+	}
+
+	cb := new(aria)
+	cb.rounds = (l*8 + 256) / 32
+
+	////////////////////////////////////////
+
+	var t, w1, w2, w3 [16]byte
+
+	q := (l*8 - 128) / 64
+	for i := 0; i < 16; i++ {
+		t[i] = s[i%4][krk[q][i]^key[i]]
+	}
+
+	dl(t[:], w1[:])
+	if cb.rounds == 14 {
+		for i := 0; i < 8; i++ {
+			w1[i] ^= key[16+i]
+		}
+	} else if cb.rounds == 16 {
+		for i := 0; i < 16; i++ {
+			w1[i] ^= key[16+i]
+		}
+	}
+
+	if q == 2 {
+		q = 0
+	} else {
+		q = q + 1
+	}
+
+	for i := 0; i < 16; i++ {
+		t[i] = s[(2+i)%4][krk[q][i]^w1[i]]
+	}
+	dl(t[:], w2[:])
+	for i := 0; i < 16; i++ {
+		w2[i] ^= key[i]
+	}
+
+	if q == 2 {
+		q = 0
+	} else {
+		q = (q + 1)
+	}
+	for i := 0; i < 16; i++ {
+		t[i] = s[i%4][krk[q][i]^w2[i]]
+	}
+	dl(t[:], w3[:])
+	for i := 0; i < 16; i++ {
+		w3[i] ^= w1[i]
+	}
+
+	for i := 0; i < 16*(cb.rounds+1); i++ {
+		cb.ek[i] = 0
+	}
+
+	rotXOR(key, 0, cb.ek[:], 0)
+	rotXOR(w1[:], 19, cb.ek[:], 0)
+	rotXOR(w1[:], 0, cb.ek[:], 16)
+	rotXOR(w2[:], 19, cb.ek[:], 16)
+	rotXOR(w2[:], 0, cb.ek[:], 32)
+	rotXOR(w3[:], 19, cb.ek[:], 32)
+	rotXOR(w3[:], 0, cb.ek[:], 48)
+	rotXOR(key, 19, cb.ek[:], 48)
+	rotXOR(key, 0, cb.ek[:], 64)
+	rotXOR(w1[:], 31, cb.ek[:], 64)
+	rotXOR(w1[:], 0, cb.ek[:], 80)
+	rotXOR(w2[:], 31, cb.ek[:], 80)
+	rotXOR(w2[:], 0, cb.ek[:], 96)
+	rotXOR(w3[:], 31, cb.ek[:], 96)
+	rotXOR(w3[:], 0, cb.ek[:], 112)
+	rotXOR(key, 31, cb.ek[:], 112)
+	rotXOR(key, 0, cb.ek[:], 128)
+	rotXOR(w1[:], 67, cb.ek[:], 128)
+	rotXOR(w1[:], 0, cb.ek[:], 144)
+	rotXOR(w2[:], 67, cb.ek[:], 144)
+	rotXOR(w2[:], 0, cb.ek[:], 160)
+	rotXOR(w3[:], 67, cb.ek[:], 160)
+	rotXOR(w3[:], 0, cb.ek[:], 176)
+	rotXOR(key, 67, cb.ek[:], 176)
+	rotXOR(key, 0, cb.ek[:], 192)
+	rotXOR(w1[:], 97, cb.ek[:], 192)
+	if cb.rounds > 12 {
+		rotXOR(w1[:], 0, cb.ek[:], 208)
+		rotXOR(w2[:], 97, cb.ek[:], 208)
+		rotXOR(w2[:], 0, cb.ek[:], 224)
+		rotXOR(w3[:], 97, cb.ek[:], 224)
+	}
+	if cb.rounds > 14 {
+		rotXOR(w3[:], 0, cb.ek[:], 240)
+		rotXOR(key, 97, cb.ek[:], 240)
+		rotXOR(key, 0, cb.ek[:], 256)
+		rotXOR(w1[:], 109, cb.ek[:], 256)
+	}
+
+	////////////////////////////////////////
+
+	copy(cb.dk[:], cb.ek[:])
+
+	for j := 0; j < 16; j++ {
+		t[j] = cb.dk[j]
+		cb.dk[j] = cb.dk[16*cb.rounds+j]
+		cb.dk[16*cb.rounds+j] = t[j]
+	}
+	for i := 1; i <= cb.rounds/2; i++ {
+		dl(cb.dk[i*16:], t[:])
+		dl(cb.dk[(cb.rounds-i)*16:], cb.dk[i*16:])
+		for j := 0; j < 16; j++ {
+			cb.dk[(cb.rounds-i)*16+j] = t[j]
+		}
+	}
+
+	return cb, nil
+}
+
+func (s *aria) BlockSize() int {
+	return BlockSize
+}
+
+func (s *aria) Encrypt(dst, src []byte) {
+	if len(src) < BlockSize {
+		panic(fmt.Sprintf("kipher/aria: invalid block size %d (src)", len(src)))
+	}
+	if len(dst) < BlockSize {
+		panic(fmt.Sprintf("kipher/aria: invalid block size %d (dst)", len(dst)))
+	}
+
+	s.crypt(dst, src, true)
+}
+
+func (s *aria) Decrypt(dst, src []byte) {
+	if len(src) < BlockSize {
+		panic(fmt.Sprintf("kipher/aria: invalid block size %d (src)", len(src)))
+	}
+	if len(dst) < BlockSize {
+		panic(fmt.Sprintf("kipher/aria: invalid block size %d (dst)", len(dst)))
+	}
+
+	s.crypt(dst, src, false)
+}
+
+func (cb *aria) crypt(dst, src []byte, encryption bool) {
+	var e []byte
+	if encryption {
+		e = cb.ek[:]
+	} else {
+		e = cb.dk[:]
+	}
+
+	var i, j int
+	var t [16]byte
+
+	copy(dst, src[:BlockSize])
+
+	ei := 0
+	for i = 0; i < cb.rounds/2; i++ {
+		for j = 0; j < 16; j++ {
+			t[j] = s[j%4][e[ei+j]^dst[j]]
+		}
+		dl(t[:], dst)
+		ei += 16
+		for j = 0; j < 16; j++ {
+			t[j] = s[(2+j)%4][e[ei+j]^dst[j]]
+		}
+		dl(t[:], dst)
+		ei += 16
+	}
+	dl(dst, t[:])
+	for j = 0; j < 16; j++ {
+		dst[j] = e[ei+j] ^ t[j]
+	}
+}
+
 func dl(i, o []byte) {
 	var T byte
 
@@ -34,153 +232,5 @@ func rotXOR(s []byte, n int, t []byte, ti int) {
 		if n != 0 {
 			t[ti+(q+i+1)%16] ^= (s[i] << (8 - n))
 		}
-	}
-}
-
-// Encryption round key generation rountine
-// w0 : master key, e : encryption round keys
-func encKeySetup(w0 []byte, e []byte, keyBits int) int {
-	var i int
-	var q int
-	var R int = (keyBits + 256) / 32
-	var t, w1, w2, w3 [16]byte
-
-	q = (keyBits - 128) / 64
-	for i = 0; i < 16; i++ {
-		t[i] = s[i%4][krk[q][i]^w0[i]]
-	}
-
-	dl(t[:], w1[:])
-	if R == 14 {
-		for i = 0; i < 8; i++ {
-			w1[i] ^= w0[16+i]
-		}
-	} else if R == 16 {
-		for i = 0; i < 16; i++ {
-			w1[i] ^= w0[16+i]
-		}
-	}
-
-	//q = (q==2)? 0 : (q+1);
-	if q == 2 {
-		q = 0
-	} else {
-		q = q + 1
-	}
-
-	for i = 0; i < 16; i++ {
-
-		t[i] = s[(2+i)%4][krk[q][i]^w1[i]]
-	}
-	dl(t[:], w2[:])
-	for i = 0; i < 16; i++ {
-		w2[i] ^= w0[i]
-	}
-
-	//q = (q==2)? 0 : (q+1);
-	if q == 2 {
-		q = 0
-	} else {
-		q = (q + 1)
-	}
-	for i = 0; i < 16; i++ {
-		t[i] = s[i%4][krk[q][i]^w2[i]]
-	}
-	dl(t[:], w3[:])
-	for i = 0; i < 16; i++ {
-		w3[i] ^= w1[i]
-	}
-
-	for i = 0; i < 16*(R+1); i++ {
-		e[i] = 0
-	}
-
-	rotXOR(w0, 0, e, 0)
-	rotXOR(w1[:], 19, e, 0)
-	rotXOR(w1[:], 0, e, 16)
-	rotXOR(w2[:], 19, e, 16)
-	rotXOR(w2[:], 0, e, 32)
-	rotXOR(w3[:], 19, e, 32)
-	rotXOR(w3[:], 0, e, 48)
-	rotXOR(w0, 19, e, 48)
-	rotXOR(w0, 0, e, 64)
-	rotXOR(w1[:], 31, e, 64)
-	rotXOR(w1[:], 0, e, 80)
-	rotXOR(w2[:], 31, e, 80)
-	rotXOR(w2[:], 0, e, 96)
-	rotXOR(w3[:], 31, e, 96)
-	rotXOR(w3[:], 0, e, 112)
-	rotXOR(w0, 31, e, 112)
-	rotXOR(w0, 0, e, 128)
-	rotXOR(w1[:], 67, e, 128)
-	rotXOR(w1[:], 0, e, 144)
-	rotXOR(w2[:], 67, e, 144)
-	rotXOR(w2[:], 0, e, 160)
-	rotXOR(w3[:], 67, e, 160)
-	rotXOR(w3[:], 0, e, 176)
-	rotXOR(w0, 67, e, 176)
-	rotXOR(w0, 0, e, 192)
-	rotXOR(w1[:], 97, e, 192)
-	if R > 12 {
-		rotXOR(w1[:], 0, e, 208)
-		rotXOR(w2[:], 97, e, 208)
-		rotXOR(w2[:], 0, e, 224)
-		rotXOR(w3[:], 97, e, 224)
-	}
-	if R > 14 {
-		rotXOR(w3[:], 0, e, 240)
-		rotXOR(w0, 97, e, 240)
-		rotXOR(w0, 0, e, 256)
-		rotXOR(w1[:], 109, e, 256)
-	}
-	return R
-}
-
-// Decryption round key generation rountine
-// w0 : maskter key, d : decryption round keys
-func decKeySetup(w0 []byte, d []byte, keyBits int) int {
-	var i, j, R int
-	var t [16]byte
-
-	R = encKeySetup(w0, d, keyBits)
-	for j = 0; j < 16; j++ {
-		t[j] = d[j]
-		d[j] = d[16*R+j]
-		d[16*R+j] = t[j]
-	}
-	for i = 1; i <= R/2; i++ {
-		dl(d[i*16:], t[:])
-		dl(d[(R-i)*16:], d[i*16:])
-		for j = 0; j < 16; j++ {
-			d[(R-i)*16+j] = t[j]
-		}
-	}
-	return R
-}
-
-// Encryption and decryption rountine
-// p: plain text, e: round keys, c: ciphertext
-func crypt(p []byte, R int, e []byte, c []byte) {
-	var i, j int
-	var t [16]byte
-
-	copy(c, p[:16])
-
-	ei := 0
-	for i = 0; i < R/2; i++ {
-		for j = 0; j < 16; j++ {
-			t[j] = s[j%4][e[ei+j]^c[j]]
-		}
-		dl(t[:], c)
-		ei += 16
-		for j = 0; j < 16; j++ {
-			t[j] = s[(2+j)%4][e[ei+j]^c[j]]
-		}
-		dl(t[:], c)
-		ei += 16
-	}
-	dl(c, t[:])
-	for j = 0; j < 16; j++ {
-		c[j] = e[ei+j] ^ t[j]
 	}
 }
