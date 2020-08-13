@@ -167,6 +167,9 @@ func TestLEA256(t *testing.T) {
 func TestSEED128(t *testing.T) {
 	testCipher(t, "test/SEED128.csv", func(key []byte) (cipher.Block, error) { return seed.NewCipher(key) })
 }
+func TestSEED256(t *testing.T) {
+	testCipher(t, "test/SEED256.csv", func(key []byte) (cipher.Block, error) { return seed.NewCipher(key) })
+}
 
 func TestHIGHT(t *testing.T) {
 	testCipher(t, "test/HIGHT.csv", func(key []byte) (cipher.Block, error) { return hight.NewCipher(key) })
