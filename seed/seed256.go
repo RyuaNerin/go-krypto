@@ -11,7 +11,7 @@ type seed256 struct {
 }
 
 var (
-	seed256rot = [...]byte{9, 9, 11, 11, 12, 12}
+	seed256rot = [...]byte{12, 9, 9, 11, 11, 12}
 )
 
 func new256(key []byte) cipher.Block {
@@ -48,7 +48,7 @@ func new256(key []byte) cipher.Block {
 	for i := 1; i < 24; i++ {
 		rot = seed256rot[i%6]
 
-		if (i % 2) == 0 {
+		if ((i + 1) % 2) == 0 {
 			T0 = D
 			D = (D >> rot) ^ (C << (32 - rot))
 			C = (C >> rot) ^ (B << (32 - rot))
@@ -103,9 +103,7 @@ func (s *seed256) Encrypt(dst, src []byte) {
 	var R0 uint32 = (uint32(src[11]) << 24) | (uint32(src[10]) << 16) | (uint32(src[9]) << 8) | (uint32(src[8]))
 	var R1 uint32 = (uint32(src[15]) << 24) | (uint32(src[14]) << 16) | (uint32(src[13]) << 8) | (uint32(src[12]))
 
-	// Reorder for big endian
-	// Because SEED use little endian order in default
-	if littleEndian {
+	if !littleEndian {
 		L0 = endianChange(L0)
 		L1 = endianChange(L1)
 		R0 = endianChange(R0)
@@ -137,14 +135,13 @@ func (s *seed256) Encrypt(dst, src []byte) {
 	s.seed_KeySched(&L0, &L1, R0, R1, 44) // Round 23
 	s.seed_KeySched(&R0, &R1, L0, L1, 46) // Round 24
 
-	if littleEndian {
+	if !littleEndian {
 		L0 = endianChange(L0)
 		L1 = endianChange(L1)
 		R0 = endianChange(R0)
 		R1 = endianChange(R1)
 	}
 
-	// Copying output values from last round to pbData
 	dst[0] = byte((R0) & 0xFF)
 	dst[1] = byte((R0 >> 8) & 0xFF)
 	dst[2] = byte((R0 >> 16) & 0xFF)
