@@ -1,6 +1,8 @@
+// Package hight implements HIGHT encryption, as defined in ISO/IEC 18033-3 : Information technology
 package hight
 
 const (
+	// The HIGHT block size in bytes.
 	BlockSize = 8
 )
 

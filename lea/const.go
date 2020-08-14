@@ -1,6 +1,8 @@
+// Package lea implements LEA encryption, as defined in TTAK.KO-12.0223
 package lea
 
 const (
+	// The LEA block size in bytes.
 	BlockSize = 16
 )
 

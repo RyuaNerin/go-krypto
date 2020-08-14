@@ -1,6 +1,8 @@
+// Package seed implements SEED encryption, as defined in ISO/IEC 18033-3 : Information technology
 package seed
 
 const (
+	// The SEED block size in bytes.
 	BlockSize = 16
 )
 

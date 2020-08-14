@@ -1,3 +1,4 @@
+// Package lsh512 implements the LSH-512, LSH-384, LSH-512-256, LSH-512-224 hash algorithms as defined in TTAK.KO-12.0276
 package lsh512
 
 import (
@@ -5,14 +6,20 @@ import (
 )
 
 const (
-	Size    = 64
-	Size224 = 28
-	Size256 = 32
+	// The size of a LSH-512 checksum in bytes.
+	Size = 64
+	// The size of a LSH-384 checksum in bytes.
 	Size384 = 48
+	// The size of a LSH-512-256 checksum in bytes.
+	Size256 = 32
+	// The size of a LSH-512-224 checksum in bytes.
+	Size224 = 28
 
+	// The blocksize of LSH-512, LSH-384, LSH-512-256 and LSH-512-224 in bytes.
 	BLOCKSIZE = 256
 )
 
+// New returns a new hash.Hash computing the LSH-512 checksum.
 func New() hash.Hash {
 	h := &lsh512{
 		outlenbits: 512,
@@ -20,6 +27,8 @@ func New() hash.Hash {
 	h.Reset()
 	return h
 }
+
+// New384 returns a new hash.Hash computing the LSH-384 checksum.
 func New384() hash.Hash {
 	h := &lsh512{
 		outlenbits: 384,
@@ -27,6 +36,8 @@ func New384() hash.Hash {
 	h.Reset()
 	return h
 }
+
+// New256 returns a new hash.Hash computing the LSH-512-256 checksum.
 func New256() hash.Hash {
 	h := &lsh512{
 		outlenbits: 256,
@@ -34,6 +45,8 @@ func New256() hash.Hash {
 	h.Reset()
 	return h
 }
+
+// New224 returns a new hash.Hash computing the LSH-512-224 checksum.
 func New224() hash.Hash {
 	h := &lsh512{
 		outlenbits: 224,
@@ -42,7 +55,8 @@ func New224() hash.Hash {
 	return h
 }
 
-func Sum(data []byte) (sum [Size]byte) {
+// Sum512 returns the LSH-512 checksum of the data.
+func Sum512(data []byte) (sum [Size]byte) {
 	b := lsh512{
 		outlenbits: 512,
 	}
@@ -52,6 +66,7 @@ func Sum(data []byte) (sum [Size]byte) {
 	return b.checkSum()
 }
 
+// Sum384 returns the LSH-384 checksum of the data.
 func Sum384(data []byte) (sum384 [Size384]byte) {
 	b := lsh512{
 		outlenbits: 384,
@@ -64,6 +79,7 @@ func Sum384(data []byte) (sum384 [Size384]byte) {
 	return
 }
 
+// Sum256 returns the LSH-512-256 checksum of the data.
 func Sum256(data []byte) (sum256 [Size256]byte) {
 	b := lsh512{
 		outlenbits: 256,
@@ -76,6 +92,7 @@ func Sum256(data []byte) (sum256 [Size256]byte) {
 	return
 }
 
+// Sum224 returns the LSH-512-224 checksum of the data.
 func Sum224(data []byte) (sum224 [Size224]byte) {
 	b := lsh512{
 		outlenbits: 224,

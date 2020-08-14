@@ -17,6 +17,7 @@ type aria struct {
 	dk     [rkSize]byte
 }
 
+// NewCipher creates and returns a new cipher.Block. The key argument should be the ARIA key, either 16, 24, or 32 bytes to select ARIA-128, ARIA-192, or ARIA-256.
 func NewCipher(key []byte) (cipher.Block, error) {
 	l := len(key)
 	switch l {

@@ -11,6 +11,7 @@ func (k KeySizeError) Error() string {
 	return fmt.Sprintf("krypto/seed128: invalid key size %d", int(k))
 }
 
+// NewCipher creates and returns a new cipher.Block. The key argument should be the SEED key, either 16 or 32 bytes to select SEED-128 or SEED-256.
 func NewCipher(key []byte) (cipher.Block, error) {
 	l := len(key)
 	switch l {

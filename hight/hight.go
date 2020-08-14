@@ -15,6 +15,7 @@ type hight struct {
 	pdwRoundKey [136]byte
 }
 
+// NewCipher creates and returns a new cipher.Block.
 func NewCipher(key []byte) (cipher.Block, error) {
 	l := len(key)
 	if l != 16 {

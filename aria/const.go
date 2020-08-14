@@ -1,6 +1,8 @@
+// Package aria implements ARIA encryption, as defined in KS X 1213-1
 package aria
 
 const (
+	// The HIGHT block size in bytes.
 	BlockSize = 16
 
 	rkSize = 16 * 17
