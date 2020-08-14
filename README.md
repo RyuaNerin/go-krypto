@@ -1,3 +1,5 @@
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/RyuaNerin/go-krypto)](https://pkg.go.dev/github.com/RyuaNerin/go-krypto)
+
 # krypto
 
 Golang implementation of Cipher Algorithms from *KISA* (*Korea Information Security Agency*)
@@ -17,8 +19,8 @@ Golang implementation of Cipher Algorithms from *KISA* (*Korea Information Secur
 
     | Algorithm | 224 | 256 | 384 | 512 |
     |:---------:|:---:|:---:|:---:|:---:|
-    | LSH256    | O   | O   |     |     |
-    | LSH512    | O   | O   | O   | O   |
+    | LSH-256    | O   | O   |     |     |
+    | LSH-512    | O   | O   | O   | O   |
 
 ## Installation
 
