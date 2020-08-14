@@ -15,6 +15,7 @@ func hash_1k(b *testing.B, h hash.Hash) {
 
 	for i := 0; i < b.N; i++ {
 		h.Write(buf)
+		h.Sum(nil)
 	}
 }
 

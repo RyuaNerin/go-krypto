@@ -13,6 +13,13 @@ Golang implementation of Cipher Algorithms from *KISA* (*Korea Information Secur
     | LEA       | O   | O   | O   |
     | SEED      | O   |     | O   |
 
+- Hash
+
+    | Algorithm | 224 | 256 | 384 | 512 |
+    |:---------:|:---:|:---:|:---:|:---:|
+    | LSH256    | O   | O   |     |     |
+    | LSH512    | O   | O   | O   | O   |
+
 ## Installation
 
 ```shell
@@ -59,6 +66,10 @@ Benchmark_CBC_Encrypt_1K_LEA_24-16     	  374660	      3120 ns/op	 328.20 MB/s	 
 Benchmark_CBC_Decrypt_1K_LEA_24-16     	  239780	      4880 ns/op	 209.85 MB/s	       0 B/op	       0 allocs/op
 Benchmark_CBC_Encrypt_1K_LEA_32-16     	  342548	      3342 ns/op	 306.44 MB/s	       0 B/op	       0 allocs/op
 Benchmark_CBC_Decrypt_1K_LEA_32-16     	  217982	      5407 ns/op	 189.39 MB/s	       0 B/op	       0 allocs/op
+Benchmark_HASH_SHA256_1K-16            	  544958	      2218 ns/op	      32 B/op	       1 allocs/op
+Benchmark_HASH_SHA512_1K-16            	  799306	      1562 ns/op	      64 B/op	       1 allocs/op
+Benchmark_HASH_LSH256_1K-16            	  444034	      2668 ns/op	      32 B/op	       1 allocs/op
+Benchmark_HASH_LSH512_1K-16            	  499533	      2329 ns/op	      64 B/op	       1 allocs/op
 PASS
 ok  	kipher	29.203s
 ```
