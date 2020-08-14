@@ -177,7 +177,7 @@ func (s *seed256) Decrypt(dst, src []byte) {
 	var R1 uint32 = (uint32(src[15]) << 24) | (uint32(src[14]) << 16) | (uint32(src[13]) << 8) | (uint32(src[12]))
 
 	// Reorder for big endian
-	if littleEndian {
+	if !littleEndian {
 		L0 = endianChange(L0)
 		L1 = endianChange(L1)
 		R0 = endianChange(R0)
@@ -209,7 +209,7 @@ func (s *seed256) Decrypt(dst, src []byte) {
 	s.seed_KeySched(&L0, &L1, R0, R1, 2)  // Round 23
 	s.seed_KeySched(&R0, &R1, L0, L1, 0)  // Round 24
 
-	if littleEndian {
+	if !littleEndian {
 		L0 = endianChange(L0)
 		L1 = endianChange(L1)
 		R0 = endianChange(R0)
