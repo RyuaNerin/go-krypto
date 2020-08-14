@@ -1,46 +1,46 @@
 package lsh512
 
 const (
-	NUMSTEP = 28
+	numStep = 28
 
-	ALPHA_EVEN = 23
-	ALPHA_ODD  = 7
+	alphaEven = 23
+	alphaOdd  = 7
 
-	BETA_EVEN = 59
-	BETA_ODD  = 3
+	betaEven = 59
+	betaOdd  = 3
 )
 
 var (
-	IV224 = [...]uint64{
+	iv224 = [...]uint64{
 		0x0c401e9fe8813a55, 0x4a5f446268fd3d35, 0xff13e452334f612a, 0xf8227661037e354a,
 		0xa5f223723c9ca29d, 0x95d965a11aed3979, 0x01e23835b9ab02cc, 0x52d49cbad5b30616,
 		0x9e5c2027773f4ed3, 0x66a5c8801925b701, 0x22bbc85b4c6779d9, 0xc13171a42c559c23,
 		0x31e2b67d25be3813, 0xd522c4deed8e4d83, 0xa79f5509b43fbafe, 0xe00d2cd88b4b6c6a,
 	}
 
-	IV256 = [...]uint64{
+	iv256 = [...]uint64{
 		0x6dc57c33df989423, 0xd8ea7f6e8342c199, 0x76df8356f8603ac4, 0x40f1b44de838223a,
 		0x39ffe7cfc31484cd, 0x39c4326cc5281548, 0x8a2ff85a346045d8, 0xff202aa46dbdd61e,
 		0xcf785b3cd5fcdb8b, 0x1f0323b64a8150bf, 0xff75d972f29ea355, 0x2e567f30bf1ca9e1,
 		0xb596875bf8ff6dba, 0xfcca39b089ef4615, 0xecff4017d020b4b6, 0x7e77384c772ed802,
 	}
 
-	IV384 = [...]uint64{
+	iv384 = [...]uint64{
 		0x53156a66292808f6, 0xb2c4f362b204c2bc, 0xb84b7213bfa05c4e, 0x976ceb7c1b299f73,
 		0xdf0cc63c0570ae97, 0xda4441baa486ce3f, 0x6559f5d9b5f2acc2, 0x22dacf19b4b52a16,
 		0xbbcdacefde80953a, 0xc9891a2879725b3e, 0x7c9fe6330237e440, 0xa30ba550553f7431,
 		0xbb08043fb34e3e30, 0xa0dec48d54618ead, 0x150317267464bc57, 0x32d1501fde63dc93,
 	}
 
-	IV512 = [...]uint64{
+	iv512 = [...]uint64{
 		0xadd50f3c7f07094e, 0xe3f3cee8f9418a4f, 0xb527ecde5b3d0ae9, 0x2ef6dec68076f501,
 		0x8cb994cae5aca216, 0xfbb9eae4bba48cc7, 0x650a526174725fea, 0x1f9a61a73f8d8085,
 		0xb6607378173b539b, 0x1bc99853b0c0b9ed, 0xdf727fc19b182d47, 0xdbef360cf893a457,
 		0x4981f5e570147e80, 0xd00c4490ca7d3e30, 0x5d73940c0e4ae1ec, 0x894085e2edb2d819,
 	}
 
-	/// STEP 상수
-	STEP = [...]uint64{
+	/// step 상수
+	step = [...]uint64{
 		0x97884283c938982a, 0xba1fca93533e2355, 0xc519a2e87aeb1c03, 0x9a0fc95462af17b1,
 		0xfc3dda8ab019a82b, 0x02825d079a895407, 0x79f2d0a7ee06a6f7, 0xd76d15eed9fdf5fe,
 		0x1fcac64d01d0c2c1, 0xd9ea5de69161790f, 0xdebc8b6366071fc8, 0xa9d91db711c6c94b,
@@ -99,13 +99,13 @@ var (
 		0x682f81c73efdda0d, 0x2fb55925d71d268d, 0xcc392d2901e58a3d, 0xaa666ab975724a42,
 	}
 
-	GAMMA = [...]int{0, 16, 32, 48, 8, 24, 40, 56}
+	gamma = [...]int{0, 16, 32, 48, 8, 24, 40, 56}
 )
 
 type lsh512 struct {
 	cv    [16]uint64
 	tcv   [16]uint64
-	msg   [16 * (NUMSTEP + 1)]uint64
+	msg   [16 * (numStep + 1)]uint64
 	block [BLOCKSIZE]byte
 
 	boff       int
@@ -113,18 +113,7 @@ type lsh512 struct {
 }
 
 func (b *lsh512) Size() int {
-	switch b.outlenbits {
-	case 512:
-		return Size
-	case 384:
-		return Size384
-	case 256:
-		return Size256
-	case 224:
-		return Size224
-	}
-
-	return 0
+	return b.outlenbits / 8
 }
 
 func (b *lsh512) BlockSize() int {
@@ -132,17 +121,6 @@ func (b *lsh512) BlockSize() int {
 }
 
 func (b *lsh512) Reset() {
-	switch b.outlenbits {
-	case 224:
-		b.cv = IV224
-	case 256:
-		b.cv = IV256
-	case 384:
-		b.cv = IV384
-	case 512:
-		b.cv = IV512
-	}
-
 	for i := range b.tcv {
 		b.tcv[i] = 0
 	}
@@ -151,6 +129,17 @@ func (b *lsh512) Reset() {
 	}
 	for i := range b.block {
 		b.block[i] = 0
+	}
+
+	switch b.outlenbits {
+	case 512:
+		b.cv = iv512
+	case 384:
+		b.cv = iv384
+	case 256:
+		b.cv = iv256
+	case 224:
+		b.cv = iv224
 	}
 }
 
@@ -203,7 +192,6 @@ func (b *lsh512) Write(p []byte) (n int, err error) {
 }
 
 func (b *lsh512) Sum(p []byte) []byte {
-	// Make a copy of d so that caller can keep writing and summing.
 	b0 := *b
 	hash := b0.checkSum()
 	return append(p, hash[:b.Size()]...)
@@ -240,7 +228,7 @@ func (b *lsh512) checkSum() [Size]byte {
 	var digest [Size]byte
 
 	for i := 0; i < results; i++ {
-		digest[i] = byte(temp[i>>2] >> ((i << 3) & 0x1f))
+		digest[i] = byte(temp[i>>3] >> ((i << 3) & 0x3f))
 	}
 
 	if rbits > 0 {
@@ -253,32 +241,32 @@ func (b *lsh512) checkSum() [Size]byte {
 func (b *lsh512) compress(data []byte, offset int) {
 	b.msgExpansion(data, offset)
 
-	for i := 0; i < NUMSTEP/2; i++ {
-		b.step(2*i, ALPHA_EVEN, BETA_EVEN)
-		b.step(2*i+1, ALPHA_ODD, BETA_ODD)
+	for i := 0; i < numStep/2; i++ {
+		b.step(2*i, alphaEven, betaEven)
+		b.step(2*i+1, alphaOdd, betaOdd)
 	}
 
 	// msg add
 	for i := 0; i < 16; i++ {
-		b.cv[i] ^= b.msg[16*NUMSTEP+i]
+		b.cv[i] ^= b.msg[16*numStep+i]
 	}
 }
 
 func (b *lsh512) msgExpansion(in []byte, offset int) {
-	for i := 0; i < 8; i++ {
-		b.msg[i] = uint64(in[offset+i*4+0] & 0xff)
-		b.msg[i] |= uint64(in[offset+i*4+1]&0xff) << 8
-		b.msg[i] |= uint64(in[offset+i*4+2]&0xff) << 16
-		b.msg[i] |= uint64(in[offset+i*4+3]&0xff) << 24
-		b.msg[i] |= uint64(in[offset+i*4+4]&0xff) << 32
-		b.msg[i] |= uint64(in[offset+i*4+5]&0xff) << 40
-		b.msg[i] |= uint64(in[offset+i*4+6]&0xff) << 48
-		b.msg[i] |= uint64(in[offset+i*4+7]&0xff) << 56
+	for i := 0; i < 32; i++ {
+		b.msg[i] = uint64(in[offset+i*8+0])
+		b.msg[i] |= uint64(in[offset+i*8+1]) << 8
+		b.msg[i] |= uint64(in[offset+i*8+2]) << 16
+		b.msg[i] |= uint64(in[offset+i*8+3]) << 24
+		b.msg[i] |= uint64(in[offset+i*8+4]) << 32
+		b.msg[i] |= uint64(in[offset+i*8+5]) << 40
+		b.msg[i] |= uint64(in[offset+i*8+6]) << 48
+		b.msg[i] |= uint64(in[offset+i*8+7]) << 56
 	}
 
-	for i := 2; i <= NUMSTEP; i++ {
+	for i := 2; i <= numStep; i++ {
 		idx := 16 * i
-		b.msg[idx] = b.msg[idx-16] + b.msg[idx-29]
+		b.msg[idx+0] = b.msg[idx-16] + b.msg[idx-29]
 		b.msg[idx+1] = b.msg[idx-15] + b.msg[idx-30]
 		b.msg[idx+2] = b.msg[idx-14] + b.msg[idx-32]
 		b.msg[idx+3] = b.msg[idx-13] + b.msg[idx-31]
@@ -303,10 +291,10 @@ func (b *lsh512) step(stepidx, alpha, beta int) {
 	for colidx := 0; colidx < 8; colidx++ {
 		vl = b.cv[colidx] ^ b.msg[16*stepidx+colidx]
 		vr = b.cv[colidx+8] ^ b.msg[16*stepidx+colidx+8]
-		vl = rol64(vl+vr, alpha) ^ STEP[8*stepidx+colidx]
+		vl = rol64(vl+vr, alpha) ^ step[8*stepidx+colidx]
 		vr = rol64(vl+vr, beta)
 		b.tcv[colidx] = vr + vl
-		b.tcv[colidx+8] = rol64(vr, GAMMA[colidx])
+		b.tcv[colidx+8] = rol64(vr, gamma[colidx])
 	}
 	b.wordPermutation()
 }

@@ -7,7 +7,7 @@ const (
 	alphaOdd  = 5
 
 	betaEven = 1
-	beteaOdd = 17
+	betaOdd  = 17
 )
 
 var (
@@ -64,14 +64,7 @@ type lsh256 struct {
 }
 
 func (b *lsh256) Size() int {
-	switch b.outlenbits {
-	case 256:
-		return Size
-	case 224:
-		return Size224
-	}
-
-	return 0
+	return b.outlenbits / 8
 }
 
 func (b *lsh256) BlockSize() int {
@@ -79,13 +72,6 @@ func (b *lsh256) BlockSize() int {
 }
 
 func (b *lsh256) Reset() {
-	switch b.outlenbits {
-	case 224:
-		b.cv = iv224
-	case 256:
-		b.cv = iv256
-	}
-
 	for i := range b.tcv {
 		b.tcv[i] = 0
 	}
@@ -94,6 +80,13 @@ func (b *lsh256) Reset() {
 	}
 	for i := range b.block {
 		b.block[i] = 0
+	}
+
+	switch b.outlenbits {
+	case 256:
+		b.cv = iv256
+	case 224:
+		b.cv = iv224
 	}
 }
 
@@ -197,7 +190,7 @@ func (b *lsh256) compress(data []byte, offset int) {
 
 	for i := 0; i < numStep/2; i++ {
 		b.step(2*i, alphaEven, betaEven)
-		b.step(2*i+1, alphaOdd, beteaOdd)
+		b.step(2*i+1, alphaOdd, betaOdd)
 	}
 
 	// b.msg add
@@ -207,11 +200,11 @@ func (b *lsh256) compress(data []byte, offset int) {
 }
 
 func (b *lsh256) msgExpansion(in []byte, offset int) {
-	for i := 0; i < 8; i++ {
-		b.msg[i] = uint32(in[offset+i*4+0] & 0xff)
-		b.msg[i] |= uint32(in[offset+i*4+1]&0xff) << 8
-		b.msg[i] |= uint32(in[offset+i*4+2]&0xff) << 16
-		b.msg[i] |= uint32(in[offset+i*4+3]&0xff) << 24
+	for i := 0; i < 32; i++ {
+		b.msg[i] = uint32(in[offset+i*4+0])
+		b.msg[i] |= uint32(in[offset+i*4+1]) << 8
+		b.msg[i] |= uint32(in[offset+i*4+2]) << 16
+		b.msg[i] |= uint32(in[offset+i*4+3]) << 24
 	}
 
 	for i := 2; i <= numStep; i++ {
