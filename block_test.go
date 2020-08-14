@@ -1,4 +1,4 @@
-package kipher
+package krypto
 
 import (
 	"bytes"
@@ -11,10 +11,10 @@ import (
 	"testing"
 	"unsafe"
 
-	"kipher/aria"
-	"kipher/hight"
-	"kipher/lea"
-	"kipher/seed"
+	"krypto/aria"
+	"krypto/hight"
+	"krypto/lea"
+	"krypto/seed"
 )
 
 func s2b(s string) (b []byte) {

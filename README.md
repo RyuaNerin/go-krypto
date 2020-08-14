@@ -1,4 +1,4 @@
-# go-kipher
+# krypto
 
 Golang implementation of Cipher Algorithms from *KISA* (*Korea Information Security Agency*)
 
@@ -23,7 +23,7 @@ Golang implementation of Cipher Algorithms from *KISA* (*Korea Information Secur
 ## Installation
 
 ```shell
-go get -v "github.com/RyuaNerin/go-kipher"
+go get -v "github.com/RyuaNerin/go-krypto"
 ```
 
 ```go
@@ -31,7 +31,7 @@ package main
 
 import (
     ...
-    kipher "github.com/RyuaNerin/go-kipher"
+    krypto "github.com/RyuaNerin/go-krypto"
     ...
 )
 ```
@@ -45,7 +45,7 @@ Todo
 ```txt
 goos: windows
 goarch: amd64
-pkg: kipher
+pkg: krypto
 Benchmark_CBC_Encrypt_1K_AES-16        	 1210395	       987 ns/op	1037.11 MB/s	       0 B/op	       0 allocs/op
 Benchmark_CBC_Decrypt_1K_AES-16        	 1305638	       909 ns/op	1126.19 MB/s	       0 B/op	       0 allocs/op
 Benchmark_CBC_Encrypt_1K_SEED128-16    	   87049	     13605 ns/op	  75.27 MB/s	       0 B/op	       0 allocs/op
@@ -71,5 +71,5 @@ Benchmark_HASH_SHA512_1K-16            	  799306	      1562 ns/op	      64 B/op	
 Benchmark_HASH_LSH256_1K-16            	  444034	      2668 ns/op	      32 B/op	       1 allocs/op
 Benchmark_HASH_LSH512_1K-16            	  499533	      2329 ns/op	      64 B/op	       1 allocs/op
 PASS
-ok  	kipher	29.203s
+ok  	krypto	29.203s
 ```

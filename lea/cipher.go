@@ -8,7 +8,7 @@ import (
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
-	return fmt.Sprintf("kipher/lea: invalid key size %d", int(k))
+	return fmt.Sprintf("krypto/lea: invalid key size %d", int(k))
 }
 
 func NewCipher(key []byte) (cipher.Block, error) {
@@ -38,10 +38,10 @@ func (s *lea_key) BlockSize() int {
 
 func (s *lea_key) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("kipher/lea: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("kipher/lea: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
 	}
 
 	s.lea_encrypt(dst, src)
@@ -49,10 +49,10 @@ func (s *lea_key) Encrypt(dst, src []byte) {
 
 func (s *lea_key) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("kipher/lea: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("kipher/lea: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
 	}
 
 	s.lea_decrypt(dst, src)

@@ -1,4 +1,4 @@
-package kipher
+package krypto
 
 import (
 	"bytes"
@@ -9,8 +9,8 @@ import (
 	"os"
 	"testing"
 
-	"kipher/lsh256"
-	"kipher/lsh512"
+	"krypto/lsh256"
+	"krypto/lsh512"
 )
 
 func test_hash(t *testing.T, path string, newHash func() hash.Hash) {

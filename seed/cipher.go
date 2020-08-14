@@ -8,7 +8,7 @@ import (
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
-	return fmt.Sprintf("kipher/seed128: invalid key size %d", int(k))
+	return fmt.Sprintf("krypto/seed128: invalid key size %d", int(k))
 }
 
 func NewCipher(key []byte) (cipher.Block, error) {

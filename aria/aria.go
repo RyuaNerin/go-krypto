@@ -8,7 +8,7 @@ import (
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
-	return fmt.Sprintf("kipher/aria: invalid key size %d", int(k))
+	return fmt.Sprintf("krypto/aria: invalid key size %d", int(k))
 }
 
 type aria struct {
@@ -146,10 +146,10 @@ func (s *aria) BlockSize() int {
 
 func (s *aria) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("kipher/aria: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf("krypto/aria: invalid block size %d (src)", len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("kipher/aria: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf("krypto/aria: invalid block size %d (dst)", len(dst)))
 	}
 
 	s.crypt(dst, src, true)
@@ -157,10 +157,10 @@ func (s *aria) Encrypt(dst, src []byte) {
 
 func (s *aria) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("kipher/aria: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf("krypto/aria: invalid block size %d (src)", len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("kipher/aria: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf("krypto/aria: invalid block size %d (dst)", len(dst)))
 	}
 
 	s.crypt(dst, src, false)

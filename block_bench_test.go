@@ -1,14 +1,14 @@
-package kipher
+package krypto
 
 import (
 	"crypto/aes"
 	"crypto/cipher"
 	"testing"
 
-	"kipher/aria"
-	"kipher/hight"
-	"kipher/lea"
-	"kipher/seed"
+	"krypto/aria"
+	"krypto/hight"
+	"krypto/lea"
+	"krypto/seed"
 )
 
 func cbc_1k(b *testing.B, encrypt bool, block cipher.Block) {

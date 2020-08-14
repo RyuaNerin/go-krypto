@@ -92,10 +92,10 @@ func (s *seed256) seed_KeySched(L0, L1 *uint32, R0, R1 uint32, ki int) {
 
 func (s *seed256) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("kipher/seed128: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf("krypto/seed128: invalid block size %d (src)", len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("kipher/seed128: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf("krypto/seed128: invalid block size %d (dst)", len(dst)))
 	}
 
 	var L0 uint32 = (uint32(src[3]) << 24) | (uint32(src[2]) << 16) | (uint32(src[1]) << 8) | (uint32(src[0]))
@@ -165,10 +165,10 @@ func (s *seed256) Encrypt(dst, src []byte) {
 
 func (s *seed256) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("kipher/seed128: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf("krypto/seed128: invalid block size %d (src)", len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("kipher/seed128: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf("krypto/seed128: invalid block size %d (dst)", len(dst)))
 	}
 
 	var L0 uint32 = (uint32(src[3]) << 24) | (uint32(src[2]) << 16) | (uint32(src[1]) << 8) | (uint32(src[0]))

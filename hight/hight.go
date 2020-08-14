@@ -8,7 +8,7 @@ import (
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
-	return fmt.Sprintf("kipher/hight: invalid key size %d", int(k))
+	return fmt.Sprintf("krypto/hight: invalid key size %d", int(k))
 }
 
 type hight struct {
@@ -46,10 +46,10 @@ func (s *hight) BlockSize() int {
 
 func (s *hight) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("kipher/hight: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf("krypto/hight: invalid block size %d (src)", len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("kipher/hight: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf("krypto/hight: invalid block size %d (dst)", len(dst)))
 	}
 
 	XX := [...]byte{
@@ -89,10 +89,10 @@ func (s *hight) Encrypt(dst, src []byte) {
 
 func (s *hight) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("kipher/hight: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf("krypto/hight: invalid block size %d (src)", len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("kipher/hight: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf("krypto/hight: invalid block size %d (dst)", len(dst)))
 	}
 
 	XX := [...]byte{
