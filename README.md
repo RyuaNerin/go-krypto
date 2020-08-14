@@ -2,7 +2,7 @@
 
 # krypto
 
-Golang implementation of Cipher Algorithms from *KISA* (*Korea Information Security Agency*)
+Golang implementation of cryptographic algorithms designed by Republic of Korea
 
 ## Supported
 
