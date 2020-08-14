@@ -27,22 +27,17 @@ func new128(key []byte) cipher.Block {
 
 	var T0, T1 uint32
 	for i := 0; i < 16; i++ {
-		if (i % 2) == 0 {
-			T0 = A + C - kc[i]
-			T1 = B - D + kc[i]
-			block.pdwRoundKey[i*2+0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
-			block.pdwRoundKey[i*2+1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
-			T0 = A
+		T0 = A + C - kc[i]
+		T1 = B - D + kc[i]
+		block.pdwRoundKey[i*2+0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
+		block.pdwRoundKey[i*2+1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
 
+		if (i % 2) == 0 {
+			T0 = A
 			A = (A >> 8) ^ (B << 24)
 			B = (B >> 8) ^ (T0 << 24)
 		} else {
-			T0 = A + C - kc[i]
-			T1 = B - D + kc[i]
-			block.pdwRoundKey[i*2+0] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
-			block.pdwRoundKey[i*2+1] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
 			T0 = C
-
 			C = (C << 8) ^ (D >> 24)
 			D = (D << 8) ^ (T0 >> 24)
 		}
