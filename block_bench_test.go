@@ -5,10 +5,10 @@ import (
 	"crypto/cipher"
 	"testing"
 
-	"krypto/aria"
-	"krypto/hight"
-	"krypto/lea"
-	"krypto/seed"
+	"github.com/RyuaNerin/go-krypto/aria"
+	"github.com/RyuaNerin/go-krypto/hight"
+	"github.com/RyuaNerin/go-krypto/lea"
+	"github.com/RyuaNerin/go-krypto/seed"
 )
 
 func cbc_1k(b *testing.B, encrypt bool, block cipher.Block) {

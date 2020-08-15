@@ -6,8 +6,8 @@ import (
 	"hash"
 	"testing"
 
-	"krypto/lsh256"
-	"krypto/lsh512"
+	"github.com/RyuaNerin/go-krypto/lsh256"
+	"github.com/RyuaNerin/go-krypto/lsh512"
 )
 
 func hash_1k(b *testing.B, h hash.Hash) {

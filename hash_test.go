@@ -9,8 +9,8 @@ import (
 	"os"
 	"testing"
 
-	"krypto/lsh256"
-	"krypto/lsh512"
+	"github.com/RyuaNerin/go-krypto/lsh256"
+	"github.com/RyuaNerin/go-krypto/lsh512"
 )
 
 func test_hash(t *testing.T, path string, newHash func() hash.Hash) {
