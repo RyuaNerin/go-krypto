@@ -2,8 +2,11 @@
 package lsh256
 
 import (
+	"errors"
 	"hash"
 )
+
+var ErrInvalidDataBitLen = errors.New("bit level update is not allowed")
 
 const (
 	// The size of a LSH-256 checksum in bytes.

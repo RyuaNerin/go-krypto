@@ -156,8 +156,7 @@ func (b *lsh512) Write(p []byte) (n int, err error) {
 	idx := b.boff >> 3
 
 	if (b.boff & 0x7) > 0 {
-		//throw new IllegalArgumentException("bit level update is not allowed");
-		return
+		return 0, ErrInvalidDataBitLen
 	}
 
 	gap := BLOCKSIZE - idx
