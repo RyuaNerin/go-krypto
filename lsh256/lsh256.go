@@ -82,6 +82,7 @@ func (b *lsh256) Reset() {
 		b.block[i] = 0
 	}
 
+	b.boff = 0
 	switch b.outlenbits {
 	case 256:
 		b.cv = iv256

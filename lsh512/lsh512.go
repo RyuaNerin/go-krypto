@@ -131,6 +131,7 @@ func (b *lsh512) Reset() {
 		b.block[i] = 0
 	}
 
+	b.boff = 0
 	switch b.outlenbits {
 	case 512:
 		b.cv = iv512
