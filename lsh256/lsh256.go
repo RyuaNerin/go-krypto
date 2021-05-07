@@ -107,7 +107,7 @@ func (b *lsh256) Write(p []byte) (n int, err error) {
 		return
 	}
 
-	gap := BLOCKSIZE - rbytes
+	gap := BLOCKSIZE - idx
 	if idx > 0 && rbytes >= gap {
 		copy(b.block[idx:], p[:gap])
 		b.compress(b.block[:], 0)
