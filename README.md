@@ -1,5 +1,7 @@
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/RyuaNerin/go-krypto)](https://pkg.go.dev/github.com/RyuaNerin/go-krypto)
 
+# WARNING! There're reports that some algorithms is wrong.
+
 # krypto
 
 Golang implementation of cryptographic algorithms designed by Republic of Korea
