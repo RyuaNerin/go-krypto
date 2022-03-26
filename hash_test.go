@@ -35,7 +35,7 @@ func Test_LSH256(t *testing.T) {
 }
 
 func Test_LSH512_224(t *testing.T) {
-	testHash(t, `LSH\(256-224\)(?P<test>[^\.]+).txt`, lsh512.New224)
+	testHash(t, `LSH\(512-224\)(?P<test>[^\.]+).txt`, lsh512.New224)
 }
 
 func Test_LSH512_256(t *testing.T) {
