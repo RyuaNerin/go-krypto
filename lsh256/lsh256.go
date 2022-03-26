@@ -51,6 +51,10 @@ var (
 	}
 
 	gamma = [...]int{0, 8, 16, 24, 24, 16, 8, 0}
+
+	emptyTCV   = [16]uint32{}
+	emptyMsg   = [16 * (numStep + 1)]uint32{}
+	emptyBlock = [BLOCKSIZE]byte{}
 )
 
 type lsh256 struct {
@@ -72,15 +76,9 @@ func (b *lsh256) BlockSize() int {
 }
 
 func (b *lsh256) Reset() {
-	for i := range b.tcv {
-		b.tcv[i] = 0
-	}
-	for i := range b.msg {
-		b.msg[i] = 0
-	}
-	for i := range b.block {
-		b.block[i] = 0
-	}
+	b.tcv = emptyTCV
+	b.msg = emptyMsg
+	b.block = emptyBlock
 
 	b.boff = 0
 	switch b.outlenbits {
@@ -98,8 +96,10 @@ func (b *lsh256) Write(p []byte) (n int, err error) {
 
 	offset := 0
 
-	rbytes := len(p) >> 3
-	rbits := len(p) & 0x7
+	lenbits := len(p) * 8
+
+	rbytes := lenbits >> 3
+	rbits := lenbits & 0x7
 	idx := b.boff >> 3
 
 	if (b.boff & 0x7) > 0 {

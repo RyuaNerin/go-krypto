@@ -6,7 +6,7 @@ import (
 	"hash"
 )
 
-var ErrInvalidDataBitLen = errors.New("bit level update is not allowed")
+var ErrInvalidDataBitLen = errors.New("krypto/lsh512: bit level update is not allowed")
 
 const (
 	// The size of a LSH-512 checksum in bytes.
