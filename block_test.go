@@ -1,160 +1,100 @@
 package krypto
 
 import (
-	"bytes"
 	"crypto/cipher"
-	"encoding/csv"
-	"encoding/hex"
-	"io"
-	"os"
-	"reflect"
+	"io/fs"
+	"path/filepath"
+	"regexp"
 	"testing"
-	"unsafe"
 
 	"github.com/RyuaNerin/go-krypto/aria"
 	"github.com/RyuaNerin/go-krypto/hight"
 	"github.com/RyuaNerin/go-krypto/lea"
 	"github.com/RyuaNerin/go-krypto/seed"
+	"github.com/RyuaNerin/go-krypto/test"
 )
 
-func s2b(s string) (b []byte) {
-	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
-	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
-	bh.Data = sh.Data
-	bh.Len = sh.Len
-	bh.Cap = sh.Len
-	return b
+func Test_ARIA128(t *testing.T) {
+	testBlock(t, `ARIA128\((?P<block>[^\)]+)\)(?P<test>[^\.]+)\.txt`, aria.NewCipher)
+}
+func Test_ARIA192(t *testing.T) {
+	testBlock(t, `ARIA192\((?P<block>[^\)]+)\)(?P<test>[^\.]+)\.txt`, aria.NewCipher)
+}
+func Test_ARIA256(t *testing.T) {
+	testBlock(t, `ARIA256\((?P<block>[^\)]+)\)(?P<test>[^\.]+)\.txt`, aria.NewCipher)
 }
 
-func testBlockDo(t *testing.T, do func(dst, src []byte), path string, count int, key, pt, ct, buf []byte, encryption bool) bool {
-	input := pt
-	answer := ct
-	mode := "Encryption"
-	if !encryption {
-		input, answer = answer, input
-		mode = "Decription"
-	}
-
-	do(buf, input)
-
-	if !bytes.Equal(buf, answer) {
-		t.Errorf(
-			`%s
-[%s]
-COUNT : %d
-KEY   : %s
-PT    : %s
-CT    : %s
-
-Test  : %s
-Want  : %s`,
-			path,
-			mode,
-			count-1,
-			hex.EncodeToString(key),
-			hex.EncodeToString(pt),
-			hex.EncodeToString(ct),
-			hex.EncodeToString(buf),
-			hex.EncodeToString(answer),
-		)
-
-		return false
-	}
-
-	return true
+func Test_LEA128(t *testing.T) {
+	testBlock(t, `LEA128\((?P<block>[^\)]+)\)(?P<test>[^\.]+)\.txt`, lea.NewCipher)
+}
+func Test_LEA192(t *testing.T) {
+	testBlock(t, `LEA192\((?P<block>[^\)]+)\)(?P<test>[^\.]+)\.txt`, lea.NewCipher)
+}
+func Test_LEA256(t *testing.T) {
+	testBlock(t, `LEA256\((?P<block>[^\)]+)\)(?P<test>[^\.]+)\.txt`, lea.NewCipher)
+}
+func Test_SEED128(t *testing.T) {
+	testBlock(t, `SEED128\((?P<block>[^\)]+)\)(?P<test>[^\.]+)\.txt`, seed.NewCipher)
 }
 
-func testBlock(t *testing.T, path string, newCipher func(key []byte) (cipher.Block, error)) {
-	var keyLen, ptLen, ctLen int
-	key := make([]byte, 256/8)
-	pt := make([]byte, 64)
-	ct := make([]byte, 64)
+/*
+func Test_SEED256(t *testing.T) {
+	testBlock(t, "test/SEED256\.txt", seed.NewCipher)
+}
+*/
 
-	buf := make([]byte, 64)
-
-	fs, err := os.Open(path)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	defer fs.Close()
-
-	cr := csv.NewReader(fs)
-
-	count := 0
-
-	for {
-		record, err := cr.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			t.Error(path, err)
-			return
-		}
-
-		keyLen, err = hex.Decode(key, s2b(record[0]))
-		if err != nil {
-			t.Error(path, err)
-			return
-		}
-
-		ptLen, err = hex.Decode(pt, s2b(record[1]))
-		if err != nil {
-			t.Error(path, err)
-			return
-		}
-
-		ctLen, err = hex.Decode(ct, s2b(record[2]))
-		if err != nil {
-			t.Error(path, err)
-			return
-		}
-
-		count++
-
-		b, err := newCipher(key[:keyLen])
-		if err != nil {
-			t.Error(path, err)
-			return
-		}
-
-		if !testBlockDo(t, b.Encrypt, path, count, key[:keyLen], pt[:ptLen], ct[:ctLen], buf[:ptLen], true) {
-			return
-		}
-		if !testBlockDo(t, b.Decrypt, path, count, key[:keyLen], pt[:ptLen], ct[:ctLen], buf[:ptLen], false) {
-			return
-		}
-	}
+func Test_HIGHT(t *testing.T) {
+	testBlock(t, `HIGHT\((?P<block>[^\)]+)\)(?P<test>[^\.]+)\.txt`, hight.NewCipher)
 }
 
-func TestARIA128(t *testing.T) {
-	testBlock(t, "test/ARIA128.csv", func(key []byte) (cipher.Block, error) { return aria.NewCipher(key) })
-}
-func TestARIA192(t *testing.T) {
-	testBlock(t, "test/ARIA192.csv", func(key []byte) (cipher.Block, error) { return aria.NewCipher(key) })
-}
-func TestARIA256(t *testing.T) {
-	testBlock(t, "test/ARIA256.csv", func(key []byte) (cipher.Block, error) { return aria.NewCipher(key) })
-}
+func testBlock(t *testing.T, regexStr string, newBlock func(key []byte) (cipher.Block, error)) {
+	re := regexp.MustCompile(regexStr)
 
-func TestLEA128(t *testing.T) {
-	testBlock(t, "test/LEA128.csv", func(key []byte) (cipher.Block, error) { return lea.NewCipher(key) })
-}
-func TestLEA192(t *testing.T) {
-	testBlock(t, "test/LEA192.csv", func(key []byte) (cipher.Block, error) { return lea.NewCipher(key) })
-}
-func TestLEA256(t *testing.T) {
-	testBlock(t, "test/LEA256.csv", func(key []byte) (cipher.Block, error) { return lea.NewCipher(key) })
-}
+	filepath.Walk(
+		"test",
+		func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				return nil
+			}
 
-func TestSEED128(t *testing.T) {
-	testBlock(t, "test/SEED128.csv", func(key []byte) (cipher.Block, error) { return seed.NewCipher(key) })
-}
-func TestSEED256(t *testing.T) {
-	testBlock(t, "test/SEED256.csv", func(key []byte) (cipher.Block, error) { return seed.NewCipher(key) })
-}
+			var blockMode test.CipherMode
+			var fn test.BlockTestFunc
 
-func TestHIGHT(t *testing.T) {
-	testBlock(t, "test/HIGHT.csv", func(key []byte) (cipher.Block, error) { return hight.NewCipher(key) })
+			m := re.FindStringSubmatch(filepath.Base(path))
+			if m == nil {
+				return nil
+			}
+			for i, name := range re.SubexpNames() {
+				switch name {
+				case "block":
+					switch m[i] {
+					case "ECB":
+						blockMode = test.CipherModeECB
+					case "CBC":
+						blockMode = test.CipherModeCBC
+					case "OFB":
+						blockMode = test.CipherModeOFB
+					case "CTR":
+						blockMode = test.CipherModeCTR
+					}
+				case "test":
+					switch m[i] {
+					case "KAT":
+						fn = test.BlockTest
+					case "MMT":
+						fn = test.BlockTest
+					}
+				}
+			}
+
+			if blockMode != 0 && fn != nil {
+				fn(t, path, blockMode, newBlock)
+			}
+
+			return nil
+		},
+	)
 }

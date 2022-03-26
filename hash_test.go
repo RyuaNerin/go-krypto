@@ -1,87 +1,91 @@
 package krypto
 
 import (
-	"bytes"
-	"encoding/csv"
-	"encoding/hex"
+	"crypto/sha256"
+	"crypto/sha512"
 	"hash"
-	"io"
-	"os"
+	"io/fs"
+	"path/filepath"
+	"regexp"
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/lsh256"
 	"github.com/RyuaNerin/go-krypto/lsh512"
+	"github.com/RyuaNerin/go-krypto/test"
 )
 
-func test_hash(t *testing.T, path string, newHash func() hash.Hash) {
-	var outLen, inLen int
-	out := make([]byte, 64)
-	in := make([]byte, 1024)
-
-	fs, err := os.Open(path)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	defer fs.Close()
-
-	cr := csv.NewReader(fs)
-
-	count := 0
-
-	for {
-		record, err := cr.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			t.Error(path, err)
-			return
-		}
-
-		outLen, err = hex.Decode(out, s2b(record[0]))
-		if err != nil {
-			t.Error(path, err)
-			return
-		}
-
-		inLen, err = hex.Decode(in, s2b(record[1]))
-		if err != nil {
-			t.Error(path, err)
-			return
-		}
-
-		count++
-
-		h := newHash()
-		h.Write(in[:inLen])
-
-		buf := h.Sum(nil)
-
-		if !bytes.Equal(buf, out[:outLen]) {
-			t.Errorf(
-				`%s
-COUNT  : %d
-INPUT
-%s
-
-Test   : %s
-Want   : %s`,
-				path,
-				count-1,
-				hex.Dump(in[:inLen]),
-				hex.EncodeToString(buf),
-				hex.EncodeToString(out[:outLen]),
-			)
-
-			return
-		}
-	}
+func Test_SHA2_224(t *testing.T) {
+	testHash(t, `SHA2\(224\)(?P<test>[^\.]+).txt`, sha256.New224)
+}
+func Test_SHA2_256(t *testing.T) {
+	testHash(t, `SHA2\(256\)(?P<test>[^\.]+).txt`, sha256.New)
+}
+func Test_SHA2_384(t *testing.T) {
+	testHash(t, `SHA2\(384\)(?P<test>[^\.]+).txt`, sha512.New384)
+}
+func Test_SHA2_512(t *testing.T) {
+	testHash(t, `SHA2\(512\)(?P<test>[^\.]+).txt`, sha512.New)
 }
 
-func TestLSH256(t *testing.T) {
-	test_hash(t, "test/LSH256.csv", func() hash.Hash { return lsh256.New() })
+func Test_LSH256_224(t *testing.T) {
+	testHash(t, `LSH\(256-224\)(?P<test>[^\.]+).txt`, lsh256.New224)
 }
-func TestLSH512(t *testing.T) {
-	test_hash(t, "test/LSH512.csv", func() hash.Hash { return lsh512.New() })
+func Test_LSH256(t *testing.T) {
+	testHash(t, `LSH\(256-256\)(?P<test>[^\.]+).txt`, lsh256.New)
+}
+
+func Test_LSH512_224(t *testing.T) {
+	testHash(t, `LSH\(256-224\)(?P<test>[^\.]+).txt`, lsh512.New224)
+}
+
+func Test_LSH512_256(t *testing.T) {
+	testHash(t, `LSH\(512-256\)(?P<test>[^\.]+).txt`, lsh512.New256)
+}
+
+func Test_LSH512_384(t *testing.T) {
+	testHash(t, `LSH\(512-384\)(?P<test>[^\.]+).txt`, lsh512.New384)
+}
+
+func Test_LSH512_512(t *testing.T) {
+	testHash(t, `LSH\(512-512\)(?P<test>[^\.]+).txt`, lsh512.New)
+}
+
+func testHash(t *testing.T, regexStr string, newHash func() hash.Hash) {
+	re := regexp.MustCompile(regexStr)
+
+	filepath.Walk(
+		"test",
+		func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				return nil
+			}
+
+			var fn test.HashTestFunc
+
+			m := re.FindStringSubmatch(filepath.Base(path))
+			if m == nil {
+				return nil
+			}
+			for i, name := range re.SubexpNames() {
+				switch name {
+				case "test":
+					switch m[i] {
+					case "LongMsg":
+						fn = test.HashTest
+					case "ShortMsg":
+						fn = test.HashTest
+					}
+				}
+			}
+
+			if fn != nil {
+				fn(t, path, newHash)
+			}
+
+			return nil
+		},
+	)
 }

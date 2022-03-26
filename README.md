@@ -19,8 +19,8 @@ Golang implementation of cryptographic algorithms designed by Republic of Korea
 
     | Algorithm | 224 | 256 | 384 | 512 |
     |:---------:|:---:|:---:|:---:|:---:|
-    | LSH-256    | O   | O   |     |     |
-    | LSH-512    | O   | O   | O   | O   |
+    | LSH-256   | O   | O   |     |     |
+    | LSH-512   | O   | O   | O   | O   |
 
 ## Installation
 

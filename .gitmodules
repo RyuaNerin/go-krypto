@@ -1,0 +1,3 @@
+[submodule "test/go-krypto-testcase"]
+	path = test/go-krypto-testcase
+	url = https://github.com/RyuaNerin/go-krypto-testcase
