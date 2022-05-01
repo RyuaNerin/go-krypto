@@ -22,6 +22,16 @@ Golang implementation of cryptographic algorithms designed by Republic of Korea
     | LSH-256   | O   | O   |     |     |
     | LSH-512   | O   | O   | O   | O   |
 
+- SIMD support
+    | Algorithm | Support |
+    |:---------:|:-:|
+    | ARIA      | |
+    | HIGHT     | |
+    | LEA       | `SSE2` `AVX2` |
+    | SEED      | |
+    | LSH-256   | |
+    | LSH-512   | |
+
 ## Installation
 
 ```shell
