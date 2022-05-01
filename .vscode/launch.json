@@ -12,6 +12,18 @@
             "program": "${workspaceFolder}",
             "env": {},
             "args": []
+        },
+        {
+            "name": "Build AVO",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${fileDirname}",
+            "env": {},
+            "args": [
+                "-out", "../cipher_amd64.s",
+                "-stubs", "../cipher_amd64_stubs.go"
+            ]
         }
     ]
 }
