@@ -1,5 +1,11 @@
 package lsh256
 
+import (
+	"hash"
+
+	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+)
+
 const (
 	numStep = 26
 
@@ -54,42 +60,58 @@ var (
 
 	emptyTCV   = [16]uint32{}
 	emptyMsg   = [16 * (numStep + 1)]uint32{}
-	emptyBlock = [BLOCKSIZE]byte{}
+	emptyBlock = [BlockSize]byte{}
 )
 
-type lsh256 struct {
-	cv    [16]uint32
-	tcv   [16]uint32
-	msg   [16 * (numStep + 1)]uint32
-	block [BLOCKSIZE]byte
+type lsh256ContextGo struct {
+	cv    []uint32
+	tcv   []uint32
+	msg   []uint32
+	block []byte
 
 	boff       int
 	outlenbits int
 }
 
-func (b *lsh256) Size() int {
+func newContextGo(algType algType) hash.Hash {
+	ctx := new(lsh256ContextGo)
+	initContextGo(ctx, algType)
+	return ctx
+}
+
+func initContextGo(ctx *lsh256ContextGo, algType algType) {
+	ctx.outlenbits = int(algType) * 8
+	ctx.cv = make([]uint32, 16)
+	ctx.tcv = make([]uint32, 16)
+	ctx.msg = make([]uint32, 16*(numStep+1))
+	ctx.block = make([]byte, BlockSize)
+	ctx.Reset()
+}
+
+func (b *lsh256ContextGo) Size() int {
 	return b.outlenbits / 8
 }
 
-func (b *lsh256) BlockSize() int {
-	return BLOCKSIZE
+func (b *lsh256ContextGo) BlockSize() int {
+	return BlockSize
 }
 
-func (b *lsh256) Reset() {
-	b.tcv = emptyTCV
-	b.msg = emptyMsg
-	b.block = emptyBlock
+func (b *lsh256ContextGo) Reset() {
+	kryptoutil.MemsetUint32(b.cv, 0)
+	kryptoutil.MemsetUint32(b.tcv, 0)
+	kryptoutil.MemsetUint32(b.msg, 0)
+	kryptoutil.MemsetByte(b.block, 0)
 
 	b.boff = 0
 	switch b.outlenbits {
 	case 256:
-		b.cv = iv256
+		copy(b.cv, iv256[:])
 	case 224:
-		b.cv = iv224
+		copy(b.cv, iv224[:])
 	}
 }
 
-func (b *lsh256) Write(p []byte) (n int, err error) {
+func (b *lsh256ContextGo) Write(p []byte) (n int, err error) {
 	if p == nil || len(p) == 0 {
 		return
 	}
@@ -106,7 +128,7 @@ func (b *lsh256) Write(p []byte) (n int, err error) {
 		return 0, ErrInvalidDataBitLen
 	}
 
-	gap := BLOCKSIZE - idx
+	gap := BlockSize - idx
 	if idx > 0 && rbytes >= gap {
 		copy(b.block[idx:], p[:gap])
 		b.compress(b.block[:], 0)
@@ -118,8 +140,8 @@ func (b *lsh256) Write(p []byte) (n int, err error) {
 	for rbytes >= len(b.block) {
 		b.compress(p, offset)
 		b.boff = 0
-		offset += BLOCKSIZE
-		rbytes -= BLOCKSIZE
+		offset += BlockSize
+		rbytes -= BlockSize
 	}
 
 	if rbytes > 0 {
@@ -138,13 +160,13 @@ func (b *lsh256) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func (b *lsh256) Sum(p []byte) []byte {
+func (b *lsh256ContextGo) Sum(p []byte) []byte {
 	b0 := *b
 	hash := b0.checkSum()
 	return append(p, hash[:b.Size()]...)
 }
 
-func (b *lsh256) checkSum() [Size]byte {
+func (b *lsh256ContextGo) checkSum() [Size]byte {
 	rbytes := b.boff >> 3
 	rbits := b.boff & 0x7
 
@@ -185,7 +207,7 @@ func (b *lsh256) checkSum() [Size]byte {
 	return digest
 }
 
-func (b *lsh256) compress(data []byte, offset int) {
+func (b *lsh256ContextGo) compress(data []byte, offset int) {
 	b.msgExpansion(data, offset)
 
 	for i := 0; i < numStep/2; i++ {
@@ -199,7 +221,7 @@ func (b *lsh256) compress(data []byte, offset int) {
 	}
 }
 
-func (b *lsh256) msgExpansion(in []byte, offset int) {
+func (b *lsh256ContextGo) msgExpansion(in []byte, offset int) {
 	for i := 0; i < 32; i++ {
 		b.msg[i] = uint32(in[offset+i*4+0])
 		b.msg[i] |= uint32(in[offset+i*4+1]) << 8
@@ -227,7 +249,7 @@ func (b *lsh256) msgExpansion(in []byte, offset int) {
 		b.msg[idx+15] = b.msg[idx-1] + b.msg[idx-18]
 	}
 }
-func (b *lsh256) step(stepidx, alpha, beta int) {
+func (b *lsh256ContextGo) step(stepidx, alpha, beta int) {
 	var vl, vr uint32
 
 	for colidx := 0; colidx < 8; colidx++ {
@@ -242,7 +264,7 @@ func (b *lsh256) step(stepidx, alpha, beta int) {
 	b.wordPermutation()
 }
 
-func (b *lsh256) wordPermutation() {
+func (b *lsh256ContextGo) wordPermutation() {
 	b.cv[0] = b.tcv[6]
 	b.cv[1] = b.tcv[4]
 	b.cv[2] = b.tcv[5]

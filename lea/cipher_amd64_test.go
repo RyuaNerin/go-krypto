@@ -7,6 +7,8 @@ import (
 	"io"
 	"math/rand"
 	"testing"
+
+	"github.com/RyuaNerin/go-krypto/test"
 )
 
 func testAsmBlockWithKeySize(
@@ -45,7 +47,7 @@ func testAsmBlockWithKeySize(
 
 			for i := 0; i < BlockSize*blockCount; i++ {
 				if dstGo[i] != dstAs[i] {
-					t.Errorf(dumpByteArray(fmt.Sprintf("Error KeySize=%d", keySize), dstGo, dstAs))
+					t.Errorf(test.DumpByteArray(fmt.Sprintf("Error KeySize=%d", keySize), dstGo, dstAs))
 					return
 				}
 			}

@@ -9,6 +9,8 @@ import (
 	"math/rand"
 	"reflect"
 	"testing"
+
+	"github.com/RyuaNerin/go-krypto/test"
 )
 
 const (
@@ -82,7 +84,7 @@ func testCipherStream(
 
 			for i := 0; i < srcSize; i++ {
 				if dstGo[i] != dstAsm[i] {
-					t.Error(dumpByteArray(fmt.Sprintf("Error / keyIter = %d / blockIter = %d / srcSize = %d", keyIter, blockIter, srcSize), dstGo[:srcSize], dstAsm[:srcSize]))
+					t.Error(test.DumpByteArray(fmt.Sprintf("Error / keyIter = %d / blockIter = %d / srcSize = %d", keyIter, blockIter, srcSize), dstGo[:srcSize], dstAsm[:srcSize]))
 					return
 				}
 			}
@@ -146,7 +148,7 @@ func testCipherBlockMode(
 
 			for i := 0; i < sz; i++ {
 				if dstGo[i] != dstAsm[i] {
-					t.Error(dumpByteArray(fmt.Sprintf("Error, Blocks=%d", sz/8), dstGo, dstAsm))
+					t.Error(test.DumpByteArray(fmt.Sprintf("Error, Blocks=%d", sz/8), dstGo, dstAsm))
 					return
 				}
 			}

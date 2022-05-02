@@ -15,48 +15,50 @@ const (
 	Size224 = 28
 
 	// The blocksize of LSH-256 and LSH-224 in bytes.
-	BLOCKSIZE = 128
+	BlockSize = 128
+)
+
+type algType int
+
+const (
+	lshType256H256 algType = 32 // 256
+	lshType256H224         = 24 // 224
 )
 
 // New returns a new hash.Hash computing the LSH-256 checksum.
 func New() hash.Hash {
-	h := &lsh256{
-		outlenbits: 256,
-	}
-	h.Reset()
-	return h
+	ctx := newContext(lshType256H256)
+	ctx.Reset()
+	return ctx
 }
 
 // New224 returns a new hash.Hash computing the LSH-224 checksum.
 func New224() hash.Hash {
-	h := &lsh256{
-		outlenbits: 224,
-	}
-	h.Reset()
-	return h
+	ctx := newContext(lshType256H224)
+	ctx.Reset()
+	return ctx
 }
 
 // Sum256 returns the LSH-256 checksum of the data.
 func Sum256(data []byte) (sum [Size]byte) {
-	b := lsh256{
-		outlenbits: 256,
-	}
-	b.Reset()
-	b.Write(data)
+	ctx := newContext(lshType256H256)
+	ctx.Reset()
+	ctx.Write(data)
 
-	return b.checkSum()
+	hash := ctx.Sum(nil)
+	copy(sum[:], hash)
+
+	return
 }
 
 // Sum224 returns the LSH-224 checksum of the data.
 func Sum224(data []byte) (sum224 [Size224]byte) {
-	b := lsh256{
-		outlenbits: 224,
-	}
-	b.Reset()
-	b.Write(data)
+	ctx := newContext(lshType256H224)
+	ctx.Reset()
+	ctx.Write(data)
 
-	sum := b.checkSum()
-	copy(sum224[:], sum[:Size224])
+	hash := ctx.Sum(nil)
+	copy(sum224[:], hash)
 
 	return
 }

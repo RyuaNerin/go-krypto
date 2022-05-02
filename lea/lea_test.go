@@ -4,45 +4,15 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"strings"
 	"testing"
+
+	"github.com/RyuaNerin/go-krypto/test"
 )
 
 const (
 	testBlockContextIter = 256
 	testBlockBlockIter   = 1024
 )
-
-func dumpByteArray(name string, a []byte, b []byte) string {
-	var sb strings.Builder
-	sb.WriteString(name)
-	sb.WriteByte('\n')
-
-	for i := 0; i < len(a); i++ {
-		fmt.Fprintf(&sb, "[%3d] = %02x / %02x", i, a[i], b[i])
-		if a[i] != b[i] {
-			sb.WriteString("  <<<")
-		}
-		sb.WriteByte('\n')
-	}
-
-	return sb.String()
-}
-func dumpUint32Array(name string, a []uint32, b []uint32) string {
-	var sb strings.Builder
-	sb.WriteString(name)
-	sb.WriteByte('\n')
-
-	for i := 0; i < len(a); i++ {
-		fmt.Fprintf(&sb, "[%3d] = %08x / %08x", i, a[i], b[i])
-		if a[i] != b[i] {
-			sb.WriteString("  <<<")
-		}
-		sb.WriteByte('\n')
-	}
-
-	return sb.String()
-}
 
 func testECB(t *testing.T, keySize int, encMode bool) {
 	const blocks = 8
@@ -84,7 +54,7 @@ func testECB(t *testing.T, keySize int, encMode bool) {
 
 			for i := 0; i < blocks; i++ {
 				if dst1[i] != dst2[i] {
-					t.Errorf(dumpByteArray(fmt.Sprintf("Error KeySize=%d / encMode=%t", keySize, encMode), dst1, dst2))
+					t.Errorf(test.DumpByteArray(fmt.Sprintf("Error KeySize=%d / encMode=%t", keySize, encMode), dst1, dst2))
 					return
 				}
 			}
