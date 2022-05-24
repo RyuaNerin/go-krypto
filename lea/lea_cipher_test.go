@@ -9,6 +9,8 @@ import (
 	"math/rand"
 	"reflect"
 	"testing"
+
+	"github.com/RyuaNerin/go-krypto/test"
 )
 
 const (
@@ -82,7 +84,7 @@ func testCipherStream(
 
 			for i := 0; i < srcSize; i++ {
 				if dstGo[i] != dstAsm[i] {
-					t.Error(dumpByteArray(fmt.Sprintf("Error / keyIter = %d / blockIter = %d / srcSize = %d", keyIter, blockIter, srcSize), dstGo[:srcSize], dstAsm[:srcSize]))
+					t.Error(test.DumpByteArray(fmt.Sprintf("Error / keyIter = %d / blockIter = %d / srcSize = %d", keyIter, blockIter, srcSize), dstGo[:srcSize], dstAsm[:srcSize]))
 					return
 				}
 			}
@@ -90,7 +92,7 @@ func testCipherStream(
 	}
 }
 
-func TestCtr(t *testing.T) {
+func Test_CTR(t *testing.T) {
 	testCipherStream(
 		t,
 		cipher.NewCTR,
@@ -146,7 +148,7 @@ func testCipherBlockMode(
 
 			for i := 0; i < sz; i++ {
 				if dstGo[i] != dstAsm[i] {
-					t.Error(dumpByteArray(fmt.Sprintf("Error, Blocks=%d", sz/8), dstGo, dstAsm))
+					t.Error(test.DumpByteArray(fmt.Sprintf("Error, Blocks=%d", sz/8), dstGo, dstAsm))
 					return
 				}
 			}
@@ -154,7 +156,7 @@ func testCipherBlockMode(
 	}
 }
 
-func TestCBCDecrypter(t *testing.T) {
+func Test_CBC_Decrypter(t *testing.T) {
 	testCipherBlockMode(
 		t,
 		cipher.NewCBCDecrypter,
@@ -197,11 +199,11 @@ func benchCipherStream(b *testing.B, useAsm bool, f func(cipher.Block, []byte) c
 	}
 }
 
-func BenchmarkCTRGo(b *testing.B) {
+func Benchmark_CTR_Go(b *testing.B) {
 	benchCipherStream(b, false, cipher.NewCTR)
 }
 
-func BenchmarkCTRAsm(b *testing.B) {
+func Benchmark_CTR_Asm(b *testing.B) {
 	benchCipherStream(b, true, cipher.NewCTR)
 }
 
@@ -237,16 +239,16 @@ func benchCipherBlockMode(b *testing.B, blocks int, useAsm bool, f func(cipher.B
 	}
 }
 
-func BenchmarkCBCDecrypterGo(b *testing.B) {
+func Benchmark_CBC_Decrypter_Go(b *testing.B) {
 	benchCipherBlockMode(b, 1, false, cipher.NewCBCDecrypter)
 }
 
-func BenchmarkCBCDecrypterAsm1Block(b *testing.B) {
+func Benchmark_CBC_Decrypter_Asm_1Block(b *testing.B) {
 	benchCipherBlockMode(b, 1, true, cipher.NewCBCDecrypter)
 }
-func BenchmarkCBCDecrypterAsm4Blocks(b *testing.B) {
+func Benchmark_CBC_Decrypter_Asm_4Blocks(b *testing.B) {
 	benchCipherBlockMode(b, 4, true, cipher.NewCBCDecrypter)
 }
-func BenchmarkCBCDecrypterAsm8Blocks(b *testing.B) {
+func Benchmark_CBC_Decrypter_Asm_8Blocks(b *testing.B) {
 	benchCipherBlockMode(b, 8, true, cipher.NewCBCDecrypter)
 }

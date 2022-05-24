@@ -33,11 +33,12 @@ func Test_LEA192(t *testing.T) {
 func Test_LEA256(t *testing.T) {
 	testBlock(t, `LEA256\((?P<block>[^\)]+)\)(?P<test>[^\.]+)\.txt`, lea.NewCipher)
 }
+
 func Test_SEED128(t *testing.T) {
 	testBlock(t, `SEED128\((?P<block>[^\)]+)\)(?P<test>[^\.]+)\.txt`, seed.NewCipher)
 }
 
-/*
+/**
 func Test_SEED256(t *testing.T) {
 	testBlock(t, "test/SEED256\.txt", seed.NewCipher)
 }

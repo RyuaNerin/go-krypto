@@ -114,6 +114,8 @@ func benchBlock1k(b *testing.B, encryptMode bool, block cipher.Block) {
 		bm = cipher.NewCBCDecrypter(block, iv)
 	}
 
+	b.SetBytes(int64(len(buf)))
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		bm.CryptBlocks(buf, buf)
 	}

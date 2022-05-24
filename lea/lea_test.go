@@ -4,45 +4,15 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"strings"
 	"testing"
+
+	"github.com/RyuaNerin/go-krypto/test"
 )
 
 const (
 	testBlockContextIter = 256
 	testBlockBlockIter   = 1024
 )
-
-func dumpByteArray(name string, a []byte, b []byte) string {
-	var sb strings.Builder
-	sb.WriteString(name)
-	sb.WriteByte('\n')
-
-	for i := 0; i < len(a); i++ {
-		fmt.Fprintf(&sb, "[%3d] = %02x / %02x", i, a[i], b[i])
-		if a[i] != b[i] {
-			sb.WriteString("  <<<")
-		}
-		sb.WriteByte('\n')
-	}
-
-	return sb.String()
-}
-func dumpUint32Array(name string, a []uint32, b []uint32) string {
-	var sb strings.Builder
-	sb.WriteString(name)
-	sb.WriteByte('\n')
-
-	for i := 0; i < len(a); i++ {
-		fmt.Fprintf(&sb, "[%3d] = %08x / %08x", i, a[i], b[i])
-		if a[i] != b[i] {
-			sb.WriteString("  <<<")
-		}
-		sb.WriteByte('\n')
-	}
-
-	return sb.String()
-}
 
 func testECB(t *testing.T, keySize int, encMode bool) {
 	const blocks = 8
@@ -84,7 +54,7 @@ func testECB(t *testing.T, keySize int, encMode bool) {
 
 			for i := 0; i < blocks; i++ {
 				if dst1[i] != dst2[i] {
-					t.Errorf(dumpByteArray(fmt.Sprintf("Error KeySize=%d / encMode=%t", keySize, encMode), dst1, dst2))
+					t.Errorf(test.DumpByteArray(fmt.Sprintf("Error KeySize=%d / encMode=%t", keySize, encMode), dst1, dst2))
 					return
 				}
 			}
@@ -95,12 +65,12 @@ func testECB(t *testing.T, keySize int, encMode bool) {
 	}
 }
 
-func TestECBEnc(t *testing.T) {
+func Test_ECB_Encrypt(t *testing.T) {
 	testECB(t, 16, true)
 	testECB(t, 24, true)
 	testECB(t, 32, true)
 }
-func TestECBDec(t *testing.T) {
+func Test_ECB_Decrypt(t *testing.T) {
 	testECB(t, 16, false)
 	testECB(t, 24, false)
 	testECB(t, 32, false)
@@ -114,20 +84,23 @@ func benchNewCipher(b *testing.B, keySize int) {
 
 	var leaCtx leaContext
 
-	b.SetBytes(int64(len(leaCtx.rk) * 4))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		leaSetKeyGo(leaCtx.rk, key)
+		err := initContext(&leaCtx, key)
+		if err != nil {
+			b.Error(err)
+			return
+		}
 	}
 }
 
-func BenchmarkNewLEA128(b *testing.B) {
+func Benchmark_New_LEA128(b *testing.B) {
 	benchNewCipher(b, 16)
 }
-func BenchmarkNewLEA192(b *testing.B) {
+func Benchmark_New_LEA192(b *testing.B) {
 	benchNewCipher(b, 24)
 }
-func BenchmarkNewLEA256(b *testing.B) {
+func Benchmark_New_LEA256(b *testing.B) {
 	benchNewCipher(b, 32)
 }
 
@@ -154,23 +127,23 @@ func benchBlock(b *testing.B, isAVX2 bool, keySize int, blocks int, f funcBlock)
 	}
 }
 
-func BenchmarkLEA128Enc1Go(b *testing.B) {
+func Benchmark_LEA128_Encrypt_1Block_Go(b *testing.B) {
 	benchBlock(b, false, 16, 1, leaEnc1Go)
 }
-func BenchmarkLEA128Dec1Go(b *testing.B) {
+func Benchmark_LEA128_Decrypt_1Block_Go(b *testing.B) {
 	benchBlock(b, false, 16, 1, leaDec1Go)
 }
 
-func BenchmarkLEA192Enc1Go(b *testing.B) {
+func Benchmark_LEA192_Encrypt_1Block_Go(b *testing.B) {
 	benchBlock(b, false, 24, 1, leaEnc1Go)
 }
-func BenchmarkLEA192Dec1Go(b *testing.B) {
+func Benchmark_LEA192_Decrypt_1Block_Go(b *testing.B) {
 	benchBlock(b, false, 24, 1, leaDec1Go)
 }
 
-func BenchmarkLEA256Enc1Go(b *testing.B) {
+func Benchmark_LEA256_Encrypt_1Block_Go(b *testing.B) {
 	benchBlock(b, false, 32, 1, leaEnc1Go)
 }
-func BenchmarkLEA256Dec1Go(b *testing.B) {
+func Benchmark_LEA256_Decrypt_1Block_Go(b *testing.B) {
 	benchBlock(b, false, 32, 1, leaDec1Go)
 }
