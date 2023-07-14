@@ -300,7 +300,7 @@ func xor_with_const(cv_l, const_v []VecVirtual) {
 	PXOR(const_v[1], cv_l[1])
 }
 
-//func rotate_msg_gamma(cv_r []VecVirtual, perm_step []VecVirtual) {
+// func rotate_msg_gamma(cv_r []VecVirtual, perm_step []VecVirtual) {
 func rotate_msg_gamma(cv_r []VecVirtual) {
 	Comment("rotate_msg_gamma")
 
@@ -340,7 +340,7 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 	cv_r[0] = temp
 }
 
-//func mix_even(cv_l, cv_r, const_v []VecVirtual, perm_step []VecVirtual) {
+// func mix_even(cv_l, cv_r, const_v []VecVirtual, perm_step []VecVirtual) {
 func mix_even(cv_l, cv_r, const_v []VecVirtual) {
 	Comment("mix_even")
 
@@ -354,7 +354,7 @@ func mix_even(cv_l, cv_r, const_v []VecVirtual) {
 	rotate_msg_gamma(cv_r)
 }
 
-//func mix_odd(cv_l, cv_r, const_v []VecVirtual, perm_step []VecVirtual) {
+// func mix_odd(cv_l, cv_r, const_v []VecVirtual, perm_step []VecVirtual) {
 func mix_odd(cv_l, cv_r, const_v []VecVirtual) {
 	Comment("mix_odd")
 

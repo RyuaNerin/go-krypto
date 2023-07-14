@@ -41,12 +41,12 @@ func benchSum(b *testing.B, h hash.Hash) {
 	}
 }
 
-func BenchmarkLSH256GoReset(b *testing.B) {
+func Benchmark_LSH256_Reset_Go(b *testing.B) {
 	benchReset(b, newContextGo(lshType256H256))
 }
-func BenchmarkLSH256GoWrite(b *testing.B) {
+func Benchmark_LSH256_Write_Go(b *testing.B) {
 	benchWrite(b, newContextGo(lshType256H256))
 }
-func BenchmarkLSH256GoSum(b *testing.B) {
+func Benchmark_LSH256_Sum_Go(b *testing.B) {
 	benchSum(b, newContextGo(lshType256H256))
 }
