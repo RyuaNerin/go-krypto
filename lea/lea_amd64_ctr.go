@@ -13,18 +13,18 @@ type ctrAble interface {
 }
 
 // Assert that lea_key implements the ctrAble interfaces.
-var _ ctrAble = (*leaContext)(nil)
+var _ ctrAble = (*leaContextAsm)(nil)
 
 const streamBufferBlockSize = 8 * 4 // * BlockSize = 256 bytes
 
 type leaCtrContext struct {
-	leaCtx *leaContext
+	leaCtx *leaContextAsm
 	ctr    []byte
 	out    []byte
 	outPos int
 }
 
-func (leaCtx *leaContext) NewCTR(iv []byte) cipher.Stream {
+func (leaCtx *leaContextAsm) NewCTR(iv []byte) cipher.Stream {
 	ctr := &leaCtrContext{
 		leaCtx: leaCtx,
 		ctr:    make([]byte, BlockSize),
@@ -56,7 +56,7 @@ func (ctr *leaCtrContext) refill() {
 
 	for i := 0; i < streamBufferBlockSize/8; i++ {
 		out := ctr.out[0x80*i:]
-		leaEnc8(ctr.leaCtx.round, ctr.leaCtx.rk, out, out)
+		leaEnc8(ctr.leaCtx.g.round, ctr.leaCtx.g.rk, out, out)
 	}
 
 	ctr.outPos = 0

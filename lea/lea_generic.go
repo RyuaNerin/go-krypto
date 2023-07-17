@@ -1,10 +1,13 @@
 package lea
 
 import (
+	"crypto/cipher"
 	"encoding/binary"
+	"fmt"
 	"math/bits"
 )
 
+type funcNew func(key []byte) (cipher.Block, error)
 type funcBlock func(round int, rk []uint32, dst, src []byte)
 
 var (
@@ -15,10 +18,135 @@ var (
 	leaDec1 funcBlock = leaDec1Go
 	leaDec4 funcBlock = leaDec4Go
 	leaDec8 funcBlock = leaDec8Go
+
+	leaNew    funcNew = newCipherGo
+	leaNewECB funcNew = newCipherECBGo
 )
 
-func bitsRotateRight32(W, i uint32) uint32 {
-	return (((W) >> (i)) | ((W) << (32 - (i))))
+type leaContextGo struct {
+	round int
+	rk    []uint32
+	ecb   bool
+}
+
+func newCipherGo(key []byte) (cipher.Block, error) {
+	leaCtx := new(leaContextGo)
+
+	return leaCtx, leaCtx.initContext(key)
+}
+
+func newCipherECBGo(key []byte) (cipher.Block, error) {
+	leaCtx := new(leaContextGo)
+	leaCtx.ecb = true
+
+	return leaCtx, leaCtx.initContext(key)
+}
+
+func (leaCtx *leaContextGo) initContext(key []byte) error {
+	var rkSize int
+
+	l := len(key)
+	switch l {
+	case 16:
+		rkSize = 144
+	case 24:
+		rkSize = 168
+	case 32:
+		rkSize = 192
+	default:
+		return KeySizeError(l)
+	}
+
+	if len(leaCtx.rk) < rkSize {
+		leaCtx.rk = make([]uint32, rkSize)
+	}
+	leaCtx.round = leaSetKeyGo(leaCtx.rk, key)
+
+	return nil
+}
+
+func (leaCtx *leaContextGo) BlockSize() int {
+	return BlockSize
+}
+
+func (leaCtx *leaContextGo) Encrypt(dst, src []byte) {
+	if len(src) < BlockSize {
+		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
+	}
+	if len(dst) < BlockSize {
+		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
+	}
+
+	if !leaCtx.ecb {
+		leaEnc1Go(leaCtx.round, leaCtx.rk, dst, src)
+	} else {
+		if len(src)%BlockSize != 0 {
+			panic("krypto/lea: input not full blocks")
+		}
+
+		remainBlock := len(src) / leaCtx.BlockSize()
+
+		for remainBlock >= 8 {
+			remainBlock -= 8
+			leaEnc8Go(leaCtx.round, leaCtx.rk, dst, src)
+
+			dst, src = dst[0x80:], src[0x80:]
+		}
+
+		for remainBlock >= 4 {
+			remainBlock -= 4
+			leaEnc4Go(leaCtx.round, leaCtx.rk, dst, src)
+
+			dst, src = dst[0x40:], src[0x40:]
+		}
+
+		for remainBlock > 0 {
+			remainBlock -= 1
+			leaEnc1Go(leaCtx.round, leaCtx.rk, dst, src)
+
+			dst, src = dst[0x10:], src[0x10:]
+		}
+	}
+}
+
+func (leaCtx *leaContextGo) Decrypt(dst, src []byte) {
+	if len(src) < BlockSize {
+		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
+	}
+	if len(dst) < BlockSize {
+		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
+	}
+
+	if !leaCtx.ecb {
+		leaDec1Go(leaCtx.round, leaCtx.rk, dst, src)
+	} else {
+		if len(src)%BlockSize != 0 {
+			panic("krypto/lea: input not full blocks")
+		}
+
+		remainBlock := len(src) / leaCtx.BlockSize()
+
+		for remainBlock >= 8 {
+			remainBlock -= 8
+			leaDec8Go(leaCtx.round, leaCtx.rk, dst, src)
+
+			dst, src = dst[0x80:], src[0x80:]
+		}
+
+		for remainBlock >= 4 {
+			remainBlock -= 4
+			leaDec4Go(leaCtx.round, leaCtx.rk, dst, src)
+
+			dst, src = dst[0x40:], src[0x40:]
+		}
+
+		for remainBlock > 0 {
+			remainBlock -= 1
+			leaDec1Go(leaCtx.round, leaCtx.rk, dst, src)
+
+			dst, src = dst[0x10:], src[0x10:]
+		}
+	}
 }
 
 func leaSetKeyGo(rk []uint32, key []byte) int {
