@@ -4,6 +4,7 @@ package hight
 const (
 	// The HIGHT block size in bytes.
 	BlockSize = 8
+	KeySize   = 16
 )
 
 var (
