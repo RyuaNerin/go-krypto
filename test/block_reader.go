@@ -2,8 +2,6 @@ package test
 
 import (
 	"bufio"
-	"bytes"
-	"encoding/hex"
 	"io"
 	"os"
 	"strconv"
@@ -13,11 +11,33 @@ type blockTestCaseReader struct {
 	fs *os.File
 	br *bufio.Reader
 
-	keyBuf []byte
-	ivBuf  []byte
-	ptBuf  []byte
-	ctBuf  []byte
+	count int
+	key   byteBuf
+	iv    byteBuf
+	pt    byteBuf
+	ct    byteBuf
 }
+
+var (
+	blockTestCaseReaderSelector = selector{
+		"COUNT = ": func(line string, r interface{}) (err error) {
+			r.(*blockTestCaseReader).count, err = strconv.Atoi(line)
+			return err
+		},
+		`KEY = `: func(line string, r interface{}) (err error) {
+			return r.(*blockTestCaseReader).key.parseHex(line)
+		},
+		`IV = `: func(line string, r interface{}) (err error) {
+			return r.(*blockTestCaseReader).iv.parseHex(line)
+		},
+		`PT = `: func(line string, r interface{}) (err error) {
+			return r.(*blockTestCaseReader).pt.parseHex(line)
+		},
+		`CT = `: func(line string, r interface{}) (err error) {
+			return r.(*blockTestCaseReader).ct.parseHex(line)
+		},
+	}
+)
 
 func newBlockTestCaseReader(path string) (r *blockTestCaseReader, err error) {
 	fs, err := os.Open(path)
@@ -37,64 +57,30 @@ func (tc *blockTestCaseReader) Close() {
 	tc.fs.Close()
 }
 
-func (r *blockTestCaseReader) Next() (count int, key []byte, iv []byte, pt []byte, ct []byte, err error) {
-	var line []byte
+func (r *blockTestCaseReader) Next() (int, []byte, []byte, []byte, []byte, error) {
+	r.key.reset()
+	r.iv.reset()
+	r.pt.reset()
+	r.ct.reset()
+
+	var err error
+	var lineRaw []byte
 	for {
-		line, _, err = r.br.ReadLine()
+		lineRaw, _, err = r.br.ReadLine()
 		if err == io.EOF {
-			return
+			return 0, nil, nil, nil, nil, err
 		}
 		if err != nil {
-			return
+			return 0, nil, nil, nil, nil, err
 		}
 
-		switch {
-		case bytes.HasPrefix(line, prefixCount):
-			line = bytes.TrimPrefix(line, prefixCount)
-			count, err = strconv.Atoi(string(line))
-
-		case bytes.HasPrefix(line, prefixKey):
-			line = bytes.TrimPrefix(line, prefixKey)
-			l := len(line) / 2
-			if len(r.keyBuf) < l {
-				r.keyBuf = make([]byte, l)
-			}
-			_, err = hex.Decode(r.keyBuf, line)
-			key = r.keyBuf[:l]
-
-		case bytes.HasPrefix(line, prefixIV):
-			line = bytes.TrimPrefix(line, prefixIV)
-			l := len(line) / 2
-			if len(r.ivBuf) < l {
-				r.ivBuf = make([]byte, l)
-			}
-			_, err = hex.Decode(r.ivBuf, line)
-			iv = r.ivBuf[:l]
-
-		case bytes.HasPrefix(line, prefixPT):
-			line = bytes.TrimPrefix(line, prefixPT)
-			l := len(line) / 2
-			if len(r.ptBuf) < l {
-				r.ptBuf = make([]byte, l)
-			}
-			_, err = hex.Decode(r.ptBuf, line)
-			pt = r.ptBuf[:l]
-
-		case bytes.HasPrefix(line, prefixCT):
-			line = bytes.TrimPrefix(line, prefixCT)
-			l := len(line) / 2
-			if len(r.ctBuf) < l {
-				r.ctBuf = make([]byte, l)
-			}
-			_, err = hex.Decode(r.ctBuf, line)
-			ct = r.ctBuf[:l]
-		}
+		err = blockTestCaseReaderSelector.Select(b2s(lineRaw), r)
 		if err != nil {
-			return
+			return 0, nil, nil, nil, nil, err
 		}
 
-		if len(line) == 0 && key != nil && iv != nil && pt != nil && ct != nil {
-			return
+		if len(lineRaw) == 0 && r.key.data != nil && r.iv.data != nil && r.pt.data != nil && r.ct.data != nil {
+			return r.count, r.key.data, r.iv.data, r.pt.data, r.ct.data, nil
 		}
 	}
 }

@@ -17,6 +17,12 @@ Golang implementation of cryptographic algorithms designed by Republic of Korea
     | LEA       | O   | O   | O   | `SSE2` `AVX2` |
     | SEED      | O   |     | O   |               |
 
+- Digital Signature
+
+    | Algorithm |
+    |:---------:|
+    | KCDSA     |
+
 - Hash
 
     | Algorithm | 224 | 256 | 384 | 512 |

@@ -17,11 +17,13 @@ type Parameters struct {
 	Sizes   ParameterSizes
 }
 
+// PublicKey represents a KCDSA public key.
 type PublicKey struct {
 	Parameters
 	Y *big.Int
 }
 
+// PrivateKey represents a KCDSA private key.
 type PrivateKey struct {
 	PublicKey
 	X *big.Int
@@ -36,28 +38,30 @@ var (
 type ParameterSizes int
 
 const (
-	L2048N224WithSHA224 ParameterSizes = iota
-	L2048N224WithSHA256
-	L2048N256WithSHA256
-	L3072N256WithSHA256
+	L2048N224SHA224 ParameterSizes = iota
+	L2048N224SHA256
+	L2048N256SHA256
+	L3072N256SHA256
 )
 
 const numMRTests = 64
 
+// Generate the paramters
+// Used the prime number generator used in crypto/dsa package.
 func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
 	// https://cs.opensource.google/go/go/+/refs/tags/go1.18:src/crypto/dsa/dsa.go;l=65-155
 	var L, N int
 	switch sizes {
-	case L2048N224WithSHA224:
+	case L2048N224SHA224:
 		L = 2048
 		N = 224
-	case L2048N224WithSHA256:
+	case L2048N224SHA256:
 		L = 2048
 		N = 224
-	case L2048N256WithSHA256:
+	case L2048N256SHA256:
 		L = 2048
 		N = 256
-	case L3072N256WithSHA256:
+	case L3072N256SHA256:
 		L = 3072
 		N = 256
 	default:
@@ -169,26 +173,21 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 }
 
 var (
-	biPow2l = new(big.Int).Exp(big.NewInt(2), big.NewInt(64*8), nil)
+	i2l_512 = new(big.Int).Exp(big.NewInt(2), big.NewInt(512), nil)
 )
 
 func Sign(randReader io.Reader, priv *PrivateKey, data io.Reader) (r, s *big.Int, err error) {
-	randutil.MaybeReadByte(randReader)
-
-	var h hash.Hash
 	switch priv.Sizes {
-	case L2048N224WithSHA224:
-		h = sha256.New224()
-	case L2048N224WithSHA256:
-		h = sha256.New()
-	case L2048N256WithSHA256:
-		h = sha256.New()
-	case L3072N256WithSHA256:
-		h = sha256.New()
+	case L2048N224SHA224:
+	case L2048N224SHA256:
+	case L2048N256SHA256:
+	case L3072N256SHA256:
 	default:
 		err = ErrInvalidParameterSizes
 		return
 	}
+
+	randutil.MaybeReadByte(randReader)
 
 	if priv.Q.Sign() <= 0 || priv.P.Sign() <= 0 || priv.G.Sign() <= 0 || priv.X.Sign() <= 0 || priv.Q.BitLen()%8 != 0 {
 		err = ErrInvalidPublicKey
@@ -215,21 +214,63 @@ func Sign(randReader io.Reader, priv *PrivateKey, data io.Reader) (r, s *big.Int
 		}
 	}
 
-	// step 2. W=G^K mod P를 계산한다.
-	W := new(big.Int).Exp(priv.G, K, priv.P)
+	return sign(K, priv, data)
+}
 
-	//	step 3. 서명의 첫 부분 R=h(W)를 계산한다.
+func getParams(params *Parameters) (h hash.Hash, b int, i2l *big.Int, err error) {
+	// b = n/8
+	// i2l = 사전 계산된 2^l
+	switch params.Sizes {
+	case L2048N224SHA224:
+		return sha256.New224(), 224 / 8, i2l_512, nil
+	case L2048N224SHA256:
+		return sha256.New(), 224 / 8, i2l_512, nil
+	case L2048N256SHA256:
+		return sha256.New(), 256 / 8, i2l_512, nil
+	case L3072N256SHA256:
+		return sha256.New(), 256 / 8, i2l_512, nil
+	default:
+		return nil, 0, nil, ErrInvalidParameterSizes
+	}
+}
+
+func sign(K *big.Int, priv *PrivateKey, data io.Reader) (r, s *big.Int, err error) {
+	h, b, i2l, err := getParams(&priv.Parameters)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// step 2. w = g^k mod p
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 2. w = g^k mod p")
+	//fmt.Println("G = 0x" + hex.EncodeToString(priv.G.Bytes()))
+	//fmt.Println("K = 0x" + hex.EncodeToString(K.Bytes()))
+	//fmt.Println("P = 0x" + hex.EncodeToString(priv.P.Bytes()))
+	W := new(big.Int).Exp(priv.G, K, priv.P)
+	//fmt.Println("W = 0x" + hex.EncodeToString(W.Bytes()))
+
+	//	step 3. R = h(W) mod 2^β (w를 바이트 열로 변환 후 해시한 결과의 바이트 열에서 	β 비트만큼 절삭):
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 3. R = h(W) mod 2^β")
 	h.Reset()
 	h.Write(W.Bytes())
-	R := new(big.Int).SetBytes(h.Sum(nil))
+	RBytes := h.Sum(nil)
+	RBytes = RBytes[len(RBytes)-b:]
+	R := new(big.Int).SetBytes(RBytes)
+	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 
 	// step 4. Z = Y mod 2^l
-	// step 5. h = Hash(Z||M)을 계산한다.
-	Z := new(big.Int).Set(priv.Y)
-	Z.Mod(Z, biPow2l)
-	ZBytes := make([]byte, 64)
-	Z.FillBytes(ZBytes)
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 4. Z = Y mod 2^l")
+	//fmt.Println("Y = 0x" + hex.EncodeToString(priv.Y.Bytes()))
+	//fmt.Println("2l = 0x" + hex.EncodeToString(i2l.Bytes()))
+	Z := new(big.Int).Mod(priv.Y, i2l)
+	ZBytes := Z.Bytes()
+	//fmt.Println("Z = 0x" + hex.EncodeToString(ZBytes))
 
+	// step 5. h = trunc(Hash(Z||M), β)
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 5. h = trunc(Hash(Z||M), β)")
 	h.Reset()
 	h.Write(ZBytes)
 	_, err = io.Copy(h, data)
@@ -237,14 +278,31 @@ func Sign(randReader io.Reader, priv *PrivateKey, data io.Reader) (r, s *big.Int
 		return
 	}
 	HBytes := h.Sum(nil)
+	HBytes = HBytes[len(HBytes)-b:]
 	H := new(big.Int).SetBytes(HBytes)
+	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
 
-	// step 6. E = (R ^ H) mod Q를 계산한다.
-	E := new(big.Int).Exp(R, H, priv.Q)
+	// step 6. E = (R xor H) mod Q
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 6. E = (R xor H) mod Q")
+	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
+	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
+	//fmt.Println("Q = 0x" + hex.EncodeToString(priv.Q.Bytes()))
+	E := new(big.Int).Xor(R, H)
+	E.Mod(E, priv.Q)
+	//fmt.Println("E = 0x" + hex.EncodeToString(E.Bytes()))
 
-	//step 7. S = X(K-E) mod Q를 계산한다.
-	S := new(big.Int).Mul(priv.X, K.Sub(K, E))
+	//step 7. S = X(K-E) mod Q
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 7. S = X(K-E) mod Q")
+	//fmt.Println("X = 0x" + hex.EncodeToString(priv.X.Bytes()))
+	//fmt.Println("K = 0x" + hex.EncodeToString(K.Bytes()))
+	//fmt.Println("E = 0x" + hex.EncodeToString(E.Bytes()))
+	//fmt.Println("Q = 0x" + hex.EncodeToString(priv.Q.Bytes()))
+	K.Mod(K.Sub(K, E), priv.Q)
+	S := new(big.Int).Mul(priv.X, K)
 	S.Mod(S, priv.Q)
+	//fmt.Println("S = 0x" + hex.EncodeToString(S.Bytes()))
 
 	r = R
 	s = S
@@ -253,18 +311,9 @@ func Sign(randReader io.Reader, priv *PrivateKey, data io.Reader) (r, s *big.Int
 }
 
 func Verify(pub *PublicKey, data io.Reader, R, S *big.Int) (ok bool, err error) {
-	var h hash.Hash
-	switch pub.Sizes {
-	case L2048N224WithSHA224:
-		h = sha256.New224()
-	case L2048N224WithSHA256:
-		h = sha256.New()
-	case L2048N256WithSHA256:
-		h = sha256.New()
-	case L3072N256WithSHA256:
-		h = sha256.New()
-	default:
-		return false, ErrInvalidParameterSizes
+	h, b, i2l, err := getParams(&pub.Parameters)
+	if err != nil {
+		return false, err
 	}
 
 	// step 1. 수신된 서명 {R', S'}에 대해 |R'|=LH, 0 < S' < Q 임을 확인한다.
@@ -277,12 +326,17 @@ func Verify(pub *PublicKey, data io.Reader, R, S *big.Int) (ok bool, err error) 
 	}
 
 	// step 2. Z = Y mod 2^l
-	// step 3. h = Hash(Z||M)을 계산한다.
-	Z := new(big.Int).Set(pub.Y)
-	Z.Mod(Z, biPow2l)
-	ZBytes := make([]byte, 64)
-	Z.FillBytes(ZBytes)
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 2. Z = Y mod 2^l")
+	//fmt.Println("Y = 0x" + hex.EncodeToString(pub.Y.Bytes()))
+	//fmt.Println("2l = 0x" + hex.EncodeToString(i2l.Bytes()))
+	Z := new(big.Int).Mod(pub.Y, i2l)
+	ZBytes := Z.Bytes()
+	//fmt.Println("Z = 0x" + hex.EncodeToString(ZBytes))
 
+	// step 3. h = trunc(Hash(Z||M), β)
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 3. h = trunc(Hash(Z||M), β)")
 	h.Reset()
 	h.Write(ZBytes)
 	_, err = io.Copy(h, data)
@@ -290,22 +344,44 @@ func Verify(pub *PublicKey, data io.Reader, R, S *big.Int) (ok bool, err error) 
 		return
 	}
 	HBytes := h.Sum(nil)
+	HBytes = HBytes[len(HBytes)-b:]
 	H := new(big.Int).SetBytes(HBytes)
+	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
 
-	// step 4. E' = (R' ^ H') mod Q을 계산한다.
-	E := new(big.Int).Exp(R, H, pub.Q)
+	// step 4. E' = (R' xor H') mod Q
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 4. E' = (R' xor H') mod Q")
+	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
+	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
+	//fmt.Println("Q = 0x" + hex.EncodeToString(pub.Q.Bytes()))
+	E := new(big.Int).Xor(R, H)
+	E.Mod(E, pub.Q)
+	//fmt.Println("E = 0x" + hex.EncodeToString(E.Bytes()))
 
-	// step 5. W' = Y ^ {S'} G ^ {E'} mod P를 계산한다.
-	W := new(big.Int).Mul(
-		new(big.Int).Exp(pub.Y, S, pub.P),
-		new(big.Int).Exp(pub.G, E, pub.P),
-	)
+	// step 5. W' = Y ^ {S'} G ^ {E'} mod P
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 5. W' = Y ^ {S'} G ^ {E'} mod P")
+	//fmt.Println("Y = 0x" + hex.EncodeToString(pub.Y.Bytes()))
+	//fmt.Println("G = 0x" + hex.EncodeToString(pub.G.Bytes()))
+	//fmt.Println("S = 0x" + hex.EncodeToString(S.Bytes()))
+	//fmt.Println("E = 0x" + hex.EncodeToString(E.Bytes()))
+	//fmt.Println("P = 0x" + hex.EncodeToString(pub.P.Bytes()))
+	W := new(big.Int).Exp(pub.Y, S, pub.P)
+	E.Exp(pub.G, E, pub.P)
+	W.Mul(W, E)
 	W.Mod(W, pub.P)
+	//fmt.Println("W = 0x" + hex.EncodeToString(W.Bytes()))
 
-	// step 6. h(W') = R'이 성립하는지 확인한다.
+	// step 6. trunc(Hash(W'), β) = R'이 성립하는지 확인한다.
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("step 6. trunc(Hash(W'), β) = R'")
 	h.Reset()
 	h.Write(W.Bytes())
-	r := new(big.Int).SetBytes(h.Sum(nil))
+	rBytes := h.Sum(nil)
+	rBytes = rBytes[len(rBytes)-b:]
+	r := new(big.Int).SetBytes(rBytes)
+	//fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
+	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 
 	return R.Cmp(r) == 0, nil
 }
