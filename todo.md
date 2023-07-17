@@ -2,7 +2,7 @@
 
 - [ ] ARIA
 
-- [ ] HIGHT
+- [v] HIGHT
 
 - [ ] LEA
 
