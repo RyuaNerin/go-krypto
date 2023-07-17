@@ -4,7 +4,9 @@
 
 - [v] HIGHT
 
-- [ ] LEA
+- [v] LEA
+
+    - [v] SIMD
 
 - [ ] LSH 256
 
