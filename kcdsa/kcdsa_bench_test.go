@@ -24,13 +24,25 @@ func Benchmark_DSA_GenerateParameters_L2048N256(b *testing.B) {
 	}
 }
 
-func Benchmark_KCDSA_GenerateParameters_L2048N256(b *testing.B) {
+func Benchmark_KCDSA_GenerateParameters_GO_L2048N256(b *testing.B) {
 	rnd := rand.New(rand.NewSource(0))
 
 	var params Parameters
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if err := GenerateParameters(&params, rnd, testKcdsaSize); err != nil {
+			b.Error(err)
+		}
+	}
+}
+
+func Benchmark_KCDSA_GenerateParameters_KISA_L2048N256(b *testing.B) {
+	rnd := rand.New(rand.NewSource(0))
+
+	var params Parameters
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, _, err := GenerateParametersKISA(&params, rnd, testKcdsaSize); err != nil {
 			b.Error(err)
 		}
 	}
@@ -52,7 +64,7 @@ func Benchmark_DSA_GenerateKey(b *testing.B) {
 	}
 }
 
-func Benchmark_KCDSA_GenerateKey(b *testing.B) {
+func Benchmark_KCDSA_GO_GenerateKey(b *testing.B) {
 	rnd := rand.New(rand.NewSource(0))
 
 	var priv PrivateKey
@@ -63,6 +75,22 @@ func Benchmark_KCDSA_GenerateKey(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if err := GenerateKey(&priv, rnd); err != nil {
+			b.Error(err)
+		}
+	}
+}
+
+func Benchmark_KCDSA_KISA_GenerateKey(b *testing.B) {
+	rnd := rand.New(rand.NewSource(0))
+
+	var priv PrivateKey
+	if _, _, err := GenerateParametersKISA(&priv.Parameters, rnd, testKcdsaSize); err != nil {
+		b.Error(err)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := GenerateKeyKISA(&priv, rnd, UserProvidedRandomInput); err != nil {
 			b.Error(err)
 		}
 	}

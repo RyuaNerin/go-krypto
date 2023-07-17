@@ -5,11 +5,12 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"errors"
-	"hash"
 	"io"
 	"math/big"
 
+	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
+	"github.com/RyuaNerin/go-krypto/kcdsa/kcdsakisa"
 )
 
 type Parameters struct {
@@ -44,33 +45,86 @@ const (
 	L3072N256SHA256
 )
 
-const numMRTests = 64
+type paramValues struct {
+	kcdsakisa.Domain
+
+	Int2B *big.Int
+	Int2L *big.Int
+}
+
+var (
+	i2l_512 = new(big.Int).Exp(big.NewInt(2), big.NewInt(512), nil)
+	i2b_224 = new(big.Int).Exp(big.NewInt(2), big.NewInt(224), nil)
+	i2b_256 = new(big.Int).Exp(big.NewInt(2), big.NewInt(256), nil)
+
+	paramValuesMap = map[ParameterSizes]paramValues{
+		L2048N224SHA224: {
+			Domain: kcdsakisa.Domain{
+				A:       2048,
+				B:       224,
+				LH:      28,
+				NewHash: sha256.New224,
+				L:       512,
+			},
+			Int2B: i2b_224,
+			Int2L: i2l_512,
+		},
+		L2048N224SHA256: {
+			Domain: kcdsakisa.Domain{
+				A:       2048,
+				B:       224,
+				LH:      32,
+				NewHash: sha256.New,
+				L:       512,
+			},
+			Int2B: i2b_224,
+			Int2L: i2l_512,
+		},
+		L2048N256SHA256: {
+			Domain: kcdsakisa.Domain{
+				A:       2048,
+				B:       256,
+				LH:      32,
+				NewHash: sha256.New,
+				L:       512,
+			},
+			Int2B: i2b_256,
+			Int2L: i2l_512,
+		},
+		L3072N256SHA256: {
+			Domain: kcdsakisa.Domain{
+				A:       3072,
+				B:       256,
+				LH:      32,
+				NewHash: sha256.New,
+				L:       512,
+			},
+			Int2B: i2b_256,
+			Int2L: i2l_512,
+		},
+	}
+)
+
+func (ps ParameterSizes) domain() (paramValues, error) {
+	p, ok := paramValuesMap[ps]
+	if !ok {
+		return p, ErrInvalidParameterSizes
+	}
+	return p, nil
+}
 
 // Generate the paramters
-// Used the prime number generator used in crypto/dsa package.
+// using the prime number generator used in crypto/dsa package.
 func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
 	// https://cs.opensource.google/go/go/+/refs/tags/go1.18:src/crypto/dsa/dsa.go;l=65-155
-	var L, N int
-	switch sizes {
-	case L2048N224SHA224:
-		L = 2048
-		N = 224
-	case L2048N224SHA256:
-		L = 2048
-		N = 224
-	case L2048N256SHA256:
-		L = 2048
-		N = 256
-	case L3072N256SHA256:
-		L = 3072
-		N = 256
-	default:
-		return ErrInvalidParameterSizes
+	domain, err := sizes.domain()
+	if err != nil {
+		return err
 	}
 	params.Sizes = sizes
 
-	qBytes := make([]byte, N/8)
-	pBytes := make([]byte, L/8)
+	qBytes := make([]byte, domain.B/8)
+	pBytes := make([]byte, domain.A/8)
 
 	q := new(big.Int)
 	p := new(big.Int)
@@ -88,11 +142,11 @@ GeneratePrimes:
 		qBytes[0] |= 0x80
 		q.SetBytes(qBytes)
 
-		if !q.ProbablyPrime(numMRTests) {
+		if !q.ProbablyPrime(internal.NumMRTests) {
 			continue
 		}
 
-		for i := 0; i < 4*L; i++ {
+		for i := 0; i < 4*domain.A; i++ {
 			if _, err := io.ReadFull(rand, pBytes); err != nil {
 				return err
 			}
@@ -104,11 +158,11 @@ GeneratePrimes:
 			rem.Mod(p, q)
 			rem.Sub(rem, one)
 			p.Sub(p, rem)
-			if p.BitLen() < L {
+			if p.BitLen() < domain.A {
 				continue
 			}
 
-			if !p.ProbablyPrime(numMRTests) {
+			if !p.ProbablyPrime(internal.NumMRTests) {
 				continue
 			}
 
@@ -159,7 +213,7 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 		}
 
 		// x의 역원 생성
-		xInv = fermatInverse(x, priv.Q)
+		xInv = internal.FermatInverse(x, priv.Q)
 		if xInv != nil {
 			break
 		}
@@ -172,10 +226,7 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 	return nil
 }
 
-var (
-	i2l_512 = new(big.Int).Exp(big.NewInt(2), big.NewInt(512), nil)
-)
-
+// Sign data using K generated randomly like in crypto/dsa packages.
 func Sign(randReader io.Reader, priv *PrivateKey, data io.Reader) (r, s *big.Int, err error) {
 	switch priv.Sizes {
 	case L2048N224SHA224:
@@ -214,31 +265,16 @@ func Sign(randReader io.Reader, priv *PrivateKey, data io.Reader) (r, s *big.Int
 		}
 	}
 
-	return sign(K, priv, data)
+	return SignWithK(K, priv, data)
 }
 
-func getParams(params *Parameters) (h hash.Hash, b int, i2l *big.Int, err error) {
-	// b = n/8
-	// i2l = 사전 계산된 2^l
-	switch params.Sizes {
-	case L2048N224SHA224:
-		return sha256.New224(), 224 / 8, i2l_512, nil
-	case L2048N224SHA256:
-		return sha256.New(), 224 / 8, i2l_512, nil
-	case L2048N256SHA256:
-		return sha256.New(), 256 / 8, i2l_512, nil
-	case L3072N256SHA256:
-		return sha256.New(), 256 / 8, i2l_512, nil
-	default:
-		return nil, 0, nil, ErrInvalidParameterSizes
-	}
-}
-
-func sign(K *big.Int, priv *PrivateKey, data io.Reader) (r, s *big.Int, err error) {
-	h, b, i2l, err := getParams(&priv.Parameters)
+// Sign data using K Specified
+func SignWithK(K *big.Int, priv *PrivateKey, data io.Reader) (r, s *big.Int, err error) {
+	domain, err := priv.Sizes.domain()
 	if err != nil {
 		return nil, nil, err
 	}
+	h := domain.NewHash()
 
 	// step 2. w = g^k mod p
 	//fmt.Println("--------------------------------------------------")
@@ -255,7 +291,7 @@ func sign(K *big.Int, priv *PrivateKey, data io.Reader) (r, s *big.Int, err erro
 	h.Reset()
 	h.Write(W.Bytes())
 	RBytes := h.Sum(nil)
-	RBytes = RBytes[len(RBytes)-b:]
+	RBytes = RBytes[len(RBytes)-(domain.B/8):]
 	R := new(big.Int).SetBytes(RBytes)
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 
@@ -264,7 +300,7 @@ func sign(K *big.Int, priv *PrivateKey, data io.Reader) (r, s *big.Int, err erro
 	//fmt.Println("step 4. Z = Y mod 2^l")
 	//fmt.Println("Y = 0x" + hex.EncodeToString(priv.Y.Bytes()))
 	//fmt.Println("2l = 0x" + hex.EncodeToString(i2l.Bytes()))
-	Z := new(big.Int).Mod(priv.Y, i2l)
+	Z := new(big.Int).Mod(priv.Y, domain.Int2L)
 	ZBytes := Z.Bytes()
 	//fmt.Println("Z = 0x" + hex.EncodeToString(ZBytes))
 
@@ -278,7 +314,7 @@ func sign(K *big.Int, priv *PrivateKey, data io.Reader) (r, s *big.Int, err erro
 		return
 	}
 	HBytes := h.Sum(nil)
-	HBytes = HBytes[len(HBytes)-b:]
+	HBytes = HBytes[len(HBytes)-(domain.B/8):]
 	H := new(big.Int).SetBytes(HBytes)
 	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
 
@@ -311,10 +347,11 @@ func sign(K *big.Int, priv *PrivateKey, data io.Reader) (r, s *big.Int, err erro
 }
 
 func Verify(pub *PublicKey, data io.Reader, R, S *big.Int) (ok bool, err error) {
-	h, b, i2l, err := getParams(&pub.Parameters)
+	domain, err := pub.Sizes.domain()
 	if err != nil {
 		return false, err
 	}
+	h := domain.NewHash()
 
 	// step 1. 수신된 서명 {R', S'}에 대해 |R'|=LH, 0 < S' < Q 임을 확인한다.
 	if pub.P.Sign() == 0 {
@@ -330,7 +367,7 @@ func Verify(pub *PublicKey, data io.Reader, R, S *big.Int) (ok bool, err error) 
 	//fmt.Println("step 2. Z = Y mod 2^l")
 	//fmt.Println("Y = 0x" + hex.EncodeToString(pub.Y.Bytes()))
 	//fmt.Println("2l = 0x" + hex.EncodeToString(i2l.Bytes()))
-	Z := new(big.Int).Mod(pub.Y, i2l)
+	Z := new(big.Int).Mod(pub.Y, domain.Int2L)
 	ZBytes := Z.Bytes()
 	//fmt.Println("Z = 0x" + hex.EncodeToString(ZBytes))
 
@@ -344,7 +381,7 @@ func Verify(pub *PublicKey, data io.Reader, R, S *big.Int) (ok bool, err error) 
 		return
 	}
 	HBytes := h.Sum(nil)
-	HBytes = HBytes[len(HBytes)-b:]
+	HBytes = HBytes[len(HBytes)-(domain.B/8):]
 	H := new(big.Int).SetBytes(HBytes)
 	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
 
@@ -378,17 +415,10 @@ func Verify(pub *PublicKey, data io.Reader, R, S *big.Int) (ok bool, err error) 
 	h.Reset()
 	h.Write(W.Bytes())
 	rBytes := h.Sum(nil)
-	rBytes = rBytes[len(rBytes)-b:]
+	rBytes = rBytes[len(rBytes)-(domain.B/8):]
 	r := new(big.Int).SetBytes(rBytes)
 	//fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 
 	return R.Cmp(r) == 0, nil
-}
-
-func fermatInverse(a, N *big.Int) *big.Int {
-	// https://cs.opensource.google/go/go/+/refs/tags/go1.18:src/crypto/dsa/dsa.go;l=188-192
-	two := big.NewInt(2)
-	nMinus2 := new(big.Int).Sub(N, two)
-	return new(big.Int).Exp(a, nMinus2, N)
 }
