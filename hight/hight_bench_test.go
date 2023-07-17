@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	testKey = internal.Reverse(internal.HB(`00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff`))
+	testKey = internal.Reverse(internal.HB(`00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00`))
 	input   = internal.Reverse(internal.HB(`00 00 00 00 00 00 00 00`))
 )
 
