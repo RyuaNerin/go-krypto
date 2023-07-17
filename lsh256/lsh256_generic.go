@@ -6,6 +6,8 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
 )
 
+// java to go
+
 const (
 	numStep = 26
 
@@ -57,17 +59,13 @@ var (
 	}
 
 	gamma = [...]int{0, 8, 16, 24, 24, 16, 8, 0}
-
-	emptyTCV   = [16]uint32{}
-	emptyMsg   = [16 * (numStep + 1)]uint32{}
-	emptyBlock = [BlockSize]byte{}
 )
 
 type lsh256ContextGo struct {
-	cv    []uint32
-	tcv   []uint32
-	msg   []uint32
-	block []byte
+	cv    [16]uint32
+	tcv   [16]uint32
+	msg   [16 * (numStep + 1)]uint32
+	block [BlockSize]byte
 
 	boff       int
 	outlenbits int
@@ -81,10 +79,10 @@ func newContextGo(algType algType) hash.Hash {
 
 func initContextGo(ctx *lsh256ContextGo, algType algType) {
 	ctx.outlenbits = int(algType) * 8
-	ctx.cv = make([]uint32, 16)
-	ctx.tcv = make([]uint32, 16)
-	ctx.msg = make([]uint32, 16*(numStep+1))
-	ctx.block = make([]byte, BlockSize)
+	//ctx.cv = make([]uint32, 16)
+	//ctx.tcv = make([]uint32, 16)
+	//ctx.msg = make([]uint32, 16*(numStep+1))
+	//ctx.block = make([]byte, BlockSize)
 	ctx.Reset()
 }
 
@@ -97,17 +95,17 @@ func (b *lsh256ContextGo) BlockSize() int {
 }
 
 func (b *lsh256ContextGo) Reset() {
-	kryptoutil.MemsetUint32(b.cv, 0)
-	kryptoutil.MemsetUint32(b.tcv, 0)
-	kryptoutil.MemsetUint32(b.msg, 0)
-	kryptoutil.MemsetByte(b.block, 0)
+	kryptoutil.MemsetUint32(b.cv[:], 0)
+	kryptoutil.MemsetUint32(b.tcv[:], 0)
+	kryptoutil.MemsetUint32(b.msg[:], 0)
+	kryptoutil.MemsetByte(b.block[:], 0)
 
 	b.boff = 0
 	switch b.outlenbits {
 	case 256:
-		copy(b.cv, iv256[:])
+		copy(b.cv[:], iv256[:])
 	case 224:
-		copy(b.cv, iv224[:])
+		copy(b.cv[:], iv224[:])
 	}
 }
 
@@ -122,15 +120,15 @@ func (b *lsh256ContextGo) Write(p []byte) (n int, err error) {
 
 	rbytes := lenbits >> 3
 	rbits := lenbits & 0x7
-	idx := b.boff >> 3
+	blkidx := b.boff >> 3
 
 	if (b.boff & 0x7) > 0 {
 		return 0, ErrInvalidDataBitLen
 	}
 
-	gap := BlockSize - idx
-	if idx > 0 && rbytes >= gap {
-		copy(b.block[idx:], p[:gap])
+	gap := BlockSize - blkidx
+	if blkidx > 0 && rbytes >= gap {
+		copy(b.block[blkidx:], p[:gap])
 		b.compress(b.block[:], 0)
 		b.boff = 0
 		rbytes -= gap
@@ -145,15 +143,15 @@ func (b *lsh256ContextGo) Write(p []byte) (n int, err error) {
 	}
 
 	if rbytes > 0 {
-		idx = b.boff >> 3
-		copy(b.block[idx:], p[offset:offset+rbytes])
+		blkidx = b.boff >> 3
+		copy(b.block[blkidx:], p[offset:offset+rbytes])
 		b.boff += rbytes << 3
 		offset += rbytes
 	}
 
 	if rbits > 0 {
-		idx = b.boff >> 3
-		b.block[idx] = (byte)(p[offset] & ((0xff >> rbits) ^ 0xff))
+		blkidx = b.boff >> 3
+		b.block[blkidx] = p[offset] & ((0xff >> rbits) ^ 0xff)
 		b.boff += rbits
 	}
 
@@ -186,17 +184,18 @@ func (b *lsh256ContextGo) checkSum() [Size]byte {
 		temp[i] = b.cv[i] ^ b.cv[i+8]
 	}
 
+	// reset();
+
 	rbytes = b.outlenbits >> 3
 	rbits = b.outlenbits & 0x7
 
-	results := rbytes
+	resultLength := rbytes
 	if rbits > 0 {
-		results = rbytes + 1
+		resultLength = rbytes + 1
 	}
 
 	var digest [Size]byte
-
-	for i := 0; i < results; i++ {
+	for i := 0; i < resultLength; i++ {
 		digest[i] = byte(temp[i>>2] >> ((i << 3) & 0x1f))
 	}
 
@@ -211,7 +210,7 @@ func (b *lsh256ContextGo) compress(data []byte, offset int) {
 	b.msgExpansion(data, offset)
 
 	for i := 0; i < numStep/2; i++ {
-		b.step(2*i, alphaEven, betaEven)
+		b.step(2*i+0, alphaEven, betaEven)
 		b.step(2*i+1, alphaOdd, betaOdd)
 	}
 

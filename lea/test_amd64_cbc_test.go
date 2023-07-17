@@ -71,4 +71,5 @@ func testCBC(t *testing.T, keySize, blocks int, newBlockMode func(cipher.Block, 
 
 		copy(src, dstAsm)
 	}
+
 }

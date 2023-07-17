@@ -5,6 +5,32 @@ import (
 	. "github.com/mmcloughlin/avo/operand"
 )
 
+const (
+	LSH_TYPE_256_256 = 0x0000020
+	LSH_TYPE_256_224 = 0x000001C
+
+	MSG_BLK_WORD_LEN      = 32
+	CV_WORD_LEN           = 16
+	CONST_WORD_LEN        = 8
+	HASH_VAL_MAX_WORD_LEN = 8
+
+	WORD_BIT_LEN = 32
+
+	LSH256_MSG_BLK_BYTE_LEN      = 128
+	LSH256_MSG_BLK_BIT_LEN       = 1024
+	LSH256_CV_BYTE_LEN           = 64
+	LSH256_HASH_VAL_MAX_BYTE_LEN = 32
+
+	/* -------------------------------------------------------- */
+
+	NUM_STEPS = 26
+
+	ROT_EVEN_ALPHA = 29
+	ROT_EVEN_BETA  = 1
+	ROT_ODD_ALPHA  = 5
+	ROT_ODD_BETA   = 17
+)
+
 var (
 	G_IV224         Mem
 	G_IV256         Mem
@@ -12,11 +38,11 @@ var (
 )
 
 type lsh256ContextAsmData struct {
-	algtype            int
-	remain_databytelen int
-	cv_l               []byte
-	cv_r               []byte
-	last_block         []byte
+	algtype           uint32
+	remain_databitlen uint32
+	cv_l              []byte
+	cv_r              []byte
+	last_block        []byte
 }
 
 func init() {

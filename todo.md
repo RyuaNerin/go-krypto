@@ -25,3 +25,5 @@
 - [v] KCDSA
 
 - [ ] EC-KCDSA
+
+- bench speed (set memory size?)

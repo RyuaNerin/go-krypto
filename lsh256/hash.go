@@ -22,7 +22,7 @@ type algType int
 
 const (
 	lshType256H256 algType = 32 // 256
-	lshType256H224         = 24 // 224
+	lshType256H224         = 28 // 224
 )
 
 // New returns a new hash.Hash computing the LSH-256 checksum.

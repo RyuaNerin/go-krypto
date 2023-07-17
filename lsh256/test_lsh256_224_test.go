@@ -1,5 +1,9 @@
 package lsh256
 
+import (
+	"github.com/RyuaNerin/go-krypto/internal"
+)
+
 //////////////////////////////////////////////////
 // 암호알고리즘 검증기준 V3.0
 // 테스트 벡터
@@ -8,7 +12,7 @@ package lsh256
 var (
 	testCases224 = []testCase{
 		{
-			M:  internal.HB(`00`),
+			M:  internal.HB(``),
 			MD: internal.HB(`48A0D55B2B3D91F26E06F7110FE9CE8EA0E2656BBE344CB1C5930653`),
 		},
 		{
