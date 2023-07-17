@@ -16,6 +16,10 @@
 
 - [ ] SEED
 
+    - [v] SEED 128
+
+    - [ ] SEED 256
+
 - [v] KCDSA
 
 - [ ] EC-KCDSA
