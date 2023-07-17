@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] ARIA
+- [v] ARIA
 
 - [v] HIGHT
 
