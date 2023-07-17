@@ -1,10 +1,6 @@
 package aria
 
 import (
-	"bytes"
-	"encoding/hex"
-	"testing"
-
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
@@ -13,11 +9,7 @@ import (
 // ARIA196(ECB)KAT.txt
 
 var (
-	testCases196 = []struct {
-		Key    []byte
-		Plain  []byte
-		Secure []byte
-	}{
+	testCases196 = []testCase{
 		{
 			Key:    internal.HB(`000000000000000000000000000000000000000000000000`),
 			Plain:  internal.HB(`80000000000000000000000000000000`),
@@ -1710,53 +1702,3 @@ var (
 		},
 	}
 )
-
-func TestEncryptDecrypt196(t *testing.T) {
-	plain := make([]byte, BlockSize)
-	secure := make([]byte, BlockSize)
-
-	for _, tc := range testCases196 {
-		c, err := NewCipher(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		c.Encrypt(secure, tc.Plain)
-		c.Decrypt(plain, secure)
-		if !bytes.Equal(plain, tc.Plain) {
-			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(plain), hex.EncodeToString(tc.Plain))
-		}
-	}
-}
-
-func TestEncrypt196(t *testing.T) {
-	dst := make([]byte, BlockSize)
-
-	for _, tc := range testCases196 {
-		c, err := NewCipher(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		c.Encrypt(dst, tc.Plain)
-		if !bytes.Equal(dst, tc.Secure) {
-			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(dst), hex.EncodeToString(tc.Secure))
-		}
-	}
-}
-
-func TestDecrypt196(t *testing.T) {
-	dst := make([]byte, BlockSize)
-
-	for _, tc := range testCases196 {
-		c, err := NewCipher(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		c.Decrypt(dst, tc.Secure)
-		if !bytes.Equal(dst, tc.Plain) {
-			t.Errorf("decrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(dst), hex.EncodeToString(tc.Secure))
-		}
-	}
-}

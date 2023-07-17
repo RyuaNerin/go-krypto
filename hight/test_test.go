@@ -1110,25 +1110,7 @@ var (
 	}
 )
 
-func TestEncryptDecrypt(t *testing.T) {
-	plain := make([]byte, BlockSize)
-	secure := make([]byte, BlockSize)
-
-	for _, tc := range testCases {
-		c, err := NewCipher(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		c.Encrypt(secure, tc.Plain)
-		c.Decrypt(plain, secure)
-		if !bytes.Equal(plain, tc.Plain) {
-			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(plain), hex.EncodeToString(tc.Plain))
-		}
-	}
-}
-
-func TestEncrypt(t *testing.T) {
+func Test_HIGHT_Encrypt(t *testing.T) {
 	dst := make([]byte, BlockSize)
 
 	for _, tc := range testCases {
@@ -1144,7 +1126,7 @@ func TestEncrypt(t *testing.T) {
 	}
 }
 
-func TestDecrypt(t *testing.T) {
+func Test_HIGHT_Decript(t *testing.T) {
 	dst := make([]byte, BlockSize)
 
 	for _, tc := range testCases {

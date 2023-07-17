@@ -311,7 +311,7 @@ var (
 	}
 )
 
-func TestSignAndVerify(t *testing.T) {
+func Test_Sign_Verify(t *testing.T) {
 	for _, tc := range testCases {
 		fmt.Println("Q", hex.EncodeToString(tc.Q.Bytes()))
 
@@ -344,7 +344,7 @@ func TestSignAndVerify(t *testing.T) {
 	}
 }
 
-func TestSignAndVerifyWithBadPublicKey(t *testing.T) {
+func Test_SignVerify_With_BadPublicKey(t *testing.T) {
 	for idx, tc := range testCases {
 		tc2 := testCases[(idx+1)%len(testCases)]
 
@@ -365,7 +365,7 @@ func TestSignAndVerifyWithBadPublicKey(t *testing.T) {
 	}
 }
 
-func TestKCDSA(t *testing.T) {
+func Test_KCDSA(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping parameter generation test in short mode")
 	}
@@ -383,7 +383,7 @@ func TestKCDSA(t *testing.T) {
 	testKCDSA(t, L3072N256SHA256, 3072, 256, gp, gk)
 }
 
-func TestSigningWithDegenerateKeys(t *testing.T) {
+func Test_Signing_With_DegenerateKeys(t *testing.T) {
 	// Signing with degenerate private keys should not cause an infinite
 	// loop.
 	badKeys := []struct {

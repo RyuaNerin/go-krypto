@@ -1,19 +1,11 @@
 package seed
 
 import (
-	"bytes"
-	"encoding/hex"
-	"testing"
-
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
 var (
-	testCases = []struct {
-		Key    []byte
-		Plain  []byte
-		Secure []byte
-	}{
+	testCases128 = []testCase{
 		// TTAS.KO-12.0004/R1
 		// p. 21
 		// Ⅰ.1. 참조구현값 1
@@ -1408,53 +1400,3 @@ var (
 		},
 	}
 )
-
-func TestEncryptDecrypt(t *testing.T) {
-	plain := make([]byte, BlockSize)
-	secure := make([]byte, BlockSize)
-
-	for _, tc := range testCases {
-		c, err := NewCipher(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		c.Encrypt(secure, tc.Plain)
-		c.Decrypt(plain, secure)
-		if !bytes.Equal(plain, tc.Plain) {
-			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(plain), hex.EncodeToString(tc.Plain))
-		}
-	}
-}
-
-func TestEncrypt(t *testing.T) {
-	dst := make([]byte, BlockSize)
-
-	for _, tc := range testCases {
-		c, err := NewCipher(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		c.Encrypt(dst, tc.Plain)
-		if !bytes.Equal(dst, tc.Secure) {
-			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(dst), hex.EncodeToString(tc.Secure))
-		}
-	}
-}
-
-func TestDecrypt(t *testing.T) {
-	dst := make([]byte, BlockSize)
-
-	for _, tc := range testCases {
-		c, err := NewCipher(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		c.Decrypt(dst, tc.Secure)
-		if !bytes.Equal(dst, tc.Plain) {
-			t.Errorf("decrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(dst), hex.EncodeToString(tc.Secure))
-		}
-	}
-}
