@@ -30,11 +30,11 @@ func NewCipher(key []byte) (cipher.Block, error) {
 	}
 
 	for i := 0; i < 8; i++ {
-		for j := 0; j < 8; j++ {
-			block.pdwRoundKey[8+16*i+j] = key[(j-i)&7] + delta[16*i+j]
+		for k := 0; k < 8; k++ {
+			block.pdwRoundKey[8+16*i+k+0] = key[((k-i)&7)+0] + delta[16*i+k+0]
 		}
-		for j := 0; j < 8; j++ {
-			block.pdwRoundKey[8+16*i+j+8] = key[((j-i)&7)+8] + delta[16*i+j+8]
+		for k := 0; k < 8; k++ {
+			block.pdwRoundKey[8+16*i+k+8] = key[((k-i)&7)+8] + delta[16*i+k+8]
 		}
 	}
 
@@ -115,7 +115,7 @@ func (s *hight) Encrypt(dst, src []byte) {
 	dst[7] = XX[0]
 }
 
-func (s *hight) decryptStep(XX [8]byte, k, i0, i1, i2, i3, i4, i5, i6, i7 int) {
+func (s *hight) decryptStep(XX []byte, k, i0, i1, i2, i3, i4, i5, i6, i7 int) {
 	XX[i1] = (XX[i1] - (hight_F1[XX[i2]] ^ s.pdwRoundKey[4*k+2]))
 	XX[i3] = (XX[i3] ^ (hight_F0[XX[i4]] + s.pdwRoundKey[4*k+1]))
 	XX[i5] = (XX[i5] - (hight_F1[XX[i6]] ^ s.pdwRoundKey[4*k+0]))
@@ -130,7 +130,7 @@ func (s *hight) Decrypt(dst, src []byte) {
 		panic(fmt.Sprintf("krypto/hight: invalid block size %d (dst)", len(dst)))
 	}
 
-	XX := [...]byte{
+	XX := []byte{
 		src[7],
 		src[0] - s.pdwRoundKey[4],
 		src[1],
