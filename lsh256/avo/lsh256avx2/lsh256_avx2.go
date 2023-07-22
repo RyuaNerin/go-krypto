@@ -6,6 +6,7 @@ import (
 	. "github.com/mmcloughlin/avo/reg"
 
 	. "kryptosimd/avoutil"
+	. "kryptosimd/avoutil/simd"
 	. "kryptosimd/lsh256/avo/lsh256avoconst"
 )
 
@@ -42,31 +43,31 @@ type LSH256AVX2_internal struct {
 *  -------------------------------------------------------- */
 
 // #define LOAD(x) _mm256_loadu_si256((__m256i*)x)
-func LOAD(dst, src Op) Op { return _mm256_loadu_si256(dst, src) }
+func LOAD(dst, src Op) Op { return F_mm256_loadu_si256(dst, src) }
 
 // #define STORE(x,y) _mm256_storeu_si256((__m256i*)x, y)
-func STORE(dst, src Op) { _mm256_storeu_si256(dst, src) }
+func STORE(dst, src Op) { F_mm256_storeu_si256(dst, src) }
 
 // #define XOR(x,y) _mm256_xor_si256(x,y)
-func XOR(dst, x, y Op) Op { return _mm256_xor_si256(dst, x, y) }
+func XOR(dst, x, y Op) Op { return F_mm256_xor_si256(dst, x, y) }
 
 // #define OR(x,y) _mm256_or_si256(x,y)
-func OR(dst, x, y Op) Op { return _mm256_or_si256(dst, x, y) }
+func OR(dst, x, y Op) Op { return F_mm256_or_si256(dst, x, y) }
 
 // #define AND(x,y) _mm256_and_si256(x,y)
-func AND(dst, x, y Op) Op { return _mm256_and_si256(dst, x, y) }
+func AND(dst, x, y Op) Op { return F_mm256_and_si256(dst, x, y) }
 
 // #define SHUFFLE8(x,y) _mm256_shuffle_epi8(x,y)
-func SHUFFLE8(dst, x, y Op) Op { return _mm256_shuffle_epi8(dst, x, y) }
+func SHUFFLE8(dst, x, y Op) Op { return F_mm256_shuffle_epi8(dst, x, y) }
 
 // #define ADD(x,y) _mm256_add_epi32(x,y)
-func ADD(dst, x, y Op) Op { return _mm256_add_epi32(dst, x, y) }
+func ADD(dst, x, y Op) Op { return F_mm256_add_epi32(dst, x, y) }
 
 // #define SHIFT_L(x,r) _mm256_slli_epi32(x,r)
-func SHIFT_L(dst, x, y Op) Op { return _mm256_slli_epi32(dst, x, y) }
+func SHIFT_L(dst, x, y Op) Op { return F_mm256_slli_epi32(dst, x, y) }
 
 // #define SHIFT_R(x,r) _mm256_srli_epi32(x,r)
-func SHIFT_R(dst, x, y Op) Op { return _mm256_srli_epi32(dst, x, y) }
+func SHIFT_R(dst, x, y Op) Op { return F_mm256_srli_epi32(dst, x, y) }
 
 // static INLINE void load_blk(__m256i* dest, const void* src){
 func load_blk_mem2vec(dest []VecVirtual, src Mem) {
@@ -256,13 +257,13 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 	//	__m256i temp;
 	temp := YMM()
 	//	temp = _mm256_shuffle_epi32(*cv_l, 0xd2);
-	_mm256_shuffle_epi32(temp, cv_l[0], U8(0xd2))
+	F_mm256_shuffle_epi32(temp, cv_l[0], U8(0xd2))
 	//	*cv_r = _mm256_shuffle_epi32(*cv_r, 0x6c);
-	_mm256_shuffle_epi32(cv_r[0], cv_r[0], U8(0x6c))
+	F_mm256_shuffle_epi32(cv_r[0], cv_r[0], U8(0x6c))
 	//	*cv_l = _mm256_permute2x128_si256(temp, *cv_r, 0x31);
-	_mm256_permute2x128_si256(cv_l[0], temp, cv_r[0], U8(0x31))
+	F_mm256_permute2x128_si256(cv_l[0], temp, cv_r[0], U8(0x31))
 	//	*cv_r = _mm256_permute2x128_si256(temp, *cv_r, 0x20);
-	_mm256_permute2x128_si256(cv_r[0], temp, cv_r[0], U8(0x20))
+	F_mm256_permute2x128_si256(cv_r[0], temp, cv_r[0], U8(0x20))
 	//};
 }
 

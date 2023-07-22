@@ -1,4 +1,4 @@
-package lsh256sse2
+package simd
 
 import (
 	. "github.com/mmcloughlin/avo/build"
@@ -24,7 +24,7 @@ Operation
 
 	dst[127:0] := MEM[mem_addr+127:mem_addr]
 */
-func _mm_loadu_si128(dst, src Op) Op {
+func F_mm_loadu_si128(dst, src Op) Op {
 	MOVO_autoAU(src, dst)
 	return dst
 }
@@ -45,8 +45,8 @@ Operation
 
 	MEM[mem_addr+127:mem_addr] := a[127:0]
 */
-func _mm_storeu_si128(dst, src Op) Op {
-	_mm_loadu_si128(dst, src)
+func F_mm_storeu_si128(dst, src Op) Op {
+	MOVO_autoAU(src, dst)
 	return dst
 }
 
@@ -66,7 +66,7 @@ Operation
 
 	dst[127:0] := (a[127:0] XOR b[127:0])
 */
-func _mm_xor_si128(dst Op, src VecVirtual) Op {
+func F_mm_xor_si128(dst Op, src VecVirtual) Op {
 	CheckType(
 		`
 		//	PXOR m128 xmm
@@ -95,7 +95,7 @@ Operation
 
 	dst[127:0] := (a[127:0] OR b[127:0])
 */
-func _mm_or_si128(dst Op, src VecVirtual) Op {
+func F_mm_or_si128(dst Op, src VecVirtual) Op {
 	CheckType(
 		`
 		//	POR m128 xmm
@@ -124,7 +124,7 @@ Operation
 
 	dst[127:0] := (a[127:0] AND b[127:0])
 */
-func _mm_and_si128(dst Op, src VecVirtual) Op {
+func F_mm_and_si128(dst Op, src VecVirtual) Op {
 	CheckType(
 		`
 		//	PAND m128 xmm
@@ -156,7 +156,7 @@ Operation
 		dst[i+31:i] := a[i+31:i] + b[i+31:i]
 	ENDFOR
 */
-func _mm_add_epi32(dst VecVirtual, src Op) Op {
+func F_mm_add_epi32(dst VecVirtual, src Op) Op {
 	CheckType(
 		`
 		//	PADDD m128 xmm
@@ -192,7 +192,7 @@ Operation
 		FI
 	ENDFOR
 */
-func _mm_slli_epi32(dst VecVirtual, r Op) VecVirtual {
+func F_mm_slli_epi32(dst VecVirtual, r Op) VecVirtual {
 	CheckType(
 		`
 		//	PSLLL imm8 xmm
@@ -229,7 +229,7 @@ Operation
 		FI
 	ENDFOR
 */
-func _mm_srli_epi32(dst VecVirtual, r Op) VecVirtual {
+func F_mm_srli_epi32(dst VecVirtual, r Op) VecVirtual {
 	CheckType(
 		`
 		//	PSRLL imm8 xmm
@@ -271,7 +271,7 @@ Operation
 	dst[95:64] := SELECT4(a[127:0], imm8[5:4])
 	dst[127:96] := SELECT4(a[127:0], imm8[7:6])
 */
-func _mm_shuffle_epi32(dst VecVirtual, x, i Op) VecVirtual {
+func F_mm_shuffle_epi32(dst VecVirtual, x, i Op) VecVirtual {
 	CheckType(
 		`
 		//	PSHUFD imm8 m128 xmm

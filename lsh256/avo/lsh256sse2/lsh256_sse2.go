@@ -6,6 +6,7 @@ import (
 	. "github.com/mmcloughlin/avo/reg"
 
 	. "kryptosimd/avoutil"
+	. "kryptosimd/avoutil/simd"
 	. "kryptosimd/lsh256/avo/lsh256avoconst"
 )
 
@@ -45,28 +46,28 @@ type LSH256SSE2_internal struct {
 /* -------------------------------------------------------- */
 
 // #define LOAD(x) _mm_loadu_si128((__m128i*)x)
-func LOAD(dst, src Op) Op { return _mm_loadu_si128(dst, src) }
+func LOAD(dst, src Op) Op { return F_mm_loadu_si128(dst, src) }
 
 // #define STORE(x,y) _mm_storeu_si128((__m128i*)x, y)
-func STORE(dst, src Op) { _mm_storeu_si128(dst, src) }
+func STORE(dst, src Op) { F_mm_storeu_si128(dst, src) }
 
 // #define XOR(x,y) _mm_xor_si128(x,y)
-func XOR(dst Op, src VecVirtual) Op { return _mm_xor_si128(dst, src) }
+func XOR(dst Op, src VecVirtual) Op { return F_mm_xor_si128(dst, src) }
 
 // #define OR(x,y) _mm_or_si128(x,y)
-func OR(dst Op, src VecVirtual) Op { return _mm_or_si128(dst, src) }
+func OR(dst Op, src VecVirtual) Op { return F_mm_or_si128(dst, src) }
 
 // #define AND(x,y) _mm_and_si128(x,y)
-func AND(dst Op, src VecVirtual) Op { return _mm_and_si128(dst, src) }
+func AND(dst Op, src VecVirtual) Op { return F_mm_and_si128(dst, src) }
 
 // #define ADD(x,y) _mm_add_epi32(x,y)
-func ADD(dst VecVirtual, src Op) Op { return _mm_add_epi32(dst, src) }
+func ADD(dst VecVirtual, src Op) Op { return F_mm_add_epi32(dst, src) }
 
 // #define SHIFT_L(x,r) _mm_slli_epi32(x,r)
-func SHIFT_L(dst VecVirtual, r Op) Op { return _mm_slli_epi32(dst, r) }
+func SHIFT_L(dst VecVirtual, r Op) Op { return F_mm_slli_epi32(dst, r) }
 
 // #define SHIFT_R(x,r) _mm_srli_epi32(x,r)
-func SHIFT_R(dst VecVirtual, r Op) Op { return _mm_srli_epi32(dst, r) }
+func SHIFT_R(dst VecVirtual, r Op) Op { return F_mm_srli_epi32(dst, r) }
 
 /* -------------------------------------------------------- */
 // load a message block to register
@@ -124,16 +125,16 @@ func load_msg_blk(i_state LSH256SSE2_internal, msgblk Mem /* uint32 */) {
 func msg_exp_even(i_state LSH256SSE2_internal) {
 	Comment("msg_exp_even")
 	//i_state->submsg_e_l[0] = ADD(i_state->submsg_o_l[0], _mm_shuffle_epi32(i_state->submsg_e_l[0], 0x4b));
-	_mm_shuffle_epi32(i_state.submsg_e_l[0], i_state.submsg_e_l[0], U8(0x4b))
+	F_mm_shuffle_epi32(i_state.submsg_e_l[0], i_state.submsg_e_l[0], U8(0x4b))
 	ADD(i_state.submsg_e_l[0], i_state.submsg_o_l[0])
 	//i_state->submsg_e_l[1] = ADD(i_state->submsg_o_l[1], _mm_shuffle_epi32(i_state->submsg_e_l[1], 0x93));
-	_mm_shuffle_epi32(i_state.submsg_e_l[1], i_state.submsg_e_l[1], U8(0x93))
+	F_mm_shuffle_epi32(i_state.submsg_e_l[1], i_state.submsg_e_l[1], U8(0x93))
 	ADD(i_state.submsg_e_l[1], i_state.submsg_o_l[1])
 	//i_state->submsg_e_r[0] = ADD(i_state->submsg_o_r[0], _mm_shuffle_epi32(i_state->submsg_e_r[0], 0x4b));
-	_mm_shuffle_epi32(i_state.submsg_e_r[0], i_state.submsg_e_r[0], U8(0x4b))
+	F_mm_shuffle_epi32(i_state.submsg_e_r[0], i_state.submsg_e_r[0], U8(0x4b))
 	ADD(i_state.submsg_e_r[0], i_state.submsg_o_r[0])
 	//i_state->submsg_e_r[1] = ADD(i_state->submsg_o_r[1], _mm_shuffle_epi32(i_state->submsg_e_r[1], 0x93));
-	_mm_shuffle_epi32(i_state.submsg_e_r[1], i_state.submsg_e_r[1], U8(0x93))
+	F_mm_shuffle_epi32(i_state.submsg_e_r[1], i_state.submsg_e_r[1], U8(0x93))
 	ADD(i_state.submsg_e_r[1], i_state.submsg_o_r[1])
 }
 
@@ -141,16 +142,16 @@ func msg_exp_even(i_state LSH256SSE2_internal) {
 func msg_exp_odd(i_state LSH256SSE2_internal) {
 	Comment("msg_exp_odd")
 	//i_state->submsg_o_l[0] = ADD(i_state->submsg_e_l[0], _mm_shuffle_epi32(i_state->submsg_o_l[0], 0x4b));
-	_mm_shuffle_epi32(i_state.submsg_o_l[0], i_state.submsg_o_l[0], U8(0x4b))
+	F_mm_shuffle_epi32(i_state.submsg_o_l[0], i_state.submsg_o_l[0], U8(0x4b))
 	ADD(i_state.submsg_o_l[0], i_state.submsg_e_l[0])
 	//i_state->submsg_o_l[1] = ADD(i_state->submsg_e_l[1], _mm_shuffle_epi32(i_state->submsg_o_l[1], 0x93));
-	_mm_shuffle_epi32(i_state.submsg_o_l[1], i_state.submsg_o_l[1], U8(0x93))
+	F_mm_shuffle_epi32(i_state.submsg_o_l[1], i_state.submsg_o_l[1], U8(0x93))
 	ADD(i_state.submsg_o_l[1], i_state.submsg_e_l[1])
 	//i_state->submsg_o_r[0] = ADD(i_state->submsg_e_r[0], _mm_shuffle_epi32(i_state->submsg_o_r[0], 0x4b));
-	_mm_shuffle_epi32(i_state.submsg_o_r[0], i_state.submsg_o_r[0], U8(0x4b))
+	F_mm_shuffle_epi32(i_state.submsg_o_r[0], i_state.submsg_o_r[0], U8(0x4b))
 	ADD(i_state.submsg_o_r[0], i_state.submsg_e_r[0])
 	//i_state->submsg_o_r[1] = ADD(i_state->submsg_e_r[1], _mm_shuffle_epi32(i_state->submsg_o_r[1], 0x93));
-	_mm_shuffle_epi32(i_state.submsg_o_r[1], i_state.submsg_o_r[1], U8(0x93))
+	F_mm_shuffle_epi32(i_state.submsg_o_r[1], i_state.submsg_o_r[1], U8(0x93))
 	ADD(i_state.submsg_o_r[1], i_state.submsg_e_r[1])
 }
 
@@ -345,13 +346,13 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 	//__m128i temp;
 	temp := XMM()
 	//cv_l[0] = _mm_shuffle_epi32(cv_l[0], 0xd2);
-	_mm_shuffle_epi32(cv_l[0], cv_l[0], U8(0xd2))
+	F_mm_shuffle_epi32(cv_l[0], cv_l[0], U8(0xd2))
 	//cv_l[1] = _mm_shuffle_epi32(cv_l[1], 0xd2);;
-	_mm_shuffle_epi32(cv_l[1], cv_l[1], U8(0xd2))
+	F_mm_shuffle_epi32(cv_l[1], cv_l[1], U8(0xd2))
 	//cv_r[0] = _mm_shuffle_epi32(cv_r[0], 0x6c);
-	_mm_shuffle_epi32(cv_r[0], cv_r[0], U8(0x6c))
+	F_mm_shuffle_epi32(cv_r[0], cv_r[0], U8(0x6c))
 	//cv_r[1] = _mm_shuffle_epi32(cv_r[1], 0x6c);
-	_mm_shuffle_epi32(cv_r[1], cv_r[1], U8(0x6c))
+	F_mm_shuffle_epi32(cv_r[1], cv_r[1], U8(0x6c))
 	//temp = cv_l[0];
 	MOVO_autoAU(cv_l[0], temp)
 	//cv_l[0] = cv_l[1];
