@@ -704,12 +704,26 @@ func lsh256_avx2_final(ctx *LSH256AVX2_Context, hashval Mem) {
 
 func getCtx() *LSH256AVX2_Context {
 	ctx := Dereference(Param("ctx"))
+
+	cv_l, err := ctx.Field("cv_l").Index(0).Resolve()
+	if err != nil {
+		panic(err)
+	}
+	cv_r, err := ctx.Field("cv_r").Index(0).Resolve()
+	if err != nil {
+		panic(err)
+	}
+	last_block, err := ctx.Field("last_block").Index(0).Resolve()
+	if err != nil {
+		panic(err)
+	}
+
 	return &LSH256AVX2_Context{
 		algtype:           Load(ctx.Field("algtype"), GP32()),
 		remain_databitlen: Load(ctx.Field("remain_databitlen"), GP32()),
-		cv_l:              Mem{Base: Load(ctx.Field("cv_l").Base(), GP64())},
-		cv_r:              Mem{Base: Load(ctx.Field("cv_r").Base(), GP64())},
-		last_block:        Mem{Base: Load(ctx.Field("last_block").Base(), GP64())},
+		cv_l:              cv_l.Addr,
+		cv_r:              cv_r.Addr,
+		last_block:        last_block.Addr,
 	}
 }
 

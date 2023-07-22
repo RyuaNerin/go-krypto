@@ -29,9 +29,6 @@ func testAsmDev(t *testing.T, algType algType, answer []byte, s simdSet) {
 	ctx := lsh256ContextAsmData{
 		algtype:           uint32(algType),
 		remain_databitlen: 0,
-		cv_l:              make([]uint32, 32/4),
-		cv_r:              make([]uint32, 32/4),
-		last_block:        make([]byte, 128),
 	}
 	s.init(&ctx)
 

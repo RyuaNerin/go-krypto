@@ -7,7 +7,7 @@ import (
 )
 
 // #define LSH_GET_SMALL_HASHBIT(lsh_type_val)		((lsh_type_val)>>24)
-func LSH_GET_SMALL_HASHBIT(dst, lsh_type_val Register) Register {
+func LSH_GET_SMALL_HASHBIT(dst Register, lsh_type_val Op) Register {
 	if dst != lsh_type_val {
 		MOVL(lsh_type_val, dst)
 	}
@@ -16,7 +16,7 @@ func LSH_GET_SMALL_HASHBIT(dst, lsh_type_val Register) Register {
 }
 
 // #define LSH_GET_HASHBYTE(lsh_type_val)			((lsh_type_val) & 0xffff)
-func LSH_GET_HASHBYTE(dst, lsh_type_val Register) Register {
+func LSH_GET_HASHBYTE(dst Register, lsh_type_val Op) Register {
 	if dst != lsh_type_val {
 		MOVL(lsh_type_val, dst)
 	}

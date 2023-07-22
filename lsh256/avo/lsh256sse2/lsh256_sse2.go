@@ -500,7 +500,7 @@ func fin(cv_l, cv_r []VecVirtual) {
 /* -------------------------------------------------------- */
 
 // static INLINE void get_hash(__m128i* cv_l, lsh_u8 * pbHashVal, const lsh_type algtype)
-func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Register) {
+func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 	Comment("get_hash")
 
 	//lsh_u8 hash_val[LSH256_HASH_VAL_MAX_BYTE_LEN] = { 0x0, };
@@ -809,12 +809,26 @@ func lsh256_sse2_final(ctx *LSH256SSE2_Context, hashval Mem) {
 
 func getCtx() *LSH256SSE2_Context {
 	ctx := Dereference(Param("ctx"))
+
+	cv_l, err := ctx.Field("cv_l").Index(0).Resolve()
+	if err != nil {
+		panic(err)
+	}
+	cv_r, err := ctx.Field("cv_r").Index(0).Resolve()
+	if err != nil {
+		panic(err)
+	}
+	last_block, err := ctx.Field("last_block").Index(0).Resolve()
+	if err != nil {
+		panic(err)
+	}
+
 	return &LSH256SSE2_Context{
 		algtype:           Load(ctx.Field("algtype"), GP32()),
 		remain_databitlen: Load(ctx.Field("remain_databitlen"), GP32()),
-		cv_l:              Mem{Base: Load(ctx.Field("cv_l").Base(), GP64())},
-		cv_r:              Mem{Base: Load(ctx.Field("cv_r").Base(), GP64())},
-		last_block:        Mem{Base: Load(ctx.Field("last_block").Base(), GP64())},
+		cv_l:              cv_l.Addr,
+		cv_r:              cv_r.Addr,
+		last_block:        last_block.Addr,
 	}
 }
 

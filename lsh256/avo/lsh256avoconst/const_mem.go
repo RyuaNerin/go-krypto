@@ -40,9 +40,9 @@ var (
 type lsh256ContextAsmData struct {
 	algtype           uint32
 	remain_databitlen uint32
-	cv_l              []byte
-	cv_r              []byte
-	last_block        []byte
+	cv_l              [32 / 4]uint32
+	cv_r              [32 / 4]uint32
+	last_block        [128]byte
 }
 
 func init() {
