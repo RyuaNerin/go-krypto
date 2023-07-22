@@ -600,7 +600,7 @@ func lsh256_ssse3_update(ctx *LSH256SSSE3_Context, data Mem, databitlen Register
 	JGE(LabelRef("lsh256_ssse3_update_if0_end"))
 	{
 		//memcpy(ctx->last_block + remain_msg_byte, data, databytelen);
-		Memcpy(ctx.last_block.Idx(remain_msg_byte, 1), data, databytelen)
+		Memcpy(ctx.last_block.Idx(remain_msg_byte, 1), data, databytelen, false)
 		//ctx->remain_databitlen += (lsh_uint)databitlen;
 		ADDL(databitlen, ctx.remain_databitlen)
 		//remain_msg_byte += (lsh_uint)databytelen;
@@ -629,7 +629,7 @@ func lsh256_ssse3_update(ctx *LSH256SSSE3_Context, data Mem, databitlen Register
 		MOVL(U32(LSH256_MSG_BLK_BYTE_LEN), more_byte)
 		SUBL(remain_msg_byte, more_byte)
 		//memcpy(ctx->last_block + remain_msg_byte, data, more_byte);
-		Memcpy(ctx.last_block.Idx(remain_msg_byte, 1), data, more_byte)
+		Memcpy(ctx.last_block.Idx(remain_msg_byte, 1), data, more_byte, false)
 		//compress(cv_l, cv_r, (lsh_u32*)ctx->last_block);
 		compress(cv_l, cv_r, ctx.last_block)
 		//data += more_byte;
@@ -670,7 +670,7 @@ func lsh256_ssse3_update(ctx *LSH256SSSE3_Context, data Mem, databitlen Register
 	JE(LabelRef("lsh256_ssse3_update_if3_end"))
 	{
 		//memcpy(ctx->last_block, data, databytelen);
-		Memcpy(ctx.last_block, data, databytelen)
+		Memcpy(ctx.last_block, data, databytelen, false)
 		//ctx->remain_databitlen = (lsh_uint)(databytelen << 3);
 		MOVL(databytelen, ctx.remain_databitlen)
 		SHLL(U8(3), ctx.remain_databitlen)

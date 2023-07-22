@@ -408,17 +408,61 @@ TEXT ·lsh256UpdateSSE2(SB), NOSPLIT, $0-36
 	LEAQ (DX), R8
 	MOVL SI, R9
 
-memcpy_1_while_start:
-	CMPL R9, $0x00000000
-	JE   memcpy_1_while_end
+memcpy_1_sz16_start:
+	CMPL  R9, $0x00000010
+	JL    memcpy_1_sz16_end
+	MOVOU (R8), X0
+	MOVOU X0, (AX)
+	ADDQ  $0x00000010, R8
+	ADDQ  $0x00000010, AX
+	SUBL  $0x00000010, R9
+	JMP   memcpy_1_sz16_start
+
+memcpy_1_sz16_end:
+memcpy_1_sz8_start:
+	CMPL R9, $0x00000008
+	JL   memcpy_1_sz8_end
+	MOVQ (R8), DX
+	MOVQ DX, (AX)
+	ADDQ $0x00000008, R8
+	ADDQ $0x00000008, AX
+	SUBL $0x00000008, R9
+	JMP  memcpy_1_sz8_start
+
+memcpy_1_sz8_end:
+memcpy_1_sz4_start:
+	CMPL R9, $0x00000004
+	JL   memcpy_1_sz4_end
+	MOVL (R8), DX
+	MOVL DX, (AX)
+	ADDQ $0x00000004, R8
+	ADDQ $0x00000004, AX
+	SUBL $0x00000004, R9
+	JMP  memcpy_1_sz4_start
+
+memcpy_1_sz4_end:
+memcpy_1_sz2_start:
+	CMPL R9, $0x00000002
+	JL   memcpy_1_sz2_end
+	MOVW (R8), DX
+	MOVW DX, (AX)
+	ADDQ $0x00000002, R8
+	ADDQ $0x00000002, AX
+	SUBL $0x00000002, R9
+	JMP  memcpy_1_sz2_start
+
+memcpy_1_sz2_end:
+memcpy_1_sz1_start:
+	CMPL R9, $0x00000001
+	JL   memcpy_1_sz1_end
 	MOVB (R8), DL
 	MOVB DL, (AX)
 	ADDQ $0x00000001, R8
 	ADDQ $0x00000001, AX
 	SUBL $0x00000001, R9
-	JMP  memcpy_1_while_start
+	JMP  memcpy_1_sz1_start
 
-memcpy_1_while_end:
+memcpy_1_sz1_end:
 	ADDL BX, CX
 	ADDL SI, DI
 	JMP  lsh256_sse2_update_ret
@@ -441,17 +485,61 @@ lsh256_sse2_update_if0_end:
 	LEAQ (DX), R8
 	MOVL CX, R9
 
-memcpy_2_while_start:
-	CMPL R9, $0x00000000
-	JE   memcpy_2_while_end
+memcpy_2_sz16_start:
+	CMPL  R9, $0x00000010
+	JL    memcpy_2_sz16_end
+	MOVOU (R8), X4
+	MOVOU X4, (DI)
+	ADDQ  $0x00000010, R8
+	ADDQ  $0x00000010, DI
+	SUBL  $0x00000010, R9
+	JMP   memcpy_2_sz16_start
+
+memcpy_2_sz16_end:
+memcpy_2_sz8_start:
+	CMPL R9, $0x00000008
+	JL   memcpy_2_sz8_end
+	MOVQ (R8), BX
+	MOVQ BX, (DI)
+	ADDQ $0x00000008, R8
+	ADDQ $0x00000008, DI
+	SUBL $0x00000008, R9
+	JMP  memcpy_2_sz8_start
+
+memcpy_2_sz8_end:
+memcpy_2_sz4_start:
+	CMPL R9, $0x00000004
+	JL   memcpy_2_sz4_end
+	MOVL (R8), BX
+	MOVL BX, (DI)
+	ADDQ $0x00000004, R8
+	ADDQ $0x00000004, DI
+	SUBL $0x00000004, R9
+	JMP  memcpy_2_sz4_start
+
+memcpy_2_sz4_end:
+memcpy_2_sz2_start:
+	CMPL R9, $0x00000002
+	JL   memcpy_2_sz2_end
+	MOVW (R8), BX
+	MOVW BX, (DI)
+	ADDQ $0x00000002, R8
+	ADDQ $0x00000002, DI
+	SUBL $0x00000002, R9
+	JMP  memcpy_2_sz2_start
+
+memcpy_2_sz2_end:
+memcpy_2_sz1_start:
+	CMPL R9, $0x00000001
+	JL   memcpy_2_sz1_end
 	MOVB (R8), BL
 	MOVB BL, (DI)
 	ADDQ $0x00000001, R8
 	ADDQ $0x00000001, DI
 	SUBL $0x00000001, R9
-	JMP  memcpy_2_while_start
+	JMP  memcpy_2_sz1_start
 
-memcpy_2_while_end:
+memcpy_2_sz1_end:
 	// compress
 	// load_msg_blk
 	// load_blk_mem2vec
@@ -7008,17 +7096,61 @@ lsh256_sse2_update_while_end:
 	LEAQ (DX), DX
 	MOVL SI, BX
 
-memcpy_3_while_start:
-	CMPL BX, $0x00000000
-	JE   memcpy_3_while_end
+memcpy_3_sz16_start:
+	CMPL  BX, $0x00000010
+	JL    memcpy_3_sz16_end
+	MOVOU (DX), X0
+	MOVOU X0, (AX)
+	ADDQ  $0x00000010, DX
+	ADDQ  $0x00000010, AX
+	SUBL  $0x00000010, BX
+	JMP   memcpy_3_sz16_start
+
+memcpy_3_sz16_end:
+memcpy_3_sz8_start:
+	CMPL BX, $0x00000008
+	JL   memcpy_3_sz8_end
+	MOVQ (DX), CX
+	MOVQ CX, (AX)
+	ADDQ $0x00000008, DX
+	ADDQ $0x00000008, AX
+	SUBL $0x00000008, BX
+	JMP  memcpy_3_sz8_start
+
+memcpy_3_sz8_end:
+memcpy_3_sz4_start:
+	CMPL BX, $0x00000004
+	JL   memcpy_3_sz4_end
+	MOVL (DX), CX
+	MOVL CX, (AX)
+	ADDQ $0x00000004, DX
+	ADDQ $0x00000004, AX
+	SUBL $0x00000004, BX
+	JMP  memcpy_3_sz4_start
+
+memcpy_3_sz4_end:
+memcpy_3_sz2_start:
+	CMPL BX, $0x00000002
+	JL   memcpy_3_sz2_end
+	MOVW (DX), CX
+	MOVW CX, (AX)
+	ADDQ $0x00000002, DX
+	ADDQ $0x00000002, AX
+	SUBL $0x00000002, BX
+	JMP  memcpy_3_sz2_start
+
+memcpy_3_sz2_end:
+memcpy_3_sz1_start:
+	CMPL BX, $0x00000001
+	JL   memcpy_3_sz1_end
 	MOVB (DX), CL
 	MOVB CL, (AX)
 	ADDQ $0x00000001, DX
 	ADDQ $0x00000001, AX
 	SUBL $0x00000001, BX
-	JMP  memcpy_3_while_start
+	JMP  memcpy_3_sz1_start
 
-memcpy_3_while_end:
+memcpy_3_sz1_end:
 	MOVL SI, CX
 	SHLL $0x03, CX
 
@@ -7050,57 +7182,57 @@ TEXT ·lsh256FinalSSE2(SB), NOSPLIT, $0-32
 	MOVL R8, DI
 	MOVL $0x00000000, R8
 	CMPL DI, $0x00000010
-	JL   memset_1_16_end
+	JL   memset_1_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
 
-memset_1_16_start:
+memset_1_sz16_start:
 	MOVOU X0, (SI)(R8*1)
 	SUBL  $0x00000010, DI
 	ADDL  $0x00000010, R8
 	CMPL  DI, $0x00000010
-	JL    memset_1_16_end
-	JMP   memset_1_16_start
+	JL    memset_1_sz16_end
+	JMP   memset_1_sz16_start
 
-memset_1_16_end:
+memset_1_sz16_end:
 	CMPL DI, $0x00000008
-	JL   memset_1_8_end
+	JL   memset_1_sz8_end
 	MOVQ memset_value_0<>+0(SB), R9
 
-memset_1_8_start:
+memset_1_sz8_start:
 	MOVQ R9, (SI)(R8*1)
 	SUBL $0x00000008, DI
 	ADDL $0x00000008, R8
 	CMPL DI, $0x00000008
-	JL   memset_1_8_end
-	JMP  memset_1_8_start
+	JL   memset_1_sz8_end
+	JMP  memset_1_sz8_start
 
-memset_1_8_end:
+memset_1_sz8_end:
 	CMPL DI, $0x00000004
-	JL   memset_1_4_end
+	JL   memset_1_sz4_end
 	MOVL memset_value_0<>+0(SB), R9
 
-memset_1_4_start:
+memset_1_sz4_start:
 	MOVL R9, (SI)(R8*1)
 	SUBL $0x00000004, DI
 	ADDL $0x00000004, R8
 	CMPL DI, $0x00000004
-	JL   memset_1_4_end
-	JMP  memset_1_4_start
+	JL   memset_1_sz4_end
+	JMP  memset_1_sz4_start
 
-memset_1_4_end:
+memset_1_sz4_end:
 	CMPL DI, $0x00000002
-	JL   memset_1_2_end
+	JL   memset_1_sz2_end
 	MOVW memset_value_0<>+0(SB), R9
 
-memset_1_2_start:
+memset_1_sz2_start:
 	MOVW R9, (SI)(R8*1)
 	SUBL $0x00000002, DI
 	ADDL $0x00000002, R8
 	CMPL DI, $0x00000002
-	JL   memset_1_2_end
-	JMP  memset_1_2_start
+	JL   memset_1_sz2_end
+	JMP  memset_1_sz2_start
 
-memset_1_2_end:
+memset_1_sz2_end:
 memset_1_1_start:
 	CMPL DI, $0x00000000
 	JE   memset_1_1_end
@@ -10435,17 +10567,61 @@ TEXT ·lsh256UpdateSSSE3(SB), NOSPLIT, $0-36
 	LEAQ (DX), R8
 	MOVL SI, R9
 
-memcpy_4_while_start:
-	CMPL R9, $0x00000000
-	JE   memcpy_4_while_end
+memcpy_4_sz16_start:
+	CMPL  R9, $0x00000010
+	JL    memcpy_4_sz16_end
+	MOVOU (R8), X0
+	MOVOU X0, (AX)
+	ADDQ  $0x00000010, R8
+	ADDQ  $0x00000010, AX
+	SUBL  $0x00000010, R9
+	JMP   memcpy_4_sz16_start
+
+memcpy_4_sz16_end:
+memcpy_4_sz8_start:
+	CMPL R9, $0x00000008
+	JL   memcpy_4_sz8_end
+	MOVQ (R8), DX
+	MOVQ DX, (AX)
+	ADDQ $0x00000008, R8
+	ADDQ $0x00000008, AX
+	SUBL $0x00000008, R9
+	JMP  memcpy_4_sz8_start
+
+memcpy_4_sz8_end:
+memcpy_4_sz4_start:
+	CMPL R9, $0x00000004
+	JL   memcpy_4_sz4_end
+	MOVL (R8), DX
+	MOVL DX, (AX)
+	ADDQ $0x00000004, R8
+	ADDQ $0x00000004, AX
+	SUBL $0x00000004, R9
+	JMP  memcpy_4_sz4_start
+
+memcpy_4_sz4_end:
+memcpy_4_sz2_start:
+	CMPL R9, $0x00000002
+	JL   memcpy_4_sz2_end
+	MOVW (R8), DX
+	MOVW DX, (AX)
+	ADDQ $0x00000002, R8
+	ADDQ $0x00000002, AX
+	SUBL $0x00000002, R9
+	JMP  memcpy_4_sz2_start
+
+memcpy_4_sz2_end:
+memcpy_4_sz1_start:
+	CMPL R9, $0x00000001
+	JL   memcpy_4_sz1_end
 	MOVB (R8), DL
 	MOVB DL, (AX)
 	ADDQ $0x00000001, R8
 	ADDQ $0x00000001, AX
 	SUBL $0x00000001, R9
-	JMP  memcpy_4_while_start
+	JMP  memcpy_4_sz1_start
 
-memcpy_4_while_end:
+memcpy_4_sz1_end:
 	ADDL BX, CX
 	ADDL SI, DI
 	JMP  lsh256_ssse3_update_ret
@@ -10468,17 +10644,61 @@ lsh256_ssse3_update_if0_end:
 	LEAQ (DX), R8
 	MOVL CX, R9
 
-memcpy_5_while_start:
-	CMPL R9, $0x00000000
-	JE   memcpy_5_while_end
+memcpy_5_sz16_start:
+	CMPL  R9, $0x00000010
+	JL    memcpy_5_sz16_end
+	MOVOU (R8), X4
+	MOVOU X4, (DI)
+	ADDQ  $0x00000010, R8
+	ADDQ  $0x00000010, DI
+	SUBL  $0x00000010, R9
+	JMP   memcpy_5_sz16_start
+
+memcpy_5_sz16_end:
+memcpy_5_sz8_start:
+	CMPL R9, $0x00000008
+	JL   memcpy_5_sz8_end
+	MOVQ (R8), BX
+	MOVQ BX, (DI)
+	ADDQ $0x00000008, R8
+	ADDQ $0x00000008, DI
+	SUBL $0x00000008, R9
+	JMP  memcpy_5_sz8_start
+
+memcpy_5_sz8_end:
+memcpy_5_sz4_start:
+	CMPL R9, $0x00000004
+	JL   memcpy_5_sz4_end
+	MOVL (R8), BX
+	MOVL BX, (DI)
+	ADDQ $0x00000004, R8
+	ADDQ $0x00000004, DI
+	SUBL $0x00000004, R9
+	JMP  memcpy_5_sz4_start
+
+memcpy_5_sz4_end:
+memcpy_5_sz2_start:
+	CMPL R9, $0x00000002
+	JL   memcpy_5_sz2_end
+	MOVW (R8), BX
+	MOVW BX, (DI)
+	ADDQ $0x00000002, R8
+	ADDQ $0x00000002, DI
+	SUBL $0x00000002, R9
+	JMP  memcpy_5_sz2_start
+
+memcpy_5_sz2_end:
+memcpy_5_sz1_start:
+	CMPL R9, $0x00000001
+	JL   memcpy_5_sz1_end
 	MOVB (R8), BL
 	MOVB BL, (DI)
 	ADDQ $0x00000001, R8
 	ADDQ $0x00000001, DI
 	SUBL $0x00000001, R9
-	JMP  memcpy_5_while_start
+	JMP  memcpy_5_sz1_start
 
-memcpy_5_while_end:
+memcpy_5_sz1_end:
 	// compress
 	// load_msg_blk
 	// load_blk_mem2vec
@@ -14227,17 +14447,61 @@ lsh256_ssse3_update_while_end:
 	LEAQ (DX), DX
 	MOVL SI, BX
 
-memcpy_6_while_start:
-	CMPL BX, $0x00000000
-	JE   memcpy_6_while_end
+memcpy_6_sz16_start:
+	CMPL  BX, $0x00000010
+	JL    memcpy_6_sz16_end
+	MOVOU (DX), X0
+	MOVOU X0, (AX)
+	ADDQ  $0x00000010, DX
+	ADDQ  $0x00000010, AX
+	SUBL  $0x00000010, BX
+	JMP   memcpy_6_sz16_start
+
+memcpy_6_sz16_end:
+memcpy_6_sz8_start:
+	CMPL BX, $0x00000008
+	JL   memcpy_6_sz8_end
+	MOVQ (DX), CX
+	MOVQ CX, (AX)
+	ADDQ $0x00000008, DX
+	ADDQ $0x00000008, AX
+	SUBL $0x00000008, BX
+	JMP  memcpy_6_sz8_start
+
+memcpy_6_sz8_end:
+memcpy_6_sz4_start:
+	CMPL BX, $0x00000004
+	JL   memcpy_6_sz4_end
+	MOVL (DX), CX
+	MOVL CX, (AX)
+	ADDQ $0x00000004, DX
+	ADDQ $0x00000004, AX
+	SUBL $0x00000004, BX
+	JMP  memcpy_6_sz4_start
+
+memcpy_6_sz4_end:
+memcpy_6_sz2_start:
+	CMPL BX, $0x00000002
+	JL   memcpy_6_sz2_end
+	MOVW (DX), CX
+	MOVW CX, (AX)
+	ADDQ $0x00000002, DX
+	ADDQ $0x00000002, AX
+	SUBL $0x00000002, BX
+	JMP  memcpy_6_sz2_start
+
+memcpy_6_sz2_end:
+memcpy_6_sz1_start:
+	CMPL BX, $0x00000001
+	JL   memcpy_6_sz1_end
 	MOVB (DX), CL
 	MOVB CL, (AX)
 	ADDQ $0x00000001, DX
 	ADDQ $0x00000001, AX
 	SUBL $0x00000001, BX
-	JMP  memcpy_6_while_start
+	JMP  memcpy_6_sz1_start
 
-memcpy_6_while_end:
+memcpy_6_sz1_end:
 	MOVL SI, CX
 	SHLL $0x03, CX
 
@@ -14269,57 +14533,57 @@ TEXT ·lsh256FinalSSSE3(SB), NOSPLIT, $0-32
 	MOVL R8, DI
 	MOVL $0x00000000, R8
 	CMPL DI, $0x00000010
-	JL   memset_2_16_end
+	JL   memset_2_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
 
-memset_2_16_start:
+memset_2_sz16_start:
 	MOVOU X0, (SI)(R8*1)
 	SUBL  $0x00000010, DI
 	ADDL  $0x00000010, R8
 	CMPL  DI, $0x00000010
-	JL    memset_2_16_end
-	JMP   memset_2_16_start
+	JL    memset_2_sz16_end
+	JMP   memset_2_sz16_start
 
-memset_2_16_end:
+memset_2_sz16_end:
 	CMPL DI, $0x00000008
-	JL   memset_2_8_end
+	JL   memset_2_sz8_end
 	MOVQ memset_value_0<>+0(SB), R9
 
-memset_2_8_start:
+memset_2_sz8_start:
 	MOVQ R9, (SI)(R8*1)
 	SUBL $0x00000008, DI
 	ADDL $0x00000008, R8
 	CMPL DI, $0x00000008
-	JL   memset_2_8_end
-	JMP  memset_2_8_start
+	JL   memset_2_sz8_end
+	JMP  memset_2_sz8_start
 
-memset_2_8_end:
+memset_2_sz8_end:
 	CMPL DI, $0x00000004
-	JL   memset_2_4_end
+	JL   memset_2_sz4_end
 	MOVL memset_value_0<>+0(SB), R9
 
-memset_2_4_start:
+memset_2_sz4_start:
 	MOVL R9, (SI)(R8*1)
 	SUBL $0x00000004, DI
 	ADDL $0x00000004, R8
 	CMPL DI, $0x00000004
-	JL   memset_2_4_end
-	JMP  memset_2_4_start
+	JL   memset_2_sz4_end
+	JMP  memset_2_sz4_start
 
-memset_2_4_end:
+memset_2_sz4_end:
 	CMPL DI, $0x00000002
-	JL   memset_2_2_end
+	JL   memset_2_sz2_end
 	MOVW memset_value_0<>+0(SB), R9
 
-memset_2_2_start:
+memset_2_sz2_start:
 	MOVW R9, (SI)(R8*1)
 	SUBL $0x00000002, DI
 	ADDL $0x00000002, R8
 	CMPL DI, $0x00000002
-	JL   memset_2_2_end
-	JMP  memset_2_2_start
+	JL   memset_2_sz2_end
+	JMP  memset_2_sz2_start
 
-memset_2_2_end:
+memset_2_sz2_end:
 memset_2_1_start:
 	CMPL DI, $0x00000000
 	JE   memset_2_1_end
@@ -16257,7 +16521,7 @@ lsh256_avx2_init_ret:
 	RET
 
 // func lsh256UpdateAVX2(ctx *lsh256ContextAsmData, data []byte, databitlen uint32)
-// Requires: AVX, AVX2
+// Requires: AVX, AVX2, SSE2
 TEXT ·lsh256UpdateAVX2(SB), NOSPLIT, $0-36
 	MOVQ ctx+0(FP), AX
 	MOVL (AX), CX
@@ -16280,17 +16544,72 @@ TEXT ·lsh256UpdateAVX2(SB), NOSPLIT, $0-36
 	LEAQ (DX), R8
 	MOVL SI, R9
 
-memcpy_7_while_start:
-	CMPL R9, $0x00000000
-	JE   memcpy_7_while_end
+memcpy_7_sz32_start:
+	CMPL    R9, $0x00000020
+	JL      memcpy_7_sz32_end
+	VMOVDQU (R8), Y0
+	VMOVDQU Y0, (AX)
+	ADDQ    $0x00000020, R8
+	ADDQ    $0x00000020, AX
+	SUBL    $0x00000020, R9
+	JMP     memcpy_7_sz32_start
+
+memcpy_7_sz32_end:
+memcpy_7_sz16_start:
+	CMPL  R9, $0x00000010
+	JL    memcpy_7_sz16_end
+	MOVOU (R8), X0
+	MOVOU X0, (AX)
+	ADDQ  $0x00000010, R8
+	ADDQ  $0x00000010, AX
+	SUBL  $0x00000010, R9
+	JMP   memcpy_7_sz16_start
+
+memcpy_7_sz16_end:
+memcpy_7_sz8_start:
+	CMPL R9, $0x00000008
+	JL   memcpy_7_sz8_end
+	MOVQ (R8), DX
+	MOVQ DX, (AX)
+	ADDQ $0x00000008, R8
+	ADDQ $0x00000008, AX
+	SUBL $0x00000008, R9
+	JMP  memcpy_7_sz8_start
+
+memcpy_7_sz8_end:
+memcpy_7_sz4_start:
+	CMPL R9, $0x00000004
+	JL   memcpy_7_sz4_end
+	MOVL (R8), DX
+	MOVL DX, (AX)
+	ADDQ $0x00000004, R8
+	ADDQ $0x00000004, AX
+	SUBL $0x00000004, R9
+	JMP  memcpy_7_sz4_start
+
+memcpy_7_sz4_end:
+memcpy_7_sz2_start:
+	CMPL R9, $0x00000002
+	JL   memcpy_7_sz2_end
+	MOVW (R8), DX
+	MOVW DX, (AX)
+	ADDQ $0x00000002, R8
+	ADDQ $0x00000002, AX
+	SUBL $0x00000002, R9
+	JMP  memcpy_7_sz2_start
+
+memcpy_7_sz2_end:
+memcpy_7_sz1_start:
+	CMPL R9, $0x00000001
+	JL   memcpy_7_sz1_end
 	MOVB (R8), DL
 	MOVB DL, (AX)
 	ADDQ $0x00000001, R8
 	ADDQ $0x00000001, AX
 	SUBL $0x00000001, R9
-	JMP  memcpy_7_while_start
+	JMP  memcpy_7_sz1_start
 
-memcpy_7_while_end:
+memcpy_7_sz1_end:
 	ADDL BX, CX
 	ADDL SI, DI
 	JMP  lsh256_avx2_update_ret
@@ -16311,17 +16630,72 @@ lsh256_avx2_update_if0_end:
 	LEAQ (DX), R8
 	MOVL CX, R9
 
-memcpy_8_while_start:
-	CMPL R9, $0x00000000
-	JE   memcpy_8_while_end
+memcpy_8_sz32_start:
+	CMPL    R9, $0x00000020
+	JL      memcpy_8_sz32_end
+	VMOVDQU (R8), Y2
+	VMOVDQU Y2, (DI)
+	ADDQ    $0x00000020, R8
+	ADDQ    $0x00000020, DI
+	SUBL    $0x00000020, R9
+	JMP     memcpy_8_sz32_start
+
+memcpy_8_sz32_end:
+memcpy_8_sz16_start:
+	CMPL  R9, $0x00000010
+	JL    memcpy_8_sz16_end
+	MOVOU (R8), X2
+	MOVOU X2, (DI)
+	ADDQ  $0x00000010, R8
+	ADDQ  $0x00000010, DI
+	SUBL  $0x00000010, R9
+	JMP   memcpy_8_sz16_start
+
+memcpy_8_sz16_end:
+memcpy_8_sz8_start:
+	CMPL R9, $0x00000008
+	JL   memcpy_8_sz8_end
+	MOVQ (R8), BX
+	MOVQ BX, (DI)
+	ADDQ $0x00000008, R8
+	ADDQ $0x00000008, DI
+	SUBL $0x00000008, R9
+	JMP  memcpy_8_sz8_start
+
+memcpy_8_sz8_end:
+memcpy_8_sz4_start:
+	CMPL R9, $0x00000004
+	JL   memcpy_8_sz4_end
+	MOVL (R8), BX
+	MOVL BX, (DI)
+	ADDQ $0x00000004, R8
+	ADDQ $0x00000004, DI
+	SUBL $0x00000004, R9
+	JMP  memcpy_8_sz4_start
+
+memcpy_8_sz4_end:
+memcpy_8_sz2_start:
+	CMPL R9, $0x00000002
+	JL   memcpy_8_sz2_end
+	MOVW (R8), BX
+	MOVW BX, (DI)
+	ADDQ $0x00000002, R8
+	ADDQ $0x00000002, DI
+	SUBL $0x00000002, R9
+	JMP  memcpy_8_sz2_start
+
+memcpy_8_sz2_end:
+memcpy_8_sz1_start:
+	CMPL R9, $0x00000001
+	JL   memcpy_8_sz1_end
 	MOVB (R8), BL
 	MOVB BL, (DI)
 	ADDQ $0x00000001, R8
 	ADDQ $0x00000001, DI
 	SUBL $0x00000001, R9
-	JMP  memcpy_8_while_start
+	JMP  memcpy_8_sz1_start
 
-memcpy_8_while_end:
+memcpy_8_sz1_end:
 	// compress
 	VMOVDQA g_BytePermInfo_avx2<>+0(SB), Y3
 	VMOVDQA g_MsgWordPermInfo_avx2<>+0(SB), Y4
@@ -18770,17 +19144,72 @@ lsh256_avx2_update_while_end:
 	LEAQ (DX), DX
 	MOVL SI, BX
 
-memcpy_9_while_start:
-	CMPL BX, $0x00000000
-	JE   memcpy_9_while_end
+memcpy_9_sz32_start:
+	CMPL    BX, $0x00000020
+	JL      memcpy_9_sz32_end
+	VMOVDQU (DX), Y0
+	VMOVDQU Y0, (AX)
+	ADDQ    $0x00000020, DX
+	ADDQ    $0x00000020, AX
+	SUBL    $0x00000020, BX
+	JMP     memcpy_9_sz32_start
+
+memcpy_9_sz32_end:
+memcpy_9_sz16_start:
+	CMPL  BX, $0x00000010
+	JL    memcpy_9_sz16_end
+	MOVOU (DX), X0
+	MOVOU X0, (AX)
+	ADDQ  $0x00000010, DX
+	ADDQ  $0x00000010, AX
+	SUBL  $0x00000010, BX
+	JMP   memcpy_9_sz16_start
+
+memcpy_9_sz16_end:
+memcpy_9_sz8_start:
+	CMPL BX, $0x00000008
+	JL   memcpy_9_sz8_end
+	MOVQ (DX), CX
+	MOVQ CX, (AX)
+	ADDQ $0x00000008, DX
+	ADDQ $0x00000008, AX
+	SUBL $0x00000008, BX
+	JMP  memcpy_9_sz8_start
+
+memcpy_9_sz8_end:
+memcpy_9_sz4_start:
+	CMPL BX, $0x00000004
+	JL   memcpy_9_sz4_end
+	MOVL (DX), CX
+	MOVL CX, (AX)
+	ADDQ $0x00000004, DX
+	ADDQ $0x00000004, AX
+	SUBL $0x00000004, BX
+	JMP  memcpy_9_sz4_start
+
+memcpy_9_sz4_end:
+memcpy_9_sz2_start:
+	CMPL BX, $0x00000002
+	JL   memcpy_9_sz2_end
+	MOVW (DX), CX
+	MOVW CX, (AX)
+	ADDQ $0x00000002, DX
+	ADDQ $0x00000002, AX
+	SUBL $0x00000002, BX
+	JMP  memcpy_9_sz2_start
+
+memcpy_9_sz2_end:
+memcpy_9_sz1_start:
+	CMPL BX, $0x00000001
+	JL   memcpy_9_sz1_end
 	MOVB (DX), CL
 	MOVB CL, (AX)
 	ADDQ $0x00000001, DX
 	ADDQ $0x00000001, AX
 	SUBL $0x00000001, BX
-	JMP  memcpy_9_while_start
+	JMP  memcpy_9_sz1_start
 
-memcpy_9_while_end:
+memcpy_9_sz1_end:
 	MOVL SI, CX
 	SHLL $0x03, CX
 
@@ -18812,57 +19241,57 @@ TEXT ·lsh256FinalAVX2(SB), NOSPLIT, $0-32
 	MOVL R8, DI
 	MOVL $0x00000000, R8
 	CMPL DI, $0x00000010
-	JL   memset_3_16_end
+	JL   memset_3_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
 
-memset_3_16_start:
+memset_3_sz16_start:
 	MOVOU X0, (SI)(R8*1)
 	SUBL  $0x00000010, DI
 	ADDL  $0x00000010, R8
 	CMPL  DI, $0x00000010
-	JL    memset_3_16_end
-	JMP   memset_3_16_start
+	JL    memset_3_sz16_end
+	JMP   memset_3_sz16_start
 
-memset_3_16_end:
+memset_3_sz16_end:
 	CMPL DI, $0x00000008
-	JL   memset_3_8_end
+	JL   memset_3_sz8_end
 	MOVQ memset_value_0<>+0(SB), R9
 
-memset_3_8_start:
+memset_3_sz8_start:
 	MOVQ R9, (SI)(R8*1)
 	SUBL $0x00000008, DI
 	ADDL $0x00000008, R8
 	CMPL DI, $0x00000008
-	JL   memset_3_8_end
-	JMP  memset_3_8_start
+	JL   memset_3_sz8_end
+	JMP  memset_3_sz8_start
 
-memset_3_8_end:
+memset_3_sz8_end:
 	CMPL DI, $0x00000004
-	JL   memset_3_4_end
+	JL   memset_3_sz4_end
 	MOVL memset_value_0<>+0(SB), R9
 
-memset_3_4_start:
+memset_3_sz4_start:
 	MOVL R9, (SI)(R8*1)
 	SUBL $0x00000004, DI
 	ADDL $0x00000004, R8
 	CMPL DI, $0x00000004
-	JL   memset_3_4_end
-	JMP  memset_3_4_start
+	JL   memset_3_sz4_end
+	JMP  memset_3_sz4_start
 
-memset_3_4_end:
+memset_3_sz4_end:
 	CMPL DI, $0x00000002
-	JL   memset_3_2_end
+	JL   memset_3_sz2_end
 	MOVW memset_value_0<>+0(SB), R9
 
-memset_3_2_start:
+memset_3_sz2_start:
 	MOVW R9, (SI)(R8*1)
 	SUBL $0x00000002, DI
 	ADDL $0x00000002, R8
 	CMPL DI, $0x00000002
-	JL   memset_3_2_end
-	JMP  memset_3_2_start
+	JL   memset_3_sz2_end
+	JMP  memset_3_sz2_start
 
-memset_3_2_end:
+memset_3_sz2_end:
 memset_3_1_start:
 	CMPL DI, $0x00000000
 	JE   memset_3_1_end

@@ -17,9 +17,17 @@ func isAligned(alignedByte int, args ...Op) bool {
 		_, isVec := v.(VecVirtual)
 		mem, isMem := v.(Mem)
 
-		if !(isGP || isVec || (isMem && mem.Symbol.Static && mem.Symbol.Name != "" && mem.Disp%alignedByte == 0 && mem.Index == nil)) {
-			return false
+		switch {
+		case isGP:
+			continue
+		case isVec:
+			continue
+		case isMem:
+			if mem.Symbol.Static && mem.Symbol.Name != "" && mem.Disp%alignedByte == 0 && mem.Index == nil {
+				continue
+			}
 		}
+		return false
 	}
 
 	return true

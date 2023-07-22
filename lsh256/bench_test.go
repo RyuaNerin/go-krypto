@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	benchBlockSize = BlockSize/2 + 1
+	benchBlockSize = BlockSize * 2 / 3
 )
 
 func benchReset(b *testing.B, h hash.Hash, nonskip bool) {

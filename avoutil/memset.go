@@ -43,8 +43,8 @@ func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
 	MOVL(U32(0), idx)
 
 	step := func(sz int, tmp Op, read func(a, b Op), mov func(imr, emr Op)) {
-		labelStart := fmt.Sprintf("memset_%d_%d_start", memsetN, sz)
-		labelEnd := fmt.Sprintf("memset_%d_%d_end", memsetN, sz)
+		labelStart := fmt.Sprintf("memset_%d_sz%d_start", memsetN, sz)
+		labelEnd := fmt.Sprintf("memset_%d_sz%d_end", memsetN, sz)
 
 		CMPL(size2, U32(sz))
 		JL(LabelRef(labelEnd))

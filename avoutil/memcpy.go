@@ -14,12 +14,18 @@ var memcpyN = 0
 
 // TODO
 // size: int32
-func Memcpy(dst, src Op, size Register) {
+func Memcpy(dst, src Op, size Register, avx2 bool) {
 	Comment("Memcpy")
-
 	memcpyN++
 
-	tmp8 := GP8()
+	op256 := YMM()
+	op128 := XMM()
+	op64 := GP64()
+	op32 := op64.As32()
+	op16 := op64.As16()
+	op8 := op64.As8()
+
+	//////////////////////////////
 
 	dstAddr := GP64()
 	srcAddr := GP64()
@@ -29,41 +35,49 @@ func Memcpy(dst, src Op, size Register) {
 	LEAQ(src, srcAddr)
 	MOVL(size, size2)
 
-	labelStart := fmt.Sprintf("memcpy_%d_while_start", memcpyN)
-	labelEnd := fmt.Sprintf("memcpy_%d_while_end", memcpyN)
+	//////////////////////////////
 
-	Label(labelStart)
-	CMPL(size2, U32(0))
-	JE(LabelRef(labelEnd))
-	{
-		MOVB(Mem{Base: srcAddr}, tmp8)
-		MOVB(tmp8, Mem{Base: dstAddr})
+	cpy := func(sz int, tmp Op, mov func(a, b Op)) {
+		labelStart := fmt.Sprintf("memcpy_%d_sz%d_start", memcpyN, sz)
+		labelEnd := fmt.Sprintf("memcpy_%d_sz%d_end", memcpyN, sz)
 
-		ADDQ(U32(1), srcAddr)
-		ADDQ(U32(1), dstAddr)
-		SUBL(U32(1), size2)
+		Label(labelStart)
+		CMPL(size2, U32(sz))
+		JL(LabelRef(labelEnd))
+		{
+			mov(Mem{Base: srcAddr}, tmp)
+			mov(tmp, Mem{Base: dstAddr})
 
-		JMP(LabelRef(labelStart))
+			ADDQ(U32(sz), srcAddr)
+			ADDQ(U32(sz), dstAddr)
+			SUBL(U32(sz), size2)
+
+			JMP(LabelRef(labelStart))
+		}
+		Label(labelEnd)
 	}
-	Label(labelEnd)
+
+	if avx2 {
+		cpy(32, op256, VMOVDQ_autoAU)
+	}
+	cpy(16, op128, MOVO_autoAU)
+	cpy(8, op64, MOVQ)
+	cpy(4, op32, MOVL)
+	cpy(2, op16, MOVW)
+	cpy(1, op8, MOVB)
 }
 
-func MemcpyStatic(dstMem, srcMem Mem, size int, avx2 bool, xmmTmp VecVirtual, ymmTmp VecVirtual) {
+func MemcpyStatic(dstMem, srcMem Mem, size int, avx2 bool) {
 	Comment("MemcpyStatic")
 
-	op256 := ymmTmp
-	op128 := xmmTmp
+	op256 := YMM()
+	op128 := XMM()
 	op64 := GP64()
 	op32 := op64.As32()
 	op16 := op64.As16()
 	op8 := op64.As8()
 
-	if xmmTmp == nil && size >= 16 {
-		op128 = XMM()
-	}
-	if ymmTmp == nil && size >= 32 && avx2 {
-		op256 = YMM()
-	}
+	//////////////////////////////
 
 	dst := Mem{Base: GP64()}
 	src := Mem{Base: GP64()}
@@ -71,13 +85,15 @@ func MemcpyStatic(dstMem, srcMem Mem, size int, avx2 bool, xmmTmp VecVirtual, ym
 	LEAQ(dstMem, dst.Base)
 	LEAQ(srcMem, src.Base)
 
+	//////////////////////////////
+
 	idx := 0
 	for size > 0 {
 		sz := 1
 
 		if size >= 32 && avx2 {
-			VMOVDQU(src.Offset(idx), op256)
-			VMOVDQU(op256, dst.Offset(idx))
+			VMOVDQ_autoAU(src.Offset(idx), op256)
+			VMOVDQ_autoAU(op256, dst.Offset(idx))
 			sz = 32
 		} else if size >= 16 {
 			MOVOU(src.Offset(idx), op128)
