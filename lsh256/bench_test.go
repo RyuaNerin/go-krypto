@@ -50,6 +50,7 @@ func benchSum(b *testing.B, h hash.Hash, nonskip bool) {
 	b.SetBytes(int64(len(buf)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
+		h.Reset()
 		h.Write(buf)
 		h.Sum(o[:0])
 	}
