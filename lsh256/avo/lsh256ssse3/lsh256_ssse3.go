@@ -18,7 +18,7 @@ import (
 //		LSH_ALIGNED_(32) lsh_u8 last_block[LSH256_MSG_BLK_BYTE_LEN];
 //	} LSH256SSSE3_Context;
 type LSH256SSSE3_Context struct {
-	algtype           Register
+	algtype           Mem // m32
 	remain_databitlen Register
 	cv_l              Mem
 	cv_r              Mem
@@ -440,7 +440,7 @@ func fin(cv_l, cv_r []VecVirtual) {
 /* -------------------------------------------------------- */
 
 // static INLINE void get_hash(__m128i* cv_l, lsh_u8 * pbHashVal, const lsh_type algtype)
-func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Register) {
+func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 	Comment("get_hash")
 
 	//lsh_u8 hash_val[LSH256_HASH_VAL_MAX_BYTE_LEN] = { 0x0, };
@@ -753,6 +753,10 @@ func lsh256_ssse3_final(ctx *LSH256SSSE3_Context, hashval Mem) {
 func getCtx() *LSH256SSSE3_Context {
 	ctx := Dereference(Param("ctx"))
 
+	algtype, err := ctx.Field("algtype").Resolve()
+	if err != nil {
+		panic(err)
+	}
 	cv_l, err := ctx.Field("cv_l").Index(0).Resolve()
 	if err != nil {
 		panic(err)
@@ -767,7 +771,7 @@ func getCtx() *LSH256SSSE3_Context {
 	}
 
 	return &LSH256SSSE3_Context{
-		algtype:           Load(ctx.Field("algtype"), GP32()),
+		algtype:           algtype.Addr,
 		remain_databitlen: Load(ctx.Field("remain_databitlen"), GP32()),
 		cv_l:              cv_l.Addr,
 		cv_r:              cv_r.Addr,

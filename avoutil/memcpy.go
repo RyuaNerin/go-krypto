@@ -1,4 +1,4 @@
-package lsh256avoconst
+package avoutil
 
 import (
 	"fmt"
@@ -57,10 +57,13 @@ func Memcpy(dst, src Op, size Register, avx2 bool) {
 		Label(labelEnd)
 	}
 
-	if avx2 {
-		cpy(32, op256, VMOVDQ_autoAU)
+	if enableXYZ {
+		if avx2 {
+			cpy(32, op256, VMOVDQ_autoAU)
+		}
+		cpy(16, op128, MOVO_autoAU)
+
 	}
-	cpy(16, op128, MOVO_autoAU)
 	cpy(8, op64, MOVQ)
 	cpy(4, op32, MOVL)
 	cpy(2, op16, MOVW)
@@ -91,11 +94,11 @@ func MemcpyStatic(dstMem, srcMem Mem, size int, avx2 bool) {
 	for size > 0 {
 		sz := 1
 
-		if size >= 32 && avx2 {
+		if enableXYZ && avx2 && size >= 32 {
 			VMOVDQ_autoAU(src.Offset(idx), op256)
 			VMOVDQ_autoAU(op256, dst.Offset(idx))
 			sz = 32
-		} else if size >= 16 {
+		} else if enableXYZ && size >= 16 {
 			MOVOU(src.Offset(idx), op128)
 			MOVOU(op128, dst.Offset(idx))
 			sz = 16

@@ -18,7 +18,7 @@ import (
 //		LSH_ALIGNED_(32) lsh_u8 last_block[LSH256_MSG_BLK_BYTE_LEN];
 //	} LSH256SSE2_Context;
 type LSH256SSE2_Context struct {
-	algtype           Register
+	algtype           Mem // m32
 	remain_databitlen Register
 	cv_l              Mem
 	cv_r              Mem
@@ -810,6 +810,10 @@ func lsh256_sse2_final(ctx *LSH256SSE2_Context, hashval Mem) {
 func getCtx() *LSH256SSE2_Context {
 	ctx := Dereference(Param("ctx"))
 
+	algtype, err := ctx.Field("algtype").Resolve()
+	if err != nil {
+		panic(err)
+	}
 	cv_l, err := ctx.Field("cv_l").Index(0).Resolve()
 	if err != nil {
 		panic(err)
@@ -824,7 +828,7 @@ func getCtx() *LSH256SSE2_Context {
 	}
 
 	return &LSH256SSE2_Context{
-		algtype:           Load(ctx.Field("algtype"), GP32()),
+		algtype:           algtype.Addr,
 		remain_databitlen: Load(ctx.Field("remain_databitlen"), GP32()),
 		cv_l:              cv_l.Addr,
 		cv_r:              cv_r.Addr,

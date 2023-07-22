@@ -1,4 +1,4 @@
-package lsh256avoconst
+package avoutil
 
 import (
 	"bufio"

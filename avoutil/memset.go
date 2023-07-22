@@ -1,4 +1,4 @@
-package lsh256avoconst
+package avoutil
 
 import (
 	"fmt"
@@ -23,7 +23,6 @@ func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
 
 	memsetN++
 
-	ZMM()
 	constVal, ok := memsetConstVal[val]
 	if !ok {
 		constVal = GLOBL(fmt.Sprintf("memset_value_%d", val), NOPTR|RODATA)
@@ -43,6 +42,10 @@ func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
 	MOVL(U32(0), idx)
 
 	step := func(sz int, tmp Op, read func(a, b Op), mov func(imr, emr Op)) {
+		if sz >= 16 && !enableXYZ {
+			return
+		}
+
 		labelStart := fmt.Sprintf("memset_%d_sz%d_start", memsetN, sz)
 		labelEnd := fmt.Sprintf("memset_%d_sz%d_end", memsetN, sz)
 
@@ -68,10 +71,12 @@ func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
 
 	tmp := GP64()
 
-	if useAVX2 {
-		step(32, YMM(), MOVO, VMOVDQ_autoAU)
+	if enableXYZ {
+		if useAVX2 {
+			step(32, YMM(), MOVO, VMOVDQ_autoAU)
+		}
+		step(16, XMM(), MOVO, MOVO_autoAU)
 	}
-	step(16, XMM(), MOVO, MOVO_autoAU)
 	step(8, tmp.As64(), MOVQ, MOVQ)
 	step(4, tmp.As32(), MOVL, MOVL)
 	step(2, tmp.As16(), MOVW, MOVW)

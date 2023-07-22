@@ -18,7 +18,7 @@ import (
 //		LSH_ALIGNED_(32) lsh_u8 last_block[LSH256_MSG_BLK_BYTE_LEN];
 //	} LSH256AVX2_Context;
 type LSH256AVX2_Context struct {
-	algtype           Register
+	algtype           Mem // m32
 	remain_databitlen Register
 	cv_l              Mem
 	cv_r              Mem
@@ -138,11 +138,12 @@ func msg_exp_odd(i_state LSH256AVX2_internal, perm_step Op) {
 }
 
 // static INLINE void load_sc(__m256i* const_v, lsh_uint i){
-func load_sc(const_v []VecVirtual, i int) {
+func load_sc(const_v []Mem, i int) {
 	Comment("load_sc")
 
 	//load_blk(const_v, g_StepConstants + i);
-	load_blk_mem2vec(const_v, G_StepConstants.Offset(i*4))
+	//load_blk_mem2vec(const_v, G_StepConstants.Offset(i*4))
+	const_v[0] = G_StepConstants.Offset(i * 4)
 }
 
 // static INLINE void msg_add_even(__m256i* cv_l, __m256i* cv_r, const LSH256AVX2_internal * i_state){
@@ -218,7 +219,7 @@ func rotate_blk_odd_beta(cv []VecVirtual) {
 }
 
 // static INLINE void xor_with_const(__m256i* cv_l, const __m256i* const_v){
-func xor_with_const(cv_l []VecVirtual, const_v []VecVirtual) {
+func xor_with_const(cv_l []VecVirtual, const_v []Mem) {
 	Comment("xor_with_const")
 
 	//*cv_l = XOR(*cv_l, *const_v);
@@ -254,7 +255,7 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 //*  -------------------------------------------------------- */
 
 // static INLINE void mix_even(__m256i* cv_l, __m256i* cv_r, const __m256i* const_v, const __m256i byte_perm_step){
-func mix_even(cv_l, cv_r []VecVirtual, const_v []VecVirtual, byte_perm_step VecVirtual) {
+func mix_even(cv_l, cv_r []VecVirtual, const_v []Mem, byte_perm_step VecVirtual) {
 	Comment("mix_even")
 
 	add_blk(cv_l, cv_r)
@@ -267,7 +268,7 @@ func mix_even(cv_l, cv_r []VecVirtual, const_v []VecVirtual, byte_perm_step VecV
 }
 
 // static INLINE void mix_odd(__m256i* cv_l, __m256i* cv_r, const __m256i* const_v, const __m256i byte_perm_step){
-func mix_odd(cv_l, cv_r []VecVirtual, const_v []VecVirtual, byte_perm_step VecVirtual) {
+func mix_odd(cv_l, cv_r []VecVirtual, const_v []Mem, byte_perm_step VecVirtual) {
 	Comment("mix_odd")
 
 	add_blk(cv_l, cv_r)
@@ -288,7 +289,7 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem) {
 	Comment("compress")
 
 	//__m256i const_v[1];				// step function constant
-	const_v := []VecVirtual{YMM()}
+	const_v := make([]Mem, 1)
 	//__m256i byte_perm_step;		// byte permutation info
 	byte_perm_step := YMM()
 	//__m256i word_perm_step;	// msg_word permutation info
@@ -374,7 +375,7 @@ func fin(cv_l, cv_r []VecVirtual) {
 ///* -------------------------------------------------------- */
 
 // static INLINE void get_hash(__m256i* cv_l, lsh_u8 * pbHashVal, const lsh_type algtype)
-func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Register) {
+func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 	Comment("get_hash")
 
 	//lsh_u8 hash_val[LSH256_HASH_VAL_MAX_BYTE_LEN] = { 0x0, };
@@ -677,6 +678,10 @@ func lsh256_avx2_final(ctx *LSH256AVX2_Context, hashval Mem) {
 func getCtx() *LSH256AVX2_Context {
 	ctx := Dereference(Param("ctx"))
 
+	algtype, err := ctx.Field("algtype").Resolve()
+	if err != nil {
+		panic(err)
+	}
 	cv_l, err := ctx.Field("cv_l").Index(0).Resolve()
 	if err != nil {
 		panic(err)
@@ -691,7 +696,7 @@ func getCtx() *LSH256AVX2_Context {
 	}
 
 	return &LSH256AVX2_Context{
-		algtype:           Load(ctx.Field("algtype"), GP32()),
+		algtype:           algtype.Addr,
 		remain_databitlen: Load(ctx.Field("remain_databitlen"), GP32()),
 		cv_l:              cv_l.Addr,
 		cv_r:              cv_r.Addr,

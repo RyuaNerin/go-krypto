@@ -1,4 +1,4 @@
-package lsh256avoconst
+package avoutil
 
 import (
 	. "github.com/mmcloughlin/avo/build"

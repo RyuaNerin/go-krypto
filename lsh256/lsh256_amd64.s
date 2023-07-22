@@ -344,52 +344,50 @@ GLOBL g_MsgWordPermInfo_ssse3<>(SB), RODATA|NOPTR, $32
 // Requires: SSE2
 TEXT ·lsh256InitSSE2(SB), NOSPLIT, $0-8
 	MOVQ ctx+0(FP), AX
-	MOVL (AX), CX
-	MOVL 4(AX), DX
+	MOVL 16(AX), CX
 
 	// lsh256_sse2_init
-	CMPL CX, $0x00000020
+	CMPL (AX), $0x00000020
 	JNE  lsh256_sse2_init_if0_end
 
 	// init256
 	// load_blk_mem2mem
 	MOVOA g_IV256<>+0(SB), X0
-	MOVOU X0, 8(AX)
+	MOVOU X0, 32(AX)
 	MOVOA g_IV256<>+16(SB), X0
-	MOVOU X0, 24(AX)
+	MOVOU X0, 48(AX)
 
 	// load_blk_mem2mem
 	MOVOA g_IV256<>+32(SB), X0
-	MOVOU X0, 40(AX)
+	MOVOU X0, 64(AX)
 	MOVOA g_IV256<>+48(SB), X0
-	MOVOU X0, 56(AX)
+	MOVOU X0, 80(AX)
 	JMP   lsh256_sse2_init_ret
 
 lsh256_sse2_init_if0_end:
 	// init224
 	// load_blk_mem2mem
 	MOVOA g_IV224<>+0(SB), X0
-	MOVOU X0, 8(AX)
+	MOVOU X0, 32(AX)
 	MOVOA g_IV224<>+16(SB), X0
-	MOVOU X0, 24(AX)
+	MOVOU X0, 48(AX)
 
 	// load_blk_mem2mem
 	MOVOA g_IV224<>+32(SB), X0
-	MOVOU X0, 40(AX)
+	MOVOU X0, 64(AX)
 	MOVOA g_IV224<>+48(SB), X0
-	MOVOU X0, 56(AX)
+	MOVOU X0, 80(AX)
 
 lsh256_sse2_init_ret:
 	MOVQ ctx+0(FP), AX
-	MOVL DX, 4(AX)
+	MOVL CX, 16(AX)
 	RET
 
 // func lsh256UpdateSSE2(ctx *lsh256ContextAsmData, data []byte, databitlen uint32)
 // Requires: SSE2
 TEXT ·lsh256UpdateSSE2(SB), NOSPLIT, $0-36
 	MOVQ ctx+0(FP), AX
-	MOVL (AX), CX
-	MOVL 4(AX), CX
+	MOVL 16(AX), CX
 	MOVQ data_base+8(FP), DX
 	MOVL databitlen+32(FP), BX
 
@@ -404,7 +402,7 @@ TEXT ·lsh256UpdateSSE2(SB), NOSPLIT, $0-36
 	JGE  lsh256_sse2_update_if0_end
 
 	// Memcpy
-	LEAQ 72(AX)(DI*1), AX
+	LEAQ 96(AX)(DI*1), AX
 	LEAQ (DX), R8
 	MOVL SI, R9
 
@@ -469,19 +467,19 @@ memcpy_1_sz1_end:
 
 lsh256_sse2_update_if0_end:
 	// load_blk_mem2vec
-	MOVOU 8(AX), X0
-	MOVOU 24(AX), X1
+	MOVOU 32(AX), X0
+	MOVOU 48(AX), X1
 
 	// load_blk_mem2vec
-	MOVOU 40(AX), X2
-	MOVOU 56(AX), X3
+	MOVOU 64(AX), X2
+	MOVOU 80(AX), X3
 	CMPL  DI, $0x00000000
 	JE    lsh256_sse2_update_if2_end
 	MOVL  $0x00000080, CX
 	SUBL  DI, CX
 
 	// Memcpy
-	LEAQ 72(AX)(DI*1), DI
+	LEAQ 96(AX)(DI*1), DI
 	LEAQ (DX), R8
 	MOVL CX, R9
 
@@ -543,20 +541,20 @@ memcpy_2_sz1_end:
 	// compress
 	// load_msg_blk
 	// load_blk_mem2vec
-	MOVOU 72(AX), X6
-	MOVOU 88(AX), X7
+	MOVOU 96(AX), X6
+	MOVOU 112(AX), X7
 
 	// load_blk_mem2vec
-	MOVOU 104(AX), X8
-	MOVOU 120(AX), X9
+	MOVOU 128(AX), X8
+	MOVOU 144(AX), X9
 
 	// load_blk_mem2vec
-	MOVOU 136(AX), X10
-	MOVOU 152(AX), X11
+	MOVOU 160(AX), X10
+	MOVOU 176(AX), X11
 
 	// load_blk_mem2vec
-	MOVOU 168(AX), X12
-	MOVOU 184(AX), X13
+	MOVOU 192(AX), X12
+	MOVOU 208(AX), X13
 
 	// msg_add_even
 	PXOR X6, X0
@@ -7082,17 +7080,17 @@ lsh256_sse2_update_while_start:
 
 lsh256_sse2_update_while_end:
 	// store_blk
-	MOVOU X0, 8(AX)
-	MOVOU X1, 24(AX)
+	MOVOU X0, 32(AX)
+	MOVOU X1, 48(AX)
 
 	// store_blk
-	MOVOU X2, 40(AX)
-	MOVOU X3, 56(AX)
+	MOVOU X2, 64(AX)
+	MOVOU X3, 80(AX)
 	CMPL  DI, $0x00000000
 	JE    lsh256_sse2_update_if3_end
 
 	// Memcpy
-	LEAQ 72(AX), AX
+	LEAQ 96(AX), AX
 	LEAQ (DX), DX
 	MOVL SI, BX
 
@@ -7157,116 +7155,115 @@ memcpy_3_sz1_end:
 lsh256_sse2_update_if3_end:
 lsh256_sse2_update_ret:
 	MOVQ ctx+0(FP), AX
-	MOVL CX, 4(AX)
+	MOVL CX, 16(AX)
 	RET
 
 // func lsh256FinalSSE2(ctx *lsh256ContextAsmData, hashval []byte)
 // Requires: SSE2
 TEXT ·lsh256FinalSSE2(SB), NOSPLIT, $0-32
-	MOVQ ctx+0(FP), BX
-	MOVL (BX), CX
-	MOVL 4(BX), AX
+	MOVQ ctx+0(FP), CX
+	MOVL 16(CX), AX
 	MOVQ hashval_base+8(FP), DX
 
 	// lsh256_sse2_final
-	MOVL AX, DI
-	SHRL $0x03, DI
-	MOVB $0x80, 72(BX)(DI*1)
-	MOVL DI, SI
-	ADDL $0x01, SI
-	MOVL $0x0000007f, R8
-	SUBL DI, R8
+	MOVL AX, SI
+	SHRL $0x03, SI
+	MOVB $0x80, 96(CX)(SI*1)
+	MOVL SI, BX
+	ADDL $0x01, BX
+	MOVL $0x0000007f, DI
+	SUBL SI, DI
 
 	// memset
-	LEAQ 72(BX)(SI*1), SI
-	MOVL R8, DI
-	MOVL $0x00000000, R8
-	CMPL DI, $0x00000010
+	LEAQ 96(CX)(BX*1), BX
+	MOVL DI, SI
+	MOVL $0x00000000, DI
+	CMPL SI, $0x00000010
 	JL   memset_1_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
 
 memset_1_sz16_start:
-	MOVOU X0, (SI)(R8*1)
-	SUBL  $0x00000010, DI
-	ADDL  $0x00000010, R8
-	CMPL  DI, $0x00000010
+	MOVOU X0, (BX)(DI*1)
+	SUBL  $0x00000010, SI
+	ADDL  $0x00000010, DI
+	CMPL  SI, $0x00000010
 	JL    memset_1_sz16_end
 	JMP   memset_1_sz16_start
 
 memset_1_sz16_end:
-	CMPL DI, $0x00000008
+	CMPL SI, $0x00000008
 	JL   memset_1_sz8_end
-	MOVQ memset_value_0<>+0(SB), R9
+	MOVQ memset_value_0<>+0(SB), R8
 
 memset_1_sz8_start:
-	MOVQ R9, (SI)(R8*1)
-	SUBL $0x00000008, DI
-	ADDL $0x00000008, R8
-	CMPL DI, $0x00000008
+	MOVQ R8, (BX)(DI*1)
+	SUBL $0x00000008, SI
+	ADDL $0x00000008, DI
+	CMPL SI, $0x00000008
 	JL   memset_1_sz8_end
 	JMP  memset_1_sz8_start
 
 memset_1_sz8_end:
-	CMPL DI, $0x00000004
+	CMPL SI, $0x00000004
 	JL   memset_1_sz4_end
-	MOVL memset_value_0<>+0(SB), R9
+	MOVL memset_value_0<>+0(SB), R8
 
 memset_1_sz4_start:
-	MOVL R9, (SI)(R8*1)
-	SUBL $0x00000004, DI
-	ADDL $0x00000004, R8
-	CMPL DI, $0x00000004
+	MOVL R8, (BX)(DI*1)
+	SUBL $0x00000004, SI
+	ADDL $0x00000004, DI
+	CMPL SI, $0x00000004
 	JL   memset_1_sz4_end
 	JMP  memset_1_sz4_start
 
 memset_1_sz4_end:
-	CMPL DI, $0x00000002
+	CMPL SI, $0x00000002
 	JL   memset_1_sz2_end
-	MOVW memset_value_0<>+0(SB), R9
+	MOVW memset_value_0<>+0(SB), R8
 
 memset_1_sz2_start:
-	MOVW R9, (SI)(R8*1)
-	SUBL $0x00000002, DI
-	ADDL $0x00000002, R8
-	CMPL DI, $0x00000002
+	MOVW R8, (BX)(DI*1)
+	SUBL $0x00000002, SI
+	ADDL $0x00000002, DI
+	CMPL SI, $0x00000002
 	JL   memset_1_sz2_end
 	JMP  memset_1_sz2_start
 
 memset_1_sz2_end:
 memset_1_1_start:
-	CMPL DI, $0x00000000
+	CMPL SI, $0x00000000
 	JE   memset_1_1_end
-	MOVB $0x00, (SI)(R8*1)
-	SUBL $0x00000001, DI
-	ADDL $0x00000001, R8
+	MOVB $0x00, (BX)(DI*1)
+	SUBL $0x00000001, SI
+	ADDL $0x00000001, DI
 	JMP  memset_1_1_start
 
 memset_1_1_end:
 	// load_blk_mem2vec
-	MOVOU 8(BX), X0
-	MOVOU 24(BX), X1
+	MOVOU 32(CX), X0
+	MOVOU 48(CX), X1
 
 	// load_blk_mem2vec
-	MOVOU 40(BX), X2
-	MOVOU 56(BX), X3
+	MOVOU 64(CX), X2
+	MOVOU 80(CX), X3
 
 	// compress
 	// load_msg_blk
 	// load_blk_mem2vec
-	MOVOU 72(BX), X6
-	MOVOU 88(BX), X7
+	MOVOU 96(CX), X6
+	MOVOU 112(CX), X7
 
 	// load_blk_mem2vec
-	MOVOU 104(BX), X8
-	MOVOU 120(BX), X9
+	MOVOU 128(CX), X8
+	MOVOU 144(CX), X9
 
 	// load_blk_mem2vec
-	MOVOU 136(BX), X10
-	MOVOU 152(BX), X11
+	MOVOU 160(CX), X10
+	MOVOU 176(CX), X11
 
 	// load_blk_mem2vec
-	MOVOU 168(BX), X12
-	MOVOU 184(BX), X13
+	MOVOU 192(CX), X12
+	MOVOU 208(CX), X13
 
 	// msg_add_even
 	PXOR X6, X0
@@ -10519,8 +10516,9 @@ memset_1_1_end:
 	PXOR X3, X1
 
 	// get_hash
-	MOVL  CX, BX
+	MOVL  (CX), BX
 	ANDL  $0x0000ffff, BX
+	MOVL  (CX), CX
 	SHRL  $0x18, CX
 	MOVOU X0, (DX)
 	MOVOU X1, 16(DX)
@@ -10534,7 +10532,7 @@ memset_1_1_end:
 
 get_hash_if_end:
 	MOVQ ctx+0(FP), CX
-	MOVL AX, 4(CX)
+	MOVL AX, 16(CX)
 	RET
 
 DATA memset_value_0<>+0(SB)/8, $0x0000000000000000
@@ -10547,8 +10545,7 @@ GLOBL memset_value_0<>(SB), RODATA|NOPTR, $32
 // Requires: SSE2, SSSE3
 TEXT ·lsh256UpdateSSSE3(SB), NOSPLIT, $0-36
 	MOVQ ctx+0(FP), AX
-	MOVL (AX), CX
-	MOVL 4(AX), CX
+	MOVL 16(AX), CX
 	MOVQ data_base+8(FP), DX
 	MOVL databitlen+32(FP), BX
 
@@ -10563,7 +10560,7 @@ TEXT ·lsh256UpdateSSSE3(SB), NOSPLIT, $0-36
 	JGE  lsh256_ssse3_update_if0_end
 
 	// Memcpy
-	LEAQ 72(AX)(DI*1), AX
+	LEAQ 96(AX)(DI*1), AX
 	LEAQ (DX), R8
 	MOVL SI, R9
 
@@ -10628,19 +10625,19 @@ memcpy_4_sz1_end:
 
 lsh256_ssse3_update_if0_end:
 	// load_blk_mem2vec
-	MOVOU 8(AX), X0
-	MOVOU 24(AX), X1
+	MOVOU 32(AX), X0
+	MOVOU 48(AX), X1
 
 	// load_blk_mem2vec
-	MOVOU 40(AX), X2
-	MOVOU 56(AX), X3
+	MOVOU 64(AX), X2
+	MOVOU 80(AX), X3
 	CMPL  DI, $0x00000000
 	JE    lsh256_ssse3_update_if2_end
 	MOVL  $0x00000080, CX
 	SUBL  DI, CX
 
 	// Memcpy
-	LEAQ 72(AX)(DI*1), DI
+	LEAQ 96(AX)(DI*1), DI
 	LEAQ (DX), R8
 	MOVL CX, R9
 
@@ -10702,20 +10699,20 @@ memcpy_5_sz1_end:
 	// compress
 	// load_msg_blk
 	// load_blk_mem2vec
-	MOVOU 72(AX), X6
-	MOVOU 88(AX), X7
+	MOVOU 96(AX), X6
+	MOVOU 112(AX), X7
 
 	// load_blk_mem2vec
-	MOVOU 104(AX), X8
-	MOVOU 120(AX), X9
+	MOVOU 128(AX), X8
+	MOVOU 144(AX), X9
 
 	// load_blk_mem2vec
-	MOVOU 136(AX), X10
-	MOVOU 152(AX), X11
+	MOVOU 160(AX), X10
+	MOVOU 176(AX), X11
 
 	// load_blk_mem2vec
-	MOVOU 168(AX), X12
-	MOVOU 184(AX), X13
+	MOVOU 192(AX), X12
+	MOVOU 208(AX), X13
 
 	// msg_add_even
 	PXOR X6, X0
@@ -14433,17 +14430,17 @@ lsh256_ssse3_update_while_start:
 
 lsh256_ssse3_update_while_end:
 	// store_blk
-	MOVOU X0, 8(AX)
-	MOVOU X1, 24(AX)
+	MOVOU X0, 32(AX)
+	MOVOU X1, 48(AX)
 
 	// store_blk
-	MOVOU X2, 40(AX)
-	MOVOU X3, 56(AX)
+	MOVOU X2, 64(AX)
+	MOVOU X3, 80(AX)
 	CMPL  DI, $0x00000000
 	JE    lsh256_ssse3_update_if3_end
 
 	// Memcpy
-	LEAQ 72(AX), AX
+	LEAQ 96(AX), AX
 	LEAQ (DX), DX
 	MOVL SI, BX
 
@@ -14508,116 +14505,115 @@ memcpy_6_sz1_end:
 lsh256_ssse3_update_if3_end:
 lsh256_ssse3_update_ret:
 	MOVQ ctx+0(FP), AX
-	MOVL CX, 4(AX)
+	MOVL CX, 16(AX)
 	RET
 
 // func lsh256FinalSSSE3(ctx *lsh256ContextAsmData, hashval []byte)
 // Requires: SSE2, SSSE3
 TEXT ·lsh256FinalSSSE3(SB), NOSPLIT, $0-32
-	MOVQ ctx+0(FP), BX
-	MOVL (BX), CX
-	MOVL 4(BX), AX
+	MOVQ ctx+0(FP), CX
+	MOVL 16(CX), AX
 	MOVQ hashval_base+8(FP), DX
 
 	// lsh256_ssse3_final
-	MOVL AX, DI
-	SHRL $0x03, DI
-	MOVB $0x80, 72(BX)(DI*1)
-	MOVL DI, SI
-	ADDL $0x01, SI
-	MOVL $0x0000007f, R8
-	SUBL DI, R8
+	MOVL AX, SI
+	SHRL $0x03, SI
+	MOVB $0x80, 96(CX)(SI*1)
+	MOVL SI, BX
+	ADDL $0x01, BX
+	MOVL $0x0000007f, DI
+	SUBL SI, DI
 
 	// memset
-	LEAQ 72(BX)(SI*1), SI
-	MOVL R8, DI
-	MOVL $0x00000000, R8
-	CMPL DI, $0x00000010
+	LEAQ 96(CX)(BX*1), BX
+	MOVL DI, SI
+	MOVL $0x00000000, DI
+	CMPL SI, $0x00000010
 	JL   memset_2_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
 
 memset_2_sz16_start:
-	MOVOU X0, (SI)(R8*1)
-	SUBL  $0x00000010, DI
-	ADDL  $0x00000010, R8
-	CMPL  DI, $0x00000010
+	MOVOU X0, (BX)(DI*1)
+	SUBL  $0x00000010, SI
+	ADDL  $0x00000010, DI
+	CMPL  SI, $0x00000010
 	JL    memset_2_sz16_end
 	JMP   memset_2_sz16_start
 
 memset_2_sz16_end:
-	CMPL DI, $0x00000008
+	CMPL SI, $0x00000008
 	JL   memset_2_sz8_end
-	MOVQ memset_value_0<>+0(SB), R9
+	MOVQ memset_value_0<>+0(SB), R8
 
 memset_2_sz8_start:
-	MOVQ R9, (SI)(R8*1)
-	SUBL $0x00000008, DI
-	ADDL $0x00000008, R8
-	CMPL DI, $0x00000008
+	MOVQ R8, (BX)(DI*1)
+	SUBL $0x00000008, SI
+	ADDL $0x00000008, DI
+	CMPL SI, $0x00000008
 	JL   memset_2_sz8_end
 	JMP  memset_2_sz8_start
 
 memset_2_sz8_end:
-	CMPL DI, $0x00000004
+	CMPL SI, $0x00000004
 	JL   memset_2_sz4_end
-	MOVL memset_value_0<>+0(SB), R9
+	MOVL memset_value_0<>+0(SB), R8
 
 memset_2_sz4_start:
-	MOVL R9, (SI)(R8*1)
-	SUBL $0x00000004, DI
-	ADDL $0x00000004, R8
-	CMPL DI, $0x00000004
+	MOVL R8, (BX)(DI*1)
+	SUBL $0x00000004, SI
+	ADDL $0x00000004, DI
+	CMPL SI, $0x00000004
 	JL   memset_2_sz4_end
 	JMP  memset_2_sz4_start
 
 memset_2_sz4_end:
-	CMPL DI, $0x00000002
+	CMPL SI, $0x00000002
 	JL   memset_2_sz2_end
-	MOVW memset_value_0<>+0(SB), R9
+	MOVW memset_value_0<>+0(SB), R8
 
 memset_2_sz2_start:
-	MOVW R9, (SI)(R8*1)
-	SUBL $0x00000002, DI
-	ADDL $0x00000002, R8
-	CMPL DI, $0x00000002
+	MOVW R8, (BX)(DI*1)
+	SUBL $0x00000002, SI
+	ADDL $0x00000002, DI
+	CMPL SI, $0x00000002
 	JL   memset_2_sz2_end
 	JMP  memset_2_sz2_start
 
 memset_2_sz2_end:
 memset_2_1_start:
-	CMPL DI, $0x00000000
+	CMPL SI, $0x00000000
 	JE   memset_2_1_end
-	MOVB $0x00, (SI)(R8*1)
-	SUBL $0x00000001, DI
-	ADDL $0x00000001, R8
+	MOVB $0x00, (BX)(DI*1)
+	SUBL $0x00000001, SI
+	ADDL $0x00000001, DI
 	JMP  memset_2_1_start
 
 memset_2_1_end:
 	// load_blk_mem2vec
-	MOVOU 8(BX), X0
-	MOVOU 24(BX), X1
+	MOVOU 32(CX), X0
+	MOVOU 48(CX), X1
 
 	// load_blk_mem2vec
-	MOVOU 40(BX), X2
-	MOVOU 56(BX), X3
+	MOVOU 64(CX), X2
+	MOVOU 80(CX), X3
 
 	// compress
 	// load_msg_blk
 	// load_blk_mem2vec
-	MOVOU 72(BX), X6
-	MOVOU 88(BX), X7
+	MOVOU 96(CX), X6
+	MOVOU 112(CX), X7
 
 	// load_blk_mem2vec
-	MOVOU 104(BX), X8
-	MOVOU 120(BX), X9
+	MOVOU 128(CX), X8
+	MOVOU 144(CX), X9
 
 	// load_blk_mem2vec
-	MOVOU 136(BX), X10
-	MOVOU 152(BX), X11
+	MOVOU 160(CX), X10
+	MOVOU 176(CX), X11
 
 	// load_blk_mem2vec
-	MOVOU 168(BX), X12
-	MOVOU 184(BX), X13
+	MOVOU 192(CX), X12
+	MOVOU 208(CX), X13
 
 	// msg_add_even
 	PXOR X6, X0
@@ -16466,8 +16462,9 @@ memset_2_1_end:
 	PXOR X3, X1
 
 	// get_hash
-	MOVL  CX, BX
+	MOVL  (CX), BX
 	ANDL  $0x0000ffff, BX
+	MOVL  (CX), CX
 	SHRL  $0x18, CX
 	MOVOU X0, (DX)
 	MOVOU X1, 16(DX)
@@ -16481,51 +16478,49 @@ memset_2_1_end:
 
 get_hash_if_end:
 	MOVQ ctx+0(FP), CX
-	MOVL AX, 4(CX)
+	MOVL AX, 16(CX)
 	RET
 
 // func lsh256InitAVX2(ctx *lsh256ContextAsmData)
 // Requires: AVX
 TEXT ·lsh256InitAVX2(SB), NOSPLIT, $0-8
 	MOVQ ctx+0(FP), AX
-	MOVL (AX), CX
-	MOVL 4(AX), DX
+	MOVL 16(AX), CX
 
 	// lsh256_avx2_init
-	CMPL CX, $0x00000020
+	CMPL (AX), $0x00000020
 	JNE  lsh256_avx2_init_if0_end
 
 	// init256
 	// load_blk_mem2mem
 	VMOVDQA g_IV256<>+0(SB), Y0
-	VMOVDQU Y0, 8(AX)
+	VMOVDQU Y0, 32(AX)
 
 	// load_blk_mem2mem
 	VMOVDQA g_IV256<>+32(SB), Y0
-	VMOVDQU Y0, 40(AX)
+	VMOVDQU Y0, 64(AX)
 	JMP     lsh256_avx2_init_ret
 
 lsh256_avx2_init_if0_end:
 	// init224
 	// load_blk_mem2mem
 	VMOVDQA g_IV224<>+0(SB), Y0
-	VMOVDQU Y0, 8(AX)
+	VMOVDQU Y0, 32(AX)
 
 	// load_blk_mem2mem
 	VMOVDQA g_IV224<>+32(SB), Y0
-	VMOVDQU Y0, 40(AX)
+	VMOVDQU Y0, 64(AX)
 
 lsh256_avx2_init_ret:
 	MOVQ ctx+0(FP), AX
-	MOVL DX, 4(AX)
+	MOVL CX, 16(AX)
 	RET
 
 // func lsh256UpdateAVX2(ctx *lsh256ContextAsmData, data []byte, databitlen uint32)
 // Requires: AVX, AVX2, SSE2
 TEXT ·lsh256UpdateAVX2(SB), NOSPLIT, $0-36
 	MOVQ ctx+0(FP), AX
-	MOVL (AX), CX
-	MOVL 4(AX), CX
+	MOVL 16(AX), CX
 	MOVQ data_base+8(FP), DX
 	MOVL databitlen+32(FP), BX
 
@@ -16540,7 +16535,7 @@ TEXT ·lsh256UpdateAVX2(SB), NOSPLIT, $0-36
 	JGE  lsh256_avx2_update_if0_end
 
 	// Memcpy
-	LEAQ 72(AX)(DI*1), AX
+	LEAQ 96(AX)(DI*1), AX
 	LEAQ (DX), R8
 	MOVL SI, R9
 
@@ -16616,17 +16611,17 @@ memcpy_7_sz1_end:
 
 lsh256_avx2_update_if0_end:
 	// load_blk_mem2vec
-	VMOVDQU 8(AX), Y0
+	VMOVDQU 32(AX), Y0
 
 	// load_blk_mem2vec
-	VMOVDQU 40(AX), Y1
+	VMOVDQU 64(AX), Y1
 	CMPL    DI, $0x00000000
 	JE      lsh256_avx2_update_if2_end
 	MOVL    $0x00000080, CX
 	SUBL    DI, CX
 
 	// Memcpy
-	LEAQ 72(AX)(DI*1), DI
+	LEAQ 96(AX)(DI*1), DI
 	LEAQ (DX), R8
 	MOVL CX, R9
 
@@ -16697,1199 +16692,1121 @@ memcpy_8_sz1_start:
 
 memcpy_8_sz1_end:
 	// compress
-	VMOVDQA g_BytePermInfo_avx2<>+0(SB), Y3
-	VMOVDQA g_MsgWordPermInfo_avx2<>+0(SB), Y4
+	VMOVDQA g_BytePermInfo_avx2<>+0(SB), Y2
+	VMOVDQA g_MsgWordPermInfo_avx2<>+0(SB), Y3
 
 	// load_msg_blk
 	// load_blk_mem2vec
-	VMOVDQU 72(AX), Y5
+	VMOVDQU 96(AX), Y4
 
 	// load_blk_mem2vec
-	VMOVDQU 104(AX), Y6
+	VMOVDQU 128(AX), Y5
 
 	// load_blk_mem2vec
-	VMOVDQU 136(AX), Y7
+	VMOVDQU 160(AX), Y6
 
 	// load_blk_mem2vec
-	VMOVDQU 168(AX), Y8
+	VMOVDQU 192(AX), Y7
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+0(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+0(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+32(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+32(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+64(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+64(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+96(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+96(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+128(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+128(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+160(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+160(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+192(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+192(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+224(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+224(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+256(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+256(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+288(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+288(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+320(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+320(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+352(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+352(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+384(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+384(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+416(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+416(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+448(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+448(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+480(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+480(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+512(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+512(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+544(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+544(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+576(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+576(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+608(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+608(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+640(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+640(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+672(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+672(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+704(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+704(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+736(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+736(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+768(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+768(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+800(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+800(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
 	VPSHUFD    $0xd2, Y0, Y2
@@ -17898,14 +17815,14 @@ memcpy_8_sz1_end:
 	VPERM2I128 $0x20, Y1, Y2, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 	ADDQ  CX, DX
 	SUBL  CX, SI
 	MOVL  $0x00000000, DI
@@ -17917,1199 +17834,1121 @@ lsh256_avx2_update_while_start:
 	JL   lsh256_avx2_update_while_end
 
 	// compress
-	VMOVDQA g_BytePermInfo_avx2<>+0(SB), Y3
-	VMOVDQA g_MsgWordPermInfo_avx2<>+0(SB), Y4
+	VMOVDQA g_BytePermInfo_avx2<>+0(SB), Y2
+	VMOVDQA g_MsgWordPermInfo_avx2<>+0(SB), Y3
 
 	// load_msg_blk
 	// load_blk_mem2vec
-	VMOVDQU (DX), Y5
+	VMOVDQU (DX), Y4
 
 	// load_blk_mem2vec
-	VMOVDQU 32(DX), Y6
+	VMOVDQU 32(DX), Y5
 
 	// load_blk_mem2vec
-	VMOVDQU 64(DX), Y7
+	VMOVDQU 64(DX), Y6
 
 	// load_blk_mem2vec
-	VMOVDQU 96(DX), Y8
+	VMOVDQU 96(DX), Y7
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+0(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+0(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+32(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+32(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+64(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+64(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+96(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+96(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+128(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+128(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+160(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+160(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+192(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+192(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+224(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+224(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+256(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+256(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+288(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+288(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+320(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+320(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+352(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+352(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+384(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+384(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+416(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+416(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+448(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+448(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+480(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+480(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+512(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+512(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+544(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+544(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+576(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+576(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+608(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+608(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+640(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+640(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+672(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+672(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+704(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+704(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+736(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+736(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+768(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+768(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+800(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+800(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
 	VPSHUFD    $0xd2, Y0, Y2
@@ -19118,29 +18957,29 @@ lsh256_avx2_update_while_start:
 	VPERM2I128 $0x20, Y1, Y2, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 	ADDQ  $0x00000080, DX
 	SUBL  $0x00000080, SI
 	JMP   lsh256_avx2_update_while_start
 
 lsh256_avx2_update_while_end:
 	// store_blk
-	VMOVDQU Y0, 8(AX)
+	VMOVDQU Y0, 32(AX)
 
 	// store_blk
-	VMOVDQU Y1, 40(AX)
+	VMOVDQU Y1, 64(AX)
 	CMPL    DI, $0x00000000
 	JE      lsh256_avx2_update_if3_end
 
 	// Memcpy
-	LEAQ 72(AX), AX
+	LEAQ 96(AX), AX
 	LEAQ (DX), DX
 	MOVL SI, BX
 
@@ -19216,1291 +19055,1212 @@ memcpy_9_sz1_end:
 lsh256_avx2_update_if3_end:
 lsh256_avx2_update_ret:
 	MOVQ ctx+0(FP), AX
-	MOVL CX, 4(AX)
+	MOVL CX, 16(AX)
 	RET
 
 // func lsh256FinalAVX2(ctx *lsh256ContextAsmData, hashval []byte)
 // Requires: AVX, AVX2, SSE2
 TEXT ·lsh256FinalAVX2(SB), NOSPLIT, $0-32
-	MOVQ ctx+0(FP), BX
-	MOVL (BX), CX
-	MOVL 4(BX), AX
+	MOVQ ctx+0(FP), CX
+	MOVL 16(CX), AX
 	MOVQ hashval_base+8(FP), DX
 
 	// lsh256_avx2_final
-	MOVL AX, DI
-	SHRL $0x03, DI
-	MOVB $0x80, 72(BX)(DI*1)
-	MOVL DI, SI
-	ADDL $0x01, SI
-	MOVL $0x0000007f, R8
-	SUBL DI, R8
+	MOVL AX, SI
+	SHRL $0x03, SI
+	MOVB $0x80, 96(CX)(SI*1)
+	MOVL SI, BX
+	ADDL $0x01, BX
+	MOVL $0x0000007f, DI
+	SUBL SI, DI
 
 	// memset
-	LEAQ 72(BX)(SI*1), SI
-	MOVL R8, DI
-	MOVL $0x00000000, R8
-	CMPL DI, $0x00000010
+	LEAQ 96(CX)(BX*1), BX
+	MOVL DI, SI
+	MOVL $0x00000000, DI
+	CMPL SI, $0x00000010
 	JL   memset_3_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
 
 memset_3_sz16_start:
-	MOVOU X0, (SI)(R8*1)
-	SUBL  $0x00000010, DI
-	ADDL  $0x00000010, R8
-	CMPL  DI, $0x00000010
+	MOVOU X0, (BX)(DI*1)
+	SUBL  $0x00000010, SI
+	ADDL  $0x00000010, DI
+	CMPL  SI, $0x00000010
 	JL    memset_3_sz16_end
 	JMP   memset_3_sz16_start
 
 memset_3_sz16_end:
-	CMPL DI, $0x00000008
+	CMPL SI, $0x00000008
 	JL   memset_3_sz8_end
-	MOVQ memset_value_0<>+0(SB), R9
+	MOVQ memset_value_0<>+0(SB), R8
 
 memset_3_sz8_start:
-	MOVQ R9, (SI)(R8*1)
-	SUBL $0x00000008, DI
-	ADDL $0x00000008, R8
-	CMPL DI, $0x00000008
+	MOVQ R8, (BX)(DI*1)
+	SUBL $0x00000008, SI
+	ADDL $0x00000008, DI
+	CMPL SI, $0x00000008
 	JL   memset_3_sz8_end
 	JMP  memset_3_sz8_start
 
 memset_3_sz8_end:
-	CMPL DI, $0x00000004
+	CMPL SI, $0x00000004
 	JL   memset_3_sz4_end
-	MOVL memset_value_0<>+0(SB), R9
+	MOVL memset_value_0<>+0(SB), R8
 
 memset_3_sz4_start:
-	MOVL R9, (SI)(R8*1)
-	SUBL $0x00000004, DI
-	ADDL $0x00000004, R8
-	CMPL DI, $0x00000004
+	MOVL R8, (BX)(DI*1)
+	SUBL $0x00000004, SI
+	ADDL $0x00000004, DI
+	CMPL SI, $0x00000004
 	JL   memset_3_sz4_end
 	JMP  memset_3_sz4_start
 
 memset_3_sz4_end:
-	CMPL DI, $0x00000002
+	CMPL SI, $0x00000002
 	JL   memset_3_sz2_end
-	MOVW memset_value_0<>+0(SB), R9
+	MOVW memset_value_0<>+0(SB), R8
 
 memset_3_sz2_start:
-	MOVW R9, (SI)(R8*1)
-	SUBL $0x00000002, DI
-	ADDL $0x00000002, R8
-	CMPL DI, $0x00000002
+	MOVW R8, (BX)(DI*1)
+	SUBL $0x00000002, SI
+	ADDL $0x00000002, DI
+	CMPL SI, $0x00000002
 	JL   memset_3_sz2_end
 	JMP  memset_3_sz2_start
 
 memset_3_sz2_end:
 memset_3_1_start:
-	CMPL DI, $0x00000000
+	CMPL SI, $0x00000000
 	JE   memset_3_1_end
-	MOVB $0x00, (SI)(R8*1)
-	SUBL $0x00000001, DI
-	ADDL $0x00000001, R8
+	MOVB $0x00, (BX)(DI*1)
+	SUBL $0x00000001, SI
+	ADDL $0x00000001, DI
 	JMP  memset_3_1_start
 
 memset_3_1_end:
 	// load_blk_mem2vec
-	VMOVDQU 8(BX), Y0
+	VMOVDQU 32(CX), Y0
 
 	// load_blk_mem2vec
-	VMOVDQU 40(BX), Y1
+	VMOVDQU 64(CX), Y1
 
 	// compress
-	VMOVDQA g_BytePermInfo_avx2<>+0(SB), Y3
-	VMOVDQA g_MsgWordPermInfo_avx2<>+0(SB), Y4
+	VMOVDQA g_BytePermInfo_avx2<>+0(SB), Y2
+	VMOVDQA g_MsgWordPermInfo_avx2<>+0(SB), Y3
 
 	// load_msg_blk
 	// load_blk_mem2vec
-	VMOVDQU 72(BX), Y5
+	VMOVDQU 96(CX), Y4
 
 	// load_blk_mem2vec
-	VMOVDQU 104(BX), Y6
+	VMOVDQU 128(CX), Y5
 
 	// load_blk_mem2vec
-	VMOVDQU 136(BX), Y7
+	VMOVDQU 160(CX), Y6
 
 	// load_blk_mem2vec
-	VMOVDQU 168(BX), Y8
+	VMOVDQU 192(CX), Y7
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+0(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+0(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+32(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+32(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+64(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+64(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+96(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+96(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+128(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+128(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+160(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+160(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+192(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+192(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+224(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+224(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+256(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+256(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+288(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+288(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+320(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+320(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+352(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+352(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+384(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+384(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+416(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+416(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+448(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+448(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+480(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+480(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+512(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+512(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+544(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+544(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+576(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+576(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+608(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+608(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+640(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+640(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+672(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+672(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+704(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+704(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+736(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+736(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+768(SB), Y2
-
 	// mix_even
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_even_alpha
-	VPSLLD $0x1d, Y0, Y9
+	VPSLLD $0x1d, Y0, Y8
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+768(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_even_beta
-	VPSLLD $0x01, Y1, Y2
+	VPSLLD $0x01, Y1, Y8
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
-	VPSHUFD    $0xd2, Y0, Y2
+	VPSHUFD    $0xd2, Y0, Y8
 	VPSHUFD    $0x6c, Y1, Y1
-	VPERM2I128 $0x31, Y1, Y2, Y0
-	VPERM2I128 $0x20, Y1, Y2, Y1
+	VPERM2I128 $0x31, Y1, Y8, Y0
+	VPERM2I128 $0x20, Y1, Y8, Y1
 
 	// msg_exp_odd
-	VPSHUFB Y4, Y7, Y7
+	VPSHUFB Y3, Y6, Y6
+	VPADDD  Y4, Y6, Y6
+	VPSHUFB Y3, Y7, Y7
 	VPADDD  Y5, Y7, Y7
-	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
 
 	// msg_add_odd
-	VPXOR Y7, Y0, Y0
-	VPXOR Y8, Y1, Y1
+	VPXOR Y6, Y0, Y0
+	VPXOR Y7, Y1, Y1
 
 	// load_sc
-	// load_blk_mem2vec
-	VMOVDQA g_StepConstants<>+800(SB), Y2
-
 	// mix_odd
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_blk_odd_alpha
-	VPSLLD $0x05, Y0, Y9
+	VPSLLD $0x05, Y0, Y8
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y8, Y0, Y0
 
 	// xor_with_const
-	VPXOR Y2, Y0, Y0
+	VPXOR g_StepConstants<>+800(SB), Y0, Y0
 
 	// add_blk
 	VPADDD Y0, Y1, Y1
 
 	// rotate_blk_odd_beta
-	VPSLLD $0x11, Y1, Y2
+	VPSLLD $0x11, Y1, Y8
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y8, Y1, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
 
 	// rotate_msg_gamma
-	VPSHUFB Y3, Y1, Y1
+	VPSHUFB Y2, Y1, Y1
 
 	// word_perm
 	VPSHUFD    $0xd2, Y0, Y2
@@ -20509,21 +20269,22 @@ memset_3_1_end:
 	VPERM2I128 $0x20, Y1, Y2, Y1
 
 	// msg_exp_even
-	VPSHUFB Y4, Y5, Y5
+	VPSHUFB Y3, Y4, Y4
+	VPADDD  Y6, Y4, Y4
+	VPSHUFB Y3, Y5, Y5
 	VPADDD  Y7, Y5, Y5
-	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
 
 	// msg_add_even
-	VPXOR Y5, Y0, Y0
-	VPXOR Y6, Y1, Y1
+	VPXOR Y4, Y0, Y0
+	VPXOR Y5, Y1, Y1
 
 	// fin
 	VPXOR Y1, Y0, Y0
 
 	// get_hash
-	MOVL    CX, BX
+	MOVL    (CX), BX
 	ANDL    $0x0000ffff, BX
+	MOVL    (CX), CX
 	SHRL    $0x18, CX
 	VMOVDQU Y0, (DX)
 	CMPL    CX, $0x00000000
@@ -20536,5 +20297,5 @@ memset_3_1_end:
 
 get_hash_if_end:
 	MOVQ ctx+0(FP), CX
-	MOVL AX, 4(CX)
+	MOVL AX, 16(CX)
 	RET
