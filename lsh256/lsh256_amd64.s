@@ -318,6 +318,28 @@ DATA g_BytePermInfo_sse2<>+184(SB)/4, $0xffffffff
 DATA g_BytePermInfo_sse2<>+188(SB)/4, $0xffffffff
 GLOBL g_BytePermInfo_sse2<>(SB), RODATA|NOPTR, $192
 
+DATA g_BytePermInfo_L_ssse3<>+0(SB)/4, $0x03020100
+DATA g_BytePermInfo_L_ssse3<>+4(SB)/4, $0x06050407
+DATA g_BytePermInfo_L_ssse3<>+8(SB)/4, $0x09080b0a
+DATA g_BytePermInfo_L_ssse3<>+12(SB)/4, $0x0c0f0e0d
+GLOBL g_BytePermInfo_L_ssse3<>(SB), RODATA|NOPTR, $16
+
+DATA g_BytePermInfo_R_ssse3<>+0(SB)/4, $0x00030201
+DATA g_BytePermInfo_R_ssse3<>+4(SB)/4, $0x05040706
+DATA g_BytePermInfo_R_ssse3<>+8(SB)/4, $0x0a09080b
+DATA g_BytePermInfo_R_ssse3<>+12(SB)/4, $0x0f0e0d0c
+GLOBL g_BytePermInfo_R_ssse3<>(SB), RODATA|NOPTR, $16
+
+DATA g_MsgWordPermInfo_ssse3<>+0(SB)/4, $0x0f0e0d0c
+DATA g_MsgWordPermInfo_ssse3<>+4(SB)/4, $0x0b0a0908
+DATA g_MsgWordPermInfo_ssse3<>+8(SB)/4, $0x03020100
+DATA g_MsgWordPermInfo_ssse3<>+12(SB)/4, $0x07060504
+DATA g_MsgWordPermInfo_ssse3<>+16(SB)/4, $0x1f1e1d1c
+DATA g_MsgWordPermInfo_ssse3<>+20(SB)/4, $0x13121110
+DATA g_MsgWordPermInfo_ssse3<>+24(SB)/4, $0x17161514
+DATA g_MsgWordPermInfo_ssse3<>+28(SB)/4, $0x1b1a1918
+GLOBL g_MsgWordPermInfo_ssse3<>(SB), RODATA|NOPTR, $32
+
 // func lsh256InitSSE2(ctx *lsh256ContextAsmData)
 // Requires: SSE2
 TEXT ·lsh256InitSSE2(SB), NOSPLIT, $0-8
@@ -385,15 +407,15 @@ TEXT ·lsh256UpdateSSE2(SB), NOSPLIT, $0-36
 	LEAQ 72(AX)(DI*1), AX
 	LEAQ (DX), R8
 	MOVL SI, R9
-	MOVL $0x00000000, R10
 
 memcpy_1_while_start:
 	CMPL R9, $0x00000000
 	JE   memcpy_1_while_end
-	MOVB (R8)(R10*1), DL
-	MOVB DL, (AX)(R10*1)
+	MOVB (R8), DL
+	MOVB DL, (AX)
+	ADDQ $0x00000001, R8
+	ADDQ $0x00000001, AX
 	SUBL $0x00000001, R9
-	ADDL $0x00000001, R10
 	JMP  memcpy_1_while_start
 
 memcpy_1_while_end:
@@ -418,15 +440,15 @@ lsh256_sse2_update_if0_end:
 	LEAQ 72(AX)(DI*1), DI
 	LEAQ (DX), R8
 	MOVL CX, R9
-	MOVL $0x00000000, R10
 
 memcpy_2_while_start:
 	CMPL R9, $0x00000000
 	JE   memcpy_2_while_end
-	MOVB (R8)(R10*1), BL
-	MOVB BL, (DI)(R10*1)
+	MOVB (R8), BL
+	MOVB BL, (DI)
+	ADDQ $0x00000001, R8
+	ADDQ $0x00000001, DI
 	SUBL $0x00000001, R9
-	ADDL $0x00000001, R10
 	JMP  memcpy_2_while_start
 
 memcpy_2_while_end:
@@ -6985,15 +7007,15 @@ lsh256_sse2_update_while_end:
 	LEAQ 72(AX), AX
 	LEAQ (DX), DX
 	MOVL SI, BX
-	MOVL $0x00000000, DI
 
 memcpy_3_while_start:
 	CMPL BX, $0x00000000
 	JE   memcpy_3_while_end
-	MOVB (DX)(DI*1), CL
-	MOVB CL, (AX)(DI*1)
+	MOVB (DX), CL
+	MOVB CL, (AX)
+	ADDQ $0x00000001, DX
+	ADDQ $0x00000001, AX
 	SUBL $0x00000001, BX
-	ADDL $0x00000001, DI
 	JMP  memcpy_3_while_start
 
 memcpy_3_while_end:
@@ -10389,6 +10411,5815 @@ DATA memset_value_0<>+16(SB)/8, $0x0000000000000000
 DATA memset_value_0<>+24(SB)/8, $0x0000000000000000
 GLOBL memset_value_0<>(SB), RODATA|NOPTR, $32
 
+// func lsh256UpdateSSSE3(ctx *lsh256ContextAsmData, data []byte, databitlen uint32)
+// Requires: SSE2, SSSE3
+TEXT ·lsh256UpdateSSSE3(SB), NOSPLIT, $0-36
+	MOVQ ctx+0(FP), AX
+	MOVL (AX), CX
+	MOVL 4(AX), CX
+	MOVQ data_base+8(FP), DX
+	MOVL databitlen+32(FP), BX
+
+	// lsh256_ssse3_update
+	MOVL BX, SI
+	SHRL $0x03, SI
+	MOVL CX, DI
+	SHRL $0x03, DI
+	MOVL SI, R8
+	ADDL DI, R8
+	CMPL R8, $0x00000080
+	JGE  lsh256_ssse3_update_if0_end
+
+	// Memcpy
+	LEAQ 72(AX)(DI*1), AX
+	LEAQ (DX), R8
+	MOVL SI, R9
+
+memcpy_4_while_start:
+	CMPL R9, $0x00000000
+	JE   memcpy_4_while_end
+	MOVB (R8), DL
+	MOVB DL, (AX)
+	ADDQ $0x00000001, R8
+	ADDQ $0x00000001, AX
+	SUBL $0x00000001, R9
+	JMP  memcpy_4_while_start
+
+memcpy_4_while_end:
+	ADDL BX, CX
+	ADDL SI, DI
+	JMP  lsh256_ssse3_update_ret
+
+lsh256_ssse3_update_if0_end:
+	// load_blk_mem2vec
+	MOVOU 8(AX), X0
+	MOVOU 24(AX), X1
+
+	// load_blk_mem2vec
+	MOVOU 40(AX), X2
+	MOVOU 56(AX), X3
+	CMPL  DI, $0x00000000
+	JE    lsh256_ssse3_update_if2_end
+	MOVL  $0x00000080, CX
+	SUBL  DI, CX
+
+	// Memcpy
+	LEAQ 72(AX)(DI*1), DI
+	LEAQ (DX), R8
+	MOVL CX, R9
+
+memcpy_5_while_start:
+	CMPL R9, $0x00000000
+	JE   memcpy_5_while_end
+	MOVB (R8), BL
+	MOVB BL, (DI)
+	ADDQ $0x00000001, R8
+	ADDQ $0x00000001, DI
+	SUBL $0x00000001, R9
+	JMP  memcpy_5_while_start
+
+memcpy_5_while_end:
+	// compress
+	// load_msg_blk
+	// load_blk_mem2vec
+	MOVOU 72(AX), X6
+	MOVOU 88(AX), X7
+
+	// load_blk_mem2vec
+	MOVOU 104(AX), X8
+	MOVOU 120(AX), X9
+
+	// load_blk_mem2vec
+	MOVOU 136(AX), X10
+	MOVOU 152(AX), X11
+
+	// load_blk_mem2vec
+	MOVOU 168(AX), X12
+	MOVOU 184(AX), X13
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+0(SB), X4
+	MOVOA g_StepConstants<>+16(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+32(SB), X4
+	MOVOA g_StepConstants<>+48(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+64(SB), X4
+	MOVOA g_StepConstants<>+80(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+96(SB), X4
+	MOVOA g_StepConstants<>+112(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+128(SB), X4
+	MOVOA g_StepConstants<>+144(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+160(SB), X4
+	MOVOA g_StepConstants<>+176(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+192(SB), X4
+	MOVOA g_StepConstants<>+208(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+224(SB), X4
+	MOVOA g_StepConstants<>+240(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+256(SB), X4
+	MOVOA g_StepConstants<>+272(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+288(SB), X4
+	MOVOA g_StepConstants<>+304(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+320(SB), X4
+	MOVOA g_StepConstants<>+336(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+352(SB), X4
+	MOVOA g_StepConstants<>+368(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+384(SB), X4
+	MOVOA g_StepConstants<>+400(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+416(SB), X4
+	MOVOA g_StepConstants<>+432(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+448(SB), X4
+	MOVOA g_StepConstants<>+464(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+480(SB), X4
+	MOVOA g_StepConstants<>+496(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+512(SB), X4
+	MOVOA g_StepConstants<>+528(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+544(SB), X4
+	MOVOA g_StepConstants<>+560(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+576(SB), X4
+	MOVOA g_StepConstants<>+592(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+608(SB), X4
+	MOVOA g_StepConstants<>+624(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+640(SB), X4
+	MOVOA g_StepConstants<>+656(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+672(SB), X4
+	MOVOA g_StepConstants<>+688(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+704(SB), X4
+	MOVOA g_StepConstants<>+720(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+736(SB), X4
+	MOVOA g_StepConstants<>+752(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+768(SB), X4
+	MOVOA g_StepConstants<>+784(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+800(SB), X4
+	MOVOA g_StepConstants<>+816(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+	ADDQ CX, DX
+	SUBL CX, SI
+	MOVL $0x00000000, DI
+	MOVL $0x00000000, CX
+
+lsh256_ssse3_update_if2_end:
+lsh256_ssse3_update_while_start:
+	CMPL SI, $0x00000080
+	JL   lsh256_ssse3_update_while_end
+
+	// compress
+	// load_msg_blk
+	// load_blk_mem2vec
+	MOVOU (DX), X6
+	MOVOU 16(DX), X7
+
+	// load_blk_mem2vec
+	MOVOU 32(DX), X8
+	MOVOU 48(DX), X9
+
+	// load_blk_mem2vec
+	MOVOU 64(DX), X10
+	MOVOU 80(DX), X11
+
+	// load_blk_mem2vec
+	MOVOU 96(DX), X12
+	MOVOU 112(DX), X13
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+0(SB), X4
+	MOVOA g_StepConstants<>+16(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+32(SB), X4
+	MOVOA g_StepConstants<>+48(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+64(SB), X4
+	MOVOA g_StepConstants<>+80(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+96(SB), X4
+	MOVOA g_StepConstants<>+112(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+128(SB), X4
+	MOVOA g_StepConstants<>+144(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+160(SB), X4
+	MOVOA g_StepConstants<>+176(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+192(SB), X4
+	MOVOA g_StepConstants<>+208(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+224(SB), X4
+	MOVOA g_StepConstants<>+240(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+256(SB), X4
+	MOVOA g_StepConstants<>+272(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+288(SB), X4
+	MOVOA g_StepConstants<>+304(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+320(SB), X4
+	MOVOA g_StepConstants<>+336(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+352(SB), X4
+	MOVOA g_StepConstants<>+368(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+384(SB), X4
+	MOVOA g_StepConstants<>+400(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+416(SB), X4
+	MOVOA g_StepConstants<>+432(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+448(SB), X4
+	MOVOA g_StepConstants<>+464(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+480(SB), X4
+	MOVOA g_StepConstants<>+496(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+512(SB), X4
+	MOVOA g_StepConstants<>+528(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+544(SB), X4
+	MOVOA g_StepConstants<>+560(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+576(SB), X4
+	MOVOA g_StepConstants<>+592(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+608(SB), X4
+	MOVOA g_StepConstants<>+624(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+640(SB), X4
+	MOVOA g_StepConstants<>+656(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+672(SB), X4
+	MOVOA g_StepConstants<>+688(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+704(SB), X4
+	MOVOA g_StepConstants<>+720(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+736(SB), X4
+	MOVOA g_StepConstants<>+752(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+768(SB), X4
+	MOVOA g_StepConstants<>+784(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+800(SB), X4
+	MOVOA g_StepConstants<>+816(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+	ADDQ $0x00000080, DX
+	SUBL $0x00000080, SI
+	JMP  lsh256_ssse3_update_while_start
+
+lsh256_ssse3_update_while_end:
+	// store_blk
+	MOVOU X0, 8(AX)
+	MOVOU X1, 24(AX)
+
+	// store_blk
+	MOVOU X2, 40(AX)
+	MOVOU X3, 56(AX)
+	CMPL  DI, $0x00000000
+	JE    lsh256_ssse3_update_if3_end
+
+	// Memcpy
+	LEAQ 72(AX), AX
+	LEAQ (DX), DX
+	MOVL SI, BX
+
+memcpy_6_while_start:
+	CMPL BX, $0x00000000
+	JE   memcpy_6_while_end
+	MOVB (DX), CL
+	MOVB CL, (AX)
+	ADDQ $0x00000001, DX
+	ADDQ $0x00000001, AX
+	SUBL $0x00000001, BX
+	JMP  memcpy_6_while_start
+
+memcpy_6_while_end:
+	MOVL SI, CX
+	SHLL $0x03, CX
+
+lsh256_ssse3_update_if3_end:
+lsh256_ssse3_update_ret:
+	MOVQ ctx+0(FP), AX
+	MOVL CX, 4(AX)
+	RET
+
+// func lsh256FinalSSSE3(ctx *lsh256ContextAsmData, hashval []byte)
+// Requires: SSE2, SSSE3
+TEXT ·lsh256FinalSSSE3(SB), NOSPLIT, $0-32
+	MOVQ ctx+0(FP), BX
+	MOVL (BX), CX
+	MOVL 4(BX), AX
+	MOVQ hashval_base+8(FP), DX
+
+	// lsh256_ssse3_final
+	MOVL AX, DI
+	SHRL $0x03, DI
+	MOVB $0x80, 72(BX)(DI*1)
+	MOVL DI, SI
+	ADDL $0x01, SI
+	MOVL $0x0000007f, R8
+	SUBL DI, R8
+
+	// memset
+	LEAQ 72(BX)(SI*1), SI
+	MOVL R8, DI
+	MOVL $0x00000000, R8
+	CMPL DI, $0x00000010
+	JL   memset_2_16_end
+	MOVO memset_value_0<>+0(SB), X0
+
+memset_2_16_start:
+	MOVOU X0, (SI)(R8*1)
+	SUBL  $0x00000010, DI
+	ADDL  $0x00000010, R8
+	CMPL  DI, $0x00000010
+	JL    memset_2_16_end
+	JMP   memset_2_16_start
+
+memset_2_16_end:
+	CMPL DI, $0x00000008
+	JL   memset_2_8_end
+	MOVQ memset_value_0<>+0(SB), R9
+
+memset_2_8_start:
+	MOVQ R9, (SI)(R8*1)
+	SUBL $0x00000008, DI
+	ADDL $0x00000008, R8
+	CMPL DI, $0x00000008
+	JL   memset_2_8_end
+	JMP  memset_2_8_start
+
+memset_2_8_end:
+	CMPL DI, $0x00000004
+	JL   memset_2_4_end
+	MOVL memset_value_0<>+0(SB), R9
+
+memset_2_4_start:
+	MOVL R9, (SI)(R8*1)
+	SUBL $0x00000004, DI
+	ADDL $0x00000004, R8
+	CMPL DI, $0x00000004
+	JL   memset_2_4_end
+	JMP  memset_2_4_start
+
+memset_2_4_end:
+	CMPL DI, $0x00000002
+	JL   memset_2_2_end
+	MOVW memset_value_0<>+0(SB), R9
+
+memset_2_2_start:
+	MOVW R9, (SI)(R8*1)
+	SUBL $0x00000002, DI
+	ADDL $0x00000002, R8
+	CMPL DI, $0x00000002
+	JL   memset_2_2_end
+	JMP  memset_2_2_start
+
+memset_2_2_end:
+memset_2_1_start:
+	CMPL DI, $0x00000000
+	JE   memset_2_1_end
+	MOVB $0x00, (SI)(R8*1)
+	SUBL $0x00000001, DI
+	ADDL $0x00000001, R8
+	JMP  memset_2_1_start
+
+memset_2_1_end:
+	// load_blk_mem2vec
+	MOVOU 8(BX), X0
+	MOVOU 24(BX), X1
+
+	// load_blk_mem2vec
+	MOVOU 40(BX), X2
+	MOVOU 56(BX), X3
+
+	// compress
+	// load_msg_blk
+	// load_blk_mem2vec
+	MOVOU 72(BX), X6
+	MOVOU 88(BX), X7
+
+	// load_blk_mem2vec
+	MOVOU 104(BX), X8
+	MOVOU 120(BX), X9
+
+	// load_blk_mem2vec
+	MOVOU 136(BX), X10
+	MOVOU 152(BX), X11
+
+	// load_blk_mem2vec
+	MOVOU 168(BX), X12
+	MOVOU 184(BX), X13
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+0(SB), X4
+	MOVOA g_StepConstants<>+16(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+32(SB), X4
+	MOVOA g_StepConstants<>+48(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+64(SB), X4
+	MOVOA g_StepConstants<>+80(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+96(SB), X4
+	MOVOA g_StepConstants<>+112(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+128(SB), X4
+	MOVOA g_StepConstants<>+144(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+160(SB), X4
+	MOVOA g_StepConstants<>+176(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+192(SB), X4
+	MOVOA g_StepConstants<>+208(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+224(SB), X4
+	MOVOA g_StepConstants<>+240(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+256(SB), X4
+	MOVOA g_StepConstants<>+272(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+288(SB), X4
+	MOVOA g_StepConstants<>+304(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+320(SB), X4
+	MOVOA g_StepConstants<>+336(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+352(SB), X4
+	MOVOA g_StepConstants<>+368(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+384(SB), X4
+	MOVOA g_StepConstants<>+400(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+416(SB), X4
+	MOVOA g_StepConstants<>+432(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+448(SB), X4
+	MOVOA g_StepConstants<>+464(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+480(SB), X4
+	MOVOA g_StepConstants<>+496(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+512(SB), X4
+	MOVOA g_StepConstants<>+528(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+544(SB), X4
+	MOVOA g_StepConstants<>+560(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+576(SB), X4
+	MOVOA g_StepConstants<>+592(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+608(SB), X4
+	MOVOA g_StepConstants<>+624(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+640(SB), X4
+	MOVOA g_StepConstants<>+656(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+672(SB), X4
+	MOVOA g_StepConstants<>+688(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+704(SB), X4
+	MOVOA g_StepConstants<>+720(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+736(SB), X4
+	MOVOA g_StepConstants<>+752(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+768(SB), X4
+	MOVOA g_StepConstants<>+784(SB), X5
+
+	// mix_even
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x1d, X14
+	PSRLL $0x03, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_even_beta
+	MOVOA X2, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x01, X4
+	PSRLL $0x1f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_odd
+	PSHUFD $0x4b, X10, X10
+	PADDD  X6, X10
+	PSHUFD $0x93, X11, X11
+	PADDD  X7, X11
+	PSHUFD $0x4b, X12, X12
+	PADDD  X8, X12
+	PSHUFD $0x93, X13, X13
+	PADDD  X9, X13
+
+	// msg_add_odd
+	PXOR X10, X0
+	PXOR X12, X2
+	PXOR X11, X1
+	PXOR X13, X3
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+800(SB), X4
+	MOVOA g_StepConstants<>+816(SB), X5
+
+	// mix_odd
+	// add_blk
+	PADDD X2, X0
+	PADDD X3, X1
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X0
+	POR   X14, X0
+	MOVOA X1, X14
+	PSLLL $0x05, X14
+	PSRLL $0x1b, X1
+	POR   X14, X1
+
+	// xor_with_const
+	PXOR X4, X0
+	PXOR X5, X1
+
+	// add_blk
+	PADDD X0, X2
+	PADDD X1, X3
+
+	// rotate_blk_odd_beta
+	MOVOA X2, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X2
+	POR   X4, X2
+	MOVOA X3, X4
+	PSLLL $0x11, X4
+	PSRLL $0x0f, X3
+	POR   X4, X3
+
+	// add_blk
+	PADDD  X2, X0
+	PADDD  X3, X1
+	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+
+	// word_perm
+	PSHUFD $0xd2, X0, X0
+	PSHUFD $0xd2, X1, X1
+	PSHUFD $0x6c, X2, X2
+	PSHUFD $0x6c, X3, X3
+	MOVOA  X0, X4
+	MOVOA  X1, X0
+	MOVOA  X3, X1
+	MOVOA  X2, X3
+	MOVOA  X4, X2
+
+	// msg_exp_even
+	PSHUFD $0x4b, X6, X6
+	PADDD  X10, X6
+	PSHUFD $0x93, X7, X7
+	PADDD  X11, X7
+	PSHUFD $0x4b, X8, X8
+	PADDD  X12, X8
+	PSHUFD $0x93, X9, X9
+	PADDD  X13, X9
+
+	// msg_add_even
+	PXOR X6, X0
+	PXOR X8, X2
+	PXOR X7, X1
+	PXOR X9, X3
+
+	// fin
+	PXOR X2, X0
+	PXOR X3, X1
+
+	// get_hash
+	MOVL  CX, BX
+	ANDL  $0x0000ffff, BX
+	SHRL  $0x18, CX
+	MOVOU X0, (DX)
+	MOVOU X1, 16(DX)
+	CMPL  CX, $0x00000000
+	JE    get_hash_if_end
+	MOVB  $0xff, SI
+	SHLB  CL, SI
+	MOVL  BX, CX
+	SUBL  $0x01, CX
+	MOVB  SI, (DX)(CX*1)
+
+get_hash_if_end:
+	MOVQ ctx+0(FP), CX
+	MOVL AX, 4(CX)
+	RET
+
 // func lsh256InitAVX2(ctx *lsh256ContextAsmData)
 // Requires: AVX
 TEXT ·lsh256InitAVX2(SB), NOSPLIT, $0-8
@@ -10448,18 +16279,18 @@ TEXT ·lsh256UpdateAVX2(SB), NOSPLIT, $0-36
 	LEAQ 72(AX)(DI*1), AX
 	LEAQ (DX), R8
 	MOVL SI, R9
-	MOVL $0x00000000, R10
 
-memcpy_4_while_start:
+memcpy_7_while_start:
 	CMPL R9, $0x00000000
-	JE   memcpy_4_while_end
-	MOVB (R8)(R10*1), DL
-	MOVB DL, (AX)(R10*1)
+	JE   memcpy_7_while_end
+	MOVB (R8), DL
+	MOVB DL, (AX)
+	ADDQ $0x00000001, R8
+	ADDQ $0x00000001, AX
 	SUBL $0x00000001, R9
-	ADDL $0x00000001, R10
-	JMP  memcpy_4_while_start
+	JMP  memcpy_7_while_start
 
-memcpy_4_while_end:
+memcpy_7_while_end:
 	ADDL BX, CX
 	ADDL SI, DI
 	JMP  lsh256_avx2_update_ret
@@ -10479,18 +16310,18 @@ lsh256_avx2_update_if0_end:
 	LEAQ 72(AX)(DI*1), DI
 	LEAQ (DX), R8
 	MOVL CX, R9
-	MOVL $0x00000000, R10
 
-memcpy_5_while_start:
+memcpy_8_while_start:
 	CMPL R9, $0x00000000
-	JE   memcpy_5_while_end
-	MOVB (R8)(R10*1), BL
-	MOVB BL, (DI)(R10*1)
+	JE   memcpy_8_while_end
+	MOVB (R8), BL
+	MOVB BL, (DI)
+	ADDQ $0x00000001, R8
+	ADDQ $0x00000001, DI
 	SUBL $0x00000001, R9
-	ADDL $0x00000001, R10
-	JMP  memcpy_5_while_start
+	JMP  memcpy_8_while_start
 
-memcpy_5_while_end:
+memcpy_8_while_end:
 	// compress
 	VMOVDQA g_BytePermInfo_avx2<>+0(SB), Y3
 	VMOVDQA g_MsgWordPermInfo_avx2<>+0(SB), Y4
@@ -12938,18 +18769,18 @@ lsh256_avx2_update_while_end:
 	LEAQ 72(AX), AX
 	LEAQ (DX), DX
 	MOVL SI, BX
-	MOVL $0x00000000, DI
 
-memcpy_6_while_start:
+memcpy_9_while_start:
 	CMPL BX, $0x00000000
-	JE   memcpy_6_while_end
-	MOVB (DX)(DI*1), CL
-	MOVB CL, (AX)(DI*1)
+	JE   memcpy_9_while_end
+	MOVB (DX), CL
+	MOVB CL, (AX)
+	ADDQ $0x00000001, DX
+	ADDQ $0x00000001, AX
 	SUBL $0x00000001, BX
-	ADDL $0x00000001, DI
-	JMP  memcpy_6_while_start
+	JMP  memcpy_9_while_start
 
-memcpy_6_while_end:
+memcpy_9_while_end:
 	MOVL SI, CX
 	SHLL $0x03, CX
 
@@ -12981,66 +18812,66 @@ TEXT ·lsh256FinalAVX2(SB), NOSPLIT, $0-32
 	MOVL R8, DI
 	MOVL $0x00000000, R8
 	CMPL DI, $0x00000010
-	JL   memset_2_16_end
+	JL   memset_3_16_end
 	MOVO memset_value_0<>+0(SB), X0
 
-memset_2_16_start:
+memset_3_16_start:
 	MOVOU X0, (SI)(R8*1)
 	SUBL  $0x00000010, DI
 	ADDL  $0x00000010, R8
 	CMPL  DI, $0x00000010
-	JL    memset_2_16_end
-	JMP   memset_2_16_start
+	JL    memset_3_16_end
+	JMP   memset_3_16_start
 
-memset_2_16_end:
+memset_3_16_end:
 	CMPL DI, $0x00000008
-	JL   memset_2_8_end
+	JL   memset_3_8_end
 	MOVQ memset_value_0<>+0(SB), R9
 
-memset_2_8_start:
+memset_3_8_start:
 	MOVQ R9, (SI)(R8*1)
 	SUBL $0x00000008, DI
 	ADDL $0x00000008, R8
 	CMPL DI, $0x00000008
-	JL   memset_2_8_end
-	JMP  memset_2_8_start
+	JL   memset_3_8_end
+	JMP  memset_3_8_start
 
-memset_2_8_end:
+memset_3_8_end:
 	CMPL DI, $0x00000004
-	JL   memset_2_4_end
+	JL   memset_3_4_end
 	MOVL memset_value_0<>+0(SB), R9
 
-memset_2_4_start:
+memset_3_4_start:
 	MOVL R9, (SI)(R8*1)
 	SUBL $0x00000004, DI
 	ADDL $0x00000004, R8
 	CMPL DI, $0x00000004
-	JL   memset_2_4_end
-	JMP  memset_2_4_start
+	JL   memset_3_4_end
+	JMP  memset_3_4_start
 
-memset_2_4_end:
+memset_3_4_end:
 	CMPL DI, $0x00000002
-	JL   memset_2_2_end
+	JL   memset_3_2_end
 	MOVW memset_value_0<>+0(SB), R9
 
-memset_2_2_start:
+memset_3_2_start:
 	MOVW R9, (SI)(R8*1)
 	SUBL $0x00000002, DI
 	ADDL $0x00000002, R8
 	CMPL DI, $0x00000002
-	JL   memset_2_2_end
-	JMP  memset_2_2_start
+	JL   memset_3_2_end
+	JMP  memset_3_2_start
 
-memset_2_2_end:
-memset_2_1_start:
+memset_3_2_end:
+memset_3_1_start:
 	CMPL DI, $0x00000000
-	JE   memset_2_1_end
+	JE   memset_3_1_end
 	MOVB $0x00, (SI)(R8*1)
 	SUBL $0x00000001, DI
 	ADDL $0x00000001, R8
-	JMP  memset_2_1_start
+	JMP  memset_3_1_start
 
-memset_2_1_end:
+memset_3_1_end:
 	// load_blk_mem2vec
 	VMOVDQU 8(BX), Y0
 

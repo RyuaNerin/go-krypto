@@ -13,6 +13,9 @@ type testCase struct {
 func Test_LSH224_SSE2(t *testing.T) { testAsm(t, testCases224, lshType256H224, simdSetSSE2) }
 func Test_LSH256_SSE2(t *testing.T) { testAsm(t, testCases256, lshType256H256, simdSetSSE2) }
 
+func Test_LSH224_SSSE3(t *testing.T) { testAsm(t, testCases224, lshType256H224, simdSetSSSE3) }
+func Test_LSH256_SSSE3(t *testing.T) { testAsm(t, testCases256, lshType256H256, simdSetSSSE3) }
+
 func Test_LSH224_AVX2(t *testing.T) { testAsm(t, testCases224, lshType256H224, simdSetAVX2) }
 func Test_LSH256_AVX2(t *testing.T) { testAsm(t, testCases256, lshType256H256, simdSetAVX2) }
 

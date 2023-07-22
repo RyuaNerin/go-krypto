@@ -22,13 +22,11 @@ var (
 		update: lsh256UpdateSSE2,
 		final:  lsh256FinalSSE2,
 	}
-	/**
 	simdSetSSSE3 = simdSet{
-		init:   lsh256InitSSSE3,
+		init:   lsh256InitSSE2,
 		update: lsh256UpdateSSSE3,
 		final:  lsh256FinalSSSE3,
 	}
-	*/
 	simdSetAVX2 = simdSet{
 		init:   lsh256InitAVX2,
 		update: lsh256UpdateAVX2,
@@ -39,11 +37,9 @@ var (
 func init() {
 	simdSetDefault = simdSetSSE2
 
-	/**
 	if cpu.X86.HasSSSE3 {
 		simdSetDefault = simdSetSSSE3
 	}
-	*/
 
 	if cpu.X86.HasAVX2 {
 		simdSetDefault = simdSetAVX2

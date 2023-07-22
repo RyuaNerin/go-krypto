@@ -8,6 +8,10 @@ func lsh256UpdateSSE2(ctx *lsh256ContextAsmData, data []byte, databitlen uint32)
 
 func lsh256FinalSSE2(ctx *lsh256ContextAsmData, hashval []byte)
 
+func lsh256UpdateSSSE3(ctx *lsh256ContextAsmData, data []byte, databitlen uint32)
+
+func lsh256FinalSSSE3(ctx *lsh256ContextAsmData, hashval []byte)
+
 func lsh256InitAVX2(ctx *lsh256ContextAsmData)
 
 func lsh256UpdateAVX2(ctx *lsh256ContextAsmData, data []byte, databitlen uint32)

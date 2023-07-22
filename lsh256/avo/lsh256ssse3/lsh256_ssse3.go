@@ -292,7 +292,7 @@ func xor_with_const(cv_l []VecVirtual, const_v []VecVirtual) {
 }
 
 // static INLINE void rotate_msg_gamma(__m128i* cv_r, const __m128i * perm_step){\
-func rotate_msg_gamma(cv_r []VecVirtual, perm_step []VecVirtual) {
+func rotate_msg_gamma(cv_r []VecVirtual, perm_step []Mem) {
 	//cv_r[0] = SHUFFLE8(cv_r[0], perm_step[0]);
 	SHUFFLE8(cv_r[0], perm_step[0])
 	//cv_r[1] = SHUFFLE8(cv_r[1], perm_step[1]);
@@ -326,7 +326,7 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 }
 
 // static INLINE void mix_even(__m128i* cv_l, __m128i* cv_r, const __m128i* const_v, const __m128i * perm_step){
-func mix_even(cv_l, cv_r []VecVirtual, const_v []VecVirtual, perm_step []VecVirtual) {
+func mix_even(cv_l, cv_r []VecVirtual, const_v []VecVirtual, perm_step []Mem) {
 	Comment("mix_even")
 
 	add_blk(cv_l, cv_r)
@@ -339,7 +339,7 @@ func mix_even(cv_l, cv_r []VecVirtual, const_v []VecVirtual, perm_step []VecVirt
 }
 
 // static INLINE void mix_odd(__m128i* cv_l, __m128i* cv_r, const __m128i* const_v, const __m128i * perm_step){
-func mix_odd(cv_l, cv_r []VecVirtual, const_v []VecVirtual, perm_step []VecVirtual) {
+func mix_odd(cv_l, cv_r []VecVirtual, const_v []VecVirtual, perm_step []Mem) {
 	Comment("mix_odd")
 
 	add_blk(cv_l, cv_r)
@@ -358,7 +358,7 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem) {
 	//__m128i const_v[2];			// step function constant
 	const_v := []VecVirtual{XMM(), XMM()}
 	//__m128i perm_step[2];
-	perm_step := []VecVirtual{XMM(), XMM()}
+	perm_step := make([]Mem, 2)
 	//LSH256SSSE3_internal i_state[1];
 	i_state := LSH256SSSE3_internal{
 		submsg_e_l: []VecVirtual{XMM(), XMM()},
@@ -366,12 +366,11 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem) {
 		submsg_o_l: []VecVirtual{XMM(), XMM()},
 		submsg_o_r: []VecVirtual{XMM(), XMM()},
 	}
-	//int i;
 
 	//perm_step[0] = LOAD(g_BytePermInfo_L);
-	LOAD(perm_step[0], g_BytePermInfo_L)
+	perm_step[0] = g_BytePermInfo_L
 	//perm_step[1] = LOAD(g_BytePermInfo_R);
-	LOAD(perm_step[1], g_BytePermInfo_R)
+	perm_step[1] = g_BytePermInfo_R
 
 	load_msg_blk(i_state, pdMsgBlk)
 

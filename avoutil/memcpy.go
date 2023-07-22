@@ -24,12 +24,10 @@ func Memcpy(dst, src Op, size Register) {
 	dstAddr := GP64()
 	srcAddr := GP64()
 	size2 := GP32()
-	idx := GP32()
 
 	LEAQ(dst, dstAddr)
 	LEAQ(src, srcAddr)
 	MOVL(size, size2)
-	MOVL(U32(0), idx)
 
 	labelStart := fmt.Sprintf("memcpy_%d_while_start", memcpyN)
 	labelEnd := fmt.Sprintf("memcpy_%d_while_end", memcpyN)
@@ -38,11 +36,12 @@ func Memcpy(dst, src Op, size Register) {
 	CMPL(size2, U32(0))
 	JE(LabelRef(labelEnd))
 	{
-		MOVB(Mem{Base: srcAddr}.Idx(idx, 1), tmp8)
-		MOVB(tmp8, Mem{Base: dstAddr}.Idx(idx, 1))
+		MOVB(Mem{Base: srcAddr}, tmp8)
+		MOVB(tmp8, Mem{Base: dstAddr})
 
+		ADDQ(U32(1), srcAddr)
+		ADDQ(U32(1), dstAddr)
 		SUBL(U32(1), size2)
-		ADDL(U32(1), idx)
 
 		JMP(LabelRef(labelStart))
 	}
