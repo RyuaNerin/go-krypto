@@ -1,4 +1,4 @@
-package avoutil
+package lsh256avoconst
 
 import (
 	. "github.com/mmcloughlin/avo/build"
@@ -6,20 +6,15 @@ import (
 )
 
 const (
-	LSH_TYPE_256_256 = 0x0000020
-	LSH_TYPE_256_224 = 0x000001C
-
+	/* -------------------------------------------------------- *
+	* LSH: parameters
+	* -------------------------------------------------------- */
 	MSG_BLK_WORD_LEN      = 32
 	CV_WORD_LEN           = 16
 	CONST_WORD_LEN        = 8
 	HASH_VAL_MAX_WORD_LEN = 8
 
 	WORD_BIT_LEN = 32
-
-	LSH256_MSG_BLK_BYTE_LEN      = 128
-	LSH256_MSG_BLK_BIT_LEN       = 1024
-	LSH256_CV_BYTE_LEN           = 64
-	LSH256_HASH_VAL_MAX_BYTE_LEN = 32
 
 	/* -------------------------------------------------------- */
 
@@ -36,19 +31,6 @@ var (
 	G_IV256         Mem
 	G_StepConstants Mem
 )
-
-type lsh256ContextAsmData struct {
-	// 16 aligned
-	algtype uint32
-	_pad0   [16 - 4]byte
-	// 16 aligned
-	remain_databitlen uint32
-	_pad1             [16 - 4]byte
-
-	cv_l       [32 / 4]uint32
-	cv_r       [32 / 4]uint32
-	last_block [128]byte
-}
 
 func init() {
 	var g_IV224 = []uint32{

@@ -283,3 +283,59 @@ func F_mm_shuffle_epi32(dst VecVirtual, x, i Op) VecVirtual {
 	PSHUFD(i, x, dst)
 	return dst
 }
+
+/*
+*
+Synopsis
+
+	__m128i _mm_unpacklo_epi64 (__m128i a, __m128i b)
+	#include <emmintrin.h>
+	Instruction: punpcklqdq xmm, xmm
+	CPUID Flags: SSE2
+
+Description
+
+	Unpack and interleave 64-bit integers from the low half of a and b, and store the results in dst.
+
+Operation
+
+	DEFINE INTERLEAVE_QWORDS(src1[127:0], src2[127:0]) {
+		dst[63:0] := src1[63:0]
+		dst[127:64] := src2[63:0]
+		RETURN dst[127:0]
+	}
+	dst[127:0] := INTERLEAVE_QWORDS(a[127:0], b[127:0])
+*/
+func F_mm_unpacklo_epi64(dst, a, b Op) Op {
+	MOVO_autoAU2(dst, a)
+	MOVLHPS(b, dst)
+	return dst
+}
+
+/*
+*
+Synopsis
+
+	__m128i _mm_unpackhi_epi64 (__m128i a, __m128i b)
+	#include <emmintrin.h>
+	Instruction: punpckhqdq xmm, xmm
+	CPUID Flags: SSE2
+
+Description
+
+	Unpack and interleave 64-bit integers from the high half of a and b, and store the results in dst.
+
+Operation
+
+	DEFINE INTERLEAVE_HIGH_QWORDS(src1[127:0], src2[127:0]) {
+		dst[63:0] := src1[127:64]
+		dst[127:64] := src2[127:64]
+		RETURN dst[127:0]
+	}
+	dst[127:0] := INTERLEAVE_HIGH_QWORDS(a[127:0], b[127:0])
+*/
+func F_mm_unpackhi_epi64(dst, a, b Op) Op {
+	MOVO_autoAU2(dst, a)
+	UNPCKHPD(b, dst)
+	return dst
+}

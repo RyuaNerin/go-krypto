@@ -65,6 +65,9 @@ func VMOVDQ_autoAU(mxy, mxy1 Op) {
 	}
 }
 
+func MOVO_autoAU2(dst, src Op) {
+	MOVO_autoAU(src, dst)
+}
 func MOVO_autoAU(mx, mx1 Op) {
 	if isAligned(XmmSize, mx, mx1) {
 		CheckType(

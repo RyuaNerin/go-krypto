@@ -37,5 +37,18 @@
                 "-pkg", "lsh256",
             ]
         },
+        {
+            "name": "Build LSH512",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/lsh512/avo",
+            "env": {},
+            "args": [
+                "-out", "../lsh512_amd64.s",
+                "-stubs", "../lsh512_amd64_stubs.go",
+                "-pkg", "lsh512",
+            ]
+        },
     ]
 }

@@ -1,0 +1,108 @@
+//go:build amd64
+
+package lsh512
+
+import (
+	"hash"
+)
+
+type simdSet struct {
+	init   func(ctx *lsh512ContextAsmData)
+	update func(ctx *lsh512ContextAsmData, data []byte, databitlen uint32)
+	final  func(ctx *lsh512ContextAsmData, hashval []byte)
+}
+
+var (
+	simdSetDefault simdSet
+
+	simdSetSSE2 = simdSet{
+		init:   lsh512InitSSE2,
+		update: lsh512UpdateSSE2,
+		final:  lsh512FinalSSE2,
+	}
+	/**
+	simdSetSSSE3 = simdSet{
+		init:   lsh512InitSSE2,
+		update: lsh512UpdateSSSE3,
+		final:  lsh512FinalSSSE3,
+	}
+	simdSetAVX2 = simdSet{
+		init:   lsh512InitAVX2,
+		update: lsh512UpdateAVX2,
+		final:  lsh512FinalAVX2,
+	}
+	*/
+)
+
+func init() {
+	simdSetDefault = simdSetSSE2
+
+	/**
+	if cpu.X86.HasSSSE3 {
+		simdSetDefault = simdSetSSSE3
+	}
+
+	if cpu.X86.HasAVX2 {
+		simdSetDefault = simdSetAVX2
+	}
+	*/
+}
+
+func newContextAsm(algType int, simd simdSet) hash.Hash {
+	ctx := new(lsh512ContextAsm)
+	initContextAsm(ctx, algType, simd)
+	return ctx
+}
+
+type lsh512ContextAsm struct {
+	simd simdSet
+
+	data lsh512ContextAsmData
+}
+type lsh512ContextAsmData struct {
+	// 16 aligned
+	algtype uint32
+	_pad0   [16 - 4]byte
+	// 16 aligned
+	remain_databitlen uint32
+	_pad1             [16 - 4]byte
+
+	cv_l       [8]uint64
+	cv_r       [8]uint64
+	last_block [256]byte
+}
+
+func initContextAsm(ctx *lsh512ContextAsm, algtype int, simd simdSet) {
+	ctx.simd = simd
+	ctx.data.algtype = uint32(algtype)
+	ctx.Reset()
+}
+
+func (ctx *lsh512ContextAsm) Size() int {
+	return int(ctx.data.algtype)
+}
+
+func (ctx *lsh512ContextAsm) BlockSize() int {
+	return BlockSize
+}
+
+func (ctx *lsh512ContextAsm) Reset() {
+	ctx.data.remain_databitlen = 0
+	ctx.simd.init(&ctx.data)
+}
+
+func (ctx *lsh512ContextAsm) Write(data []byte) (n int, err error) {
+	if len(data) == 0 {
+		return 0, nil
+	}
+	ctx.simd.update(&ctx.data, data, uint32(len(data)*8))
+
+	return len(data), nil
+}
+
+func (ctx *lsh512ContextAsm) Sum(b []byte) []byte {
+	hash := make([]byte, Size)
+	ctx.simd.final(&ctx.data, hash)
+
+	return append(b, hash[:ctx.Size()]...)
+}
