@@ -61,6 +61,7 @@ func cbcGo(b *testing.B, keySize int, blocks int, newBlockMode func(cipher.Block
 	src := make([]byte, BlockSize*blocks)
 	dst := make([]byte, BlockSize*blocks)
 	b.ResetTimer()
+	b.SetBytes(int64(len(src)))
 	for i := 0; i < b.N; i++ {
 		bm.CryptBlocks(dst, src)
 		copy(src, dst)
@@ -79,6 +80,7 @@ func cbcAsm(b *testing.B, keySize int, blocks int, newBlockMode func(cipher.Bloc
 	src := make([]byte, BlockSize*blocks)
 	dst := make([]byte, BlockSize*blocks)
 	b.ResetTimer()
+	b.SetBytes(int64(len(src)))
 	for i := 0; i < b.N; i++ {
 		bm.CryptBlocks(dst, src)
 		copy(src, dst)

@@ -45,6 +45,7 @@ func block(b *testing.B, keySize int, blocks int, f funcBlock, do bool) {
 	}
 
 	b.ResetTimer()
+	b.SetBytes(int64(len(src)))
 	for i := 0; i < b.N; i++ {
 		f(ctx.round, ctx.rk, dst, src)
 	}
