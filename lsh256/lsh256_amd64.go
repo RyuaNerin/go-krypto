@@ -22,6 +22,9 @@ var (
 		update: lsh256UpdateSSE2,
 		final:  lsh256FinalSSE2,
 	}
+	simdSetSSE2_v2 = simdSet{
+		init: lsh256_sse2_init,
+	}
 	simdSetSSSE3 = simdSet{
 		init:   lsh256InitSSE2,
 		update: lsh256UpdateSSSE3,

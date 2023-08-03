@@ -38,6 +38,19 @@
             ]
         },
         {
+            "name": "Build LSH256 (2)",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/lsh256/avo2",
+            "env": {},
+            "args": [
+                "-out", "../lsh256_amd64_v2.s",
+                "-stubs", "../lsh256_amd64_stubs_v2.go",
+                "-pkg", "lsh256",
+            ]
+        },
+        {
             "name": "Build LSH512",
             "type": "go",
             "request": "launch",
