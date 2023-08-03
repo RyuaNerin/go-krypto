@@ -5,58 +5,44 @@ package lsh256
 import (
 	"bytes"
 	"testing"
+
+	"golang.org/x/sys/cpu"
 )
 
-const (
-	testBlocks = 16 * 1024
-)
+func Test_LSH224_SSE2(t *testing.T) { testAsm(t, testCases224, lshType256H224, simdSetSSE2, true) }
+func Test_LSH256_SSE2(t *testing.T) { testAsm(t, testCases256, lshType256H256, simdSetSSE2, true) }
 
-func Test_LSH224_SSE2(t *testing.T) { testAsm(t, lshType256H224, simdSetSSE2) }
-func Test_LSH256_SSE2(t *testing.T) { testAsm(t, lshType256H256, simdSetSSE2) }
+func Test_LSH224_SSSE3(t *testing.T) {
+	testAsm(t, testCases224, lshType256H224, simdSetSSSE3, cpu.X86.HasSSSE3)
+}
+func Test_LSH256_SSSE3(t *testing.T) {
+	testAsm(t, testCases256, lshType256H256, simdSetSSSE3, cpu.X86.HasSSSE3)
+}
 
-func Test_LSH224_AVX2(t *testing.T) { testAsm(t, lshType256H224, simdSetAVX2) }
-func Test_LSH256_AVX2(t *testing.T) { testAsm(t, lshType256H256, simdSetAVX2) }
+func Test_LSH224_AVX2(t *testing.T) {
+	testAsm(t, testCases224, lshType256H224, simdSetAVX2, cpu.X86.HasAVX2)
+}
+func Test_LSH256_AVX2(t *testing.T) {
+	testAsm(t, testCases256, lshType256H256, simdSetAVX2, cpu.X86.HasAVX2)
+}
 
-func testAsm(t *testing.T, algType algType, simd simdSet) {
-	var hGo lsh256ContextGo
-	initContextGo(&hGo, algType)
-
-	var hAsm lsh256ContextAsm
-	initContextAsm(&hAsm, algType, simd)
-
-	src := make([]byte, BlockSize)
-	for idx := range src {
-		src[idx] = byte(idx)
+func testAsm(t *testing.T, testCases []testCase, algType algType, simd simdSet, nonskip bool) {
+	if !nonskip {
+		t.Skip()
+		return
 	}
-	dstGo := make([]byte, BlockSize)
-	dstAsm := make([]byte, BlockSize)
 
-	for i := 0; i < testBlocks; i++ {
-		hGo.Reset()
-		hAsm.Reset()
+	h := newContextAsm(algType, simd)
 
-		// check
-		for i := 0; i < len(hAsm.data_cv_l); i++ {
-			if hGo.cv[i] != hAsm.data_cv_l[i] {
-				t.Fail()
-			}
-		}
-		for i := 0; i < len(hAsm.data_cv_r); i++ {
-			if hGo.cv[len(hAsm.data_cv_l)+i] != hAsm.data_cv_r[i] {
-				t.Fail()
-			}
-		}
+	out := make([]byte, BlockSize)
 
-		hGo.Write(src)
-		hAsm.Write(src)
+	for _, tc := range testCases {
+		h.Reset()
+		h.Write(tc.M)
+		out = h.Sum(out[:0])
 
-		dstGo = hGo.Sum(dstGo[:0])
-		dstAsm = hAsm.Sum(dstAsm[:0])
-
-		if !bytes.Equal(dstGo, dstAsm) {
+		if !bytes.Equal(out, tc.MD) {
 			t.Fail()
 		}
-
-		copy(src, dstGo)
 	}
 }

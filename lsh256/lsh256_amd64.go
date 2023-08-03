@@ -22,6 +22,11 @@ var (
 		update: lsh256UpdateSSE2,
 		final:  lsh256FinalSSE2,
 	}
+	simdSetSSSE3 = simdSet{
+		init:   lsh256InitSSE2, // lsh256InitSSSE3,
+		update: lsh256UpdateSSSE3,
+		final:  lsh256FinalSSSE3,
+	}
 	simdSetAVX2 = simdSet{
 		init:   lsh256InitAVX2,
 		update: lsh256UpdateAVX2,
@@ -31,6 +36,12 @@ var (
 
 func init() {
 	simdSetDefault = simdSetSSE2
+
+	/**
+	if cpu.X86.HasSSSE3 {
+		simdSetDefault = simdSetSSSE3
+	}
+	*/
 
 	if cpu.X86.HasAVX2 {
 		simdSetDefault = simdSetAVX2
@@ -53,26 +64,23 @@ type lsh256ContextAsm struct {
 	simd simdSet
 
 	data lsh256ContextAsmData
-
-	// AVO에서 어떻게 짜야할 지 몰라서 struct에 할당하고 data에 재할당했음
-	data_cv_l       [32 / 4]uint32
-	data_cv_r       [32 / 4]uint32
-	data_last_block [128]byte // LSH256_MSG_BLK_BYTE_LEN = 128
 }
 type lsh256ContextAsmData struct {
-	algtype           uint32
+	// 16 aligned
+	algtype uint32
+	_pad0   [16 - 4]byte
+	// 16 aligned
 	remain_databitlen uint32
-	cv_l              []uint32
-	cv_r              []uint32
-	last_block        []byte
+	_pad1             [16 - 4]byte
+
+	cv_l       [32 / 4]uint32
+	cv_r       [32 / 4]uint32
+	last_block [128]byte
 }
 
 func initContextAsm(ctx *lsh256ContextAsm, algtype algType, simd simdSet) {
 	ctx.simd = simd
 	ctx.data.algtype = uint32(algtype)
-	ctx.data.cv_l = ctx.data_cv_l[:]
-	ctx.data.cv_r = ctx.data_cv_r[:]
-	ctx.data.last_block = ctx.data_last_block[:]
 	ctx.Reset()
 }
 
