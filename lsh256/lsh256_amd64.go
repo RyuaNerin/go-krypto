@@ -8,6 +8,11 @@ import (
 	"golang.org/x/sys/cpu"
 )
 
+var (
+	hasSSSE3 = cpu.X86.HasSSSE3
+	hasAVX2  = cpu.X86.HasAVX2
+)
+
 type simdSet struct {
 	init   func(ctx *lsh256ContextAsmData)
 	update func(ctx *lsh256ContextAsmData, data []byte, databitlen uint32)
@@ -37,13 +42,11 @@ var (
 func init() {
 	simdSetDefault = simdSetSSE2
 
-	/**
-	if cpu.X86.HasSSSE3 {
+	if hasSSSE3 {
 		simdSetDefault = simdSetSSSE3
 	}
-	*/
 
-	if cpu.X86.HasAVX2 {
+	if hasAVX2 {
 		simdSetDefault = simdSetAVX2
 	}
 }

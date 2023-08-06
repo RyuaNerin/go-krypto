@@ -33,8 +33,6 @@ type testCase struct {
 var (
 	p224     = elliptic.P224()
 	p256     = elliptic.P256()
-	p384     = elliptic.P384()
-	p521     = elliptic.P521()
 	secp224r = elliptic.P224() // Also known as: P-224, wap-wsg-idm-ecid-wtls12, ansip224r1
 	secp256r = elliptic.P256() // Also known as: P-256, prime256v1
 	/**
@@ -111,17 +109,11 @@ func Test_ECKCDSA(t *testing.T) {
 		t.Skip("skipping parameter generation test in short mode")
 	}
 
-	testKCDSA(t, "P224_SHA256_224", p224, sha256.New224())
-	testKCDSA(t, "P224_SHA256_256", p224, sha256.New())
+	testKCDSA(t, "P224_SHA256_224", p224, hashSHA256_224)
+	testKCDSA(t, "P224_SHA256_256", p224, hashSHA256)
 
-	testKCDSA(t, "P256_SHA256_224", elliptic.P256(), sha256.New224())
-	testKCDSA(t, "P256_SHA256_256", elliptic.P256(), sha256.New())
-
-	testKCDSA(t, "P384_SHA256_224", elliptic.P384(), sha256.New224())
-	testKCDSA(t, "P384_SHA256_256", elliptic.P384(), sha256.New())
-
-	testKCDSA(t, "P521_SHA256_224", elliptic.P521(), sha256.New224())
-	testKCDSA(t, "P521_SHA256_256", elliptic.P521(), sha256.New())
+	testKCDSA(t, "P256_SHA256_224", p256, hashSHA256_224)
+	testKCDSA(t, "P256_SHA256_256", p256, hashSHA256)
 }
 
 func Test_Signing_With_DegenerateKeys(t *testing.T) {

@@ -24,7 +24,7 @@ func benchmarkAllSizes(b *testing.B, f func(*testing.B, ParameterSizes)) {
 	}
 }
 
-func Benchmark_KCDSA_GenerateParameters_GO(b *testing.B) {
+func Benchmark_GenerateParameters_GO(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 
@@ -39,7 +39,7 @@ func Benchmark_KCDSA_GenerateParameters_GO(b *testing.B) {
 	})
 }
 
-func Benchmark_KCDSA_GenerateParameters_KISA(b *testing.B) {
+func Benchmark_GenerateParameters_KISA(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 
@@ -54,7 +54,7 @@ func Benchmark_KCDSA_GenerateParameters_KISA(b *testing.B) {
 	})
 }
 
-func Benchmark_KCDSA_GenerateKey(b *testing.B) {
+func Benchmark_GenerateKey_Go(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 
@@ -73,7 +73,7 @@ func Benchmark_KCDSA_GenerateKey(b *testing.B) {
 	})
 }
 
-func Benchmark_KCDSA_GenerateKey_KISA(b *testing.B) {
+func Benchmark_GenerateKey_KISA(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 
@@ -92,7 +92,7 @@ func Benchmark_KCDSA_GenerateKey_KISA(b *testing.B) {
 	})
 }
 
-func Benchmark_KCDSA_Sign(b *testing.B) {
+func Benchmark_Sign(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 		data := []byte(`text`)
@@ -118,7 +118,7 @@ func Benchmark_KCDSA_Sign(b *testing.B) {
 
 }
 
-func Benchmark_KCDSA_Verify(b *testing.B) {
+func Benchmark_Verify(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 		data := []byte(`text`)

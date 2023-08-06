@@ -3,19 +3,14 @@
 package lsh256
 
 import (
+	"hash"
 	"testing"
-
-	"golang.org/x/sys/cpu"
 )
 
-func Benchmark_LSH256_Reset_SSSE3(b *testing.B) {
-	benchReset(b, newContextAsm(lshType256H256, simdSetSSSE3), cpu.X86.HasSSSE3)
-}
+func Benchmark_Hash_8_SSSE3(b *testing.B)  { benchmarkSize(b, newSSSE3, 8, true) }
+func Benchmark_Hash_1K_SSSE3(b *testing.B) { benchmarkSize(b, newSSSE3, 1024, true) }
+func Benchmark_Hash_8K_SSSE3(b *testing.B) { benchmarkSize(b, newSSSE3, 8192, true) }
 
-func Benchmark_LSH256_Write_SSSE3(b *testing.B) {
-	benchWrite(b, newContextAsm(lshType256H256, simdSetSSSE3), cpu.X86.HasSSSE3)
-}
-
-func Benchmark_LSH256_WriteSum_SSSE3(b *testing.B) {
-	benchSum(b, newContextAsm(lshType256H256, simdSetSSSE3), cpu.X86.HasSSSE3)
+func newSSSE3(algType algType) hash.Hash {
+	return newContextAsm(algType, simdSetSSSE3)
 }

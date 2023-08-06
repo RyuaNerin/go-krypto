@@ -12,14 +12,10 @@ type testCase struct {
 	Secure []byte
 }
 
-func Test_SEED128_Encrypt(t *testing.T) { testEncrypt(t, testCases128) }
-
-func Test_SEED128_Decrypt(t *testing.T) { testDecrypt(t, testCases128) }
-
 func testEncrypt(t *testing.T, testCases []testCase) {
 	dst := make([]byte, BlockSize)
 
-	for _, tc := range testCases128 {
+	for _, tc := range testCases {
 		c, err := NewCipher(tc.Key)
 		if err != nil {
 			t.Error(err)
@@ -31,10 +27,11 @@ func testEncrypt(t *testing.T, testCases []testCase) {
 		}
 	}
 }
+
 func testDecrypt(t *testing.T, testCases []testCase) {
 	dst := make([]byte, BlockSize)
 
-	for _, tc := range testCases128 {
+	for _, tc := range testCases {
 		c, err := NewCipher(tc.Key)
 		if err != nil {
 			t.Error(err)

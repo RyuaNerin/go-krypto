@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func Benchmark_ECKCDSA_GenerateKey(b *testing.B) {
+func Benchmark_GenerateKey(b *testing.B) {
 	tests := []struct {
 		name  string
 		curve elliptic.Curve
@@ -52,7 +52,7 @@ func benchmarkAllSizes(b *testing.B, f func(*testing.B, elliptic.Curve, hash.Has
 	}
 }
 
-func Benchmark_ECKCDSA_Sign(b *testing.B) {
+func Benchmark_Sign(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, c elliptic.Curve, h hash.Hash) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 		data := []byte(`text`)
@@ -74,7 +74,7 @@ func Benchmark_ECKCDSA_Sign(b *testing.B) {
 	})
 }
 
-func Benchmark_ECKCDSA_Verify(b *testing.B) {
+func Benchmark_Verify(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, c elliptic.Curve, h hash.Hash) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 		data := []byte(`text`)

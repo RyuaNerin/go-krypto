@@ -4,9 +4,9 @@ import (
 	"testing"
 )
 
-func Benchmark_SEED128_New(b *testing.B)     { benchNew(b, 128) }
-func Benchmark_SEED128_Encrypt(b *testing.B) { benchEncrypt(b, 128) }
-func Benchmark_SEED128_Decrypt(b *testing.B) { benchDecrypt(b, 128) }
+func Benchmark_New(b *testing.B)     { benchNew(b, 128) }
+func Benchmark_Encrypt(b *testing.B) { benchEncrypt(b, 128) }
+func Benchmark_Decrypt(b *testing.B) { benchDecrypt(b, 128) }
 
 func benchNew(b *testing.B, keySize int) {
 	k := make([]byte, keySize/8)

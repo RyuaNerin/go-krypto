@@ -10,6 +10,7 @@ import (
 	"math"
 	"math/big"
 
+	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
 )
 
@@ -54,8 +55,7 @@ func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 		return nil, err
 	}
 
-	dInv := new(big.Int)
-	dInv.ModInverse(d, c.Params().N)
+	dInv := internal.FermatInverse(d, c.Params().N)
 
 	priv := new(PrivateKey)
 	priv.PublicKey.Curve = c

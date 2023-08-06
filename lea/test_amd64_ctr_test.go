@@ -3,20 +3,23 @@
 package lea
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/cipher"
+	"crypto/rand"
 	"testing"
 )
 
-func Test_LEA128_CTR_Asm(t *testing.T) { testCTR(t, 128) }
-func Test_LEA196_CTR_Asm(t *testing.T) { testCTR(t, 196) }
-func Test_LEA256_CTR_Asm(t *testing.T) { testCTR(t, 256) }
+func Test_BlockMode_CTR_Asm(t *testing.T) { testAll(t, testCTR) }
 
 func testCTR(t *testing.T, keySize int) {
+	rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
+
 	var ctxGo leaContextGo
 	var ctxAsm leaContextAsm
 
 	key := make([]byte, keySize/8)
+	rnd.Read(key)
 
 	err := ctxGo.initContext(key)
 	if err != nil {
@@ -29,13 +32,16 @@ func testCTR(t *testing.T, keySize int) {
 	}
 
 	iv := make([]byte, BlockSize)
-	src := make([]byte, BlockSize)
-	dstGo := make([]byte, BlockSize)
-	dstAsm := make([]byte, BlockSize)
+	rnd.Read(iv)
 
 	ctrGo := cipher.NewCTR(&ctxGo, iv)
 	ctrAsm := cipher.NewCTR(&ctxGo, iv)
 
+	src := make([]byte, BlockSize)
+	dstGo := make([]byte, BlockSize)
+	dstAsm := make([]byte, BlockSize)
+
+	rnd.Read(src)
 	for i := 0; i < testBlocks; i++ {
 		ctrGo.XORKeyStream(dstGo, src)
 		ctrAsm.XORKeyStream(dstAsm, src)

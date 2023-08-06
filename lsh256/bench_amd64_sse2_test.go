@@ -2,16 +2,15 @@
 
 package lsh256
 
-import "testing"
+import (
+	"hash"
+	"testing"
+)
 
-func Benchmark_LSH256_Reset_SSE2(b *testing.B) {
-	benchReset(b, newContextAsm(lshType256H256, simdSetSSE2), true)
-}
+func Benchmark_Hash_8_SSE2(b *testing.B)  { benchmarkSize(b, newSSE2, 8, true) }
+func Benchmark_Hash_1K_SSE2(b *testing.B) { benchmarkSize(b, newSSE2, 1024, true) }
+func Benchmark_Hash_8K_SSE2(b *testing.B) { benchmarkSize(b, newSSE2, 8192, true) }
 
-func Benchmark_LSH256_Write_SSE2(b *testing.B) {
-	benchWrite(b, newContextAsm(lshType256H256, simdSetSSE2), true)
-}
-
-func Benchmark_LSH256_WriteSum_SSE2(b *testing.B) {
-	benchSum(b, newContextAsm(lshType256H256, simdSetSSE2), true)
+func newSSE2(algType algType) hash.Hash {
+	return newContextAsm(algType, simdSetSSE2)
 }

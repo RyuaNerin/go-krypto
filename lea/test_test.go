@@ -12,13 +12,22 @@ type testCase struct {
 	Secure []byte
 }
 
-func Test_LEA128_Encrypt_1Block_Go(t *testing.T) { testEncryptGo(t, testCases128) }
-func Test_LEA196_Encrypt_1Block_Go(t *testing.T) { testEncryptGo(t, testCases196) }
-func Test_LEA256_Encrypt_1Block_Go(t *testing.T) { testEncryptGo(t, testCases256) }
-
-func Test_LEA128_Decrypt_1Block_Go(t *testing.T) { testDecryptGo(t, testCases128) }
-func Test_LEA196_Decrypt_1Block_Go(t *testing.T) { testDecryptGo(t, testCases196) }
-func Test_LEA256_Decrypt_1Block_Go(t *testing.T) { testDecryptGo(t, testCases256) }
+func testAll(t *testing.T, f func(*testing.T, int)) {
+	tests := []struct {
+		name    string
+		keySize int
+	}{
+		{"128", 128},
+		{"196", 196},
+		{"256", 256},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			f(t, test.keySize)
+		})
+	}
+}
 
 func testEncryptGo(t *testing.T, testCases []testCase) {
 	dst := make([]byte, BlockSize)

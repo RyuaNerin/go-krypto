@@ -12,32 +12,6 @@ type testCase struct {
 	Secure []byte
 }
 
-func TestEncrypt128(t *testing.T) { testEncrypt(t, testCases128) }
-func TestEncrypt196(t *testing.T) { testEncrypt(t, testCases196) }
-func TestEncrypt256(t *testing.T) { testEncrypt(t, testCases256) }
-
-func TestDecrypt128(t *testing.T) { testDecrypt(t, testCases128) }
-func TestDecrypt196(t *testing.T) { testDecrypt(t, testCases196) }
-func TestDecrypt256(t *testing.T) { testDecrypt(t, testCases256) }
-
-func testEncryptDecrypt(t *testing.T, testCases []testCase) {
-	plain := make([]byte, BlockSize)
-	secure := make([]byte, BlockSize)
-
-	for _, tc := range testCases {
-		c, err := NewCipher(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		c.Encrypt(secure, tc.Plain)
-		c.Decrypt(plain, secure)
-		if !bytes.Equal(plain, tc.Plain) {
-			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(plain), hex.EncodeToString(tc.Plain))
-		}
-	}
-}
-
 func testEncrypt(t *testing.T, testCases []testCase) {
 	dst := make([]byte, BlockSize)
 

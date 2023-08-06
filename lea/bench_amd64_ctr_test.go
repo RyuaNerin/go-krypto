@@ -7,14 +7,8 @@ import (
 	"testing"
 )
 
-func Benchmark_LEA128_CTR_Go(b *testing.B)  { ctrGo(b, 128) }
-func Benchmark_LEA128_CTR_Asm(b *testing.B) { ctrAsm(b, 128) }
-
-func Benchmark_LEA196_CTR_Go(b *testing.B)  { ctrGo(b, 196) }
-func Benchmark_LEA196_CTR_Asm(b *testing.B) { ctrAsm(b, 196) }
-
-func Benchmark_LEA256_CTR_Go(b *testing.B)  { ctrGo(b, 256) }
-func Benchmark_LEA256_CTR_Asm(b *testing.B) { ctrAsm(b, 256) }
+func Benchmark_BlockMode_CTR_Go(b *testing.B)  { benchAll(b, ctrGo) }
+func Benchmark_BlockMode_CTR_Asm(b *testing.B) { benchAll(b, ctrAsm) }
 
 func ctrGo(b *testing.B, keySize int) {
 	var ctx leaContextGo
@@ -27,6 +21,8 @@ func ctrGo(b *testing.B, keySize int) {
 
 	src := make([]byte, BlockSize)
 	dst := make([]byte, BlockSize)
+
+	b.ReportAllocs()
 	b.ResetTimer()
 	b.SetBytes(int64(len(src)))
 	for i := 0; i < b.N; i++ {
@@ -46,6 +42,8 @@ func ctrAsm(b *testing.B, keySize int) {
 
 	src := make([]byte, BlockSize)
 	dst := make([]byte, BlockSize)
+
+	b.ReportAllocs()
 	b.ResetTimer()
 	b.SetBytes(int64(len(src)))
 	for i := 0; i < b.N; i++ {

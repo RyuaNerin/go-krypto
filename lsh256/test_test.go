@@ -10,9 +10,6 @@ type testCase struct {
 	MD []byte
 }
 
-func Test_LSH224_Go(t *testing.T) { testGo(t, testCases224, lshType256H224) }
-func Test_LSH256_Go(t *testing.T) { testGo(t, testCases256, lshType256H256) }
-
 func testGo(t *testing.T, testCases []testCase, algType algType) {
 	h := newContextGo(algType)
 

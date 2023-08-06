@@ -1,60 +1,77 @@
 package aria
 
 import (
+	"bufio"
+	"crypto/cipher"
+	"crypto/rand"
 	"testing"
 )
 
-func Benchmark_ARIA128_New(b *testing.B) { benchNewCipher(b, 128) }
-func Benchmark_ARIA196_New(b *testing.B) { benchNewCipher(b, 196) }
-func Benchmark_ARIA256_New(b *testing.B) { benchNewCipher(b, 256) }
+func Benchmark_ARIA_New(b *testing.B) {
+	benchmarkAllSizes(
+		b,
+		func(b *testing.B, keySize int) {
+			rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
+			k := make([]byte, keySize/8)
 
-func Benchmark_ARIA128_Encrypt(b *testing.B) { benchEncrypt(b, 128) }
-func Benchmark_ARIA196_Encrypt(b *testing.B) { benchEncrypt(b, 196) }
-func Benchmark_ARIA256_Encrypt(b *testing.B) { benchEncrypt(b, 256) }
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				rnd.Read(k)
+				_, err := NewCipher(k)
+				if err != nil {
+					b.Error(err)
+				}
+			}
+		},
+	)
+}
 
-func Benchmark_ARIA128_Decrypt(b *testing.B) { benchDecrypt(b, 128) }
-func Benchmark_ARIA196_Decrypt(b *testing.B) { benchDecrypt(b, 196) }
-func Benchmark_ARIA256_Decrypt(b *testing.B) { benchDecrypt(b, 256) }
+func Benchmark_ARIA_Encrypt(b *testing.B) {
+	benchmarkAllSizesBlock(b, func(c cipher.Block, dst, src []byte) { c.Encrypt(dst, src) })
+}
 
-func benchNewCipher(b *testing.B, keySize int) {
-	k := make([]byte, keySize/8)
+func Benchmark_Decrypt(b *testing.B) {
+	benchmarkAllSizesBlock(b, func(c cipher.Block, dst, src []byte) { c.Decrypt(dst, src) })
+}
 
-	for i := 0; i < b.N; i++ {
-		_, err := NewCipher(k)
-		if err != nil {
-			b.Error(err)
-		}
+func benchmarkAllSizes(b *testing.B, f func(*testing.B, int)) {
+	tests := []struct {
+		name    string
+		keySize int
+	}{
+		{"128", 128},
+		{"196", 196},
+		{"256", 256},
+	}
+	for _, test := range tests {
+		test := test
+		b.Run(test.name, func(b *testing.B) {
+			f(b, test.keySize)
+		})
 	}
 }
 
-func benchEncrypt(b *testing.B, keySize int) {
-	k := make([]byte, keySize/8)
-	c, err := NewCipher(k)
-	if err != nil {
-		b.Error(err)
-	}
+func benchmarkAllSizesBlock(b *testing.B, do func(c cipher.Block, dst []byte, src []byte)) {
+	benchmarkAllSizes(
+		b,
+		func(b *testing.B, keySize int) {
+			k := make([]byte, keySize/8)
+			c, err := NewCipher(k)
+			if err != nil {
+				b.Error(err)
+			}
 
-	src := make([]byte, BlockSize)
-	dst := make([]byte, BlockSize)
+			src := make([]byte, BlockSize)
+			dst := make([]byte, BlockSize)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		c.Encrypt(dst, src)
-	}
-}
-
-func benchDecrypt(b *testing.B, keySize int) {
-	k := make([]byte, keySize/8)
-	c, err := NewCipher(k)
-	if err != nil {
-		b.Error(err)
-	}
-
-	src := make([]byte, BlockSize)
-	dst := make([]byte, BlockSize)
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		c.Decrypt(dst, src)
-	}
+			b.ReportAllocs()
+			b.ResetTimer()
+			b.SetBytes(BlockSize)
+			for i := 0; i < b.N; i++ {
+				do(c, dst, src)
+				copy(src, dst)
+			}
+		},
+	)
 }
