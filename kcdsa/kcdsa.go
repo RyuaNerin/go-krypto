@@ -227,7 +227,7 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 }
 
 // Sign data using K generated randomly like in crypto/dsa packages.
-func Sign(randReader io.Reader, priv *PrivateKey, data io.Reader) (r, s *big.Int, err error) {
+func Sign(randReader io.Reader, priv *PrivateKey, data []byte) (r, s *big.Int, err error) {
 	switch priv.Sizes {
 	case L2048N224SHA224:
 	case L2048N224SHA256:
@@ -269,7 +269,7 @@ func Sign(randReader io.Reader, priv *PrivateKey, data io.Reader) (r, s *big.Int
 }
 
 // Sign data using K Specified
-func SignWithK(K *big.Int, priv *PrivateKey, data io.Reader) (r, s *big.Int, err error) {
+func SignWithK(K *big.Int, priv *PrivateKey, data []byte) (r, s *big.Int, err error) {
 	domain, err := priv.Sizes.domain()
 	if err != nil {
 		return nil, nil, err
@@ -309,10 +309,7 @@ func SignWithK(K *big.Int, priv *PrivateKey, data io.Reader) (r, s *big.Int, err
 	//fmt.Println("step 5. h = trunc(Hash(Z||M), β)")
 	h.Reset()
 	h.Write(ZBytes)
-	_, err = io.Copy(h, data)
-	if err != nil {
-		return
-	}
+	h.Write(data)
 	HBytes := h.Sum(nil)
 	HBytes = HBytes[len(HBytes)-(domain.B/8):]
 	H := new(big.Int).SetBytes(HBytes)
@@ -346,20 +343,20 @@ func SignWithK(K *big.Int, priv *PrivateKey, data io.Reader) (r, s *big.Int, err
 	return
 }
 
-func Verify(pub *PublicKey, data io.Reader, R, S *big.Int) (ok bool, err error) {
+func Verify(pub *PublicKey, data []byte, R, S *big.Int) bool {
 	domain, err := pub.Sizes.domain()
 	if err != nil {
-		return false, err
+		return false
 	}
 	h := domain.NewHash()
 
 	// step 1. 수신된 서명 {R', S'}에 대해 |R'|=LH, 0 < S' < Q 임을 확인한다.
 	if pub.P.Sign() == 0 {
-		return false, ErrInvalidPublicKey
+		return false
 	}
 
 	if S.Sign() < 1 || S.Cmp(pub.Q) >= 0 {
-		return false, ErrInvalidPublicKey
+		return false
 	}
 
 	// step 2. Z = Y mod 2^l
@@ -376,10 +373,7 @@ func Verify(pub *PublicKey, data io.Reader, R, S *big.Int) (ok bool, err error) 
 	//fmt.Println("step 3. h = trunc(Hash(Z||M), β)")
 	h.Reset()
 	h.Write(ZBytes)
-	_, err = io.Copy(h, data)
-	if err != nil {
-		return
-	}
+	h.Write(data)
 	HBytes := h.Sum(nil)
 	HBytes = HBytes[len(HBytes)-(domain.B/8):]
 	H := new(big.Int).SetBytes(HBytes)
@@ -420,5 +414,5 @@ func Verify(pub *PublicKey, data io.Reader, R, S *big.Int) (ok bool, err error) 
 	//fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 
-	return R.Cmp(r) == 0, nil
+	return R.Cmp(r) == 0
 }

@@ -8,7 +8,11 @@ import (
 )
 
 func Test_KISA_GenerateJ(t *testing.T) {
-	for _, tc := range testCases {
+	if testing.Short() {
+		t.Skip("skipping parameter generation test in short mode")
+	}
+
+	for _, tc := range testCase_TTAK {
 		domain, _ := tc.Sizes.domain()
 		J, err := kcdsakisa.GenerateJ(tc.Seed_, domain.Domain)
 		if err != nil {
@@ -21,7 +25,11 @@ func Test_KISA_GenerateJ(t *testing.T) {
 }
 
 func Test_KISA_GeneratePQ(t *testing.T) {
-	for _, tc := range testCases {
+	if testing.Short() {
+		t.Skip("skipping parameter generation test in short mode")
+	}
+
+	for _, tc := range testCase_TTAK {
 		domain, _ := tc.Sizes.domain()
 		P, Q, count, err := kcdsakisa.GeneratePQ(tc.J, tc.Seed_, domain.Domain)
 		if err != nil {
@@ -34,7 +42,11 @@ func Test_KISA_GeneratePQ(t *testing.T) {
 }
 
 func Test_KISA_GenerateHG(t *testing.T) {
-	for _, tc := range testCases {
+	if testing.Short() {
+		t.Skip("skipping parameter generation test in short mode")
+	}
+
+	for _, tc := range testCase_TTAK {
 		_, _, err := kcdsakisa.GenerateHG(rand.Reader, tc.P, tc.J)
 		if err != nil {
 			t.Error(err)
@@ -43,7 +55,11 @@ func Test_KISA_GenerateHG(t *testing.T) {
 }
 
 func Test_KISA_GenerateG(t *testing.T) {
-	for _, tc := range testCases {
+	if testing.Short() {
+		t.Skip("skipping parameter generation test in short mode")
+	}
+
+	for _, tc := range testCase_TTAK {
 		G, err := kcdsakisa.GenerateG(tc.P, tc.J, tc.H)
 		if err != nil {
 			t.Error(err)
@@ -55,7 +71,11 @@ func Test_KISA_GenerateG(t *testing.T) {
 }
 
 func Test_KISA_GenerateXYZ(t *testing.T) {
-	for _, tc := range testCases {
+	if testing.Short() {
+		t.Skip("skipping parameter generation test in short mode")
+	}
+
+	for _, tc := range testCase_TTAK {
 		domain, _ := tc.Sizes.domain()
 		X, Y, Z, _, err := kcdsakisa.GenerateXYZ(tc.P, tc.Q, tc.G, UserProvidedRandomInput, tc.XKEY, domain.Domain)
 		if err != nil {
@@ -67,7 +87,7 @@ func Test_KISA_GenerateXYZ(t *testing.T) {
 	}
 }
 
-func Test_GenerateParametersKISA(t *testing.T) {
+func Test_kcdsa_GenerateParametersKISA(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping parameter generation test in short mode")
 	}

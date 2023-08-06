@@ -26,7 +26,7 @@ func H(s string) string {
 func HI(s string) *big.Int {
 	s = H(s)
 	if len(s)%2 != 0 {
-		panic("len(s) must be a multiple of 2")
+		s = "0" + s
 	}
 	result, ok := new(big.Int).SetString(s, 16)
 	if !ok {
