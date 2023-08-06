@@ -1,3 +1,4 @@
+// Package lea implements LEA encryption, as defined in TTAK.KO-12.0223
 package lea
 
 import (
@@ -5,8 +6,25 @@ import (
 	"fmt"
 )
 
+type funcNew func(key []byte) (cipher.Block, error)
+type funcBlock func(round int, rk []uint32, dst, src []byte)
+
 var (
-	useASM = false
+	leaEnc1 funcBlock = leaEnc1Go
+	leaEnc4 funcBlock = leaEnc4Go
+	leaEnc8 funcBlock = leaEnc8Go
+
+	leaDec1 funcBlock = leaDec1Go
+	leaDec4 funcBlock = leaDec4Go
+	leaDec8 funcBlock = leaDec8Go
+
+	leaNew    funcNew = newCipherGo
+	leaNewECB funcNew = newCipherECBGo
+)
+
+const (
+	// The LEA block size in bytes.
+	BlockSize = 16
 )
 
 type KeySizeError int

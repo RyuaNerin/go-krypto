@@ -1,8 +1,14 @@
+// Package seed implements SEED encryption, as defined in TTAS.KO-12.0004/R1
 package seed
 
 import (
 	"crypto/cipher"
 	"fmt"
+)
+
+const (
+	// The SEED block size in bytes.
+	BlockSize = 16
 )
 
 type KeySizeError int

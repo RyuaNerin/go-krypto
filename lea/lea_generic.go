@@ -7,22 +7,6 @@ import (
 	"math/bits"
 )
 
-type funcNew func(key []byte) (cipher.Block, error)
-type funcBlock func(round int, rk []uint32, dst, src []byte)
-
-var (
-	leaEnc1 funcBlock = leaEnc1Go
-	leaEnc4 funcBlock = leaEnc4Go
-	leaEnc8 funcBlock = leaEnc8Go
-
-	leaDec1 funcBlock = leaDec1Go
-	leaDec4 funcBlock = leaDec4Go
-	leaDec8 funcBlock = leaDec8Go
-
-	leaNew    funcNew = newCipherGo
-	leaNewECB funcNew = newCipherECBGo
-)
-
 type leaContextGo struct {
 	round int
 	rk    []uint32

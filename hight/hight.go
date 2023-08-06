@@ -1,8 +1,15 @@
+// Package hight implements HIGHT encryption, as defined in TTAS.KO-12.0040/R1
 package hight
 
 import (
 	"crypto/cipher"
 	"fmt"
+)
+
+const (
+	// The HIGHT block size in bytes.
+	BlockSize = 8
+	KeySize   = 16
 )
 
 type KeySizeError int
