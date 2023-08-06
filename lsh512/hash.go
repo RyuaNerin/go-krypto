@@ -19,49 +19,33 @@ const (
 	Size224 = 28
 
 	// The blocksize of LSH-512, LSH-384, LSH-512-256 and LSH-512-224 in bytes.
-	BLOCKSIZE = 256
+	BlockSize = 256
 )
 
-// New returns a new hash.Hash computing the LSH-512 checksum.
-func New() hash.Hash {
+func newHash(size int) hash.Hash {
 	h := &lsh512{
-		outlenbits: 512,
+		outlenbits: size * 8,
 	}
 	h.Reset()
 	return h
 }
+
+// New returns a new hash.Hash computing the LSH-512 checksum.
+func New() hash.Hash { return newHash(Size) }
 
 // New384 returns a new hash.Hash computing the LSH-384 checksum.
-func New384() hash.Hash {
-	h := &lsh512{
-		outlenbits: 384,
-	}
-	h.Reset()
-	return h
-}
+func New384() hash.Hash { return newHash(Size384) }
 
 // New256 returns a new hash.Hash computing the LSH-512-256 checksum.
-func New256() hash.Hash {
-	h := &lsh512{
-		outlenbits: 256,
-	}
-	h.Reset()
-	return h
-}
+func New256() hash.Hash { return newHash(Size256) }
 
 // New224 returns a new hash.Hash computing the LSH-512-224 checksum.
-func New224() hash.Hash {
-	h := &lsh512{
-		outlenbits: 224,
-	}
-	h.Reset()
-	return h
-}
+func New224() hash.Hash { return newHash(Size224) }
 
 // Sum512 returns the LSH-512 checksum of the data.
 func Sum512(data []byte) (sum [Size]byte) {
 	b := lsh512{
-		outlenbits: 512,
+		outlenbits: Size * 8,
 	}
 	b.Reset()
 	b.Write(data)
@@ -72,7 +56,7 @@ func Sum512(data []byte) (sum [Size]byte) {
 // Sum384 returns the LSH-384 checksum of the data.
 func Sum384(data []byte) (sum384 [Size384]byte) {
 	b := lsh512{
-		outlenbits: 384,
+		outlenbits: Size384 * 8,
 	}
 	b.Reset()
 	b.Write(data)
@@ -85,7 +69,7 @@ func Sum384(data []byte) (sum384 [Size384]byte) {
 // Sum256 returns the LSH-512-256 checksum of the data.
 func Sum256(data []byte) (sum256 [Size256]byte) {
 	b := lsh512{
-		outlenbits: 256,
+		outlenbits: Size256 * 8,
 	}
 	b.Reset()
 	b.Write(data)
@@ -98,7 +82,7 @@ func Sum256(data []byte) (sum256 [Size256]byte) {
 // Sum224 returns the LSH-512-224 checksum of the data.
 func Sum224(data []byte) (sum224 [Size224]byte) {
 	b := lsh512{
-		outlenbits: 224,
+		outlenbits: Size224 * 8,
 	}
 	b.Reset()
 	b.Write(data)

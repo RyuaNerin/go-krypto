@@ -103,14 +103,14 @@ var (
 
 	emptyTCV   = [16]uint64{}
 	emptyMsg   = [16 * (numStep + 1)]uint64{}
-	emptyBlock = [BLOCKSIZE]byte{}
+	emptyBlock = [BlockSize]byte{}
 )
 
 type lsh512 struct {
 	cv    [16]uint64
 	tcv   [16]uint64
 	msg   [16 * (numStep + 1)]uint64
-	block [BLOCKSIZE]byte
+	block [BlockSize]byte
 
 	boff       int
 	outlenbits int
@@ -121,7 +121,7 @@ func (b *lsh512) Size() int {
 }
 
 func (b *lsh512) BlockSize() int {
-	return BLOCKSIZE
+	return BlockSize
 }
 
 func (b *lsh512) Reset() {
@@ -159,7 +159,7 @@ func (b *lsh512) Write(p []byte) (n int, err error) {
 		return 0, ErrInvalidDataBitLen
 	}
 
-	gap := BLOCKSIZE - idx
+	gap := BlockSize - idx
 	if idx > 0 && rbytes >= gap {
 		copy(b.block[idx:], p[:gap])
 		b.compress(b.block[:], 0)
@@ -171,8 +171,8 @@ func (b *lsh512) Write(p []byte) (n int, err error) {
 	for rbytes >= len(b.block) {
 		b.compress(p, offset)
 		b.boff = 0
-		offset += BLOCKSIZE
-		rbytes -= BLOCKSIZE
+		offset += BlockSize
+		rbytes -= BlockSize
 	}
 
 	if rbytes > 0 {
