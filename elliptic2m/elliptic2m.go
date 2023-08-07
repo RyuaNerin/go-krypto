@@ -20,25 +20,37 @@ var (
 	k283 curve
 )
 
+// Also known as: sect233r1, wap-wsg-idm-ecid-wtls11, ansit233r1
 func B233() elliptic.Curve {
 	initonce.Do(initAll)
 	return &b233
 }
+func Sect233r1() elliptic.Curve  { return B233() }
+func Ansit233r1() elliptic.Curve { return B233() }
 
+// Also known as: sect283r1, ansit283r1
 func B283() elliptic.Curve {
 	initonce.Do(initAll)
 	return &b283
 }
+func Sect283r1() elliptic.Curve  { return B283() }
+func Ansit283r1() elliptic.Curve { return B283() }
 
+// Also known as: sect233k1, wap-wsg-idm-ecid-wtls10, ansit233k1
 func K233() elliptic.Curve {
 	initonce.Do(initAll)
 	return &k233
 }
+func Sect233k1() elliptic.Curve  { return K233() }
+func Ansit233k1() elliptic.Curve { return K233() }
 
+// Also known as: sect283k1, ansit283k1
 func K283() elliptic.Curve {
 	initonce.Do(initAll)
 	return &k283
 }
+func Sect283k1() elliptic.Curve  { return K283() }
+func Ansit283k1() elliptic.Curve { return K283() }
 
 func initAll() {
 	initB233()
