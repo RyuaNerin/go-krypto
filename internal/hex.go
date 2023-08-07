@@ -9,6 +9,7 @@ import (
 func H(s string) string {
 	var sb strings.Builder
 	sb.Grow(len(s))
+	s = strings.TrimPrefix(s, "0x")
 	for _, c := range s {
 		if '0' <= c && c <= '9' {
 			sb.WriteRune(c)
@@ -25,8 +26,8 @@ func H(s string) string {
 // hex to *big.Int
 func HI(s string) *big.Int {
 	s = H(s)
-	if len(s)%2 != 0 {
-		s = "0" + s
+	if s == "" {
+		return new(big.Int)
 	}
 	result, ok := new(big.Int).SetString(s, 16)
 	if !ok {
