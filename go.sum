@@ -1,2 +1,4 @@
+github.com/RyuaNerin/elliptic2 v1.0.0 h1:xuqrsvIXvT35maN5uiQV56TPZ/RQ+UhDF+fRFToDeJg=
+github.com/RyuaNerin/elliptic2 v1.0.0/go.mod h1:wWB8fWrJI/6EPJkyV/r1Rj0hxUgrusmqSj8JN6yNf/A=
 golang.org/x/sys v0.1.0 h1:kunALQeHf1/185U1i0GOB/fy1IPRDDpuoOOqRReG57U=
 golang.org/x/sys v0.1.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=

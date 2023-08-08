@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/RyuaNerin/elliptic2/nist"
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
@@ -33,29 +34,34 @@ type testCase struct {
 var (
 	p224     = elliptic.P224()
 	p256     = elliptic.P256()
-	secp224r = elliptic.P224() // Also known as: P-224, wap-wsg-idm-ecid-wtls12, ansip224r1
-	secp256r = elliptic.P256() // Also known as: P-256, prime256v1
-	/**
-	sect233r = elliptic.Curve(nil) // Also known as: B-233, wap-wsg-idm-ecid-wtls11, ansit233r1
-	sect233k = elliptic.Curve(nil) // Also known as: K-233, wap-wsg-idm-ecid-wtls10, ansit233k1
-	sect283r = elliptic.Curve(nil) // Also known as: B-283, ansit283r1
-	*/
+	secp224r = elliptic.P224()
+	secp256r = elliptic.P256()
+
+	b233     = nist.B233()
+	k233     = nist.K233()
+	b283     = nist.B283()
+	k283     = nist.K283()
+	sect233r = nist.B233()
+	sect233k = nist.K233()
+	sect283r = nist.B283()
+	sect283k = nist.K283()
 
 	hashSHA256     = sha256.New()
 	hashSHA256_224 = sha256.New224()
 )
 
-func testVerify(t *testing.T, testCases []testCase) {
+func testVerify(t *testing.T, testCases []testCase, curve elliptic.Curve, hash hash.Hash) {
 	for idx, tc := range testCases {
 		key := PublicKey{
-			Curve: tc.curve,
+			Curve: curve,
 			X:     tc.Qx,
 			Y:     tc.Qy,
 		}
 
-		ok := Verify(&key, tc.hash, tc.M, tc.R, tc.S)
+		ok := Verify(&key, hash, tc.M, tc.R, tc.S)
 		if ok == tc.Fail {
 			t.Errorf("%d: Verify failed, got:%v want:%v\nM=%s", idx, ok, !tc.Fail, hex.EncodeToString(tc.M))
+			return
 		}
 	}
 }
@@ -74,15 +80,18 @@ func testSignVerify(t *testing.T, testCases []testCase) {
 		R, S, err := SignWithK(tc.K, &key, tc.hash, tc.M)
 		if err != nil {
 			t.Errorf("%d: error signing: %s", idx, err)
+			return
 		}
 
 		if R.Cmp(tc.R) != 0 || S.Cmp(tc.S) != 0 {
 			t.Errorf("%d: error signing: (r, s)", idx)
+			return
 		}
 
 		ok := Verify(&key.PublicKey, tc.hash, tc.M, tc.R, tc.S)
 		if ok == tc.Fail {
 			t.Errorf("%d: Verify failed, got:%v want:%v\nM=%s", idx, ok, !tc.Fail, hex.EncodeToString(tc.M))
+			return
 		}
 	}
 }
@@ -99,7 +108,8 @@ func Test_SignVerify_With_BadPublicKey(t *testing.T) {
 
 		ok := Verify(&key, tc.hash, tc.M, tc.R, tc.S)
 		if ok {
-			t.Errorf("Verify unexpected success with non-existent mod inverse of Q")
+			t.Errorf("%d: Verify unexpected success with non-existent mod inverse of Q", idx)
+			return
 		}
 	}
 }
