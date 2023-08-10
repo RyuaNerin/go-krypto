@@ -4,12 +4,12 @@ import (
 	"io"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-	"github.com/RyuaNerin/go-krypto/kcdsa/kcdsakisa"
+	"github.com/RyuaNerin/go-krypto/kcdsa/kcdsattak"
 )
 
 // Generate the paramters
-// using the prime number generator used in krypto/kcdsa/kcdsakisa package.
-func GenerateParametersKISA(params *Parameters, rand io.Reader, sizes ParameterSizes) (seed []byte, count int, err error) {
+// using the prime number generator used in krypto/kcdsa/kcdsattak package.
+func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterSizes) (seed []byte, count int, err error) {
 	domain, err := sizes.domain()
 	if err != nil {
 		return nil, 0, err
@@ -23,17 +23,17 @@ func GenerateParametersKISA(params *Parameters, rand io.Reader, sizes ParameterS
 			return nil, 0, err
 		}
 
-		J, err := kcdsakisa.GenerateJ(seed, domain.Domain)
+		J, err := kcdsattak.GenerateJ(seed, domain.Domain)
 		if err != nil {
 			continue
 		}
 
-		P, Q, count, err := kcdsakisa.GeneratePQ(J, seed, domain.Domain)
+		P, Q, count, err := kcdsattak.GeneratePQ(J, seed, domain.Domain)
 		if err != nil {
 			continue
 		}
 
-		_, G, err := kcdsakisa.GenerateHG(rand, P, J)
+		_, G, err := kcdsattak.GenerateHG(rand, P, J)
 		if err != nil {
 			continue
 		}
@@ -47,8 +47,8 @@ func GenerateParametersKISA(params *Parameters, rand io.Reader, sizes ParameterS
 }
 
 // Generate PublicKey and PrivateKey
-// using krypto/kcdsa/kcdsakisa package.
-func GenerateKeyKISA(priv *PrivateKey, rand io.Reader, userProvidedRandomInput []byte) error {
+// using krypto/kcdsa/kcdsattak package.
+func GenerateKeyTTAK(priv *PrivateKey, rand io.Reader, userProvidedRandomInput []byte) error {
 	if priv.P == nil || priv.Q == nil || priv.G == nil {
 		return ErrParametersNotSetUp
 	}
@@ -63,7 +63,7 @@ func GenerateKeyKISA(priv *PrivateKey, rand io.Reader, userProvidedRandomInput [
 		return err
 	}
 
-	X, Y, _, _, err := kcdsakisa.GenerateXYZ(priv.P, priv.Q, priv.G, userProvidedRandomInput, xkey, domain.Domain)
+	X, Y, _, _, err := kcdsattak.GenerateXYZ(priv.P, priv.Q, priv.G, userProvidedRandomInput, xkey, domain.Domain)
 	if err != nil {
 		return err
 	}

@@ -51,37 +51,6 @@ func testVerify(t *testing.T, testCases []testCase) {
 	}
 }
 
-func testSignVerify(t *testing.T, testCases []testCase) {
-	for idx, tc := range testCases {
-		key := PrivateKey{
-			PublicKey: PublicKey{
-				Parameters: Parameters{
-					P:     tc.P,
-					Q:     tc.Q,
-					G:     tc.G,
-					Sizes: tc.Sizes,
-				},
-				Y: tc.Y,
-			},
-			X: tc.X,
-		}
-
-		R, S, err := SignWithK(tc.KKEY, &key, tc.M)
-		if err != nil {
-			t.Errorf("%d: error signing: %s", idx, err)
-		}
-
-		if R.Cmp(tc.R) != 0 || S.Cmp(tc.S) != 0 {
-			t.Errorf("%d: sign failed", idx)
-		}
-
-		ok := Verify(&key.PublicKey, tc.M, tc.R, tc.S)
-		if ok == tc.Fail {
-			t.Errorf("%d: Verify failed, got:%v want:%v", idx, ok, !tc.Fail)
-		}
-	}
-}
-
 func Test_SignVerify_With_BadPublicKey(t *testing.T) {
 	for idx, tc := range testCase_TTAK {
 		tc2 := testCase_TTAK[(idx+1)%len(testCase_TTAK)]

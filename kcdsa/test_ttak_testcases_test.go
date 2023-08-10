@@ -6,8 +6,39 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-func Test_Sign_Verify(t *testing.T) {
-	testSignVerify(t, testCase_TTAK)
+func Test_Verify_TTAK(t *testing.T) {
+	testVerify(t, testCase_TTAK)
+}
+
+func Test_Sign_Verify_TTAK(t *testing.T) {
+	for idx, tc := range testCase_TTAK {
+		key := PrivateKey{
+			PublicKey: PublicKey{
+				Parameters: Parameters{
+					P:     tc.P,
+					Q:     tc.Q,
+					G:     tc.G,
+					Sizes: tc.Sizes,
+				},
+				Y: tc.Y,
+			},
+			X: tc.X,
+		}
+
+		R, S, err := SignUsingK(tc.KKEY, &key, tc.M)
+		if err != nil {
+			t.Errorf("%d: error signing: %s", idx, err)
+		}
+
+		if R.Cmp(tc.R) != 0 || S.Cmp(tc.S) != 0 {
+			t.Errorf("%d: sign failed", idx)
+		}
+
+		ok := Verify(&key.PublicKey, tc.M, tc.R, tc.S)
+		if ok == tc.Fail {
+			t.Errorf("%d: Verify failed, got:%v want:%v", idx, ok, !tc.Fail)
+		}
+	}
 }
 
 var (

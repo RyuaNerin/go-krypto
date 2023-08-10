@@ -39,7 +39,7 @@ func Benchmark_GenerateParameters_GO(b *testing.B) {
 	})
 }
 
-func Benchmark_GenerateParameters_KISA(b *testing.B) {
+func Benchmark_GenerateParameters_TTAK(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 
@@ -47,7 +47,7 @@ func Benchmark_GenerateParameters_KISA(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			if _, _, err := GenerateParametersKISA(&params, rnd, ps); err != nil {
+			if _, _, err := GenerateParametersTTAK(&params, rnd, ps); err != nil {
 				b.Error(err)
 			}
 		}
@@ -73,19 +73,19 @@ func Benchmark_GenerateKey_Go(b *testing.B) {
 	})
 }
 
-func Benchmark_GenerateKey_KISA(b *testing.B) {
+func Benchmark_GenerateKey_TTAK(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 
 		var priv PrivateKey
-		if _, _, err := GenerateParametersKISA(&priv.Parameters, rnd, ps); err != nil {
+		if _, _, err := GenerateParametersTTAK(&priv.Parameters, rnd, ps); err != nil {
 			b.Error(err)
 		}
 
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			if err := GenerateKeyKISA(&priv, rnd, UserProvidedRandomInput); err != nil {
+			if err := GenerateKeyTTAK(&priv, rnd, UserProvidedRandomInput); err != nil {
 				b.Error(err)
 			}
 		}

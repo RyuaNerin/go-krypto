@@ -3,7 +3,6 @@ package eckcdsa
 
 import (
 	"crypto/elliptic"
-	"crypto/rand"
 	"errors"
 	"hash"
 	"io"
@@ -26,7 +25,7 @@ type PrivateKey struct {
 
 var (
 	ErrParametersNotSetUp = errors.New("krypto/eckcdsa: parameters not set up before generating key")
-	ErrInvalidK           = errors.New("krypto/eckcdsa: invalid k. use other value")
+	ErrInvalidK           = errors.New("krypto/eckcdsa: use another K")
 )
 
 type paramValues struct {
@@ -45,6 +44,7 @@ var (
 	two = big.NewInt(2)
 )
 
+// Generate the paramters
 func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 	randutil.MaybeReadByte(randReader)
 
@@ -63,57 +63,29 @@ func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 	return priv, nil
 }
 
-// https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=168-188
-// randFieldElement returns a random element of the order of the given
-// curve using the procedure given in FIPS 186-4, Appendix B.5.2.
-func randFieldElement(c elliptic.Curve, rand io.Reader) (k *big.Int, err error) {
-	// See randomPoint for notes on the algorithm. This has to match, or s390x
-	// signatures will come out different from other architectures, which will
-	// break TLS recorded tests.
-	for {
-		N := c.Params().N
-		b := make([]byte, (N.BitLen()+7)/8)
-		if _, err = io.ReadFull(rand, b); err != nil {
-			return
-		}
-		if excess := len(b)*8 - N.BitLen(); excess > 0 {
-			b[0] >>= excess
-		}
-		k = new(big.Int).SetBytes(b)
-		if k.Sign() != 0 && k.Cmp(N) < 0 {
-			return
-		}
-	}
-}
-
+// Sign data using K generated randomly like in crypto/ecdsa packages.
 func Sign(randReader io.Reader, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.Int, err error) {
 	randutil.MaybeReadByte(randReader)
 
-	curveParams := priv.Curve.Params()
-	Nsub1 := new(big.Int).Sub(curveParams.N, one)
-
 	var k *big.Int
-	for i := 0; i < 100; i++ {
-		// 1: 난수 k를 [1, (n - 1)]에서 임의로 선택(8.2절 참조).
-		k, err = rand.Int(randReader, Nsub1)
+	for {
+		// https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=77-113
+		k, err = randFieldElement(priv.Curve, randReader)
 		if err != nil {
-			return nil, nil, err
+			return
 		}
 
-		if k.Sign() != 1 {
-			continue
-		}
-
-		r, s, err = SignWithK(k, priv, h, M)
+		r, s, err = SignUsingK(k, priv, h, M)
 		if err == ErrInvalidK {
 			continue
 		}
+
 		return
 	}
-	return
 }
 
-func SignWithK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.Int, err error) {
+// Sign data using K Specified
+func SignUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.Int, err error) {
 	if priv == nil || priv.Curve == nil || priv.X == nil || priv.Y == nil || priv.D == nil || !priv.Curve.IsOnCurve(priv.X, priv.Y) {
 		return nil, nil, ErrParametersNotSetUp
 	}
@@ -228,6 +200,9 @@ func SignWithK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.I
 
 func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	if pub == nil || pub.Curve == nil || pub.X == nil || pub.Y == nil || !pub.Curve.IsOnCurve(pub.X, pub.Y) {
+		return false
+	}
+	if r.Sign() <= 0 || s.Sign() <= 0 {
 		return false
 	}
 
@@ -364,4 +339,27 @@ func padRight(arr []byte, l int) []byte {
 	copy(n, arr)
 
 	return n
+}
+
+// https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=168-188
+// randFieldElement returns a random element of the order of the given
+// curve using the procedure given in FIPS 186-4, Appendix B.5.2.
+func randFieldElement(c elliptic.Curve, rand io.Reader) (k *big.Int, err error) {
+	// See randomPoint for notes on the algorithm. This has to match, or s390x
+	// signatures will come out different from other architectures, which will
+	// break TLS recorded tests.
+	for {
+		N := c.Params().N
+		b := make([]byte, (N.BitLen()+7)/8)
+		if _, err = io.ReadFull(rand, b); err != nil {
+			return
+		}
+		if excess := len(b)*8 - N.BitLen(); excess > 0 {
+			b[0] >>= excess
+		}
+		k = new(big.Int).SetBytes(b)
+		if k.Sign() != 0 && k.Cmp(N) < 0 {
+			return
+		}
+	}
 }

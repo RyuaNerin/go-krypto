@@ -6,7 +6,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-func Test_Sign_Verify(t *testing.T) {
+func Test_Sign_Verify_TTAK(t *testing.T) {
 	testSignVerify(t, testCase_TTAK)
 }
 

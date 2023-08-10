@@ -10,7 +10,7 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
-	"github.com/RyuaNerin/go-krypto/kcdsa/kcdsakisa"
+	"github.com/RyuaNerin/go-krypto/kcdsa/kcdsattak"
 )
 
 type Parameters struct {
@@ -46,7 +46,7 @@ const (
 )
 
 type paramValues struct {
-	kcdsakisa.Domain
+	kcdsattak.Domain
 
 	Int2B *big.Int
 	Int2L *big.Int
@@ -59,7 +59,7 @@ var (
 
 	paramValuesMap = map[ParameterSizes]paramValues{
 		L2048N224SHA224: {
-			Domain: kcdsakisa.Domain{
+			Domain: kcdsattak.Domain{
 				A:       2048,
 				B:       224,
 				LH:      28,
@@ -70,7 +70,7 @@ var (
 			Int2L: i2l_512,
 		},
 		L2048N224SHA256: {
-			Domain: kcdsakisa.Domain{
+			Domain: kcdsattak.Domain{
 				A:       2048,
 				B:       224,
 				LH:      32,
@@ -81,7 +81,7 @@ var (
 			Int2L: i2l_512,
 		},
 		L2048N256SHA256: {
-			Domain: kcdsakisa.Domain{
+			Domain: kcdsattak.Domain{
 				A:       2048,
 				B:       256,
 				LH:      32,
@@ -92,7 +92,7 @@ var (
 			Int2L: i2l_512,
 		},
 		L3072N256SHA256: {
-			Domain: kcdsakisa.Domain{
+			Domain: kcdsattak.Domain{
 				A:       3072,
 				B:       256,
 				LH:      32,
@@ -265,11 +265,11 @@ func Sign(randReader io.Reader, priv *PrivateKey, data []byte) (r, s *big.Int, e
 		}
 	}
 
-	return SignWithK(K, priv, data)
+	return SignUsingK(K, priv, data)
 }
 
 // Sign data using K Specified
-func SignWithK(K *big.Int, priv *PrivateKey, data []byte) (r, s *big.Int, err error) {
+func SignUsingK(K *big.Int, priv *PrivateKey, data []byte) (r, s *big.Int, err error) {
 	domain, err := priv.Sizes.domain()
 	if err != nil {
 		return nil, nil, err

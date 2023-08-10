@@ -14,8 +14,6 @@ import (
 )
 
 type testCase struct {
-	M []byte
-
 	curve elliptic.Curve
 	hash  hash.Hash
 
@@ -25,6 +23,7 @@ type testCase struct {
 
 	K *big.Int
 
+	M []byte
 	R *big.Int
 	S *big.Int
 
@@ -77,7 +76,7 @@ func testSignVerify(t *testing.T, testCases []testCase) {
 			D: tc.D,
 		}
 
-		R, S, err := SignWithK(tc.K, &key, tc.hash, tc.M)
+		R, S, err := SignUsingK(tc.K, &key, tc.hash, tc.M)
 		if err != nil {
 			t.Errorf("%d: error signing: %s", idx, err)
 			return
@@ -124,6 +123,18 @@ func Test_ECKCDSA(t *testing.T) {
 
 	testKCDSA(t, "P256_SHA256_224", p256, hashSHA256_224)
 	testKCDSA(t, "P256_SHA256_256", p256, hashSHA256)
+
+	testKCDSA(t, "B233_SHA256_224", b233, hashSHA256_224)
+	testKCDSA(t, "B233_SHA256_256", b233, hashSHA256)
+
+	testKCDSA(t, "B283_SHA256_224", b283, hashSHA256_224)
+	testKCDSA(t, "B283_SHA256_256", b283, hashSHA256)
+
+	testKCDSA(t, "K233_SHA256_224", k233, hashSHA256_224)
+	testKCDSA(t, "K233_SHA256_256", k233, hashSHA256)
+
+	testKCDSA(t, "K283_SHA256_224", k283, hashSHA256_224)
+	testKCDSA(t, "K283_SHA256_256", k283, hashSHA256)
 }
 
 func Test_Signing_With_DegenerateKeys(t *testing.T) {

@@ -1,5 +1,5 @@
-// Package kcdsakisa implements functions what generate the KCDSA parameters as defined in TTAK.KO-12.0001/R4
-package kcdsakisa
+// Package kcdsattak implements functions what generate the KCDSA parameters as defined in TTAK.KO-12.0001/R4
+package kcdsattak
 
 import (
 	"encoding/binary"
@@ -20,16 +20,16 @@ type Domain struct {
 }
 
 var (
-	ErrUseAnotherSeed = errors.New("krypto/kcdsa/kcdsakisa: use another seed")
-	ErrUseAnotherH    = errors.New("krypto/kcdsa/kcdsakisa: use another H")
-	ErrWrongSeed      = errors.New("krypto/kcdsa/kcdsakisa: wrong seed length")
-	ErrWrongH         = errors.New("krypto/kcdsa/kcdsakisa: H must be 1 < H < p-1")
-	ErrShortXKey      = errors.New("krypto/kcdsa/kcdsakisa: XKEY is too short")
+	ErrUseAnotherSeed = errors.New("krypto/kcdsa/kcdsattak: use another seed")
+	ErrUseAnotherH    = errors.New("krypto/kcdsa/kcdsattak: use another H")
+	ErrWrongSeed      = errors.New("krypto/kcdsa/kcdsattak: wrong seed length")
+	ErrShortXKey      = errors.New("krypto/kcdsa/kcdsattak: XKEY is too short")
 
 	one = big.NewInt(1)
 	two = big.NewInt(2)
 )
 
+// Pre-prime generating function
 func PPGF(seed []byte, nBits int, domain Domain) []byte {
 	// p.12
 	// from java
@@ -77,6 +77,7 @@ func PPGF(seed []byte, nBits int, domain Domain) []byte {
 	return U
 }
 
+// Generate J, defined in TTAK.KO-12.0001/R4
 // bits of seed > domain.B
 func GenerateJ(seed []byte, domain Domain) (J *big.Int, err error) {
 	// p.14
@@ -109,6 +110,7 @@ func GenerateJ(seed []byte, domain Domain) (J *big.Int, err error) {
 	return J, nil
 }
 
+// Generate P, Q, defined in TTAK.KO-12.0001/R4
 func GeneratePQ(J *big.Int, seed []byte, domain Domain) (p, q *big.Int, count int, err error) {
 	// p.14
 	if len(seed) != internal.Bytes(domain.B) {
@@ -162,6 +164,7 @@ func GeneratePQ(J *big.Int, seed []byte, domain Domain) (p, q *big.Int, count in
 	return nil, nil, 0, ErrUseAnotherSeed
 }
 
+// Generate H, G, defined in TTAK.KO-12.0001/R4
 func GenerateHG(rand io.Reader, P, J *big.Int) (H []byte, G *big.Int, err error) {
 	pm1 := new(big.Int).Set(P)
 	pm1.Sub(pm1, one)
@@ -183,6 +186,7 @@ func GenerateHG(rand io.Reader, P, J *big.Int) (H []byte, G *big.Int, err error)
 	}
 }
 
+// Generate P, defined in TTAK.KO-12.0001/R4
 // 1 < H < (p-1)
 func GenerateG(P, J *big.Int, H []byte) (G *big.Int, err error) {
 	pm1 := new(big.Int).Set(P)
@@ -213,6 +217,7 @@ func generateG(P, J *big.Int, H []byte, pm1 *big.Int) (G *big.Int, err error) {
 	return g, nil
 }
 
+// Generate X, Y, Z, defined in TTAK.KO-12.0001/R4
 // bits of xkey > B
 func GenerateXYZ(P, Q, G *big.Int, userProvidedRandomInput []byte, xkey []byte, domain Domain) (X, Y, Z *big.Int, xkeyNext []byte, err error) {
 	// p.16
