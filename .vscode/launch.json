@@ -13,29 +13,5 @@
             "env": {},
             "args": []
         },
-        {
-            "name": "Build LEA",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "${workspaceFolder}/lea/lea",
-            "env": {},
-            "args": [
-                "-out", "../lea_amd64.s",
-                "-stubs", "../lea_amd64_stubs.go"
-            ]
-        },
-        {
-            "name": "Build LSH256",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "${workspaceFolder}/lsh256/lsh256",
-            "env": {},
-            "args": [
-                "-out", "../lsh256_amd64.s",
-                "-stubs", "../lsh256_amd64_stubs.go"
-            ]
-        }
     ]
 }
