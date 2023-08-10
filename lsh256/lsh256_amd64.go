@@ -52,15 +52,24 @@ func init() {
 }
 
 func init() {
-	newContext = func(algType algType) hash.Hash {
-		return newContextAsm(algType, simdSetDefault)
+	newContext = func(size int) hash.Hash {
+		return newContextAsm(size, simdSetDefault)
 	}
 }
 
-func newContextAsm(algType algType, simd simdSet) hash.Hash {
+func newContextAsm(size int, simd simdSet) hash.Hash {
 	ctx := new(lsh256ContextAsm)
-	initContextAsm(ctx, algType, simd)
+	initContextAsm(ctx, size, simd)
 	return ctx
+}
+
+func sumAsm(size int, data []byte) [Size]byte {
+	var b lsh256ContextAsm
+	initContextAsm(&b, size, simdSetDefault)
+	b.Reset()
+	b.Write(data)
+
+	return b.checkSum()
 }
 
 type lsh256ContextAsm struct {
@@ -70,8 +79,8 @@ type lsh256ContextAsm struct {
 }
 type lsh256ContextAsmData struct {
 	// 16 aligned
-	algtype uint32
-	_pad0   [16 - 4]byte
+	int   uint32
+	_pad0 [16 - 4]byte
 	// 16 aligned
 	remain_databitlen uint32
 	_pad1             [16 - 4]byte
@@ -81,14 +90,14 @@ type lsh256ContextAsmData struct {
 	last_block [128]byte
 }
 
-func initContextAsm(ctx *lsh256ContextAsm, algtype algType, simd simdSet) {
+func initContextAsm(ctx *lsh256ContextAsm, size int, simd simdSet) {
 	ctx.simd = simd
-	ctx.data.algtype = uint32(algtype)
+	ctx.data.int = uint32(size)
 	ctx.Reset()
 }
 
 func (ctx *lsh256ContextAsm) Size() int {
-	return int(ctx.data.algtype)
+	return int(ctx.data.int)
 }
 
 func (ctx *lsh256ContextAsm) BlockSize() int {
@@ -109,9 +118,13 @@ func (ctx *lsh256ContextAsm) Write(data []byte) (n int, err error) {
 	return len(data), nil
 }
 
-func (ctx *lsh256ContextAsm) Sum(b []byte) []byte {
-	hash := make([]byte, Size)
-	ctx.simd.final(&ctx.data, hash)
+func (ctx *lsh256ContextAsm) Sum(p []byte) []byte {
+	ctx0 := *ctx
+	hash := ctx0.checkSum()
+	return append(p, hash[:ctx.Size()]...)
+}
 
-	return append(b, hash[:ctx.Size()]...)
+func (ctx *lsh256ContextAsm) checkSum() (hash [Size]byte) {
+	ctx.simd.final(&ctx.data, hash[:])
+	return
 }

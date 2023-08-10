@@ -11,19 +11,19 @@ func Benchmark_Hash_8K_Go(b *testing.B) { benchmarkSize(b, newContextGo, 8192, t
 
 var benchBuf = make([]byte, 8192)
 
-func benchmarkSize(b *testing.B, newHash func(algType algType) hash.Hash, size int, do bool) {
+func benchmarkSize(b *testing.B, newHash func(size int) hash.Hash, size int, do bool) {
 	tests := []struct {
-		name    string
-		algType algType
+		name string
+		int  int
 	}{
-		{"224", lshType256H224},
-		{"256", lshType256H256},
+		{"256", Size},
+		{"224", Size224},
 	}
 	for _, test := range tests {
 		test := test
 		b.Run(test.name, func(b *testing.B) {
 			sum := make([]byte, Size)
-			h := newHash(test.algType)
+			h := newHash(test.int)
 
 			b.ResetTimer()
 			b.ReportAllocs()

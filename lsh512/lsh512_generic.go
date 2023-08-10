@@ -1,5 +1,13 @@
 package lsh512
 
+import (
+	"encoding/binary"
+	"hash"
+	"math/bits"
+
+	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+)
+
 const (
 	numStep = 28
 
@@ -100,146 +108,119 @@ var (
 	}
 
 	gamma = [...]int{0, 16, 32, 48, 8, 24, 40, 56}
-
-	emptyTCV   = [16]uint64{}
-	emptyMsg   = [16 * (numStep + 1)]uint64{}
-	emptyBlock = [BlockSize]byte{}
 )
 
-type lsh512 struct {
+type lsh512ContextGo struct {
 	cv    [16]uint64
 	tcv   [16]uint64
 	msg   [16 * (numStep + 1)]uint64
 	block [BlockSize]byte
 
-	boff       int
-	outlenbits int
+	boff        int
+	outlenbytes int
 }
 
-func (b *lsh512) Size() int {
-	return b.outlenbits / 8
+func newContextGo(size int) hash.Hash {
+	ctx := new(lsh512ContextGo)
+	initContextGo(ctx, size)
+	return ctx
 }
 
-func (b *lsh512) BlockSize() int {
+func initContextGo(ctx *lsh512ContextGo, size int) {
+	ctx.outlenbytes = size
+	ctx.Reset()
+}
+
+func sumGo(size int, data []byte) [Size]byte {
+	var b lsh512ContextGo
+	initContextGo(&b, size)
+	b.Reset()
+	b.Write(data)
+
+	return b.checkSum()
+}
+
+func (b *lsh512ContextGo) Size() int {
+	return b.outlenbytes
+}
+
+func (b *lsh512ContextGo) BlockSize() int {
 	return BlockSize
 }
 
-func (b *lsh512) Reset() {
-	b.tcv = emptyTCV
-	b.msg = emptyMsg
-	b.block = emptyBlock
+func (b *lsh512ContextGo) Reset() {
+	kryptoutil.MemsetUint64(b.tcv[:], 0)
+	kryptoutil.MemsetUint64(b.msg[:], 0)
+	kryptoutil.MemsetByte(b.block[:], 0)
 
 	b.boff = 0
-	switch b.outlenbits {
-	case 512:
+	switch b.outlenbytes {
+	case Size:
 		b.cv = iv512
-	case 384:
+	case Size384:
 		b.cv = iv384
-	case 256:
+	case Size256:
 		b.cv = iv256
-	case 224:
+	case Size224:
 		b.cv = iv224
 	}
 }
 
-func (b *lsh512) Write(p []byte) (n int, err error) {
+func (b *lsh512ContextGo) Write(p []byte) (n int, err error) {
 	if p == nil || len(p) == 0 {
 		return
 	}
 
-	offset := 0
-
-	lenbits := len(p) * 8
-
-	rbytes := lenbits >> 3
-	rbits := lenbits & 0x7
-	idx := b.boff >> 3
-
-	if (b.boff & 0x7) > 0 {
-		return 0, ErrInvalidDataBitLen
-	}
-
-	gap := BlockSize - idx
-	if idx > 0 && rbytes >= gap {
-		copy(b.block[idx:], p[:gap])
-		b.compress(b.block[:], 0)
+	gap := BlockSize - b.boff
+	if b.boff > 0 && len(p) >= gap {
+		copy(b.block[b.boff:], p[:gap])
+		b.compress(b.block[:])
 		b.boff = 0
-		rbytes -= gap
-		offset += gap
+
+		p = p[gap:]
 	}
 
-	for rbytes >= len(b.block) {
-		b.compress(p, offset)
+	for len(p) >= BlockSize {
+		b.compress(p)
 		b.boff = 0
-		offset += BlockSize
-		rbytes -= BlockSize
+		p = p[BlockSize:]
 	}
 
-	if rbytes > 0 {
-		idx = b.boff >> 3
-		copy(b.block[idx:], p[offset:offset+rbytes])
-		b.boff += rbytes << 3
-		offset += rbytes
-	}
-
-	if rbits > 0 {
-		idx = b.boff >> 3
-		b.block[idx] = (byte)(p[offset] & ((0xff >> rbits) ^ 0xff))
-		b.boff += rbits
+	if len(p) > 0 {
+		copy(b.block[b.boff:], p)
+		b.boff += len(p)
 	}
 
 	return len(p), nil
 }
 
-func (b *lsh512) Sum(p []byte) []byte {
+func (b *lsh512ContextGo) Sum(p []byte) []byte {
 	b0 := *b
 	hash := b0.checkSum()
 	return append(p, hash[:b.Size()]...)
 }
 
-func (b *lsh512) checkSum() [Size]byte {
-	rbytes := b.boff >> 3
-	rbits := b.boff & 0x7
+func (b *lsh512ContextGo) checkSum() [Size]byte {
+	b.block[b.boff] = 0x80
 
-	if rbits > 0 {
-		b.block[rbytes] |= byte(0x1 << (7 - rbits))
-	} else {
-		b.block[rbytes] = 0x80
-	}
-
-	for i := rbytes + 1; i < len(b.block); i++ {
-		b.block[i] = 0
-	}
-	b.compress(b.block[:], 0)
+	kryptoutil.MemsetByte(b.block[b.boff+1:], 0)
+	b.compress(b.block[:])
 
 	var temp [8]uint64
 	for i := 0; i < 8; i++ {
 		temp[i] = b.cv[i] ^ b.cv[i+8]
 	}
 
-	rbytes = b.outlenbits >> 3
-	rbits = b.outlenbits & 0x7
-
-	results := rbytes
-	if rbits > 0 {
-		results = rbytes + 1
-	}
-
 	var digest [Size]byte
-
-	for i := 0; i < results; i++ {
+	for i := 0; i < b.outlenbytes; i++ {
 		digest[i] = byte(temp[i>>3] >> ((i << 3) & 0x3f))
-	}
-
-	if rbits > 0 {
-		digest[rbytes] &= 0xff << (8 - rbits)
 	}
 
 	return digest
 }
 
-func (b *lsh512) compress(data []byte, offset int) {
-	b.msgExpansion(data, offset)
+func (b *lsh512ContextGo) compress(data []byte) {
+	b.msgExpansion(data)
 
 	for i := 0; i < numStep/2; i++ {
 		b.step(2*i, alphaEven, betaEven)
@@ -252,16 +233,9 @@ func (b *lsh512) compress(data []byte, offset int) {
 	}
 }
 
-func (b *lsh512) msgExpansion(in []byte, offset int) {
+func (b *lsh512ContextGo) msgExpansion(in []byte) {
 	for i := 0; i < 32; i++ {
-		b.msg[i] = uint64(in[offset+i*8+0])
-		b.msg[i] |= uint64(in[offset+i*8+1]) << 8
-		b.msg[i] |= uint64(in[offset+i*8+2]) << 16
-		b.msg[i] |= uint64(in[offset+i*8+3]) << 24
-		b.msg[i] |= uint64(in[offset+i*8+4]) << 32
-		b.msg[i] |= uint64(in[offset+i*8+5]) << 40
-		b.msg[i] |= uint64(in[offset+i*8+6]) << 48
-		b.msg[i] |= uint64(in[offset+i*8+7]) << 56
+		b.msg[i] = binary.LittleEndian.Uint64(in[i*8:])
 	}
 
 	for i := 2; i <= numStep; i++ {
@@ -285,21 +259,19 @@ func (b *lsh512) msgExpansion(in []byte, offset int) {
 	}
 }
 
-func (b *lsh512) step(stepidx, alpha, beta int) {
+func (b *lsh512ContextGo) step(stepidx, alpha, beta int) {
 	var vl, vr uint64
 
 	for colidx := 0; colidx < 8; colidx++ {
 		vl = b.cv[colidx] ^ b.msg[16*stepidx+colidx]
 		vr = b.cv[colidx+8] ^ b.msg[16*stepidx+colidx+8]
-		vl = rol64(vl+vr, alpha) ^ step[8*stepidx+colidx]
-		vr = rol64(vl+vr, beta)
+		vl = bits.RotateLeft64(vl+vr, alpha) ^ step[8*stepidx+colidx]
+		vr = bits.RotateLeft64(vl+vr, beta)
 		b.tcv[colidx] = vr + vl
-		b.tcv[colidx+8] = rol64(vr, gamma[colidx])
+		b.tcv[colidx+8] = bits.RotateLeft64(vr, gamma[colidx])
 	}
-	b.wordPermutation()
-}
 
-func (b *lsh512) wordPermutation() {
+	// wordPermutation
 	b.cv[0] = b.tcv[6]
 	b.cv[1] = b.tcv[4]
 	b.cv[2] = b.tcv[5]
@@ -316,8 +288,4 @@ func (b *lsh512) wordPermutation() {
 	b.cv[13] = b.tcv[11]
 	b.cv[14] = b.tcv[10]
 	b.cv[15] = b.tcv[9]
-}
-
-func rol64(value uint64, rot int) uint64 {
-	return (value << rot) | (value >> (64 - rot))
 }

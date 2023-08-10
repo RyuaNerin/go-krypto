@@ -6,7 +6,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-func Test_LSH256_Go(t *testing.T) { testGo(t, testCases256, lshType256H256) }
+func Test_LSH256_Go(t *testing.T) { testGo(t, testCases256, Size) }
 
 // 암호알고리즘 검증기준 V3.0
 // 테스트 벡터

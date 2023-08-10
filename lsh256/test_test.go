@@ -10,8 +10,8 @@ type testCase struct {
 	MD []byte
 }
 
-func testGo(t *testing.T, testCases []testCase, algType algType) {
-	h := newContextGo(algType)
+func testGo(t *testing.T, testCases []testCase, size int) {
+	h := newContextGo(size)
 
 	out := make([]byte, BlockSize)
 

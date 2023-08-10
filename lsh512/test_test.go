@@ -11,7 +11,8 @@ type testCase struct {
 }
 
 func testGo(t *testing.T, testCases []testCase, size int) {
-	h := newHash(size)
+	var h lsh512ContextGo
+	initContextGo(&h, size)
 
 	out := make([]byte, BlockSize)
 

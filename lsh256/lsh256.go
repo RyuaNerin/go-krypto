@@ -2,15 +2,13 @@
 package lsh256
 
 import (
-	"errors"
 	"hash"
 )
 
 var (
-	newContext func(algType algType) hash.Hash = newContextGo
+	newContext func(size int) hash.Hash               = newContextGo
+	sum        func(size int, data []byte) [Size]byte = sumGo
 )
-
-var ErrInvalidDataBitLen = errors.New("krypto/lsh256: bit level update is not allowed")
 
 const (
 	// The size of a LSH-256 checksum in bytes.
@@ -22,47 +20,22 @@ const (
 	BlockSize = 128
 )
 
-type algType int
-
-const (
-	lshType256H256 algType = 32 // 256
-	lshType256H224         = 28 // 224
-)
-
 // New returns a new hash.Hash computing the LSH-256 checksum.
-func New() hash.Hash {
-	ctx := newContext(lshType256H256)
-	ctx.Reset()
-	return ctx
-}
+func New() hash.Hash { return newContext(Size) }
 
 // New224 returns a new hash.Hash computing the LSH-224 checksum.
-func New224() hash.Hash {
-	ctx := newContext(lshType256H224)
-	ctx.Reset()
-	return ctx
-}
+func New224() hash.Hash { return newContext(Size224) }
 
 // Sum256 returns the LSH-256 checksum of the data.
-func Sum256(data []byte) (sum [Size]byte) {
-	ctx := newContext(lshType256H256)
-	ctx.Reset()
-	ctx.Write(data)
-
-	hash := ctx.Sum(nil)
-	copy(sum[:], hash)
-
+func Sum256(data []byte) (sum256 [Size]byte) {
+	sum := sum(Size, data)
+	copy(sum256[:], sum[:Size])
 	return
 }
 
 // Sum224 returns the LSH-224 checksum of the data.
 func Sum224(data []byte) (sum224 [Size224]byte) {
-	ctx := newContext(lshType256H224)
-	ctx.Reset()
-	ctx.Write(data)
-
-	hash := ctx.Sum(nil)
-	copy(sum224[:], hash)
-
+	sum := sum(Size224, data)
+	copy(sum224[:], sum[:Size224])
 	return
 }
