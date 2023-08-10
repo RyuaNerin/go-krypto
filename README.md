@@ -11,12 +11,14 @@
 ## Supported
 
 - `A` : Not tested.
+- `*` : deprecated.
 
 - Block cipher
 
     | Algorithm | Package        | Document           | 128 | 192 | 256 | SIMD Supports           |
     |:---------:|----------------|:------------------:|:---:|:---:|:---:|:-----------------------:|
-    | SEED      | `krypto/seed`  | TTAS.KO-12.0004/R1 | O   |     |     |                         |
+    | SEED 128  | `krypto/seed`  | TTAS.KO-12.0004/R1 | O   |     |     |                         |
+    | SEED 256  | `krypto/seed`  | Unknown            |     |     | A   |                         |
     | HIGHT     | `krypto/hight` | TTAS.KO-12.0040/R1 | O   |     |     |                         |
     | ARIA      | `krypto/aria`  | KS X 1213-1        | O   | O   | O   |                         |
     | LEA       | `krypto/lea`   | TTAK.KO-12.0223    | O   | O   | O   | `SSE2`, `SSSE3`, `AVX2` |
@@ -30,10 +32,11 @@
 
 - Hash
 
-    | Algorithm | Package         | Document  | 224 | 256 | 384 | 512 | SIMD Supports         |
-    |:---------:|-----------------|:---------:|:---:|:---:|:---:|:---:|:---------------------:|
-    | LSH-256   | `krypto/lsh256` | KS X 3262 | O   | O   |     |     | `SSE2` `SSSE3` `AVX2` |
-    | LSH-512   | `krypto/lsh512` | KS X 3262 | O   | O   | O   | O   |                       |
+    | Algorithm  | Package         | Document           | 160 | 224 | 256 | 384 | 512 | SIMD Supports         |
+    |:----------:|-----------------|:------------------:|:---:|:---:|:---:|:---:|:---:|:---------------------:|
+    | HAS-160`*` | `krypto/has160` | TTAS.KO-12.0011/R2 | O   |     |     |     |     |                       |
+    | LSH-256    | `krypto/lsh256` | KS X 3262          |     | O   | O   |     |     | `SSE2` `SSSE3` `AVX2` |
+    | LSH-512    | `krypto/lsh512` | KS X 3262          |     | O   | O   | O   | O   |                       |
 
 ## [Performance](/PERFORMANCE.md)
 
