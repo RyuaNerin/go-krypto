@@ -5,53 +5,36 @@ import (
 	"testing"
 )
 
-const (
-	benchBlockSize = BlockSize * 2 / 3
-)
+var benchBuf = make([]byte, 8192)
 
-func benchReset(b *testing.B, h hash.Hash, nonskip bool) {
-	if !nonskip {
-		b.Skip()
-		return
-	}
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		h.Reset()
+func init() {
+	for idx := range benchBuf {
+		benchBuf[idx] = byte(idx % 256)
 	}
 }
-func benchWrite(b *testing.B, h hash.Hash, nonskip bool) {
-	if !nonskip {
-		b.Skip()
-		return
-	}
-	buf := make([]byte, benchBlockSize)
-	for idx := range buf {
-		buf[idx] = byte(idx % 256)
-	}
 
-	b.SetBytes(int64(len(buf)))
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		h.Write(buf)
+func benchmarkSize(b *testing.B, newHash func(size int) hash.Hash, size int, do bool) {
+	tests := []struct {
+		name string
+		int  int
+	}{
+		{"224", Size224},
+		{"256", Size},
 	}
-}
-func benchSum(b *testing.B, h hash.Hash, nonskip bool) {
-	if !nonskip {
-		b.Skip()
-		return
-	}
-	buf := make([]byte, benchBlockSize)
-	for idx := range buf {
-		buf[idx] = byte(idx % 256)
-	}
+	for _, test := range tests {
+		test := test
+		b.Run(test.name, func(b *testing.B) {
+			sum := make([]byte, Size)
+			h := newHash(test.int)
 
-	o := make([]byte, h.Size())
-
-	b.SetBytes(int64(len(buf)))
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		h.Reset()
-		h.Write(buf)
-		h.Sum(o[:0])
+			b.ResetTimer()
+			b.ReportAllocs()
+			b.SetBytes(int64(size))
+			for i := 0; i < b.N; i++ {
+				h.Reset()
+				h.Write(benchBuf[:size])
+				h.Sum(sum[:0])
+			}
+		})
 	}
 }

@@ -19,6 +19,10 @@ var (
 // TODO
 // size : gp32
 func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
+	if size.Size() != 8 {
+		panic("wong arguments")
+	}
+
 	Comment("memset")
 
 	memsetN++
@@ -34,12 +38,10 @@ func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
 	}
 
 	dstAddr := GP64()
-	size2 := GP32()
-	idx := GP32()
+	remain := GP64()
 
 	LEAQ(dst, dstAddr)
-	MOVL(size, size2)
-	MOVL(U32(0), idx)
+	MOVQ(size, remain)
 
 	step := func(sz int, tmp Op, read func(a, b Op), mov func(imr, emr Op)) {
 		if sz >= 16 && !enableXYZ {
@@ -49,19 +51,19 @@ func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
 		labelStart := fmt.Sprintf("memset_%d_sz%d_start", memsetN, sz)
 		labelEnd := fmt.Sprintf("memset_%d_sz%d_end", memsetN, sz)
 
-		CMPL(size2, U32(sz))
+		CMPQ(remain, U32(sz))
 		JL(LabelRef(labelEnd))
 
 		read(constVal, tmp)
 
 		Label(labelStart)
 		{
-			mov(tmp, Mem{Base: dstAddr}.Idx(idx, 1))
+			mov(tmp, Mem{Base: dstAddr})
 
-			SUBL(U32(sz), size2)
-			ADDL(U32(sz), idx)
+			SUBQ(U32(sz), remain)
+			ADDQ(U32(sz), dstAddr)
 
-			CMPL(size2, U32(sz))
+			CMPQ(remain, U32(sz))
 			JL(LabelRef(labelEnd))
 
 			JMP(LabelRef(labelStart))
@@ -86,13 +88,13 @@ func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
 		labelEnd := fmt.Sprintf("memset_%d_1_end", memsetN)
 
 		Label(labelStart)
-		CMPL(size2, U32(0))
+		CMPQ(remain, U32(0))
 		JE(LabelRef(labelEnd))
 		{
-			MOVB(U8(val), Mem{Base: dstAddr}.Idx(idx, 1))
+			MOVB(U8(val), Mem{Base: dstAddr})
 
-			SUBL(U32(1), size2)
-			ADDL(U32(1), idx)
+			SUBQ(U32(1), remain)
+			ADDQ(U32(1), dstAddr)
 
 			JMP(LabelRef(labelStart))
 		}

@@ -2,25 +2,15 @@
 
 package lsh256
 
-import "testing"
+import (
+	"hash"
+	"testing"
+)
 
-func Benchmark_LSH224_Reset_SSSE3(b *testing.B) {
-	benchReset(b, newContextAsm(lshType256H224, simdSetSSSE3), true)
-}
-func Benchmark_LSH256_Reset_SSSE3(b *testing.B) {
-	benchReset(b, newContextAsm(lshType256H256, simdSetSSSE3), true)
-}
+func Benchmark_Hash_8_SSSE3(b *testing.B)  { benchmarkSize(b, newSSSE3, 8, true) }
+func Benchmark_Hash_1K_SSSE3(b *testing.B) { benchmarkSize(b, newSSSE3, 1024, true) }
+func Benchmark_Hash_8K_SSSE3(b *testing.B) { benchmarkSize(b, newSSSE3, 8192, true) }
 
-func Benchmark_LSH224_Write_SSSE3(b *testing.B) {
-	benchWrite(b, newContextAsm(lshType256H224, simdSetSSSE3), true)
-}
-func Benchmark_LSH256_Write_SSSE3(b *testing.B) {
-	benchWrite(b, newContextAsm(lshType256H256, simdSetSSSE3), true)
-}
-
-func Benchmark_LSH224_WriteSum_SSSE3(b *testing.B) {
-	benchSum(b, newContextAsm(lshType256H224, simdSetSSSE3), true)
-}
-func Benchmark_LSH256_WriteSum_SSSE3(b *testing.B) {
-	benchSum(b, newContextAsm(lshType256H256, simdSetSSSE3), true)
+func newSSSE3(size int) hash.Hash {
+	return newContextAsm(size, simdSetSSSE3)
 }

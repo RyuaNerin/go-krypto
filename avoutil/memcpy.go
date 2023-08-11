@@ -13,8 +13,12 @@ const memcpyName = "memcpy"
 var memcpyN = 0
 
 // TODO
-// size: int32
+// size: uint64
 func Memcpy(dst, src Op, size Register, avx2 bool) {
+	if size.Size() != 8 {
+		panic("wong arguments")
+	}
+
 	Comment("Memcpy")
 	memcpyN++
 
@@ -29,11 +33,11 @@ func Memcpy(dst, src Op, size Register, avx2 bool) {
 
 	dstAddr := GP64()
 	srcAddr := GP64()
-	size2 := GP32()
+	remain := GP64()
 
 	LEAQ(dst, dstAddr)
 	LEAQ(src, srcAddr)
-	MOVL(size, size2)
+	MOVQ(size, remain)
 
 	//////////////////////////////
 
@@ -42,7 +46,7 @@ func Memcpy(dst, src Op, size Register, avx2 bool) {
 		labelEnd := fmt.Sprintf("memcpy_%d_sz%d_end", memcpyN, sz)
 
 		Label(labelStart)
-		CMPL(size2, U32(sz))
+		CMPQ(remain, U32(sz))
 		JL(LabelRef(labelEnd))
 		{
 			mov(Mem{Base: srcAddr}, tmp)
@@ -50,7 +54,7 @@ func Memcpy(dst, src Op, size Register, avx2 bool) {
 
 			ADDQ(U32(sz), srcAddr)
 			ADDQ(U32(sz), dstAddr)
-			SUBL(U32(sz), size2)
+			SUBQ(U32(sz), remain)
 
 			JMP(LabelRef(labelStart))
 		}

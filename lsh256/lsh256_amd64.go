@@ -8,9 +8,14 @@ import (
 	"golang.org/x/sys/cpu"
 )
 
+var (
+	hasSSSE3 = cpu.X86.HasSSSE3
+	hasAVX2  = cpu.X86.HasAVX2
+)
+
 type simdSet struct {
 	init   func(ctx *lsh256ContextAsmData)
-	update func(ctx *lsh256ContextAsmData, data []byte, databitlen uint32)
+	update func(ctx *lsh256ContextAsmData, data []byte)
 	final  func(ctx *lsh256ContextAsmData, hashval []byte)
 }
 
@@ -40,16 +45,16 @@ var (
 func init() {
 	simdSetDefault = simdSetSSE2
 
-	if cpu.X86.HasSSSE3 {
+	if hasSSSE3 {
 		simdSetDefault = simdSetSSSE3
 	}
 
-	if cpu.X86.HasAVX2 {
+	if hasAVX2 {
 		simdSetDefault = simdSetAVX2
 	}
 }
 
-func newContextAsm(algType algType, simd simdSet) hash.Hash {
+func newContextAsm(algType int, simd simdSet) hash.Hash {
 	ctx := new(lsh256ContextAsm)
 	initContextAsm(ctx, algType, simd)
 	return ctx
@@ -68,12 +73,12 @@ type lsh256ContextAsmData struct {
 	remain_databitlen uint32
 	_pad1             [16 - 4]byte
 
-	cv_l       [32 / 4]uint32
-	cv_r       [32 / 4]uint32
+	cv_l       [32]byte
+	cv_r       [32]byte
 	last_block [128]byte
 }
 
-func initContextAsm(ctx *lsh256ContextAsm, algtype algType, simd simdSet) {
+func initContextAsm(ctx *lsh256ContextAsm, algtype int, simd simdSet) {
 	ctx.simd = simd
 	ctx.data.algtype = uint32(algtype)
 	ctx.Reset()
@@ -96,7 +101,7 @@ func (ctx *lsh256ContextAsm) Write(data []byte) (n int, err error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
-	ctx.simd.update(&ctx.data, data, uint32(len(data)*8))
+	ctx.simd.update(&ctx.data, data)
 
 	return len(data), nil
 }

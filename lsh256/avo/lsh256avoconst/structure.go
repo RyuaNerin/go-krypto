@@ -5,10 +5,10 @@ type lsh256ContextAsmData struct {
 	algtype uint32
 	_pad0   [16 - 4]byte
 	// 16 aligned
-	remain_databitlen uint32
-	_pad1             [16 - 4]byte
+	remain_databytelen uint64
+	_pad1              [16 - 8]byte
 
-	cv_l       [32 / 4]uint32
-	cv_r       [32 / 4]uint32
+	cv_l       [32]byte
+	cv_r       [32]byte
 	last_block [128]byte
 }

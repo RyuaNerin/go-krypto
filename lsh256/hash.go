@@ -16,10 +16,3 @@ const (
 	// The blocksize of LSH-256 and LSH-224 in bytes.
 	BlockSize = 128
 )
-
-type algType int
-
-const (
-	lshType256H256 algType = 32 // 256
-	lshType256H224         = 28 // 224
-)

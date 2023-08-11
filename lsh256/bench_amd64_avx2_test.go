@@ -3,28 +3,14 @@
 package lsh256
 
 import (
+	"hash"
 	"testing"
-
-	"golang.org/x/sys/cpu"
 )
 
-func Benchmark_LSH224_Reset_AVX2(b *testing.B) {
-	benchReset(b, newContextAsm(lshType256H224, simdSetAVX2), cpu.X86.HasAVX2)
-}
-func Benchmark_LSH256_Reset_AVX2(b *testing.B) {
-	benchReset(b, newContextAsm(lshType256H256, simdSetAVX2), cpu.X86.HasAVX2)
-}
+func Benchmark_Hash_8_AVX2(b *testing.B)  { benchmarkSize(b, newAVX2, 8, hasAVX2) }
+func Benchmark_Hash_1K_AVX2(b *testing.B) { benchmarkSize(b, newAVX2, 1024, hasAVX2) }
+func Benchmark_Hash_8K_AVX2(b *testing.B) { benchmarkSize(b, newAVX2, 8192, hasAVX2) }
 
-func Benchmark_LSH224_Write_AVX2(b *testing.B) {
-	benchWrite(b, newContextAsm(lshType256H224, simdSetAVX2), cpu.X86.HasAVX2)
-}
-func Benchmark_LSH256_Write_AVX2(b *testing.B) {
-	benchWrite(b, newContextAsm(lshType256H256, simdSetAVX2), cpu.X86.HasAVX2)
-}
-
-func Benchmark_LSH224_WriteSum_AVX2(b *testing.B) {
-	benchSum(b, newContextAsm(lshType256H224, simdSetAVX2), cpu.X86.HasAVX2)
-}
-func Benchmark_LSH256_WriteSum_AVX2(b *testing.B) {
-	benchSum(b, newContextAsm(lshType256H256, simdSetAVX2), cpu.X86.HasAVX2)
+func newAVX2(size int) hash.Hash {
+	return newContextAsm(size, simdSetAVX2)
 }
