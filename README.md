@@ -1,6 +1,6 @@
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/RyuaNerin/go-krypto)](https://pkg.go.dev/github.com/RyuaNerin/go-krypto)
+# [krypto](https://pkg.go.dev/github.com/RyuaNerin/go-krypto)
 
-# krypto
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/RyuaNerin/go-krypto)](https://pkg.go.dev/github.com/RyuaNerin/go-krypto)
 
 - Golang implementation of cryptographic algorithms designed in Republic of Korea
 
