@@ -2,10 +2,10 @@
 
 package lea
 
-func leaEnc4SSE2(round int, rk []uint32, dst []byte, src []byte)
+func leaEnc4SSE2(ctx *leaContext, dst []byte, src []byte)
 
-func leaDec4SSE2(round int, rk []uint32, dst []byte, src []byte)
+func leaDec4SSE2(ctx *leaContext, dst []byte, src []byte)
 
-func leaEnc8AVX2(round int, rk []uint32, dst []byte, src []byte)
+func leaEnc8AVX2(ctx *leaContext, dst []byte, src []byte)
 
-func leaDec8AVX2(round int, rk []uint32, dst []byte, src []byte)
+func leaDec8AVX2(ctx *leaContext, dst []byte, src []byte)

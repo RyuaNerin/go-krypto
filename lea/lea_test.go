@@ -10,9 +10,10 @@ const (
 )
 
 var (
-	round = 24
-	rk    = make([]uint32, 192)
-	src   = make([]byte, BlockSize*8)
+	ctx = &leaContext{
+		round: 24,
+	}
+	src = make([]byte, BlockSize*8)
 )
 
 func init() {
@@ -23,24 +24,24 @@ func init() {
 
 func Test_leaEnc4SSE2(t *testing.T) {
 	dst := make([]byte, BlockSize*4)
-	leaEnc4SSE2(round, rk, dst, src)
+	leaEnc4SSE2(ctx, dst, src)
 	log.Println(dst)
 }
 
 func Test_leaEnc8AVX2(t *testing.T) {
 	dst := make([]byte, BlockSize*8)
-	leaEnc8AVX2(round, rk, dst, src)
+	leaEnc8AVX2(ctx, dst, src)
 	log.Println(dst)
 }
 
 func Test_leaDec4SSE2(t *testing.T) {
 	dst := make([]byte, BlockSize*4)
-	leaDec4SSE2(round, rk, dst, src)
+	leaDec4SSE2(ctx, dst, src)
 	log.Println(dst)
 }
 
 func Test_leaDec8AVX2(t *testing.T) {
 	dst := make([]byte, BlockSize*8)
-	leaDec8AVX2(round, rk, dst, src)
+	leaDec8AVX2(ctx, dst, src)
 	log.Println(dst)
 }

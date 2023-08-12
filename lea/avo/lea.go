@@ -5,6 +5,8 @@ import (
 )
 
 func main() {
+	Package("kryptosimd/lea/avo")
+
 	leaEnc4SSE2()
 	leaDec4SSE2()
 
