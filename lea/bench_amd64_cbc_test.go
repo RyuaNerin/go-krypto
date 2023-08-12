@@ -7,27 +7,6 @@ import (
 	"testing"
 )
 
-func Benchmark_BlockMode_CBC_Encrypt_1Block_Go(b *testing.B) {
-	benchAll(b, cbcGo(1, cipher.NewCBCEncrypter))
-}
-func Benchmark_BlockMode_CBC_Encrypt_1Block_Asm(b *testing.B) {
-	benchAll(b, cbcAsm(1, cipher.NewCBCEncrypter))
-}
-
-func Benchmark_BlockMode_CBC_Encrypt_4Blocks_Go(b *testing.B) {
-	benchAll(b, cbcGo(4, cipher.NewCBCEncrypter))
-}
-func Benchmark_BlockMode_CBC_Encrypt_4Blocks_Asm(b *testing.B) {
-	benchAll(b, cbcAsm(4, cipher.NewCBCEncrypter))
-}
-
-func Benchmark_BlockMode_CBC_Encrypt_8Blocks_Go(b *testing.B) {
-	benchAll(b, cbcGo(8, cipher.NewCBCEncrypter))
-}
-func Benchmark_BlockMode_CBC_Encrypt_8Blocks_Asm(b *testing.B) {
-	benchAll(b, cbcAsm(8, cipher.NewCBCEncrypter))
-}
-
 func Benchmark_BlockMode_CBC_Decrypt_1Block_Go(b *testing.B) {
 	benchAll(b, cbcGo(1, cipher.NewCBCDecrypter))
 }
@@ -51,7 +30,7 @@ func Benchmark_BlockMode_CBC_Decrypt_8Blocks_Asm(b *testing.B) {
 
 func cbcGo(blocks int, newBlockMode func(cipher.Block, []byte) cipher.BlockMode) func(b *testing.B, keySize int) {
 	return func(b *testing.B, keySize int) {
-		var ctx leaContextGo
+		var ctx leaContext
 		err := ctx.initContext(make([]byte, keySize/8))
 		if err != nil {
 			b.Error(err)

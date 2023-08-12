@@ -23,7 +23,7 @@ func testCBC(blocks int, newBlockMode func(cipher.Block, []byte) cipher.BlockMod
 	return func(t *testing.T, keySize int) {
 		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 
-		var ctxGo leaContextGo
+		var ctxGo leaContext
 		var ctxAsm leaContextAsm
 
 		key := make([]byte, keySize/8)

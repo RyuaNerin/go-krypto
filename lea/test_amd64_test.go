@@ -42,8 +42,8 @@ func tb(blocks int, funcGo, funcAsm funcBlock, do bool) func(t *testing.T, keySi
 		}
 
 		for i := 0; i < testBlocks/blocks; i++ {
-			funcGo(ctx.g.round, ctx.g.rk, dstGo, srcGo)
-			funcAsm(ctx.g.round, ctx.g.rk, dstAsm, srcAsm)
+			funcGo(&ctx.g, dstGo, srcGo)
+			funcAsm(&ctx.g, dstAsm, srcAsm)
 
 			if !bytes.Equal(dstGo, dstAsm) {
 				t.Error("did not match")

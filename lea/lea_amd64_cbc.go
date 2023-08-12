@@ -57,7 +57,7 @@ func (b *leaCbcContext) CryptBlocks(dst, src []byte) {
 		srcIdx -= BlockSize * 8
 
 		dstLocal := dst[dstIdx : dstIdx+BlockSize*8]
-		leaDec8(b.leaCtx.g.round, b.leaCtx.g.rk, dstLocal, src[srcIdx:])
+		leaDec8(&b.leaCtx.g, dstLocal, src[srcIdx:])
 		if remainBlock > 0 {
 			xorBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
 		} else {
@@ -72,7 +72,7 @@ func (b *leaCbcContext) CryptBlocks(dst, src []byte) {
 		srcIdx -= BlockSize * 4
 
 		dstLocal := dst[dstIdx : dstIdx+BlockSize*4]
-		leaDec4(b.leaCtx.g.round, b.leaCtx.g.rk, dstLocal, src[srcIdx:])
+		leaDec4(&b.leaCtx.g, dstLocal, src[srcIdx:])
 		if remainBlock > 0 {
 			xorBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
 		} else {
@@ -87,7 +87,7 @@ func (b *leaCbcContext) CryptBlocks(dst, src []byte) {
 		srcIdx -= BlockSize
 
 		dstLocal := dst[dstIdx : dstIdx+BlockSize]
-		leaDec1(b.leaCtx.g.round, b.leaCtx.g.rk, dstLocal, src[srcIdx:])
+		leaDec1(&b.leaCtx.g, dstLocal, src[srcIdx:])
 
 		if remainBlock > 0 { // Ignore the first block, must use iv.
 			xorBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])

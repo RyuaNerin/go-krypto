@@ -15,7 +15,7 @@ func Test_BlockMode_CTR_Asm(t *testing.T) { testAll(t, testCTR) }
 func testCTR(t *testing.T, keySize int) {
 	rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 
-	var ctxGo leaContextGo
+	var ctxGo leaContext
 	var ctxAsm leaContextAsm
 
 	key := make([]byte, keySize/8)

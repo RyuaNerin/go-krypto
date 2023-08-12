@@ -5,55 +5,50 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math/bits"
+
+	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
 )
 
-type leaContextGo struct {
-	round int
-	rk    []uint32
-	ecb   bool
-}
-
 func newCipherGo(key []byte) (cipher.Block, error) {
-	leaCtx := new(leaContextGo)
+	ctx := new(leaContext)
 
-	return leaCtx, leaCtx.initContext(key)
+	if err := ctx.initContext(key); err != nil {
+		return nil, err
+	}
+	return ctx, nil
 }
 
 func newCipherECBGo(key []byte) (cipher.Block, error) {
-	leaCtx := new(leaContextGo)
-	leaCtx.ecb = true
+	ctx := new(leaContext)
+	ctx.ecb = true
 
-	return leaCtx, leaCtx.initContext(key)
+	if err := ctx.initContext(key); err != nil {
+		return nil, err
+	}
+	return ctx, nil
 }
 
-func (leaCtx *leaContextGo) initContext(key []byte) error {
-	var rkSize int
-
+func (ctx *leaContext) initContext(key []byte) error {
 	l := len(key)
 	switch l {
 	case 16:
-		rkSize = 144
 	case 24:
-		rkSize = 168
 	case 32:
-		rkSize = 192
 	default:
 		return KeySizeError(l)
 	}
 
-	if len(leaCtx.rk) < rkSize {
-		leaCtx.rk = make([]uint32, rkSize)
-	}
-	leaCtx.round = leaSetKeyGo(leaCtx.rk, key)
+	kryptoutil.MemsetUint32(ctx.rk[:], 0)
+	ctx.round = uint8(leaSetKeyGo(ctx.rk[:], key))
 
 	return nil
 }
 
-func (leaCtx *leaContextGo) BlockSize() int {
+func (ctx *leaContext) BlockSize() int {
 	return BlockSize
 }
 
-func (leaCtx *leaContextGo) Encrypt(dst, src []byte) {
+func (ctx *leaContext) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
 	}
@@ -61,39 +56,39 @@ func (leaCtx *leaContextGo) Encrypt(dst, src []byte) {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
 	}
 
-	if !leaCtx.ecb {
-		leaEnc1Go(leaCtx.round, leaCtx.rk, dst, src)
+	if !ctx.ecb {
+		leaEnc1Go(ctx, dst, src)
 	} else {
 		if len(src)%BlockSize != 0 {
 			panic("krypto/lea: input not full blocks")
 		}
 
-		remainBlock := len(src) / leaCtx.BlockSize()
+		remainBlock := len(src) / ctx.BlockSize()
 
 		for remainBlock >= 8 {
 			remainBlock -= 8
-			leaEnc8Go(leaCtx.round, leaCtx.rk, dst, src)
+			leaEnc8Go(ctx, dst, src)
 
 			dst, src = dst[0x80:], src[0x80:]
 		}
 
 		for remainBlock >= 4 {
 			remainBlock -= 4
-			leaEnc4Go(leaCtx.round, leaCtx.rk, dst, src)
+			leaEnc4Go(ctx, dst, src)
 
 			dst, src = dst[0x40:], src[0x40:]
 		}
 
 		for remainBlock > 0 {
 			remainBlock -= 1
-			leaEnc1Go(leaCtx.round, leaCtx.rk, dst, src)
+			leaEnc1Go(ctx, dst, src)
 
 			dst, src = dst[0x10:], src[0x10:]
 		}
 	}
 }
 
-func (leaCtx *leaContextGo) Decrypt(dst, src []byte) {
+func (ctx *leaContext) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
 	}
@@ -101,32 +96,32 @@ func (leaCtx *leaContextGo) Decrypt(dst, src []byte) {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
 	}
 
-	if !leaCtx.ecb {
-		leaDec1Go(leaCtx.round, leaCtx.rk, dst, src)
+	if !ctx.ecb {
+		leaDec1Go(ctx, dst, src)
 	} else {
 		if len(src)%BlockSize != 0 {
 			panic("krypto/lea: input not full blocks")
 		}
 
-		remainBlock := len(src) / leaCtx.BlockSize()
+		remainBlock := len(src) / ctx.BlockSize()
 
 		for remainBlock >= 8 {
 			remainBlock -= 8
-			leaDec8Go(leaCtx.round, leaCtx.rk, dst, src)
+			leaDec8Go(ctx, dst, src)
 
 			dst, src = dst[0x80:], src[0x80:]
 		}
 
 		for remainBlock >= 4 {
 			remainBlock -= 4
-			leaDec4Go(leaCtx.round, leaCtx.rk, dst, src)
+			leaDec4Go(ctx, dst, src)
 
 			dst, src = dst[0x40:], src[0x40:]
 		}
 
 		for remainBlock > 0 {
 			remainBlock -= 1
-			leaDec1Go(leaCtx.round, leaCtx.rk, dst, src)
+			leaDec1Go(ctx, dst, src)
 
 			dst, src = dst[0x10:], src[0x10:]
 		}
@@ -635,118 +630,118 @@ func leaSetKeyGo(rk []uint32, key []byte) int {
 	return (keyLen >> 1) + 16
 }
 
-func leaEnc1Go(round int, rk []uint32, dst, src []byte) {
+func leaEnc1Go(ctx *leaContext, dst, src []byte) {
 	X0 := binary.LittleEndian.Uint32(src[4*0:])
 	X1 := binary.LittleEndian.Uint32(src[4*1:])
 	X2 := binary.LittleEndian.Uint32(src[4*2:])
 	X3 := binary.LittleEndian.Uint32(src[4*3:])
 
-	X3 = bitsRotateRight32((X2^rk[4])+(X3^rk[5]), 3)
-	X2 = bitsRotateRight32((X1^rk[2])+(X2^rk[3]), 5)
-	X1 = bits.RotateLeft32((X0^rk[0])+(X1^rk[1]), 9)
-	X0 = bitsRotateRight32((X3^rk[10])+(X0^rk[11]), 3)
-	X3 = bitsRotateRight32((X2^rk[8])+(X3^rk[9]), 5)
-	X2 = bits.RotateLeft32((X1^rk[6])+(X2^rk[7]), 9)
-	X1 = bitsRotateRight32((X0^rk[16])+(X1^rk[17]), 3)
-	X0 = bitsRotateRight32((X3^rk[14])+(X0^rk[15]), 5)
-	X3 = bits.RotateLeft32((X2^rk[12])+(X3^rk[13]), 9)
-	X2 = bitsRotateRight32((X1^rk[22])+(X2^rk[23]), 3)
-	X1 = bitsRotateRight32((X0^rk[20])+(X1^rk[21]), 5)
-	X0 = bits.RotateLeft32((X3^rk[18])+(X0^rk[19]), 9)
+	X3 = bitsRotateRight32((X2^ctx.rk[4])+(X3^ctx.rk[5]), 3)
+	X2 = bitsRotateRight32((X1^ctx.rk[2])+(X2^ctx.rk[3]), 5)
+	X1 = bits.RotateLeft32((X0^ctx.rk[0])+(X1^ctx.rk[1]), 9)
+	X0 = bitsRotateRight32((X3^ctx.rk[10])+(X0^ctx.rk[11]), 3)
+	X3 = bitsRotateRight32((X2^ctx.rk[8])+(X3^ctx.rk[9]), 5)
+	X2 = bits.RotateLeft32((X1^ctx.rk[6])+(X2^ctx.rk[7]), 9)
+	X1 = bitsRotateRight32((X0^ctx.rk[16])+(X1^ctx.rk[17]), 3)
+	X0 = bitsRotateRight32((X3^ctx.rk[14])+(X0^ctx.rk[15]), 5)
+	X3 = bits.RotateLeft32((X2^ctx.rk[12])+(X3^ctx.rk[13]), 9)
+	X2 = bitsRotateRight32((X1^ctx.rk[22])+(X2^ctx.rk[23]), 3)
+	X1 = bitsRotateRight32((X0^ctx.rk[20])+(X1^ctx.rk[21]), 5)
+	X0 = bits.RotateLeft32((X3^ctx.rk[18])+(X0^ctx.rk[19]), 9)
 
-	X3 = bitsRotateRight32((X2^rk[28])+(X3^rk[29]), 3)
-	X2 = bitsRotateRight32((X1^rk[26])+(X2^rk[27]), 5)
-	X1 = bits.RotateLeft32((X0^rk[24])+(X1^rk[25]), 9)
-	X0 = bitsRotateRight32((X3^rk[34])+(X0^rk[35]), 3)
-	X3 = bitsRotateRight32((X2^rk[32])+(X3^rk[33]), 5)
-	X2 = bits.RotateLeft32((X1^rk[30])+(X2^rk[31]), 9)
-	X1 = bitsRotateRight32((X0^rk[40])+(X1^rk[41]), 3)
-	X0 = bitsRotateRight32((X3^rk[38])+(X0^rk[39]), 5)
-	X3 = bits.RotateLeft32((X2^rk[36])+(X3^rk[37]), 9)
-	X2 = bitsRotateRight32((X1^rk[46])+(X2^rk[47]), 3)
-	X1 = bitsRotateRight32((X0^rk[44])+(X1^rk[45]), 5)
-	X0 = bits.RotateLeft32((X3^rk[42])+(X0^rk[43]), 9)
+	X3 = bitsRotateRight32((X2^ctx.rk[28])+(X3^ctx.rk[29]), 3)
+	X2 = bitsRotateRight32((X1^ctx.rk[26])+(X2^ctx.rk[27]), 5)
+	X1 = bits.RotateLeft32((X0^ctx.rk[24])+(X1^ctx.rk[25]), 9)
+	X0 = bitsRotateRight32((X3^ctx.rk[34])+(X0^ctx.rk[35]), 3)
+	X3 = bitsRotateRight32((X2^ctx.rk[32])+(X3^ctx.rk[33]), 5)
+	X2 = bits.RotateLeft32((X1^ctx.rk[30])+(X2^ctx.rk[31]), 9)
+	X1 = bitsRotateRight32((X0^ctx.rk[40])+(X1^ctx.rk[41]), 3)
+	X0 = bitsRotateRight32((X3^ctx.rk[38])+(X0^ctx.rk[39]), 5)
+	X3 = bits.RotateLeft32((X2^ctx.rk[36])+(X3^ctx.rk[37]), 9)
+	X2 = bitsRotateRight32((X1^ctx.rk[46])+(X2^ctx.rk[47]), 3)
+	X1 = bitsRotateRight32((X0^ctx.rk[44])+(X1^ctx.rk[45]), 5)
+	X0 = bits.RotateLeft32((X3^ctx.rk[42])+(X0^ctx.rk[43]), 9)
 
-	X3 = bitsRotateRight32((X2^rk[52])+(X3^rk[53]), 3)
-	X2 = bitsRotateRight32((X1^rk[50])+(X2^rk[51]), 5)
-	X1 = bits.RotateLeft32((X0^rk[48])+(X1^rk[49]), 9)
-	X0 = bitsRotateRight32((X3^rk[58])+(X0^rk[59]), 3)
-	X3 = bitsRotateRight32((X2^rk[56])+(X3^rk[57]), 5)
-	X2 = bits.RotateLeft32((X1^rk[54])+(X2^rk[55]), 9)
-	X1 = bitsRotateRight32((X0^rk[64])+(X1^rk[65]), 3)
-	X0 = bitsRotateRight32((X3^rk[62])+(X0^rk[63]), 5)
-	X3 = bits.RotateLeft32((X2^rk[60])+(X3^rk[61]), 9)
-	X2 = bitsRotateRight32((X1^rk[70])+(X2^rk[71]), 3)
-	X1 = bitsRotateRight32((X0^rk[68])+(X1^rk[69]), 5)
-	X0 = bits.RotateLeft32((X3^rk[66])+(X0^rk[67]), 9)
+	X3 = bitsRotateRight32((X2^ctx.rk[52])+(X3^ctx.rk[53]), 3)
+	X2 = bitsRotateRight32((X1^ctx.rk[50])+(X2^ctx.rk[51]), 5)
+	X1 = bits.RotateLeft32((X0^ctx.rk[48])+(X1^ctx.rk[49]), 9)
+	X0 = bitsRotateRight32((X3^ctx.rk[58])+(X0^ctx.rk[59]), 3)
+	X3 = bitsRotateRight32((X2^ctx.rk[56])+(X3^ctx.rk[57]), 5)
+	X2 = bits.RotateLeft32((X1^ctx.rk[54])+(X2^ctx.rk[55]), 9)
+	X1 = bitsRotateRight32((X0^ctx.rk[64])+(X1^ctx.rk[65]), 3)
+	X0 = bitsRotateRight32((X3^ctx.rk[62])+(X0^ctx.rk[63]), 5)
+	X3 = bits.RotateLeft32((X2^ctx.rk[60])+(X3^ctx.rk[61]), 9)
+	X2 = bitsRotateRight32((X1^ctx.rk[70])+(X2^ctx.rk[71]), 3)
+	X1 = bitsRotateRight32((X0^ctx.rk[68])+(X1^ctx.rk[69]), 5)
+	X0 = bits.RotateLeft32((X3^ctx.rk[66])+(X0^ctx.rk[67]), 9)
 
-	X3 = bitsRotateRight32((X2^rk[76])+(X3^rk[77]), 3)
-	X2 = bitsRotateRight32((X1^rk[74])+(X2^rk[75]), 5)
-	X1 = bits.RotateLeft32((X0^rk[72])+(X1^rk[73]), 9)
-	X0 = bitsRotateRight32((X3^rk[82])+(X0^rk[83]), 3)
-	X3 = bitsRotateRight32((X2^rk[80])+(X3^rk[81]), 5)
-	X2 = bits.RotateLeft32((X1^rk[78])+(X2^rk[79]), 9)
-	X1 = bitsRotateRight32((X0^rk[88])+(X1^rk[89]), 3)
-	X0 = bitsRotateRight32((X3^rk[86])+(X0^rk[87]), 5)
-	X3 = bits.RotateLeft32((X2^rk[84])+(X3^rk[85]), 9)
-	X2 = bitsRotateRight32((X1^rk[94])+(X2^rk[95]), 3)
-	X1 = bitsRotateRight32((X0^rk[92])+(X1^rk[93]), 5)
-	X0 = bits.RotateLeft32((X3^rk[90])+(X0^rk[91]), 9)
+	X3 = bitsRotateRight32((X2^ctx.rk[76])+(X3^ctx.rk[77]), 3)
+	X2 = bitsRotateRight32((X1^ctx.rk[74])+(X2^ctx.rk[75]), 5)
+	X1 = bits.RotateLeft32((X0^ctx.rk[72])+(X1^ctx.rk[73]), 9)
+	X0 = bitsRotateRight32((X3^ctx.rk[82])+(X0^ctx.rk[83]), 3)
+	X3 = bitsRotateRight32((X2^ctx.rk[80])+(X3^ctx.rk[81]), 5)
+	X2 = bits.RotateLeft32((X1^ctx.rk[78])+(X2^ctx.rk[79]), 9)
+	X1 = bitsRotateRight32((X0^ctx.rk[88])+(X1^ctx.rk[89]), 3)
+	X0 = bitsRotateRight32((X3^ctx.rk[86])+(X0^ctx.rk[87]), 5)
+	X3 = bits.RotateLeft32((X2^ctx.rk[84])+(X3^ctx.rk[85]), 9)
+	X2 = bitsRotateRight32((X1^ctx.rk[94])+(X2^ctx.rk[95]), 3)
+	X1 = bitsRotateRight32((X0^ctx.rk[92])+(X1^ctx.rk[93]), 5)
+	X0 = bits.RotateLeft32((X3^ctx.rk[90])+(X0^ctx.rk[91]), 9)
 
-	X3 = bitsRotateRight32((X2^rk[100])+(X3^rk[101]), 3)
-	X2 = bitsRotateRight32((X1^rk[98])+(X2^rk[99]), 5)
-	X1 = bits.RotateLeft32((X0^rk[96])+(X1^rk[97]), 9)
-	X0 = bitsRotateRight32((X3^rk[106])+(X0^rk[107]), 3)
-	X3 = bitsRotateRight32((X2^rk[104])+(X3^rk[105]), 5)
-	X2 = bits.RotateLeft32((X1^rk[102])+(X2^rk[103]), 9)
-	X1 = bitsRotateRight32((X0^rk[112])+(X1^rk[113]), 3)
-	X0 = bitsRotateRight32((X3^rk[110])+(X0^rk[111]), 5)
-	X3 = bits.RotateLeft32((X2^rk[108])+(X3^rk[109]), 9)
-	X2 = bitsRotateRight32((X1^rk[118])+(X2^rk[119]), 3)
-	X1 = bitsRotateRight32((X0^rk[116])+(X1^rk[117]), 5)
-	X0 = bits.RotateLeft32((X3^rk[114])+(X0^rk[115]), 9)
+	X3 = bitsRotateRight32((X2^ctx.rk[100])+(X3^ctx.rk[101]), 3)
+	X2 = bitsRotateRight32((X1^ctx.rk[98])+(X2^ctx.rk[99]), 5)
+	X1 = bits.RotateLeft32((X0^ctx.rk[96])+(X1^ctx.rk[97]), 9)
+	X0 = bitsRotateRight32((X3^ctx.rk[106])+(X0^ctx.rk[107]), 3)
+	X3 = bitsRotateRight32((X2^ctx.rk[104])+(X3^ctx.rk[105]), 5)
+	X2 = bits.RotateLeft32((X1^ctx.rk[102])+(X2^ctx.rk[103]), 9)
+	X1 = bitsRotateRight32((X0^ctx.rk[112])+(X1^ctx.rk[113]), 3)
+	X0 = bitsRotateRight32((X3^ctx.rk[110])+(X0^ctx.rk[111]), 5)
+	X3 = bits.RotateLeft32((X2^ctx.rk[108])+(X3^ctx.rk[109]), 9)
+	X2 = bitsRotateRight32((X1^ctx.rk[118])+(X2^ctx.rk[119]), 3)
+	X1 = bitsRotateRight32((X0^ctx.rk[116])+(X1^ctx.rk[117]), 5)
+	X0 = bits.RotateLeft32((X3^ctx.rk[114])+(X0^ctx.rk[115]), 9)
 
-	X3 = bitsRotateRight32((X2^rk[124])+(X3^rk[125]), 3)
-	X2 = bitsRotateRight32((X1^rk[122])+(X2^rk[123]), 5)
-	X1 = bits.RotateLeft32((X0^rk[120])+(X1^rk[121]), 9)
-	X0 = bitsRotateRight32((X3^rk[130])+(X0^rk[131]), 3)
-	X3 = bitsRotateRight32((X2^rk[128])+(X3^rk[129]), 5)
-	X2 = bits.RotateLeft32((X1^rk[126])+(X2^rk[127]), 9)
-	X1 = bitsRotateRight32((X0^rk[136])+(X1^rk[137]), 3)
-	X0 = bitsRotateRight32((X3^rk[134])+(X0^rk[135]), 5)
-	X3 = bits.RotateLeft32((X2^rk[132])+(X3^rk[133]), 9)
-	X2 = bitsRotateRight32((X1^rk[142])+(X2^rk[143]), 3)
-	X1 = bitsRotateRight32((X0^rk[140])+(X1^rk[141]), 5)
-	X0 = bits.RotateLeft32((X3^rk[138])+(X0^rk[139]), 9)
+	X3 = bitsRotateRight32((X2^ctx.rk[124])+(X3^ctx.rk[125]), 3)
+	X2 = bitsRotateRight32((X1^ctx.rk[122])+(X2^ctx.rk[123]), 5)
+	X1 = bits.RotateLeft32((X0^ctx.rk[120])+(X1^ctx.rk[121]), 9)
+	X0 = bitsRotateRight32((X3^ctx.rk[130])+(X0^ctx.rk[131]), 3)
+	X3 = bitsRotateRight32((X2^ctx.rk[128])+(X3^ctx.rk[129]), 5)
+	X2 = bits.RotateLeft32((X1^ctx.rk[126])+(X2^ctx.rk[127]), 9)
+	X1 = bitsRotateRight32((X0^ctx.rk[136])+(X1^ctx.rk[137]), 3)
+	X0 = bitsRotateRight32((X3^ctx.rk[134])+(X0^ctx.rk[135]), 5)
+	X3 = bits.RotateLeft32((X2^ctx.rk[132])+(X3^ctx.rk[133]), 9)
+	X2 = bitsRotateRight32((X1^ctx.rk[142])+(X2^ctx.rk[143]), 3)
+	X1 = bitsRotateRight32((X0^ctx.rk[140])+(X1^ctx.rk[141]), 5)
+	X0 = bits.RotateLeft32((X3^ctx.rk[138])+(X0^ctx.rk[139]), 9)
 
-	if round > 24 {
-		X3 = bitsRotateRight32((X2^rk[148])+(X3^rk[149]), 3)
-		X2 = bitsRotateRight32((X1^rk[146])+(X2^rk[147]), 5)
-		X1 = bits.RotateLeft32((X0^rk[144])+(X1^rk[145]), 9)
-		X0 = bitsRotateRight32((X3^rk[154])+(X0^rk[155]), 3)
-		X3 = bitsRotateRight32((X2^rk[152])+(X3^rk[153]), 5)
-		X2 = bits.RotateLeft32((X1^rk[150])+(X2^rk[151]), 9)
-		X1 = bitsRotateRight32((X0^rk[160])+(X1^rk[161]), 3)
-		X0 = bitsRotateRight32((X3^rk[158])+(X0^rk[159]), 5)
-		X3 = bits.RotateLeft32((X2^rk[156])+(X3^rk[157]), 9)
-		X2 = bitsRotateRight32((X1^rk[166])+(X2^rk[167]), 3)
-		X1 = bitsRotateRight32((X0^rk[164])+(X1^rk[165]), 5)
-		X0 = bits.RotateLeft32((X3^rk[162])+(X0^rk[163]), 9)
+	if ctx.round > 24 {
+		X3 = bitsRotateRight32((X2^ctx.rk[148])+(X3^ctx.rk[149]), 3)
+		X2 = bitsRotateRight32((X1^ctx.rk[146])+(X2^ctx.rk[147]), 5)
+		X1 = bits.RotateLeft32((X0^ctx.rk[144])+(X1^ctx.rk[145]), 9)
+		X0 = bitsRotateRight32((X3^ctx.rk[154])+(X0^ctx.rk[155]), 3)
+		X3 = bitsRotateRight32((X2^ctx.rk[152])+(X3^ctx.rk[153]), 5)
+		X2 = bits.RotateLeft32((X1^ctx.rk[150])+(X2^ctx.rk[151]), 9)
+		X1 = bitsRotateRight32((X0^ctx.rk[160])+(X1^ctx.rk[161]), 3)
+		X0 = bitsRotateRight32((X3^ctx.rk[158])+(X0^ctx.rk[159]), 5)
+		X3 = bits.RotateLeft32((X2^ctx.rk[156])+(X3^ctx.rk[157]), 9)
+		X2 = bitsRotateRight32((X1^ctx.rk[166])+(X2^ctx.rk[167]), 3)
+		X1 = bitsRotateRight32((X0^ctx.rk[164])+(X1^ctx.rk[165]), 5)
+		X0 = bits.RotateLeft32((X3^ctx.rk[162])+(X0^ctx.rk[163]), 9)
 	}
 
-	if round > 28 {
-		X3 = bitsRotateRight32((X2^rk[172])+(X3^rk[173]), 3)
-		X2 = bitsRotateRight32((X1^rk[170])+(X2^rk[171]), 5)
-		X1 = bits.RotateLeft32((X0^rk[168])+(X1^rk[169]), 9)
-		X0 = bitsRotateRight32((X3^rk[178])+(X0^rk[179]), 3)
-		X3 = bitsRotateRight32((X2^rk[176])+(X3^rk[177]), 5)
-		X2 = bits.RotateLeft32((X1^rk[174])+(X2^rk[175]), 9)
-		X1 = bitsRotateRight32((X0^rk[184])+(X1^rk[185]), 3)
-		X0 = bitsRotateRight32((X3^rk[182])+(X0^rk[183]), 5)
-		X3 = bits.RotateLeft32((X2^rk[180])+(X3^rk[181]), 9)
-		X2 = bitsRotateRight32((X1^rk[190])+(X2^rk[191]), 3)
-		X1 = bitsRotateRight32((X0^rk[188])+(X1^rk[189]), 5)
-		X0 = bits.RotateLeft32((X3^rk[186])+(X0^rk[187]), 9)
+	if ctx.round > 28 {
+		X3 = bitsRotateRight32((X2^ctx.rk[172])+(X3^ctx.rk[173]), 3)
+		X2 = bitsRotateRight32((X1^ctx.rk[170])+(X2^ctx.rk[171]), 5)
+		X1 = bits.RotateLeft32((X0^ctx.rk[168])+(X1^ctx.rk[169]), 9)
+		X0 = bitsRotateRight32((X3^ctx.rk[178])+(X0^ctx.rk[179]), 3)
+		X3 = bitsRotateRight32((X2^ctx.rk[176])+(X3^ctx.rk[177]), 5)
+		X2 = bits.RotateLeft32((X1^ctx.rk[174])+(X2^ctx.rk[175]), 9)
+		X1 = bitsRotateRight32((X0^ctx.rk[184])+(X1^ctx.rk[185]), 3)
+		X0 = bitsRotateRight32((X3^ctx.rk[182])+(X0^ctx.rk[183]), 5)
+		X3 = bits.RotateLeft32((X2^ctx.rk[180])+(X3^ctx.rk[181]), 9)
+		X2 = bitsRotateRight32((X1^ctx.rk[190])+(X2^ctx.rk[191]), 3)
+		X1 = bitsRotateRight32((X0^ctx.rk[188])+(X1^ctx.rk[189]), 5)
+		X0 = bits.RotateLeft32((X3^ctx.rk[186])+(X0^ctx.rk[187]), 9)
 	}
 
 	binary.LittleEndian.PutUint32(dst[4*0:], X0)
@@ -755,119 +750,119 @@ func leaEnc1Go(round int, rk []uint32, dst, src []byte) {
 	binary.LittleEndian.PutUint32(dst[4*3:], X3)
 }
 
-func leaDec1Go(round int, rk []uint32, dst, src []byte) {
+func leaDec1Go(ctx *leaContext, dst, src []byte) {
 	X0 := binary.LittleEndian.Uint32(src[4*0:])
 	X1 := binary.LittleEndian.Uint32(src[4*1:])
 	X2 := binary.LittleEndian.Uint32(src[4*2:])
 	X3 := binary.LittleEndian.Uint32(src[4*3:])
 
-	if round > 28 {
-		X0 = (bitsRotateRight32(X0, 9) - (X3 ^ rk[186])) ^ rk[187]
-		X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ rk[188])) ^ rk[189]
-		X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ rk[190])) ^ rk[191]
-		X3 = (bitsRotateRight32(X3, 9) - (X2 ^ rk[180])) ^ rk[181]
-		X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ rk[182])) ^ rk[183]
-		X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ rk[184])) ^ rk[185]
-		X2 = (bitsRotateRight32(X2, 9) - (X1 ^ rk[174])) ^ rk[175]
-		X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ rk[176])) ^ rk[177]
-		X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ rk[178])) ^ rk[179]
-		X1 = (bitsRotateRight32(X1, 9) - (X0 ^ rk[168])) ^ rk[169]
-		X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ rk[170])) ^ rk[171]
-		X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ rk[172])) ^ rk[173]
+	if ctx.round > 28 {
+		X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[186])) ^ ctx.rk[187]
+		X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[188])) ^ ctx.rk[189]
+		X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[190])) ^ ctx.rk[191]
+		X3 = (bitsRotateRight32(X3, 9) - (X2 ^ ctx.rk[180])) ^ ctx.rk[181]
+		X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ ctx.rk[182])) ^ ctx.rk[183]
+		X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ ctx.rk[184])) ^ ctx.rk[185]
+		X2 = (bitsRotateRight32(X2, 9) - (X1 ^ ctx.rk[174])) ^ ctx.rk[175]
+		X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ ctx.rk[176])) ^ ctx.rk[177]
+		X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ ctx.rk[178])) ^ ctx.rk[179]
+		X1 = (bitsRotateRight32(X1, 9) - (X0 ^ ctx.rk[168])) ^ ctx.rk[169]
+		X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ ctx.rk[170])) ^ ctx.rk[171]
+		X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ ctx.rk[172])) ^ ctx.rk[173]
 	}
 
-	if round > 24 {
-		X0 = (bitsRotateRight32(X0, 9) - (X3 ^ rk[162])) ^ rk[163]
-		X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ rk[164])) ^ rk[165]
-		X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ rk[166])) ^ rk[167]
-		X3 = (bitsRotateRight32(X3, 9) - (X2 ^ rk[156])) ^ rk[157]
-		X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ rk[158])) ^ rk[159]
-		X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ rk[160])) ^ rk[161]
-		X2 = (bitsRotateRight32(X2, 9) - (X1 ^ rk[150])) ^ rk[151]
-		X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ rk[152])) ^ rk[153]
-		X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ rk[154])) ^ rk[155]
-		X1 = (bitsRotateRight32(X1, 9) - (X0 ^ rk[144])) ^ rk[145]
-		X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ rk[146])) ^ rk[147]
-		X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ rk[148])) ^ rk[149]
+	if ctx.round > 24 {
+		X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[162])) ^ ctx.rk[163]
+		X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[164])) ^ ctx.rk[165]
+		X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[166])) ^ ctx.rk[167]
+		X3 = (bitsRotateRight32(X3, 9) - (X2 ^ ctx.rk[156])) ^ ctx.rk[157]
+		X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ ctx.rk[158])) ^ ctx.rk[159]
+		X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ ctx.rk[160])) ^ ctx.rk[161]
+		X2 = (bitsRotateRight32(X2, 9) - (X1 ^ ctx.rk[150])) ^ ctx.rk[151]
+		X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ ctx.rk[152])) ^ ctx.rk[153]
+		X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ ctx.rk[154])) ^ ctx.rk[155]
+		X1 = (bitsRotateRight32(X1, 9) - (X0 ^ ctx.rk[144])) ^ ctx.rk[145]
+		X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ ctx.rk[146])) ^ ctx.rk[147]
+		X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ ctx.rk[148])) ^ ctx.rk[149]
 	}
 
-	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ rk[138])) ^ rk[139]
-	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ rk[140])) ^ rk[141]
-	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ rk[142])) ^ rk[143]
-	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ rk[132])) ^ rk[133]
-	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ rk[134])) ^ rk[135]
-	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ rk[136])) ^ rk[137]
-	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ rk[126])) ^ rk[127]
-	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ rk[128])) ^ rk[129]
-	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ rk[130])) ^ rk[131]
-	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ rk[120])) ^ rk[121]
-	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ rk[122])) ^ rk[123]
-	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ rk[124])) ^ rk[125]
+	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[138])) ^ ctx.rk[139]
+	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[140])) ^ ctx.rk[141]
+	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[142])) ^ ctx.rk[143]
+	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ ctx.rk[132])) ^ ctx.rk[133]
+	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ ctx.rk[134])) ^ ctx.rk[135]
+	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ ctx.rk[136])) ^ ctx.rk[137]
+	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ ctx.rk[126])) ^ ctx.rk[127]
+	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ ctx.rk[128])) ^ ctx.rk[129]
+	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ ctx.rk[130])) ^ ctx.rk[131]
+	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ ctx.rk[120])) ^ ctx.rk[121]
+	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ ctx.rk[122])) ^ ctx.rk[123]
+	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ ctx.rk[124])) ^ ctx.rk[125]
 
-	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ rk[114])) ^ rk[115]
-	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ rk[116])) ^ rk[117]
-	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ rk[118])) ^ rk[119]
-	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ rk[108])) ^ rk[109]
-	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ rk[110])) ^ rk[111]
-	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ rk[112])) ^ rk[113]
-	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ rk[102])) ^ rk[103]
-	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ rk[104])) ^ rk[105]
-	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ rk[106])) ^ rk[107]
-	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ rk[96])) ^ rk[97]
-	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ rk[98])) ^ rk[99]
-	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ rk[100])) ^ rk[101]
+	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[114])) ^ ctx.rk[115]
+	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[116])) ^ ctx.rk[117]
+	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[118])) ^ ctx.rk[119]
+	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ ctx.rk[108])) ^ ctx.rk[109]
+	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ ctx.rk[110])) ^ ctx.rk[111]
+	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ ctx.rk[112])) ^ ctx.rk[113]
+	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ ctx.rk[102])) ^ ctx.rk[103]
+	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ ctx.rk[104])) ^ ctx.rk[105]
+	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ ctx.rk[106])) ^ ctx.rk[107]
+	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ ctx.rk[96])) ^ ctx.rk[97]
+	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ ctx.rk[98])) ^ ctx.rk[99]
+	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ ctx.rk[100])) ^ ctx.rk[101]
 
-	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ rk[90])) ^ rk[91]
-	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ rk[92])) ^ rk[93]
-	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ rk[94])) ^ rk[95]
-	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ rk[84])) ^ rk[85]
-	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ rk[86])) ^ rk[87]
-	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ rk[88])) ^ rk[89]
-	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ rk[78])) ^ rk[79]
-	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ rk[80])) ^ rk[81]
-	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ rk[82])) ^ rk[83]
-	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ rk[72])) ^ rk[73]
-	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ rk[74])) ^ rk[75]
-	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ rk[76])) ^ rk[77]
+	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[90])) ^ ctx.rk[91]
+	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[92])) ^ ctx.rk[93]
+	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[94])) ^ ctx.rk[95]
+	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ ctx.rk[84])) ^ ctx.rk[85]
+	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ ctx.rk[86])) ^ ctx.rk[87]
+	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ ctx.rk[88])) ^ ctx.rk[89]
+	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ ctx.rk[78])) ^ ctx.rk[79]
+	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ ctx.rk[80])) ^ ctx.rk[81]
+	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ ctx.rk[82])) ^ ctx.rk[83]
+	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ ctx.rk[72])) ^ ctx.rk[73]
+	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ ctx.rk[74])) ^ ctx.rk[75]
+	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ ctx.rk[76])) ^ ctx.rk[77]
 
-	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ rk[66])) ^ rk[67]
-	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ rk[68])) ^ rk[69]
-	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ rk[70])) ^ rk[71]
-	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ rk[60])) ^ rk[61]
-	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ rk[62])) ^ rk[63]
-	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ rk[64])) ^ rk[65]
-	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ rk[54])) ^ rk[55]
-	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ rk[56])) ^ rk[57]
-	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ rk[58])) ^ rk[59]
-	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ rk[48])) ^ rk[49]
-	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ rk[50])) ^ rk[51]
-	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ rk[52])) ^ rk[53]
+	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[66])) ^ ctx.rk[67]
+	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[68])) ^ ctx.rk[69]
+	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[70])) ^ ctx.rk[71]
+	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ ctx.rk[60])) ^ ctx.rk[61]
+	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ ctx.rk[62])) ^ ctx.rk[63]
+	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ ctx.rk[64])) ^ ctx.rk[65]
+	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ ctx.rk[54])) ^ ctx.rk[55]
+	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ ctx.rk[56])) ^ ctx.rk[57]
+	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ ctx.rk[58])) ^ ctx.rk[59]
+	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ ctx.rk[48])) ^ ctx.rk[49]
+	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ ctx.rk[50])) ^ ctx.rk[51]
+	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ ctx.rk[52])) ^ ctx.rk[53]
 
-	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ rk[42])) ^ rk[43]
-	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ rk[44])) ^ rk[45]
-	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ rk[46])) ^ rk[47]
-	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ rk[36])) ^ rk[37]
-	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ rk[38])) ^ rk[39]
-	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ rk[40])) ^ rk[41]
-	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ rk[30])) ^ rk[31]
-	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ rk[32])) ^ rk[33]
-	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ rk[34])) ^ rk[35]
-	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ rk[24])) ^ rk[25]
-	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ rk[26])) ^ rk[27]
-	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ rk[28])) ^ rk[29]
+	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[42])) ^ ctx.rk[43]
+	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[44])) ^ ctx.rk[45]
+	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[46])) ^ ctx.rk[47]
+	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ ctx.rk[36])) ^ ctx.rk[37]
+	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ ctx.rk[38])) ^ ctx.rk[39]
+	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ ctx.rk[40])) ^ ctx.rk[41]
+	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ ctx.rk[30])) ^ ctx.rk[31]
+	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ ctx.rk[32])) ^ ctx.rk[33]
+	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ ctx.rk[34])) ^ ctx.rk[35]
+	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ ctx.rk[24])) ^ ctx.rk[25]
+	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ ctx.rk[26])) ^ ctx.rk[27]
+	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ ctx.rk[28])) ^ ctx.rk[29]
 
-	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ rk[18])) ^ rk[19]
-	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ rk[20])) ^ rk[21]
-	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ rk[22])) ^ rk[23]
-	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ rk[12])) ^ rk[13]
-	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ rk[14])) ^ rk[15]
-	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ rk[16])) ^ rk[17]
-	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ rk[6])) ^ rk[7]
-	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ rk[8])) ^ rk[9]
-	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ rk[10])) ^ rk[11]
-	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ rk[0])) ^ rk[1]
-	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ rk[2])) ^ rk[3]
-	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ rk[4])) ^ rk[5]
+	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[18])) ^ ctx.rk[19]
+	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[20])) ^ ctx.rk[21]
+	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[22])) ^ ctx.rk[23]
+	X3 = (bitsRotateRight32(X3, 9) - (X2 ^ ctx.rk[12])) ^ ctx.rk[13]
+	X0 = (bits.RotateLeft32(X0, 5) - (X3 ^ ctx.rk[14])) ^ ctx.rk[15]
+	X1 = (bits.RotateLeft32(X1, 3) - (X0 ^ ctx.rk[16])) ^ ctx.rk[17]
+	X2 = (bitsRotateRight32(X2, 9) - (X1 ^ ctx.rk[6])) ^ ctx.rk[7]
+	X3 = (bits.RotateLeft32(X3, 5) - (X2 ^ ctx.rk[8])) ^ ctx.rk[9]
+	X0 = (bits.RotateLeft32(X0, 3) - (X3 ^ ctx.rk[10])) ^ ctx.rk[11]
+	X1 = (bitsRotateRight32(X1, 9) - (X0 ^ ctx.rk[0])) ^ ctx.rk[1]
+	X2 = (bits.RotateLeft32(X2, 5) - (X1 ^ ctx.rk[2])) ^ ctx.rk[3]
+	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ ctx.rk[4])) ^ ctx.rk[5]
 
 	binary.LittleEndian.PutUint32(dst[4*0:], X0)
 	binary.LittleEndian.PutUint32(dst[4*1:], X1)
@@ -875,37 +870,37 @@ func leaDec1Go(round int, rk []uint32, dst, src []byte) {
 	binary.LittleEndian.PutUint32(dst[4*3:], X3)
 }
 
-func leaEnc4Go(round int, rk []uint32, dst, src []byte) {
-	leaEnc1Go(round, rk, dst[BlockSize*0:], src[BlockSize*0:])
-	leaEnc1Go(round, rk, dst[BlockSize*1:], src[BlockSize*1:])
-	leaEnc1Go(round, rk, dst[BlockSize*2:], src[BlockSize*2:])
-	leaEnc1Go(round, rk, dst[BlockSize*3:], src[BlockSize*3:])
+func leaEnc4Go(ctx *leaContext, dst, src []byte) {
+	leaEnc1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
+	leaEnc1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
+	leaEnc1Go(ctx, dst[BlockSize*2:], src[BlockSize*2:])
+	leaEnc1Go(ctx, dst[BlockSize*3:], src[BlockSize*3:])
 }
-func leaDec4Go(round int, rk []uint32, dst, src []byte) {
-	leaDec1Go(round, rk, dst[BlockSize*0:], src[BlockSize*0:])
-	leaDec1Go(round, rk, dst[BlockSize*1:], src[BlockSize*1:])
-	leaDec1Go(round, rk, dst[BlockSize*2:], src[BlockSize*2:])
-	leaDec1Go(round, rk, dst[BlockSize*3:], src[BlockSize*3:])
+func leaDec4Go(ctx *leaContext, dst, src []byte) {
+	leaDec1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
+	leaDec1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
+	leaDec1Go(ctx, dst[BlockSize*2:], src[BlockSize*2:])
+	leaDec1Go(ctx, dst[BlockSize*3:], src[BlockSize*3:])
 }
 
-func leaEnc8Go(round int, rk []uint32, dst, src []byte) {
-	leaEnc1Go(round, rk, dst[BlockSize*0:], src[BlockSize*0:])
-	leaEnc1Go(round, rk, dst[BlockSize*1:], src[BlockSize*1:])
-	leaEnc1Go(round, rk, dst[BlockSize*2:], src[BlockSize*2:])
-	leaEnc1Go(round, rk, dst[BlockSize*3:], src[BlockSize*3:])
-	leaEnc1Go(round, rk, dst[BlockSize*4:], src[BlockSize*4:])
-	leaEnc1Go(round, rk, dst[BlockSize*5:], src[BlockSize*5:])
-	leaEnc1Go(round, rk, dst[BlockSize*6:], src[BlockSize*6:])
-	leaEnc1Go(round, rk, dst[BlockSize*7:], src[BlockSize*7:])
+func leaEnc8Go(ctx *leaContext, dst, src []byte) {
+	leaEnc1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
+	leaEnc1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
+	leaEnc1Go(ctx, dst[BlockSize*2:], src[BlockSize*2:])
+	leaEnc1Go(ctx, dst[BlockSize*3:], src[BlockSize*3:])
+	leaEnc1Go(ctx, dst[BlockSize*4:], src[BlockSize*4:])
+	leaEnc1Go(ctx, dst[BlockSize*5:], src[BlockSize*5:])
+	leaEnc1Go(ctx, dst[BlockSize*6:], src[BlockSize*6:])
+	leaEnc1Go(ctx, dst[BlockSize*7:], src[BlockSize*7:])
 
 }
-func leaDec8Go(round int, rk []uint32, dst, src []byte) {
-	leaDec1Go(round, rk, dst[BlockSize*0:], src[BlockSize*0:])
-	leaDec1Go(round, rk, dst[BlockSize*1:], src[BlockSize*1:])
-	leaDec1Go(round, rk, dst[BlockSize*2:], src[BlockSize*2:])
-	leaDec1Go(round, rk, dst[BlockSize*3:], src[BlockSize*3:])
-	leaDec1Go(round, rk, dst[BlockSize*4:], src[BlockSize*4:])
-	leaDec1Go(round, rk, dst[BlockSize*5:], src[BlockSize*5:])
-	leaDec1Go(round, rk, dst[BlockSize*6:], src[BlockSize*6:])
-	leaDec1Go(round, rk, dst[BlockSize*7:], src[BlockSize*7:])
+func leaDec8Go(ctx *leaContext, dst, src []byte) {
+	leaDec1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
+	leaDec1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
+	leaDec1Go(ctx, dst[BlockSize*2:], src[BlockSize*2:])
+	leaDec1Go(ctx, dst[BlockSize*3:], src[BlockSize*3:])
+	leaDec1Go(ctx, dst[BlockSize*4:], src[BlockSize*4:])
+	leaDec1Go(ctx, dst[BlockSize*5:], src[BlockSize*5:])
+	leaDec1Go(ctx, dst[BlockSize*6:], src[BlockSize*6:])
+	leaDec1Go(ctx, dst[BlockSize*7:], src[BlockSize*7:])
 }

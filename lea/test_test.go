@@ -32,14 +32,14 @@ func testAll(t *testing.T, f func(*testing.T, int)) {
 func testEncryptGo(t *testing.T, testCases []testCase) {
 	dst := make([]byte, BlockSize)
 
-	var ctx leaContextGo
+	var ctx leaContext
 	for _, tc := range testCases {
 		err := ctx.initContext(tc.Key)
 		if err != nil {
 			t.Error(err)
 		}
 
-		leaEnc1Go(ctx.round, ctx.rk, dst, tc.Plain)
+		leaEnc1Go(&ctx, dst, tc.Plain)
 		if !bytes.Equal(dst, tc.Secure) {
 			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(dst), hex.EncodeToString(tc.Secure))
 		}
@@ -49,14 +49,14 @@ func testEncryptGo(t *testing.T, testCases []testCase) {
 func testDecryptGo(t *testing.T, testCases []testCase) {
 	dst := make([]byte, BlockSize)
 
-	var ctx leaContextGo
+	var ctx leaContext
 	for _, tc := range testCases {
 		err := ctx.initContext(tc.Key)
 		if err != nil {
 			t.Error(err)
 		}
 
-		leaDec1Go(ctx.round, ctx.rk, dst, tc.Secure)
+		leaDec1Go(&ctx, dst, tc.Secure)
 		if !bytes.Equal(dst, tc.Plain) {
 			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(dst), hex.EncodeToString(tc.Plain))
 		}

@@ -7,7 +7,13 @@ import (
 )
 
 type funcNew func(key []byte) (cipher.Block, error)
-type funcBlock func(round int, rk []uint32, dst, src []byte)
+type funcBlock func(ctx *leaContext, dst, src []byte)
+
+type leaContext struct {
+	round uint8
+	rk    [192]uint32
+	ecb   bool
+}
 
 var (
 	leaEnc1 funcBlock = leaEnc1Go

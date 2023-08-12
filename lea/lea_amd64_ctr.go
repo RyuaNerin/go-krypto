@@ -56,7 +56,7 @@ func (ctr *leaCtrContext) refill() {
 
 	for i := 0; i < streamBufferBlockSize/8; i++ {
 		out := ctr.out[0x80*i:]
-		leaEnc8(ctr.leaCtx.g.round, ctr.leaCtx.g.rk, out, out)
+		leaEnc8(&ctr.leaCtx.g, out, out)
 	}
 
 	ctr.outPos = 0

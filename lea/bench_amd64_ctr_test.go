@@ -11,7 +11,7 @@ func Benchmark_BlockMode_CTR_Go(b *testing.B)  { benchAll(b, ctrGo) }
 func Benchmark_BlockMode_CTR_Asm(b *testing.B) { benchAll(b, ctrAsm) }
 
 func ctrGo(b *testing.B, keySize int) {
-	var ctx leaContextGo
+	var ctx leaContext
 	err := ctx.initContext(make([]byte, keySize/8))
 	if err != nil {
 		b.Error(err)

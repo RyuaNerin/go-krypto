@@ -29,37 +29,43 @@ func init() {
 	leaNewECB = newCipherAsmECB
 }
 
-func leaEnc8SSE2(round int, rk []uint32, dst, src []byte) {
-	leaEnc4SSE2(round, rk, dst[0x00:], src[0x00:])
-	leaEnc4SSE2(round, rk, dst[0x40:], src[0x40:])
+func leaEnc8SSE2(ctx *leaContext, dst, src []byte) {
+	leaEnc4SSE2(ctx, dst[0x00:], src[0x00:])
+	leaEnc4SSE2(ctx, dst[0x40:], src[0x40:])
 }
-func leaDec8SSE2(round int, rk []uint32, dst, src []byte) {
-	leaDec4SSE2(round, rk, dst[0x00:], src[0x00:])
-	leaDec4SSE2(round, rk, dst[0x40:], src[0x40:])
+func leaDec8SSE2(ctx *leaContext, dst, src []byte) {
+	leaDec4SSE2(ctx, dst[0x00:], src[0x00:])
+	leaDec4SSE2(ctx, dst[0x40:], src[0x40:])
 }
 
 type leaContextAsm struct {
-	g leaContextGo
+	g leaContext
 }
 
 func newCipherAsm(key []byte) (cipher.Block, error) {
-	leaCtx := new(leaContextAsm)
+	ctx := new(leaContextAsm)
 
-	return leaCtx, leaCtx.g.initContext(key)
+	if err := ctx.g.initContext(key); err != nil {
+		return nil, err
+	}
+	return ctx, nil
 }
 
 func newCipherAsmECB(key []byte) (cipher.Block, error) {
-	leaCtx := new(leaContextAsm)
-	leaCtx.g.ecb = true
+	ctx := new(leaContextAsm)
+	ctx.g.ecb = true
 
-	return leaCtx, leaCtx.g.initContext(key)
+	if err := ctx.g.initContext(key); err != nil {
+		return nil, err
+	}
+	return ctx, nil
 }
 
-func (leaCtx *leaContextAsm) BlockSize() int {
+func (ctx *leaContextAsm) BlockSize() int {
 	return BlockSize
 }
 
-func (leaCtx *leaContextAsm) Encrypt(dst, src []byte) {
+func (ctx *leaContextAsm) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
 	}
@@ -67,39 +73,39 @@ func (leaCtx *leaContextAsm) Encrypt(dst, src []byte) {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
 	}
 
-	if !leaCtx.g.ecb {
-		leaEnc1(leaCtx.g.round, leaCtx.g.rk, dst, src)
+	if !ctx.g.ecb {
+		leaEnc1(&ctx.g, dst, src)
 	} else {
 		if len(src)%BlockSize != 0 {
 			panic("krypto/lea: input not full blocks")
 		}
 
-		remainBlock := len(src) / leaCtx.BlockSize()
+		remainBlock := len(src) / ctx.BlockSize()
 
 		for remainBlock >= 8 {
 			remainBlock -= 8
-			leaEnc8(leaCtx.g.round, leaCtx.g.rk, dst, src)
+			leaEnc8(&ctx.g, dst, src)
 
 			dst, src = dst[0x80:], src[0x80:]
 		}
 
 		for remainBlock >= 4 {
 			remainBlock -= 4
-			leaEnc4(leaCtx.g.round, leaCtx.g.rk, dst, src)
+			leaEnc4(&ctx.g, dst, src)
 
 			dst, src = dst[0x40:], src[0x40:]
 		}
 
 		for remainBlock > 0 {
 			remainBlock -= 1
-			leaEnc1(leaCtx.g.round, leaCtx.g.rk, dst, src)
+			leaEnc1(&ctx.g, dst, src)
 
 			dst, src = dst[0x10:], src[0x10:]
 		}
 	}
 }
 
-func (leaCtx *leaContextAsm) Decrypt(dst, src []byte) {
+func (ctx *leaContextAsm) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
 	}
@@ -107,32 +113,32 @@ func (leaCtx *leaContextAsm) Decrypt(dst, src []byte) {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
 	}
 
-	if !leaCtx.g.ecb {
-		leaDec1(leaCtx.g.round, leaCtx.g.rk, dst, src)
+	if !ctx.g.ecb {
+		leaDec1(&ctx.g, dst, src)
 	} else {
 		if len(src)%BlockSize != 0 {
 			panic("krypto/lea: input not full blocks")
 		}
 
-		remainBlock := len(src) / leaCtx.BlockSize()
+		remainBlock := len(src) / ctx.BlockSize()
 
 		for remainBlock >= 8 {
 			remainBlock -= 8
-			leaDec8(leaCtx.g.round, leaCtx.g.rk, dst, src)
+			leaDec8(&ctx.g, dst, src)
 
 			dst, src = dst[0x80:], src[0x80:]
 		}
 
 		for remainBlock >= 4 {
 			remainBlock -= 4
-			leaDec4(leaCtx.g.round, leaCtx.g.rk, dst, src)
+			leaDec4(&ctx.g, dst, src)
 
 			dst, src = dst[0x40:], src[0x40:]
 		}
 
 		for remainBlock > 0 {
 			remainBlock -= 1
-			leaDec1(leaCtx.g.round, leaCtx.g.rk, dst, src)
+			leaDec1(&ctx.g, dst, src)
 
 			dst, src = dst[0x10:], src[0x10:]
 		}

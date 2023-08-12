@@ -60,7 +60,7 @@ func block(b *testing.B, blocks int, f funcBlock, do bool) func(b *testing.B, ke
 
 		rnd.Read(src)
 
-		var ctx leaContextGo
+		var ctx leaContext
 		err := ctx.initContext(k)
 		if err != nil {
 			b.Error(err)
@@ -70,7 +70,7 @@ func block(b *testing.B, blocks int, f funcBlock, do bool) func(b *testing.B, ke
 		b.ResetTimer()
 		b.SetBytes(int64(len(src)))
 		for i := 0; i < b.N; i++ {
-			f(ctx.round, ctx.rk, dst, src)
+			f(&ctx, dst, src)
 			copy(dst, src)
 		}
 	}
