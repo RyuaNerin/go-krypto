@@ -24,9 +24,10 @@ func benchmarkAllSizes(b *testing.B, f func(*testing.B, ParameterSizes)) {
 	}
 }
 
+var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
+
 func Benchmark_GenerateParameters_GO(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
-		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 
 		var params Parameters
 		b.ReportAllocs()
@@ -41,8 +42,6 @@ func Benchmark_GenerateParameters_GO(b *testing.B) {
 
 func Benchmark_GenerateParameters_TTAK(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
-		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
-
 		var params Parameters
 		b.ReportAllocs()
 		b.ResetTimer()
@@ -56,8 +55,6 @@ func Benchmark_GenerateParameters_TTAK(b *testing.B) {
 
 func Benchmark_GenerateKey_Go(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
-		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
-
 		var priv PrivateKey
 		if err := GenerateParameters(&priv.Parameters, rnd, ps); err != nil {
 			b.Error(err)
@@ -75,8 +72,6 @@ func Benchmark_GenerateKey_Go(b *testing.B) {
 
 func Benchmark_GenerateKey_TTAK(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
-		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
-
 		var priv PrivateKey
 		if _, _, err := GenerateParametersTTAK(&priv.Parameters, rnd, ps); err != nil {
 			b.Error(err)
@@ -94,7 +89,6 @@ func Benchmark_GenerateKey_TTAK(b *testing.B) {
 
 func Benchmark_Sign(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
-		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 		data := []byte(`text`)
 
 		var priv PrivateKey
@@ -120,7 +114,6 @@ func Benchmark_Sign(b *testing.B) {
 
 func Benchmark_Verify(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {
-		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 		data := []byte(`text`)
 
 		var priv PrivateKey

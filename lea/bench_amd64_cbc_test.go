@@ -41,9 +41,11 @@ func cbcGo(blocks int, newBlockMode func(cipher.Block, []byte) cipher.BlockMode)
 		src := make([]byte, BlockSize*blocks)
 		dst := make([]byte, BlockSize*blocks)
 
+		rnd.Read(src)
+
 		b.ReportAllocs()
-		b.ResetTimer()
 		b.SetBytes(int64(len(src)))
+		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			bm.CryptBlocks(dst, src)
 			copy(src, dst)
@@ -64,9 +66,11 @@ func cbcAsm(blocks int, newBlockMode func(cipher.Block, []byte) cipher.BlockMode
 		src := make([]byte, BlockSize*blocks)
 		dst := make([]byte, BlockSize*blocks)
 
+		rnd.Read(src)
+
 		b.ReportAllocs()
-		b.ResetTimer()
 		b.SetBytes(int64(len(src)))
+		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			bm.CryptBlocks(dst, src)
 			copy(src, dst)

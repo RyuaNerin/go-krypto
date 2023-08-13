@@ -7,6 +7,10 @@ import (
 	"testing"
 )
 
+var (
+	rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
+)
+
 func Benchmark_ARIA_New(b *testing.B) {
 	benchmarkAllSizes(
 		b,
@@ -65,9 +69,11 @@ func benchmarkAllSizesBlock(b *testing.B, do func(c cipher.Block, dst []byte, sr
 			src := make([]byte, BlockSize)
 			dst := make([]byte, BlockSize)
 
+			rnd.Read(src)
+
 			b.ReportAllocs()
-			b.ResetTimer()
 			b.SetBytes(BlockSize)
+			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
 				do(c, dst, src)
 				copy(src, dst)

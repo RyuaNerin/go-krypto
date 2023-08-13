@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
+
 func benchAll(b *testing.B, f func(*testing.B, int)) {
 	tests := []struct {
 		name    string
@@ -29,7 +31,6 @@ func Benchmark_Encrypt_1Block_Go(b *testing.B) { benchAll(b, block(b, 1, leaEnc1
 func Benchmark_Decrypt_1Block_Go(b *testing.B) { benchAll(b, block(b, 1, leaDec1Go, true)) }
 
 func benchNewCipher(b *testing.B, keySize int) {
-	rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 	k := make([]byte, keySize/8)
 
 	b.ReportAllocs()
@@ -50,8 +51,6 @@ func block(b *testing.B, blocks int, f funcBlock, do bool) func(b *testing.B, ke
 			return
 		}
 
-		rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
-
 		k := make([]byte, keySize/8)
 		rnd.Read(k)
 
@@ -67,8 +66,8 @@ func block(b *testing.B, blocks int, f funcBlock, do bool) func(b *testing.B, ke
 		}
 
 		b.ReportAllocs()
-		b.ResetTimer()
 		b.SetBytes(int64(len(src)))
+		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			f(&ctx, dst, src)
 			copy(dst, src)

@@ -1,6 +1,8 @@
 package lsh512
 
 import (
+	"bufio"
+	"crypto/rand"
 	"hash"
 	"testing"
 )
@@ -10,6 +12,11 @@ func Benchmark_Hash_1K_Go(b *testing.B) { benchmarkSize(b, newContext, 1024, tru
 func Benchmark_Hash_8K_Go(b *testing.B) { benchmarkSize(b, newContext, 8192, true) }
 
 var benchBuf = make([]byte, 8192)
+
+func init() {
+	rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
+	rnd.Read(benchBuf)
+}
 
 func benchmarkSize(b *testing.B, newHash func(size int) hash.Hash, size int, do bool) {
 	tests := []struct {
@@ -27,9 +34,9 @@ func benchmarkSize(b *testing.B, newHash func(size int) hash.Hash, size int, do 
 			sum := make([]byte, Size)
 			h := newHash(test.size)
 
-			b.ResetTimer()
 			b.ReportAllocs()
 			b.SetBytes(int64(size))
+			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
 				h.Reset()
 				h.Write(benchBuf[:size])

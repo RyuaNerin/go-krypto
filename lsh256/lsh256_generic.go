@@ -102,7 +102,6 @@ func (b *lsh256ContextGo) BlockSize() int {
 }
 
 func (b *lsh256ContextGo) Reset() {
-	kryptoutil.MemsetUint32(b.cv[:], 0)
 	kryptoutil.MemsetUint32(b.tcv[:], 0)
 	kryptoutil.MemsetUint32(b.msg[:], 0)
 	kryptoutil.MemsetByte(b.block[:], 0)

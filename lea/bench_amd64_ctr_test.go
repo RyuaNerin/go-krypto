@@ -22,9 +22,11 @@ func ctrGo(b *testing.B, keySize int) {
 	src := make([]byte, BlockSize)
 	dst := make([]byte, BlockSize)
 
+	rnd.Read(src)
+
 	b.ReportAllocs()
-	b.ResetTimer()
 	b.SetBytes(int64(len(src)))
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		ctr.XORKeyStream(dst, src)
 		copy(src, dst)
@@ -43,9 +45,11 @@ func ctrAsm(b *testing.B, keySize int) {
 	src := make([]byte, BlockSize)
 	dst := make([]byte, BlockSize)
 
+	rnd.Read(src)
+
 	b.ReportAllocs()
-	b.ResetTimer()
 	b.SetBytes(int64(len(src)))
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		ctr.XORKeyStream(dst, src)
 		copy(src, dst)

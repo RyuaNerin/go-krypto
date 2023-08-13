@@ -1,8 +1,12 @@
 package seed
 
 import (
+	"bufio"
+	"crypto/rand"
 	"testing"
 )
+
+var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
 
 func Benchmark_New(b *testing.B)     { benchNew(b, 128) }
 func Benchmark_Encrypt(b *testing.B) { benchEncrypt(b, 128) }
@@ -28,6 +32,10 @@ func benchEncrypt(b *testing.B, keySize int) {
 	src := make([]byte, BlockSize)
 	dst := make([]byte, BlockSize)
 
+	rnd.Read(src)
+
+	b.ReportAllocs()
+	b.SetBytes(BlockSize)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		c.Encrypt(dst, src)
@@ -44,6 +52,10 @@ func benchDecrypt(b *testing.B, keySize int) {
 	src := make([]byte, BlockSize)
 	dst := make([]byte, BlockSize)
 
+	rnd.Read(src)
+
+	b.ReportAllocs()
+	b.SetBytes(BlockSize)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		c.Decrypt(dst, src)
