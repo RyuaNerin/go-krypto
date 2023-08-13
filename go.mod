@@ -1,6 +1,6 @@
 module github.com/RyuaNerin/go-krypto
 
-go 1.14
+go 1.15
 
 require (
 	github.com/RyuaNerin/elliptic2 v1.0.0
