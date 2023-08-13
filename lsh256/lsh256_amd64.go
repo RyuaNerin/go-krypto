@@ -22,20 +22,20 @@ type simdSet struct {
 var (
 	simdSetDefault simdSet
 
-	simdSetSSE2 = simdSet{
+	SimdSetSSE2 = simdSet{
 		init:   lsh256InitSSE2,
 		update: lsh256UpdateSSE2,
 		final:  lsh256FinalSSE2,
 	}
-	simdSetSSE2_v2 = simdSet{
+	SimdSetSSE2_v2 = simdSet{
 		init: lsh256_sse2_init,
 	}
-	simdSetSSSE3 = simdSet{
+	SimdSetSSSE3 = simdSet{
 		init:   lsh256InitSSE2,
 		update: lsh256UpdateSSSE3,
 		final:  lsh256FinalSSSE3,
 	}
-	simdSetAVX2 = simdSet{
+	SimdSetAVX2 = simdSet{
 		init:   lsh256InitAVX2,
 		update: lsh256UpdateAVX2,
 		final:  lsh256FinalAVX2,
@@ -43,18 +43,18 @@ var (
 )
 
 func init() {
-	simdSetDefault = simdSetSSE2
+	simdSetDefault = SimdSetSSE2
 
 	if hasSSSE3 {
-		simdSetDefault = simdSetSSSE3
+		simdSetDefault = SimdSetSSSE3
 	}
 
 	if hasAVX2 {
-		simdSetDefault = simdSetAVX2
+		simdSetDefault = SimdSetAVX2
 	}
 }
 
-func newContextAsm(algType int, simd simdSet) hash.Hash {
+func NewContextAsm(algType int, simd simdSet) hash.Hash {
 	ctx := new(lsh256ContextAsm)
 	initContextAsm(ctx, algType, simd)
 	return ctx

@@ -9,22 +9,8 @@ import (
 	. "kryptosimd/avoutil/simd"
 	. "kryptosimd/lsh/sse2"
 	. "kryptosimd/lsh256/avo/lsh256avoconst"
+	. "kryptosimd/lsh256/avo/lsh256common"
 )
-
-//	typedef struct LSH_ALIGNED_(32){
-//		LSH_ALIGNED_(16) lsh_type algtype;
-//		LSH_ALIGNED_(16) lsh_uint remain_databitlen;
-//		LSH_ALIGNED_(32) __m128i cv_l[2];				// left chaining variable
-//		LSH_ALIGNED_(32) __m128i cv_r[2];				// right chaining variable
-//		LSH_ALIGNED_(32) lsh_u8 last_block[LSH256_MSG_BLK_BYTE_LEN];
-//	} LSH256SSE2_Context;
-type LSH256SSE2_Context struct {
-	algtype            Mem // m32
-	remain_databytelen Register
-	cv_l               Mem
-	cv_r               Mem
-	last_block         Mem
-}
 
 //	typedef struct LSH_ALIGNED_(32) {
 //		LSH_ALIGNED_(32) __m128i submsg_e_l[2];	/* even left sub-message */
@@ -435,24 +421,24 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem) {
 
 /* -------------------------------------------------------- */
 
-// static INLINE void init224(LSH256SSE2_Context * state)
-func init224(state *LSH256SSE2_Context) {
+// static INLINE void init224(LSH256_Context * state)
+func init224(state *LSH256_Context) {
 	Comment("init224")
 
 	//load_blk(state->cv_l, g_IV224);
-	load_blk_mem2mem(state.cv_l, G_IV224)
+	load_blk_mem2mem(state.Cv_l, G_IV224)
 	//load_blk(state->cv_r, g_IV224 + 8);
-	load_blk_mem2mem(state.cv_r, G_IV224.Offset(8*4))
+	load_blk_mem2mem(state.Cv_r, G_IV224.Offset(8*4))
 }
 
-// static INLINE void init256(LSH256SSE2_Context * state)
-func init256(state *LSH256SSE2_Context) {
+// static INLINE void init256(LSH256_Context * state)
+func init256(state *LSH256_Context) {
 	Comment("init256")
 
 	//load_blk(state->cv_l, g_IV256);
-	load_blk_mem2mem(state.cv_l, G_IV256)
+	load_blk_mem2mem(state.Cv_l, G_IV256)
 	//load_blk(state->cv_r, g_IV256 + 8);
-	load_blk_mem2mem(state.cv_r, G_IV256.Offset(8*4))
+	load_blk_mem2mem(state.Cv_r, G_IV256.Offset(8*4))
 }
 
 /* -------------------------------------------------------- */
@@ -506,10 +492,10 @@ func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 /* -------------------------------------------------------- */
 
 // lsh_err lsh256_sse2_init(struct LSH256_Context * _ctx, const lsh_type algtype){
-func lsh256_sse2_init(ctx *LSH256SSE2_Context) {
+func Lsh256_sse2_init(ctx *LSH256_Context) {
 	Comment("lsh256_sse2_init")
 
-	//LSH256SSE2_Context* ctx = (LSH256SSE2_Context*)_ctx;
+	//LSH256_Context* ctx = (LSH256_Context*)_ctx;
 	//__m128i cv_l[2];
 	//__m128i cv_r[2];
 	//__m128i const_v[2];
@@ -532,7 +518,7 @@ func lsh256_sse2_init(ctx *LSH256SSE2_Context) {
 
 	//switch (algtype){
 	//case LSH_TYPE_256_256:
-	CMPL(ctx.algtype, U32(LSH_TYPE_256_256))
+	CMPL(ctx.Algtype, U32(LSH_TYPE_256_256))
 	JNE(LabelRef("lsh256_sse2_init_if0_end"))
 	//	init256(ctx);
 	init256(ctx)
@@ -573,7 +559,7 @@ func lsh256_sse2_init(ctx *LSH256SSE2_Context) {
 }
 
 // lsh_err lsh256_sse2_update(struct LSH256_Context * _ctx, const lsh_u8 * data, size_t databitlen){
-func lsh256_sse2_update(ctx *LSH256SSE2_Context, data Mem, databytelen Register) {
+func Lsh256_sse2_update(ctx *LSH256_Context, data Mem, databytelen Register) {
 	Comment("lsh256_sse2_update")
 
 	//__m128i cv_l[2];
@@ -584,7 +570,7 @@ func lsh256_sse2_update(ctx *LSH256SSE2_Context, data Mem, databytelen Register)
 
 	//lsh_uint pos2 = databitlen & 0x7;
 
-	//LSH256SSE2_Context* ctx = (LSH256SSE2_Context*)_ctx;
+	//LSH256_Context* ctx = (LSH256_Context*)_ctx;
 	//lsh_uint remain_msg_byte;
 	remain_msg_byte := GP64()
 	//lsh_uint remain_msg_bit;
@@ -600,7 +586,7 @@ func lsh256_sse2_update(ctx *LSH256SSE2_Context, data Mem, databytelen Register)
 	//}
 
 	//remain_msg_byte = ctx->remain_databitlen >> 3;
-	MOVQ(ctx.remain_databytelen, remain_msg_byte)
+	MOVQ(ctx.Remain_databytelen, remain_msg_byte)
 
 	//remain_msg_bit = ctx->remain_databitlen & 7;
 	//if (remain_msg_byte >= LSH256_MSG_BLK_BYTE_LEN){
@@ -618,9 +604,9 @@ func lsh256_sse2_update(ctx *LSH256SSE2_Context, data Mem, databytelen Register)
 	JGE(LabelRef("lsh256_sse2_update_if0_end"))
 	{
 		//memcpy(ctx->last_block + remain_msg_byte, data, databytelen);
-		Memcpy(ctx.last_block.Idx(remain_msg_byte, 1), data, databytelen, false)
+		Memcpy(ctx.Last_block.Idx(remain_msg_byte, 1), data, databytelen, false)
 		//ctx->remain_databitlen += (lsh_uint)databitlen;
-		ADDQ(databytelen, ctx.remain_databytelen)
+		ADDQ(databytelen, ctx.Remain_databytelen)
 		//remain_msg_byte += (lsh_uint)databytelen;
 		//if (pos2){
 		//	ctx->last_block[remain_msg_byte] = data[databytelen] & ((0xff >> pos2) ^ 0xff);
@@ -633,9 +619,9 @@ func lsh256_sse2_update(ctx *LSH256SSE2_Context, data Mem, databytelen Register)
 	Label("lsh256_sse2_update_if0_end")
 
 	//load_blk(cv_l, ctx->cv_l);
-	load_blk_mem2vec(cv_l, ctx.cv_l)
+	load_blk_mem2vec(cv_l, ctx.Cv_l)
 	//load_blk(cv_r, ctx->cv_r);
-	load_blk_mem2vec(cv_r, ctx.cv_r)
+	load_blk_mem2vec(cv_r, ctx.Cv_r)
 
 	//if (remain_msg_byte > 0){
 	CMPQ(remain_msg_byte, U32(0))
@@ -646,9 +632,9 @@ func lsh256_sse2_update(ctx *LSH256SSE2_Context, data Mem, databytelen Register)
 		MOVQ(U32(LSH256_MSG_BLK_BYTE_LEN), more_byte)
 		SUBQ(remain_msg_byte, more_byte)
 		//memcpy(ctx->last_block + remain_msg_byte, data, more_byte);
-		Memcpy(ctx.last_block.Idx(remain_msg_byte, 1), data, more_byte, false)
+		Memcpy(ctx.Last_block.Idx(remain_msg_byte, 1), data, more_byte, false)
 		//compress(cv_l, cv_r, (lsh_u32*)ctx->last_block);
-		compress(cv_l, cv_r, ctx.last_block)
+		compress(cv_l, cv_r, ctx.Last_block)
 		//data += more_byte;
 		ADDQ(more_byte.As64(), data.Base)
 		//databytelen -= more_byte;
@@ -656,7 +642,7 @@ func lsh256_sse2_update(ctx *LSH256SSE2_Context, data Mem, databytelen Register)
 		//remain_msg_byte = 0;
 		MOVQ(U32(0), remain_msg_byte)
 		//ctx->remain_databitlen = 0;
-		MOVQ(U32(0), ctx.remain_databytelen)
+		MOVQ(U32(0), ctx.Remain_databytelen)
 	}
 	Label("lsh256_sse2_update_if2_end")
 
@@ -678,18 +664,18 @@ func lsh256_sse2_update(ctx *LSH256SSE2_Context, data Mem, databytelen Register)
 	Label("lsh256_sse2_update_while_end")
 
 	//store_blk(ctx->cv_l, cv_l);
-	store_blk(ctx.cv_l, cv_l)
+	store_blk(ctx.Cv_l, cv_l)
 	//store_blk(ctx->cv_r, cv_r);
-	store_blk(ctx.cv_r, cv_r)
+	store_blk(ctx.Cv_r, cv_r)
 
 	//if (databytelen > 0){
 	CMPQ(remain_msg_byte, U32(0))
 	JE(LabelRef("lsh256_sse2_update_if3_end"))
 	{
 		//memcpy(ctx->last_block, data, databytelen);
-		Memcpy(ctx.last_block, data, databytelen, false)
+		Memcpy(ctx.Last_block, data, databytelen, false)
 		//ctx->remain_databitlen = (lsh_uint)(databytelen << 3);
-		MOVQ(databytelen, ctx.remain_databytelen)
+		MOVQ(databytelen, ctx.Remain_databytelen)
 		//}
 	}
 	Label("lsh256_sse2_update_if3_end")
@@ -704,14 +690,14 @@ func lsh256_sse2_update(ctx *LSH256SSE2_Context, data Mem, databytelen Register)
 }
 
 // lsh_err lsh256_sse2_final(struct LSH256_Context * _ctx, lsh_u8 * hashval){
-func lsh256_sse2_final(ctx *LSH256SSE2_Context, hashval Mem) {
+func Lsh256_sse2_final(ctx *LSH256_Context, hashval Mem) {
 	Comment("lsh256_sse2_final")
 
 	//__m128i cv_l[2];
 	cv_l := []VecVirtual{XMM(), XMM()}
 	//__m128i cv_r[2];
 	cv_r := []VecVirtual{XMM(), XMM()}
-	//LSH256SSE2_Context* ctx = (LSH256SSE2_Context*)_ctx;
+	//LSH256_Context* ctx = (LSH256_Context*)_ctx;
 	//lsh_uint remain_msg_byte;
 	remain_msg_byte := GP64()
 	//lsh_uint remain_msg_bit;\
@@ -724,7 +710,7 @@ func lsh256_sse2_final(ctx *LSH256SSE2_Context, hashval Mem) {
 	//}
 
 	//remain_msg_byte = ctx->remain_databitlen >> 3;
-	MOVQ(ctx.remain_databytelen, remain_msg_byte)
+	MOVQ(ctx.Remain_databytelen, remain_msg_byte)
 	//remain_msg_bit = ctx->remain_databitlen & 7;
 
 	//if (remain_msg_byte >= LSH256_MSG_BLK_BYTE_LEN){
@@ -735,92 +721,28 @@ func lsh256_sse2_final(ctx *LSH256SSE2_Context, hashval Mem) {
 	//else{
 	{
 		//ctx->last_block[remain_msg_byte] = 0x80;
-		MOVB(U8(0x80), ctx.last_block.Idx(remain_msg_byte, 1))
+		MOVB(U8(0x80), ctx.Last_block.Idx(remain_msg_byte, 1))
 	}
 	//memset(ctx->last_block + remain_msg_byte + 1, 0, LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
 	arg2 := GP64()
 	MOVQ(U32(LSH256_MSG_BLK_BYTE_LEN-1), arg2)
 	SUBQ(remain_msg_byte, arg2)
-	Memset(ctx.last_block.Offset(1).Idx(remain_msg_byte, 1), 0, arg2, false)
+	Memset(ctx.Last_block.Offset(1).Idx(remain_msg_byte, 1), 0, arg2, false)
 
 	//load_blk(cv_l, ctx->cv_l);
-	load_blk_mem2vec(cv_l, ctx.cv_l)
+	load_blk_mem2vec(cv_l, ctx.Cv_l)
 	//load_blk(cv_r, ctx->cv_r);
-	load_blk_mem2vec(cv_r, ctx.cv_r)
+	load_blk_mem2vec(cv_r, ctx.Cv_r)
 
 	//compress(cv_l, cv_r, (lsh_u32*)ctx->last_block);
-	compress(cv_l, cv_r, ctx.last_block)
+	compress(cv_l, cv_r, ctx.Last_block)
 
 	//fin(cv_l, cv_r);
 	fin(cv_l, cv_r)
 	//get_hash(cv_l, hashval, ctx->algtype);
-	get_hash(cv_l, hashval, ctx.algtype)
+	get_hash(cv_l, hashval, ctx.Algtype)
 
 	//memset(ctx, 0, sizeof(struct LSH256_Context));
 
 	//return LSH_SUCCESS;
-}
-
-func getCtx() *LSH256SSE2_Context {
-	ctx := Dereference(Param("ctx"))
-
-	algtype, err := ctx.Field("algtype").Resolve()
-	if err != nil {
-		panic(err)
-	}
-	cv_l, err := ctx.Field("cv_l").Index(0).Resolve()
-	if err != nil {
-		panic(err)
-	}
-	cv_r, err := ctx.Field("cv_r").Index(0).Resolve()
-	if err != nil {
-		panic(err)
-	}
-	last_block, err := ctx.Field("last_block").Index(0).Resolve()
-	if err != nil {
-		panic(err)
-	}
-
-	return &LSH256SSE2_Context{
-		algtype:            algtype.Addr,
-		remain_databytelen: Load(ctx.Field("remain_databytelen"), GP64()),
-		cv_l:               cv_l.Addr,
-		cv_r:               cv_r.Addr,
-		last_block:         last_block.Addr,
-	}
-}
-
-func LSH256InitSSE2() {
-	TEXT("lsh256InitSSE2", NOSPLIT, "func(ctx *lsh256ContextAsmData)")
-
-	ctx := getCtx()
-	lsh256_sse2_init(ctx)
-	Store(ctx.remain_databytelen, Dereference(Param("ctx")).Field("remain_databytelen"))
-
-	RET()
-}
-
-func LSH256UpdateSSE2() {
-	TEXT("lsh256UpdateSSE2", NOSPLIT, "func(ctx *lsh256ContextAsmData, data []byte)")
-
-	ctx := getCtx()
-	data := Mem{Base: Load(Param("data").Base(), GP64())}
-	databytelen := Load(Param("data").Len(), GP64())
-
-	lsh256_sse2_update(ctx, data, databytelen)
-	Store(ctx.remain_databytelen, Dereference(Param("ctx")).Field("remain_databytelen"))
-
-	RET()
-}
-
-func LSH256FinalSSE2() {
-	TEXT("lsh256FinalSSE2", NOSPLIT, "func(ctx *lsh256ContextAsmData, hashval []byte)")
-
-	ctx := getCtx()
-	hashval := Mem{Base: Load(Param("hashval").Base(), GP64())}
-
-	lsh256_sse2_final(ctx, hashval)
-	Store(ctx.remain_databytelen, Dereference(Param("ctx")).Field("remain_databytelen"))
-
-	RET()
 }

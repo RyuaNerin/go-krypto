@@ -10,17 +10,17 @@ type testCase struct {
 	MD []byte
 }
 
-func Test_LSH224_SSE2(t *testing.T) { testAsm(t, testCases224, Size224, simdSetSSE2) }
-func Test_LSH256_SSE2(t *testing.T) { testAsm(t, testCases256, Size, simdSetSSE2) }
+func Test_LSH224_SSE2(t *testing.T) { testAsm(t, testCases224, Size224, SimdSetSSE2) }
+func Test_LSH256_SSE2(t *testing.T) { testAsm(t, testCases256, Size, SimdSetSSE2) }
 
-func Test_LSH224_SSSE3(t *testing.T) { testAsm(t, testCases224, Size224, simdSetSSSE3) }
-func Test_LSH256_SSSE3(t *testing.T) { testAsm(t, testCases256, Size, simdSetSSSE3) }
+func Test_LSH224_SSSE3(t *testing.T) { testAsm(t, testCases224, Size224, SimdSetSSSE3) }
+func Test_LSH256_SSSE3(t *testing.T) { testAsm(t, testCases256, Size, SimdSetSSSE3) }
 
-func Test_LSH224_AVX2(t *testing.T) { testAsm(t, testCases224, Size224, simdSetAVX2) }
-func Test_LSH256_AVX2(t *testing.T) { testAsm(t, testCases256, Size, simdSetAVX2) }
+func Test_LSH224_AVX2(t *testing.T) { testAsm(t, testCases224, Size224, SimdSetAVX2) }
+func Test_LSH256_AVX2(t *testing.T) { testAsm(t, testCases256, Size, SimdSetAVX2) }
 
 func testAsm(t *testing.T, testCases []testCase, algType int, simd simdSet) {
-	h := newContextAsm(algType, simd)
+	h := NewContextAsm(algType, simd)
 
 	out := make([]byte, BlockSize)
 

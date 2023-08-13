@@ -13,14 +13,14 @@ var (
 	a256  = []byte{230, 166, 58, 163, 40, 218, 17, 142, 7, 60, 35, 188, 131, 19, 32, 171, 175, 219, 140, 251, 19, 16, 97, 75, 94, 75, 66, 111, 48, 81, 68, 85}
 )
 
-func Test_LSH224_SSE2_DEV(t *testing.T) { testAsmDev(t, Size224, a224, simdSetSSE2) }
-func Test_LSH256_SSE2_DEV(t *testing.T) { testAsmDev(t, Size, a256, simdSetSSE2) }
+func Test_LSH224_SSE2_DEV(t *testing.T) { testAsmDev(t, Size224, a224, SimdSetSSE2) }
+func Test_LSH256_SSE2_DEV(t *testing.T) { testAsmDev(t, Size, a256, SimdSetSSE2) }
 
-func Test_LSH224_SSSE3_DEV(t *testing.T) { testAsmDev(t, Size224, a224, simdSetSSSE3) }
-func Test_LSH256_SSSE3_DEV(t *testing.T) { testAsmDev(t, Size, a256, simdSetSSSE3) }
+func Test_LSH224_SSSE3_DEV(t *testing.T) { testAsmDev(t, Size224, a224, SimdSetSSSE3) }
+func Test_LSH256_SSSE3_DEV(t *testing.T) { testAsmDev(t, Size, a256, SimdSetSSSE3) }
 
-func Test_LSH224_AVX2_DEV(t *testing.T) { testAsmDev(t, Size224, a224, simdSetAVX2) }
-func Test_LSH256_AVX2_DEV(t *testing.T) { testAsmDev(t, Size, a256, simdSetAVX2) }
+func Test_LSH224_AVX2_DEV(t *testing.T) { testAsmDev(t, Size224, a224, SimdSetAVX2) }
+func Test_LSH256_AVX2_DEV(t *testing.T) { testAsmDev(t, Size, a256, SimdSetAVX2) }
 
 func testAsmDev(t *testing.T, algType int, answer []byte, s simdSet) {
 	ctx := lsh256ContextAsmData{

@@ -27,9 +27,9 @@ func benchmarkSize(b *testing.B, newHash func(size int) hash.Hash, size int, do 
 			sum := make([]byte, Size)
 			h := newHash(test.int)
 
-			b.ResetTimer()
 			b.ReportAllocs()
 			b.SetBytes(int64(size))
+			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
 				h.Reset()
 				h.Write(benchBuf[:size])

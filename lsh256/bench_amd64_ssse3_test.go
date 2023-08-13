@@ -12,5 +12,5 @@ func Benchmark_Hash_1K_SSSE3(b *testing.B) { benchmarkSize(b, newSSSE3, 1024, tr
 func Benchmark_Hash_8K_SSSE3(b *testing.B) { benchmarkSize(b, newSSSE3, 8192, true) }
 
 func newSSSE3(size int) hash.Hash {
-	return newContextAsm(size, simdSetSSSE3)
+	return NewContextAsm(size, SimdSetSSSE3)
 }
