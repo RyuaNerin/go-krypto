@@ -10,7 +10,9 @@ import (
 
 var (
 	hasSSSE3 = cpu.X86.HasSSSE3
-	hasAVX2  = cpu.X86.HasAVX2
+	hasAVX2  = cpu.X86.HasAVX2 && cpu.X86.HasAVX
+
+	useAVX2 = false
 )
 
 type simdSet struct {
@@ -46,7 +48,7 @@ func init() {
 		simdSetDefault = simdSetSSSE3
 	}
 
-	if hasAVX2 {
+	if hasAVX2 && useAVX2 {
 		simdSetDefault = simdSetAVX2
 	}
 }

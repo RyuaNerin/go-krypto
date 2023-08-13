@@ -10,7 +10,9 @@ import (
 )
 
 var (
-	hasAVX2 = cpu.X86.HasAVX2
+	hasAVX2 = cpu.X86.HasAVX2 && cpu.X86.HasAVX
+
+	useAVX2 = false
 )
 
 func init() {
@@ -20,7 +22,7 @@ func init() {
 	leaEnc8 = leaEnc8SSE2
 	leaDec8 = leaDec8SSE2
 
-	if hasAVX2 {
+	if hasAVX2 && useAVX2 {
 		leaEnc8 = leaEnc8AVX2
 		leaDec8 = leaDec8AVX2
 	}
