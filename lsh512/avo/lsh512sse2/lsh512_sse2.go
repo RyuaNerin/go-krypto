@@ -9,26 +9,12 @@ import (
 	. "kryptosimd/avoutil/simd"
 	. "kryptosimd/lsh/sse2"
 	. "kryptosimd/lsh512/avo/lsh512avoconst"
+	. "kryptosimd/lsh512/avo/lsh512common"
 )
 
 /* -------------------------------------------------------- */
 // LSH: variables
 /* -------------------------------------------------------- */
-
-//	typedef struct LSH_ALIGNED_(32){
-//		LSH_ALIGNED_(16) lsh_type algtype;
-//		LSH_ALIGNED_(16) lsh_uint remain_databitlen;
-//		LSH_ALIGNED_(32) __m128i cv_l[4];				// left chaining variable
-//		LSH_ALIGNED_(32) __m128i cv_r[4];				// right chaining variable
-//		LSH_ALIGNED_(32) lsh_u8 i_last_block[LSH512_MSG_BLK_BYTE_LEN];
-//	} LSH512SSE2_Context;
-type LSH512SSE2_Context struct {
-	algtype           Mem // m32
-	remain_databitlen Register
-	cv_l              Mem
-	cv_r              Mem
-	i_last_block      Mem
-}
 
 //	typedef struct LSH_ALIGNED_(32) {
 //		LSH_ALIGNED_(32) __m128i submsg_e_l[4];	/* even left sub-message */
@@ -543,43 +529,43 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem) {
 
 /* -------------------------------------------------------- */
 //static INLINE void init224(LSH512SSE2_Context* state)
-func init224(state *LSH512SSE2_Context) {
+func init224(state *LSH512_Context) {
 	Comment("init224")
 
 	//load_blk(state->cv_l, g_IV224);
-	load_blk_mem2mem(state.cv_l, G_IV224)
+	load_blk_mem2mem(state.Cv_l, G_IV224)
 	//load_blk(state->cv_r, g_IV224 + 8);
-	load_blk_mem2mem(state.cv_l, G_IV224)
+	load_blk_mem2mem(state.Cv_l, G_IV224)
 }
 
 // static INLINE void init256(LSH512SSE2_Context* state)
-func init256(state *LSH512SSE2_Context) {
+func init256(state *LSH512_Context) {
 	Comment("init256")
 
 	//load_blk(state->cv_l, g_IV256);
-	load_blk_mem2mem(state.cv_l, G_IV256)
+	load_blk_mem2mem(state.Cv_l, G_IV256)
 	//load_blk(state->cv_r, g_IV256 + 8);
-	load_blk_mem2mem(state.cv_l, G_IV256)
+	load_blk_mem2mem(state.Cv_l, G_IV256)
 }
 
 // static INLINE void init384(LSH512SSE2_Context* state)
-func init384(state *LSH512SSE2_Context) {
+func init384(state *LSH512_Context) {
 	Comment("init384")
 
 	//load_blk(state->cv_l, g_IV384);
-	load_blk_mem2mem(state.cv_l, G_IV384)
+	load_blk_mem2mem(state.Cv_l, G_IV384)
 	//load_blk(state->cv_r, g_IV384 + 8);
-	load_blk_mem2mem(state.cv_l, G_IV384)
+	load_blk_mem2mem(state.Cv_l, G_IV384)
 }
 
 // static INLINE void init512(LSH512SSE2_Context* state)
-func init512(state *LSH512SSE2_Context) {
+func init512(state *LSH512_Context) {
 	Comment("init512")
 
 	//load_blk(state->cv_l, g_IV512);
-	load_blk_mem2mem(state.cv_l, G_IV512)
+	load_blk_mem2mem(state.Cv_l, G_IV512)
 	//load_blk(state->cv_r, g_IV512 + 8);
-	load_blk_mem2mem(state.cv_l, G_IV512)
+	load_blk_mem2mem(state.Cv_l, G_IV512)
 }
 
 /* -------------------------------------------------------- */
@@ -638,7 +624,7 @@ func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 /* -------------------------------------------------------- */
 
 // lsh_err lsh512_sse2_init(struct LSH512_Context * _ctx, const lsh_type algtype){
-func lsh512_sse2_init(ctx *LSH512SSE2_Context) {
+func Lsh512_sse2_init(ctx *LSH512_Context) {
 	Comment("lsh512_sse2_init")
 
 	//LSH512SSE2_Context* ctx = (LSH512SSE2_Context*)_ctx;
@@ -664,17 +650,17 @@ func lsh512_sse2_init(ctx *LSH512SSE2_Context) {
 
 	//switch (algtype){
 	//case LSH_TYPE_512_512:
-	CMPL(ctx.algtype, U32(LSH_TYPE_512_512))
+	CMPL(ctx.Algtype, U32(LSH_TYPE_512_512))
 	JNE(LabelRef("lsh512_sse2_init_if0_end"))
 	{
 		//	init512(ctx);
-		init256(ctx)
+		init512(ctx)
 		//	return LSH_SUCCESS;
 		JMP(LabelRef("lsh512_sse2_init_ret"))
 	}
 	Label("lsh512_sse2_init_if0_end")
 	//case LSH_TYPE_512_384:
-	CMPL(ctx.algtype, U32(LSH_TYPE_512_384))
+	CMPL(ctx.Algtype, U32(LSH_TYPE_512_384))
 	JNE(LabelRef("lsh512_sse2_init_if1_end"))
 	{
 		//	init384(ctx);
@@ -684,7 +670,7 @@ func lsh512_sse2_init(ctx *LSH512SSE2_Context) {
 	}
 	Label("lsh512_sse2_init_if1_end")
 	//case LSH_TYPE_512_256:
-	CMPL(ctx.algtype, U32(LSH_TYPE_512_256))
+	CMPL(ctx.Algtype, U32(LSH_TYPE_512_256))
 	JNE(LabelRef("lsh512_sse2_init_if2_end"))
 	{
 		//	init256(ctx);
@@ -733,7 +719,7 @@ func lsh512_sse2_init(ctx *LSH512SSE2_Context) {
 }
 
 // lsh_err lsh512_sse2_update(struct LSH512_Context * _ctx, const lsh_u8 * data, size_t databitlen){
-func lsh512_sse2_update(ctx *LSH512SSE2_Context, data Mem, databitlen Register) {
+func Lsh512_sse2_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 	Comment("lsh512_sse2_update")
 
 	//__m128i cv_l[4];
@@ -741,14 +727,11 @@ func lsh512_sse2_update(ctx *LSH512SSE2_Context, data Mem, databitlen Register) 
 	//__m128i cv_r[4];
 	cv_r := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 	//size_t databytelen = databitlen >> 3;
-	databytelen := GP32()
-	MOVL(databitlen, databytelen)
-	SHRL(U8(3), databytelen)
 	//lsh_u32 pos2 = databitlen & 0x7;
 
 	//LSH512SSE2_Context* ctx = (LSH512SSE2_Context*)_ctx;
 	//lsh_uint remain_msg_byte;
-	remain_msg_byte := GP32()
+	remain_msg_byte := GP64()
 	//lsh_uint remain_msg_bit;
 
 	//if (ctx == NULL || data == NULL){
@@ -762,8 +745,7 @@ func lsh512_sse2_update(ctx *LSH512SSE2_Context, data Mem, databitlen Register) 
 	//}
 
 	//remain_msg_byte = ctx->remain_databitlen >> 3;
-	MOVL(ctx.remain_databitlen, remain_msg_byte)
-	SHRL(U8(3), remain_msg_byte)
+	MOVQ(ctx.Remain_databytelen, remain_msg_byte)
 	//remain_msg_bit = ctx->remain_databitlen & 7;
 	//if (remain_msg_byte >= LSH512_MSG_BLK_BYTE_LEN){
 	//	return LSH_ERR_INVALID_STATE;
@@ -773,18 +755,18 @@ func lsh512_sse2_update(ctx *LSH512SSE2_Context, data Mem, databitlen Register) 
 	//}
 
 	//if (databytelen + remain_msg_byte < LSH512_MSG_BLK_BYTE_LEN){
-	tmp32 := GP32()
-	MOVL(databytelen, tmp32)
-	ADDL(remain_msg_byte, tmp32)
-	CMPL(tmp32, U32(LSH512_MSG_BLK_BYTE_LEN))
+	tmp32 := GP64()
+	MOVQ(databytelen, tmp32)
+	ADDQ(remain_msg_byte, tmp32)
+	CMPQ(tmp32, U32(LSH512_MSG_BLK_BYTE_LEN))
 	JGE(LabelRef("lsh512_sse2_update_if0_end"))
 	{
 		//memcpy(ctx->i_last_block + remain_msg_byte, data, databytelen);
-		Memcpy(ctx.i_last_block.Idx(remain_msg_byte, 1), data, databytelen, false)
+		Memcpy(ctx.I_last_block.Idx(remain_msg_byte, 1), data, databytelen, false)
 		//ctx->remain_databitlen += (lsh_uint)databitlen;
-		ADDL(databitlen, ctx.remain_databitlen)
+		ADDQ(databytelen, ctx.Remain_databytelen)
 		//remain_msg_byte += (lsh_uint)databytelen;
-		ADDL(databytelen, remain_msg_byte)
+		ADDQ(databytelen, remain_msg_byte)
 		//if (pos2){
 		//	ctx->i_last_block[remain_msg_byte] = data[databytelen] & ((0xff >> pos2) ^ 0xff);
 		//}
@@ -794,36 +776,36 @@ func lsh512_sse2_update(ctx *LSH512SSE2_Context, data Mem, databitlen Register) 
 	Label("lsh512_sse2_update_if0_end")
 
 	//load_blk(cv_l, ctx->cv_l);
-	load_blk_mem2vec(cv_l, ctx.cv_l)
+	load_blk_mem2vec(cv_l, ctx.Cv_l)
 	//load_blk(cv_r, ctx->cv_r);
-	load_blk_mem2vec(cv_r, ctx.cv_r)
+	load_blk_mem2vec(cv_r, ctx.Cv_r)
 
 	//if (remain_msg_byte > 0){
-	CMPL(remain_msg_byte, U32(0))
+	CMPQ(remain_msg_byte, U32(0))
 	JE(LabelRef("lsh512_sse2_update_if1_end"))
 	{
 		//size_t more_BYTE = LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte;
-		more_BYTE := GP32()
-		MOVL(U32(LSH512_MSG_BLK_BYTE_LEN), more_BYTE)
-		SUBL(remain_msg_byte, more_BYTE)
+		more_BYTE := GP64()
+		MOVQ(U32(LSH512_MSG_BLK_BYTE_LEN), more_BYTE)
+		SUBQ(remain_msg_byte, more_BYTE)
 		//memcpy(ctx->i_last_block + remain_msg_byte, data, more_BYTE);
-		Memcpy(ctx.i_last_block.Idx(remain_msg_byte, 1), data, more_BYTE, false)
+		Memcpy(ctx.I_last_block.Idx(remain_msg_byte, 1), data, more_BYTE, false)
 		//compress(cv_l, cv_r, (lsh_u64*)ctx->i_last_block);
-		compress(cv_l, cv_r, ctx.i_last_block)
+		compress(cv_l, cv_r, ctx.I_last_block)
 		//data += more_BYTE;
-		ADDQ(more_BYTE.As64(), data.Base)
+		ADDQ(more_BYTE, data.Base)
 		//databytelen -= more_BYTE;
-		SUBL(more_BYTE, databytelen)
+		SUBQ(more_BYTE, databytelen)
 		//remain_msg_byte = 0;
-		MOVL(U32(0), remain_msg_byte)
+		MOVQ(U32(0), remain_msg_byte)
 		//ctx->remain_databitlen = 0;
-		MOVL(U32(0), ctx.remain_databitlen)
+		MOVQ(U32(0), ctx.Remain_databytelen)
 	}
 	Label("lsh512_sse2_update_if1_end")
 
 	//while (databytelen >= LSH512_MSG_BLK_BYTE_LEN)
 	Label("lsh512_sse2_update_while_start")
-	CMPL(databytelen, U32(LSH512_MSG_BLK_BYTE_LEN))
+	CMPQ(databytelen, U32(LSH512_MSG_BLK_BYTE_LEN))
 	JL(LabelRef("lsh512_sse2_update_while_end"))
 	{
 		//compress(cv_l, cv_r, (lsh_u64*)data);
@@ -831,26 +813,25 @@ func lsh512_sse2_update(ctx *LSH512SSE2_Context, data Mem, databitlen Register) 
 		//data += LSH512_MSG_BLK_BYTE_LEN;
 		ADDQ(U32(LSH512_MSG_BLK_BYTE_LEN), data.Base)
 		//databytelen -= LSH512_MSG_BLK_BYTE_LEN;
-		SUBL(U32(LSH512_MSG_BLK_BYTE_LEN), databytelen)
+		SUBQ(U32(LSH512_MSG_BLK_BYTE_LEN), databytelen)
 
 		JMP(LabelRef("lsh512_sse2_update_while_start"))
 	}
 	Label("lsh512_sse2_update_while_end")
 
 	//store_blk(ctx->cv_l, cv_l);
-	store_blk(ctx.cv_l, cv_l)
+	store_blk(ctx.Cv_l, cv_l)
 	//store_blk(ctx->cv_r, cv_r);
-	store_blk(ctx.cv_r, cv_r)
+	store_blk(ctx.Cv_r, cv_r)
 
 	//if (databytelen > 0){
-	CMPL(remain_msg_byte, U32(0))
+	CMPQ(remain_msg_byte, U32(0))
 	JE(LabelRef("lsh512_sse2_update_if3_end"))
 	{
 		//memcpy(ctx->i_last_block, data, databytelen);
-		Memcpy(ctx.i_last_block, data, databytelen, false)
+		Memcpy(ctx.I_last_block, data, databytelen, false)
 		//ctx->remain_databitlen = (lsh_uint)(databytelen << 3);
-		MOVL(databytelen, ctx.remain_databitlen)
-		SHLL(U8(3), ctx.remain_databitlen)
+		MOVQ(databytelen, ctx.Remain_databytelen)
 	}
 	Label("lsh512_sse2_update_if3_end")
 
@@ -864,10 +845,8 @@ func lsh512_sse2_update(ctx *LSH512SSE2_Context, data Mem, databitlen Register) 
 }
 
 // lsh_err lsh512_sse2_final(struct LSH512_Context * _ctx, lsh_u8 * hashval){
-func lsh512_sse2_final(ctx *LSH512SSE2_Context, hashval Mem) {
+func Lsh512_sse2_final(ctx *LSH512_Context, hashval Mem) {
 	Comment("lsh512_sse2_final")
-
-	tmp32 := GP32()
 
 	//__m128i cv_l[4];
 	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
@@ -875,7 +854,7 @@ func lsh512_sse2_final(ctx *LSH512SSE2_Context, hashval Mem) {
 	cv_r := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 	//LSH512SSE2_Context* ctx = (LSH512SSE2_Context*)_ctx;
 	//lsh_uint remain_msg_byte;
-	remain_msg_byte := GP32()
+	remain_msg_byte := GP64()
 	//lsh_uint remain_msg_bit;
 
 	//if (ctx == NULL || hashval == NULL){
@@ -886,8 +865,7 @@ func lsh512_sse2_final(ctx *LSH512SSE2_Context, hashval Mem) {
 	//}
 
 	//remain_msg_byte = ctx->remain_databitlen >> 3;
-	MOVL(ctx.remain_databitlen, remain_msg_byte)
-	SHRL(U8(3), remain_msg_byte)
+	MOVQ(ctx.Remain_databytelen, remain_msg_byte)
 	//remain_msg_bit = ctx->remain_databitlen & 7;
 
 	//if (remain_msg_byte >= LSH512_MSG_BLK_BYTE_LEN){
@@ -900,94 +878,28 @@ func lsh512_sse2_final(ctx *LSH512SSE2_Context, hashval Mem) {
 	//else
 	{
 		//ctx->i_last_block[remain_msg_byte] = 0x80;
-		MOVB(U8(0x80), ctx.i_last_block.Idx(remain_msg_byte, 1))
+		MOVB(U8(0x80), ctx.I_last_block.Idx(remain_msg_byte, 1))
 	}
 	//memset(ctx->i_last_block + remain_msg_byte + 1, 0, LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
-	MOVL(remain_msg_byte, tmp32)
-	ADDL(U8(1), tmp32)
-	arg2 := GP32()
-	MOVL(U32(LSH512_MSG_BLK_BYTE_LEN-1), arg2)
-	SUBL(remain_msg_byte, arg2)
-	Memset(ctx.i_last_block.Idx(tmp32, 1), 0, arg2, false)
+	size := GP64()
+	MOVQ(U32(LSH512_MSG_BLK_BYTE_LEN-1), size)
+	SUBQ(remain_msg_byte, size)
+	Memset(ctx.I_last_block.Offset(-1).Idx(remain_msg_byte, 1), 0, size, false)
 
 	//load_blk(cv_l, ctx->cv_l);
-	load_blk_mem2vec(cv_l, ctx.cv_l)
+	load_blk_mem2vec(cv_l, ctx.Cv_l)
 	//load_blk(cv_r, ctx->cv_r);
-	load_blk_mem2vec(cv_r, ctx.cv_r)
+	load_blk_mem2vec(cv_r, ctx.Cv_r)
 
 	//compress(cv_l, cv_r, (lsh_u64*)ctx->i_last_block);
-	compress(cv_l, cv_r, ctx.i_last_block)
+	compress(cv_l, cv_r, ctx.I_last_block)
 
 	//fin(cv_l, cv_r);
 	fin(cv_l, cv_r)
 	//get_hash(cv_l, hashval, ctx->algtype);
-	get_hash(cv_l, hashval, ctx.algtype)
+	get_hash(cv_l, hashval, ctx.Algtype)
 
 	//memset(ctx, 0, sizeof(struct LSH512_Context));
 
 	//return LSH_SUCCESS;
-}
-
-func getCtx() *LSH512SSE2_Context {
-	ctx := Dereference(Param("ctx"))
-
-	algtype, err := ctx.Field("algtype").Resolve()
-	if err != nil {
-		panic(err)
-	}
-	cv_l, err := ctx.Field("cv_l").Index(0).Resolve()
-	if err != nil {
-		panic(err)
-	}
-	cv_r, err := ctx.Field("cv_r").Index(0).Resolve()
-	if err != nil {
-		panic(err)
-	}
-	i_last_block, err := ctx.Field("i_last_block").Index(0).Resolve()
-	if err != nil {
-		panic(err)
-	}
-
-	return &LSH512SSE2_Context{
-		algtype:           algtype.Addr,
-		remain_databitlen: Load(ctx.Field("remain_databitlen"), GP32()),
-		cv_l:              cv_l.Addr,
-		cv_r:              cv_r.Addr,
-		i_last_block:      i_last_block.Addr,
-	}
-}
-
-func LSH512InitSSE2() {
-	TEXT("lsh512InitSSE2", NOSPLIT, "func(ctx *lsh512ContextAsmData)")
-
-	ctx := getCtx()
-	lsh512_sse2_init(ctx)
-	Store(ctx.remain_databitlen, Dereference(Param("ctx")).Field("remain_databitlen"))
-
-	RET()
-}
-
-func LSH512UpdateSSE2() {
-	TEXT("lsh512UpdateSSE2", NOSPLIT, "func(ctx *lsh512ContextAsmData, data []byte, databitlen uint32)")
-
-	ctx := getCtx()
-	data := Mem{Base: Load(Param("data").Base(), GP64())}
-	databitlen := Load(Param("databitlen"), GP32())
-
-	lsh512_sse2_update(ctx, data, databitlen)
-	Store(ctx.remain_databitlen, Dereference(Param("ctx")).Field("remain_databitlen"))
-
-	RET()
-}
-
-func LSH512FinalSSE2() {
-	TEXT("lsh512FinalSSE2", NOSPLIT, "func(ctx *lsh512ContextAsmData, hashval []byte)")
-
-	ctx := getCtx()
-	hashval := Mem{Base: Load(Param("hashval").Base(), GP64())}
-
-	lsh512_sse2_final(ctx, hashval)
-	Store(ctx.remain_databitlen, Dereference(Param("ctx")).Field("remain_databitlen"))
-
-	RET()
 }

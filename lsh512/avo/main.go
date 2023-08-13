@@ -1,6 +1,7 @@
 package main
 
 import (
+	"kryptosimd/lsh512/avo/lsh512common"
 	"kryptosimd/lsh512/avo/lsh512sse2"
 
 	. "github.com/mmcloughlin/avo/build"
@@ -9,9 +10,9 @@ import (
 func main() {
 	Package("kryptosimd/lsh512/avo/lsh512avoconst")
 
-	lsh512sse2.LSH512InitSSE2()
-	lsh512sse2.LSH512UpdateSSE2()
-	lsh512sse2.LSH512FinalSSE2()
+	lsh512common.LSH512Init("SSE2", lsh512sse2.Lsh512_sse2_init)
+	lsh512common.LSH512Update("SSE2", lsh512sse2.Lsh512_sse2_update)
+	lsh512common.LSH512Final("SSE2", lsh512sse2.Lsh512_sse2_final)
 
 	Generate()
 	print("done")
