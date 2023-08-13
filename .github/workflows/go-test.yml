@@ -2,9 +2,9 @@ name: Go Test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ avo ]
   pull_request:
-    branches: [ master ]
+    branches: [ avo ]
 
 jobs:
   build:
