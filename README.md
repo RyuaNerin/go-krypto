@@ -44,7 +44,7 @@
     |:----------:|-----------------|:------------------:|:---:|:---:|:---:|:---:|:---:|:------------------------------:|
     | HAS-160`^` | `krypto/has160` | TTAS.KO-12.0011/R2 | O   |     |     |     |     |                                |
     | LSH-256    | `krypto/lsh256` | KS X 3262          |     | O   | O   |     |     | X86-64: `SSE2` `SSSE3` `AVX2*` |
-    | LSH-512    | `krypto/lsh512` | KS X 3262          |     | O   | O   | O   | O   |                                |
+    | LSH-512    | `krypto/lsh512` | KS X 3262          |     | O   | O   | O   | O   | X86-64: `SSE2` `SSSE3` `AVX2`  |
 
     - \* : Disabled. SSSE3 is more faster then AVX2 in benchmarks. It seems like a different algorithm is needed.
 
