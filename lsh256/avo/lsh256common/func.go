@@ -7,7 +7,7 @@ import (
 )
 
 type LSH256_Context struct {
-	Algtype            Mem // m32
+	Algtype            Register // m32
 	Remain_databytelen Register
 	Cv_l               Mem
 	Cv_r               Mem
@@ -17,10 +17,6 @@ type LSH256_Context struct {
 func getCtx() *LSH256_Context {
 	ctx := Dereference(Param("ctx"))
 
-	algtype, err := ctx.Field("algtype").Resolve()
-	if err != nil {
-		panic(err)
-	}
 	cv_l, err := ctx.Field("cv_l").Index(0).Resolve()
 	if err != nil {
 		panic(err)
@@ -35,7 +31,7 @@ func getCtx() *LSH256_Context {
 	}
 
 	return &LSH256_Context{
-		Algtype:            algtype.Addr,
+		Algtype:            Load(ctx.Field("algtype"), GP64()),
 		Remain_databytelen: Load(ctx.Field("remain_databytelen"), GP64()),
 		Cv_l:               cv_l.Addr,
 		Cv_r:               cv_r.Addr,

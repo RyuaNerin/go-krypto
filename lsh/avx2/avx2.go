@@ -28,11 +28,20 @@ func AND(dst, x, y Op) Op { return F_mm256_and_si256(dst, x, y) }
 // #define SHUFFLE8(x,y) _mm256_shuffle_epi8(x,y)
 func SHUFFLE8(dst, x, y Op) Op { return F_mm256_shuffle_epi8(dst, x, y) }
 
-// #define ADD(x,y) _mm256_add_epi32(x,y)
-func ADD(dst, x, y Op) Op { return F_mm256_add_epi32(dst, x, y) }
+// #define ADD32(x,y) _mm256_add_epi32(x,y)
+func ADD32(dst, x, y Op) Op { return F_mm256_add_epi32(dst, x, y) }
 
-// #define SHIFT_L(x,r) _mm256_slli_epi32(x,r)
-func SHIFT_L(dst, x, y Op) Op { return F_mm256_slli_epi32(dst, x, y) }
+// #define SHIFT_L32(x,r) _mm256_slli_epi32(x,r)
+func SHIFT_L32(dst, x, y Op) Op { return F_mm256_slli_epi32(dst, x, y) }
 
-// #define SHIFT_R(x,r) _mm256_srli_epi32(x,r)
-func SHIFT_R(dst, x, y Op) Op { return F_mm256_srli_epi32(dst, x, y) }
+// #define SHIFT_R32(x,r) _mm256_srli_epi32(x,r)
+func SHIFT_R32(dst, x, y Op) Op { return F_mm256_srli_epi32(dst, x, y) }
+
+// #define ADD(x,y) F_mm256_add_epi64(x,y)
+func ADD64(dst, x, y Op) Op { return F_mm256_add_epi64(dst, x, y) }
+
+// #define SHIFT_L(x,r) _mm256_slli_epi64(x,r)
+func SHIFT_L64(dst, x, r Op) Op { return F_mm256_slli_epi64(dst, x, r) }
+
+// #define SHIFT_R(x,r) _mm256_srli_epi64(x,r)
+func SHIFT_R64(dst, x, r Op) Op { return F_mm256_srli_epi64(dst, x, r) }

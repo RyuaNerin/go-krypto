@@ -15,7 +15,6 @@ func Test_LSH512_256_SSE2(t *testing.T) { testAsm(t, testCases256, Size256, simd
 func Test_LSH512_384_SSE2(t *testing.T) { testAsm(t, testCases384, Size384, simdSetSSE2) }
 func Test_LSH512_512_SSE2(t *testing.T) { testAsm(t, testCases512, Size, simdSetSSE2) }
 
-/**
 func Test_LSH512_224_SSSE3(t *testing.T) { testAsm(t, testCases224, Size224, simdSetSSSE3) }
 func Test_LSH512_256_SSSE3(t *testing.T) { testAsm(t, testCases256, Size256, simdSetSSSE3) }
 func Test_LSH512_384_SSSE3(t *testing.T) { testAsm(t, testCases384, Size384, simdSetSSSE3) }
@@ -25,7 +24,6 @@ func Test_LSH512_224_AVX2(t *testing.T) { testAsm(t, testCases224, Size224, simd
 func Test_LSH512_256_AVX2(t *testing.T) { testAsm(t, testCases256, Size256, simdSetAVX2) }
 func Test_LSH512_384_AVX2(t *testing.T) { testAsm(t, testCases384, Size384, simdSetAVX2) }
 func Test_LSH512_512_AVX2(t *testing.T) { testAsm(t, testCases512, Size, simdSetAVX2) }
-*/
 
 func testAsm(t *testing.T, testCases []testCase, algType int, simd simdSet) {
 	h := newContextAsm(algType, simd)

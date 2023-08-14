@@ -459,3 +459,224 @@ func F_mm256_permute2x128_si256(dst, a, b, imm8 Op) Op {
 	VPERM2I128(imm8, b, a, dst)
 	return dst
 }
+
+/*
+*
+Synopsis
+
+	__m256i _mm256_add_epi64 (__m256i a, __m256i b)
+	#include <immintrin.h>
+	Instruction: vpaddq ymm, ymm, ymm
+	CPUID Flags: AVX2
+
+Description
+
+	Add packed 64-bit integers in a and b, and store the results in dst.
+
+Operation
+
+	FOR j := 0 to 3
+		i := j*64
+		dst[i+63:i] := a[i+63:i] + b[i+63:i]
+	ENDFOR
+	dst[MAX:256] := 0
+*/
+func F_mm256_add_epi64(dst, x, y Op) Op {
+	CheckType(
+		`
+		//	VPADDQ m256 ymm ymm
+		//	VPADDQ ymm  ymm ymm
+		//	VPADDQ m128 xmm xmm
+		//	VPADDQ xmm  xmm xmm
+		//	VPADDQ m128 xmm k xmm
+		//	VPADDQ m256 ymm k ymm
+		//	VPADDQ xmm  xmm k xmm
+		//	VPADDQ ymm  ymm k ymm
+		//	VPADDQ m512 zmm k zmm
+		//	VPADDQ m512 zmm zmm
+		//	VPADDQ zmm  zmm k zmm
+		//	VPADDQ zmm  zmm zmm
+		`,
+		y, x, dst,
+	)
+
+	VPADDQ(y, x, dst)
+	return dst
+}
+
+/*
+*
+Synopsis
+
+	__m256i _mm256_slli_epi64 (__m256i a, int imm8)
+	#include <immintrin.h>
+	Instruction: vpsllq ymm, ymm, imm8
+	CPUID Flags: AVX2
+
+Description
+
+	Shift packed 64-bit integers in a left by imm8 while shifting in zeros, and store the results in dst.
+
+Operation
+
+	FOR j := 0 to 3
+		i := j*64
+		IF imm8[7:0] > 63
+			dst[i+63:i] := 0
+		ELSE
+			dst[i+63:i] := ZeroExtend64(a[i+63:i] << imm8[7:0])
+		FI
+	ENDFOR
+	dst[MAX:256] := 0
+*/
+func F_mm256_slli_epi64(dst, x, r Op) Op {
+	CheckType(
+		`
+		//	VPSLLQ imm8 ymm  ymm
+		//	VPSLLQ m128 ymm  ymm
+		//	VPSLLQ xmm  ymm  ymm
+		//	VPSLLQ imm8 xmm  xmm
+		//	VPSLLQ m128 xmm  xmm
+		//	VPSLLQ xmm  xmm  xmm
+		//	VPSLLQ imm8 m128 k xmm
+		//	VPSLLQ imm8 m128 xmm
+		//	VPSLLQ imm8 m256 k ymm
+		//	VPSLLQ imm8 m256 ymm
+		//	VPSLLQ imm8 xmm  k xmm
+		//	VPSLLQ imm8 ymm  k ymm
+		//	VPSLLQ m128 xmm  k xmm
+		//	VPSLLQ m128 ymm  k ymm
+		//	VPSLLQ xmm  xmm  k xmm
+		//	VPSLLQ xmm  ymm  k ymm
+		//	VPSLLQ imm8 m512 k zmm
+		//	VPSLLQ imm8 m512 zmm
+		//	VPSLLQ imm8 zmm  k zmm
+		//	VPSLLQ imm8 zmm  zmm
+		//	VPSLLQ m128 zmm  k zmm
+		//	VPSLLQ m128 zmm  zmm
+		//	VPSLLQ xmm  zmm  k zmm
+		//	VPSLLQ xmm  zmm  zmm
+		`,
+		r, x, dst,
+	)
+
+	VPSLLQ(r, x, dst)
+	return dst
+}
+
+/*
+*
+Synopsis
+
+	__m256i _mm256_srli_epi64 (__m256i a, int imm8)
+	#include <immintrin.h>
+	Instruction: vpsrlq ymm, ymm, imm8
+	CPUID Flags: AVX2
+
+Description
+
+	Shift packed 64-bit integers in a right by imm8 while shifting in zeros, and store the results in dst.
+
+Operation
+
+	FOR j := 0 to 3
+		i := j*64
+		IF imm8[7:0] > 63
+			dst[i+63:i] := 0
+		ELSE
+			dst[i+63:i] := ZeroExtend64(a[i+63:i] >> imm8[7:0])
+		FI
+	ENDFOR
+	dst[MAX:256] := 0
+*/
+func F_mm256_srli_epi64(dst, x, r Op) Op {
+	CheckType(
+		`
+		//	VPSRLQ imm8 ymm  ymm
+		//	VPSRLQ m128 ymm  ymm
+		//	VPSRLQ xmm  ymm  ymm
+		//	VPSRLQ imm8 xmm  xmm
+		//	VPSRLQ m128 xmm  xmm
+		//	VPSRLQ xmm  xmm  xmm
+		//	VPSRLQ imm8 m128 k xmm
+		//	VPSRLQ imm8 m128 xmm
+		//	VPSRLQ imm8 m256 k ymm
+		//	VPSRLQ imm8 m256 ymm
+		//	VPSRLQ imm8 xmm  k xmm
+		//	VPSRLQ imm8 ymm  k ymm
+		//	VPSRLQ m128 xmm  k xmm
+		//	VPSRLQ m128 ymm  k ymm
+		//	VPSRLQ xmm  xmm  k xmm
+		//	VPSRLQ xmm  ymm  k ymm
+		//	VPSRLQ imm8 m512 k zmm
+		//	VPSRLQ imm8 m512 zmm
+		//	VPSRLQ imm8 zmm  k zmm
+		//	VPSRLQ imm8 zmm  zmm
+		//	VPSRLQ m128 zmm  k zmm
+		//	VPSRLQ m128 zmm  zmm
+		//	VPSRLQ xmm  zmm  k zmm
+		//	VPSRLQ xmm  zmm  zmm
+		`,
+		r, x, dst,
+	)
+
+	VPSRLQ(r, x, dst)
+	return dst
+}
+
+/*
+*
+Synopsis
+
+	__m256i _mm256_permute4x64_epi64 (__m256i a, const int imm8)
+	#include <immintrin.h>
+	Instruction: vpermq ymm, ymm, imm8
+	CPUID Flags: AVX2
+
+Description
+
+	Shuffle 64-bit integers in a across lanes using the control in imm8, and store the results in dst.
+
+Operation
+
+	DEFINE SELECT4(src, control) {
+		CASE(control[1:0]) OF
+		0:	tmp[63:0] := src[63:0]
+		1:	tmp[63:0] := src[127:64]
+		2:	tmp[63:0] := src[191:128]
+		3:	tmp[63:0] := src[255:192]
+		ESAC
+		RETURN tmp[63:0]
+	}
+	dst[63:0] := SELECT4(a[255:0], imm8[1:0])
+	dst[127:64] := SELECT4(a[255:0], imm8[3:2])
+	dst[191:128] := SELECT4(a[255:0], imm8[5:4])
+	dst[255:192] := SELECT4(a[255:0], imm8[7:6])
+	dst[MAX:256] := 0
+*/
+func F_mm256_permute4x64_epi64(dst, a, imm8 Op) Op {
+	CheckType(
+		`
+		//	VPERMQ imm8 m256 ymm
+		//	VPERMQ imm8 ymm  ymm
+		//	VPERMQ imm8 m256 k ymm
+		//	VPERMQ imm8 ymm  k ymm
+		//	VPERMQ m256 ymm  k ymm
+		//	VPERMQ m256 ymm  ymm
+		//	VPERMQ ymm  ymm  k ymm
+		//	VPERMQ ymm  ymm  ymm
+		//	VPERMQ imm8 m512 k zmm
+		//	VPERMQ imm8 m512 zmm
+		//	VPERMQ imm8 zmm  k zmm
+		//	VPERMQ imm8 zmm  zmm
+		//	VPERMQ m512 zmm  k zmm
+		//	VPERMQ m512 zmm  zmm
+		//	VPERMQ zmm  zmm  k zmm
+		//	VPERMQ zmm  zmm  zmm
+		`,
+		imm8, a, dst,
+	)
+
+	VPERMQ(imm8, a, dst)
+	return dst
+}

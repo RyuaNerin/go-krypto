@@ -33,6 +33,9 @@ func isAligned(alignedByte int, args ...Op) bool {
 	return true
 }
 
+func VMOVDQ_autoAU2(dst, src Op) {
+	VMOVDQ_autoAU(src, dst)
+}
 func VMOVDQ_autoAU(mxy, mxy1 Op) {
 	if isAligned(YmmSize, mxy, mxy1) {
 		CheckType(

@@ -25,13 +25,11 @@ var (
 		update: lsh512UpdateSSSE3,
 		final:  lsh512FinalSSSE3,
 	}
-	/**
 	simdSetAVX2 = simdSet{
 		init:   lsh512InitAVX2,
 		update: lsh512UpdateAVX2,
 		final:  lsh512FinalAVX2,
 	}
-	*/
 )
 
 func init() {
