@@ -10,7 +10,7 @@ import "kryptosimd/internal"
 var (
 	testCases384 = []testCase{
 		{
-			Msg: internal.HB(`00`),
+			Msg: internal.HB(``),
 			MD:  internal.HB(`DBB259CF22459368AB2C52B3E1C977288B38670ADCB91CAE6B8B6A2D646E76F8BD53E5CAB0E47C856F55249B895C1730`),
 		},
 		{

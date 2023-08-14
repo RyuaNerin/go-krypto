@@ -17,31 +17,3 @@ func lsh512InitAVX2(ctx *lsh512ContextAsmData)
 func lsh512UpdateAVX2(ctx *lsh512ContextAsmData, data []byte)
 
 func lsh512FinalAVX2(ctx *lsh512ContextAsmData, hashval []byte)
-
-func add_blk(cv_l []uint64, cv_r []uint64)
-
-func mix_even(cv_l []uint64, cv_r []uint64, const_v []uint64)
-
-func mix_odd(cv_l []uint64, cv_r []uint64, const_v []uint64)
-
-func msg_add_even(cv_l []uint64, cv_r []uint64, el []uint64, er []uint64, ol []uint64, or []uint64)
-
-func msg_add_odd(cv_l []uint64, cv_r []uint64, el []uint64, er []uint64, ol []uint64, or []uint64)
-
-func msg_exp_even(el []uint64, er []uint64, ol []uint64, or []uint64)
-
-func msg_exp_odd(el []uint64, er []uint64, ol []uint64, or []uint64)
-
-func rotate_blk_even_alpha(cv []uint64)
-
-func rotate_blk_even_beta(cv []uint64)
-
-func rotate_blk_odd_alpha(cv []uint64)
-
-func rotate_blk_odd_beta(cv []uint64)
-
-func rotate_msg_gamma(cv_r []uint64)
-
-func word_perm(cv_l []uint64, cv_r []uint64)
-
-func xor_with_const(cv_l []uint64, const_v []uint64)

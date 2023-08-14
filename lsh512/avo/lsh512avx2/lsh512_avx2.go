@@ -315,7 +315,7 @@ func mix_odd(cv_l, cv_r []VecVirtual, const_v []VecVirtual, byte_perm_step []Mem
 /* -------------------------------------------------------- */
 
 // static INLINE void compress(__m256i* cv_l, __m256i* cv_r, const lsh_u64 pdMsgBlk[MSG_BLK_WORD_LEN])
-func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv_r_mem Mem) {
+func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem) {
 	Comment("compress")
 
 	//__m256i const_v[2];			// step function constant
@@ -338,19 +338,6 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv
 	byte_perm_step[1] = g_BytePermInfo.Offset(YmmSize * 1)
 	//word_perm_step = LOAD(g_MsgWordPermInfo)
 
-	save := func() {
-		Comment("save___start")
-		load_blk_vec2mem(cv_l_mem, cv_l)
-		load_blk_vec2mem(cv_r_mem, cv_r)
-		Comment("save___end")
-	}
-	load := func() {
-		Comment("load___start")
-		load_blk_mem2vec(cv_l, cv_l_mem)
-		load_blk_mem2vec(cv_r, cv_r_mem)
-		Comment("load___end")
-	}
-
 	load_msg_blk(i_state, pdMsgBlk)
 
 	msg_add_even(cv_l, cv_r, i_state)
@@ -365,26 +352,20 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv
 
 	//for (i = 1; i < NUM_STEPS / 2; i++){
 	for i := 1; i < NUM_STEPS/2; i++ {
-		save()
 		msg_exp_even(i_state)
-		load()
 		msg_add_even(cv_l, cv_r, i_state)
 		load_sc(const_v, 16*i)
 		mix_even(cv_l, cv_r, const_v, byte_perm_step)
 		word_perm(cv_l, cv_r)
 
-		save()
 		msg_exp_odd(i_state)
-		load()
 		msg_add_odd(cv_l, cv_r, i_state)
 		load_sc(const_v, 16*i+8)
 		mix_odd(cv_l, cv_r, const_v, byte_perm_step)
 		word_perm(cv_l, cv_r)
 	}
 
-	save()
 	msg_exp_even(i_state)
-	load()
 	msg_add_even(cv_l, cv_r, i_state)
 }
 
@@ -450,11 +431,7 @@ func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 	//lsh_u8 hash_val[LSH512_HASH_VAL_MAX_BYTE_LEN] = { 0x0, };
 	hash_val := pbHashVal
 	//lsh_uint hash_val_byte_len = LSH_GET_HASHBYTE(algtype);
-	hash_val_byte_len := GP32()
-	LSH_GET_HASHBYTE(hash_val_byte_len, algtype)
 	//lsh_uint hash_val_bit_len = LSH_GET_SMALL_HASHBIT(algtype);
-	hash_val_bit_len := GP32()
-	LSH_GET_SMALL_HASHBIT(hash_val_bit_len, algtype)
 
 	//STORE(hash_val, cv_l[0]);
 	STORE(hash_val, cv_l[0])
@@ -462,18 +439,8 @@ func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 	STORE(hash_val.Offset(YmmSize), cv_l[1])
 	//memcpy(pbHashVal, hash_val, sizeof(lsh_u8) * hash_val_byte_len);
 	//if (hash_val_bit_len){
-	CMPL(hash_val_bit_len, U32(0))
-	JE(LabelRef("get_hash_if_end"))
-	{
-		//pbHashVal[hash_val_byte_len-1] &= (((lsh_u8)0xff) << hash_val_bit_len);
-		tmp8 := GP8()
-		MOVB(U8(0xff), tmp8)
-		MOVB(hash_val_bit_len.As8(), CL)
-		SHLB(CL, tmp8)
-
-		MOVB(tmp8, pbHashVal.Offset(-1).Idx(hash_val_byte_len, 1))
-	}
-	Label("get_hash_if_end")
+	//	pbHashVal[hash_val_byte_len-1] &= (((lsh_u8)0xff) << hash_val_bit_len);
+	//}
 }
 
 /* -------------------------------------------------------- */
@@ -575,8 +542,6 @@ func Lsh512_avx2_init(ctx *LSH512_Context) {
 func Lsh512_avx2_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 	Comment("lsh512_avx2_update")
 
-	i_state_alloc := AllocLocal(YmmSize * 2 * 4)
-
 	//__m256i cv_l[2];
 	cv_l := []VecVirtual{YMM(), YMM()}
 	//__m256i cv_r[2];
@@ -646,7 +611,7 @@ func Lsh512_avx2_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 		//memcpy(ctx->last_block + remain_msg_byte, data, more_BYTE);
 		Memcpy(ctx.I_last_block.Idx(remain_msg_byte, 1), data, more_BYTE, false)
 		//compress(cv_l, cv_r, (lsh_u64*)ctx->last_block);
-		compress(cv_l, cv_r, ctx.I_last_block, i_state_alloc, ctx.Cv_l, ctx.Cv_r)
+		compress(cv_l, cv_r, ctx.I_last_block)
 		//data += more_BYTE;
 		ADDQ(more_BYTE, data.Base)
 		//databytelen -= more_BYTE;
@@ -664,7 +629,7 @@ func Lsh512_avx2_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 	JL(LabelRef("lsh512_avx2_update_while_end"))
 	{
 		//compress(cv_l, cv_r, (lsh_u64*)data);
-		compress(cv_l, cv_r, data, i_state_alloc, ctx.Cv_l, ctx.Cv_r)
+		compress(cv_l, cv_r, data)
 		//data += LSH512_MSG_BLK_BYTE_LEN;
 		ADDQ(U32(LSH512_MSG_BLK_BYTE_LEN), data.Base)
 		//databytelen -= LSH512_MSG_BLK_BYTE_LEN;
@@ -702,8 +667,6 @@ func Lsh512_avx2_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 // lsh_err lsh512_avx2_final(struct LSH512_Context * _ctx, lsh_u8 * hashval){
 func Lsh512_avx2_final(ctx *LSH512_Context, hashval Mem) {
 	Comment("lsh512_avx2_final")
-
-	i_state_alloc := AllocLocal(YmmSize * 4 * 4)
 
 	//__m256i cv_l[2];
 	cv_l := []VecVirtual{YMM(), YMM()}
@@ -749,7 +712,7 @@ func Lsh512_avx2_final(ctx *LSH512_Context, hashval Mem) {
 	load_blk_mem2vec(cv_r, ctx.Cv_r)
 
 	//compress(cv_l, cv_r, (lsh_u64*)ctx->last_block);
-	compress(cv_l, cv_r, ctx.I_last_block, i_state_alloc, ctx.Cv_l, ctx.Cv_r)
+	compress(cv_l, cv_r, ctx.I_last_block)
 
 	//fin(cv_l, cv_r);
 	fin(cv_l, cv_r)

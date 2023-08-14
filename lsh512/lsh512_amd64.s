@@ -16173,131 +16173,131 @@ lsh512_sse2_update_ret:
 // func lsh512FinalSSE2(ctx *lsh512ContextAsmData, hashval []byte)
 // Requires: SSE2
 TEXT ·lsh512FinalSSE2(SB), NOSPLIT, $256-32
-	MOVQ ctx+0(FP), BX
-	MOVL (BX), CX
-	MOVQ 8(BX), AX
+	MOVQ ctx+0(FP), AX
+	MOVL (AX), CX
+	MOVQ 8(AX), CX
 	MOVQ hashval_base+8(FP), DX
 
 	// lsh512_sse2_final
-	MOVQ AX, SI
-	MOVB $0x80, 144(BX)(SI*1)
-	MOVQ $0x000000ff, DI
-	SUBQ SI, DI
+	MOVQ CX, BX
+	MOVB $0x80, 144(AX)(BX*1)
+	MOVQ $0x000000ff, SI
+	SUBQ BX, SI
 
 	// memset
-	LEAQ 145(BX)(SI*1), SI
-	CMPQ DI, $0x00000010
+	LEAQ 145(AX)(BX*1), BX
+	CMPQ SI, $0x00000010
 	JL   memset_1_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
 
 memset_1_sz16_start:
-	MOVOU X0, (SI)
-	SUBQ  $0x00000010, DI
-	ADDQ  $0x00000010, SI
-	CMPQ  DI, $0x00000010
+	MOVOU X0, (BX)
+	SUBQ  $0x00000010, SI
+	ADDQ  $0x00000010, BX
+	CMPQ  SI, $0x00000010
 	JL    memset_1_sz16_end
 	JMP   memset_1_sz16_start
 
 memset_1_sz16_end:
-	CMPQ DI, $0x00000008
+	CMPQ SI, $0x00000008
 	JL   memset_1_sz8_end
-	MOVQ memset_value_0<>+0(SB), R8
+	MOVQ memset_value_0<>+0(SB), DI
 
 memset_1_sz8_start:
-	MOVQ R8, (SI)
-	SUBQ $0x00000008, DI
-	ADDQ $0x00000008, SI
-	CMPQ DI, $0x00000008
+	MOVQ DI, (BX)
+	SUBQ $0x00000008, SI
+	ADDQ $0x00000008, BX
+	CMPQ SI, $0x00000008
 	JL   memset_1_sz8_end
 	JMP  memset_1_sz8_start
 
 memset_1_sz8_end:
-	CMPQ DI, $0x00000004
+	CMPQ SI, $0x00000004
 	JL   memset_1_sz4_end
-	MOVL memset_value_0<>+0(SB), R8
+	MOVL memset_value_0<>+0(SB), DI
 
 memset_1_sz4_start:
-	MOVL R8, (SI)
-	SUBQ $0x00000004, DI
-	ADDQ $0x00000004, SI
-	CMPQ DI, $0x00000004
+	MOVL DI, (BX)
+	SUBQ $0x00000004, SI
+	ADDQ $0x00000004, BX
+	CMPQ SI, $0x00000004
 	JL   memset_1_sz4_end
 	JMP  memset_1_sz4_start
 
 memset_1_sz4_end:
-	CMPQ DI, $0x00000002
+	CMPQ SI, $0x00000002
 	JL   memset_1_sz2_end
-	MOVW memset_value_0<>+0(SB), R8
+	MOVW memset_value_0<>+0(SB), DI
 
 memset_1_sz2_start:
-	MOVW R8, (SI)
-	SUBQ $0x00000002, DI
-	ADDQ $0x00000002, SI
-	CMPQ DI, $0x00000002
+	MOVW DI, (BX)
+	SUBQ $0x00000002, SI
+	ADDQ $0x00000002, BX
+	CMPQ SI, $0x00000002
 	JL   memset_1_sz2_end
 	JMP  memset_1_sz2_start
 
 memset_1_sz2_end:
 memset_1_1_start:
-	CMPQ DI, $0x00000000
+	CMPQ SI, $0x00000000
 	JE   memset_1_1_end
-	MOVB $0x00, (SI)
-	SUBQ $0x00000001, DI
-	ADDQ $0x00000001, SI
+	MOVB $0x00, (BX)
+	SUBQ $0x00000001, SI
+	ADDQ $0x00000001, BX
 	JMP  memset_1_1_start
 
 memset_1_1_end:
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// compress
 	// load_blk_mem2mem
-	MOVOU 144(BX), X8
+	MOVOU 144(AX), X8
 	MOVOU X8, (SP)
-	MOVOU 160(BX), X8
+	MOVOU 160(AX), X8
 	MOVOU X8, 16(SP)
-	MOVOU 176(BX), X8
+	MOVOU 176(AX), X8
 	MOVOU X8, 32(SP)
-	MOVOU 192(BX), X8
+	MOVOU 192(AX), X8
 	MOVOU X8, 48(SP)
 
 	// load_blk_mem2mem
-	MOVOU 208(BX), X8
+	MOVOU 208(AX), X8
 	MOVOU X8, 64(SP)
-	MOVOU 224(BX), X8
+	MOVOU 224(AX), X8
 	MOVOU X8, 80(SP)
-	MOVOU 240(BX), X8
+	MOVOU 240(AX), X8
 	MOVOU X8, 96(SP)
-	MOVOU 256(BX), X8
+	MOVOU 256(AX), X8
 	MOVOU X8, 112(SP)
 
 	// load_blk_mem2mem
-	MOVOU 272(BX), X8
+	MOVOU 272(AX), X8
 	MOVOU X8, 128(SP)
-	MOVOU 288(BX), X8
+	MOVOU 288(AX), X8
 	MOVOU X8, 144(SP)
-	MOVOU 304(BX), X8
+	MOVOU 304(AX), X8
 	MOVOU X8, 160(SP)
-	MOVOU 320(BX), X8
+	MOVOU 320(AX), X8
 	MOVOU X8, 176(SP)
 
 	// load_blk_mem2mem
-	MOVOU 336(BX), X8
+	MOVOU 336(AX), X8
 	MOVOU X8, 192(SP)
-	MOVOU 352(BX), X8
+	MOVOU 352(AX), X8
 	MOVOU X8, 208(SP)
-	MOVOU 368(BX), X8
+	MOVOU 368(AX), X8
 	MOVOU X8, 224(SP)
-	MOVOU 384(BX), X8
+	MOVOU 384(AX), X8
 	MOVOU X8, 240(SP)
 
 	// msg_add_even
@@ -16636,16 +16636,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -16733,16 +16733,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -16914,16 +16914,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -17011,16 +17011,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -17192,16 +17192,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -17289,16 +17289,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -17470,16 +17470,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -17567,16 +17567,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -17748,16 +17748,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -17845,16 +17845,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -18026,16 +18026,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -18123,16 +18123,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -18304,16 +18304,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -18401,16 +18401,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -18582,16 +18582,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -18679,16 +18679,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -18860,16 +18860,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -18957,16 +18957,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -19138,16 +19138,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -19235,16 +19235,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -19416,16 +19416,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -19513,16 +19513,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -19694,16 +19694,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -19791,16 +19791,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -19972,16 +19972,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -20069,16 +20069,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -20250,16 +20250,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -20347,16 +20347,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -20528,16 +20528,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -20625,16 +20625,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -20806,16 +20806,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -20903,16 +20903,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -21084,16 +21084,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -21181,16 +21181,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -21362,16 +21362,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -21459,16 +21459,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -21640,16 +21640,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -21737,16 +21737,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -21918,16 +21918,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -22015,16 +22015,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -22196,16 +22196,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -22293,16 +22293,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -22474,16 +22474,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -22571,16 +22571,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -22752,16 +22752,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -22849,16 +22849,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -23030,16 +23030,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -23127,16 +23127,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -23308,16 +23308,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -23405,16 +23405,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -23586,16 +23586,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -23683,16 +23683,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -23864,16 +23864,16 @@ memset_1_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -23961,16 +23961,16 @@ memset_1_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -24001,24 +24001,13 @@ memset_1_1_end:
 	PXOR X7, X3
 
 	// get_hash
-	MOVL CX, BX
-	ANDL $0x0000ffff, BX
-	SHRL $0x18, CX
-
 	// store_blk
 	MOVOU X0, (DX)
 	MOVOU X1, 16(DX)
 	MOVOU X2, 32(DX)
 	MOVOU X3, 48(DX)
-	CMPL  CX, $0x00000000
-	JE    get_hash_if_end
-	MOVB  $0xff, SI
-	SHLB  CL, SI
-	MOVB  SI, -1(DX)(BX*1)
-
-get_hash_if_end:
-	MOVQ ctx+0(FP), CX
-	MOVQ AX, 8(CX)
+	MOVQ  ctx+0(FP), AX
+	MOVQ  CX, 8(AX)
 	RET
 
 DATA memset_value_0<>+0(SB)/8, $0x0000000000000000
@@ -37512,131 +37501,131 @@ lsh512_ssse3_update_ret:
 // func lsh512FinalSSSE3(ctx *lsh512ContextAsmData, hashval []byte)
 // Requires: SSE2, SSSE3
 TEXT ·lsh512FinalSSSE3(SB), NOSPLIT, $256-32
-	MOVQ ctx+0(FP), BX
-	MOVL (BX), CX
-	MOVQ 8(BX), AX
+	MOVQ ctx+0(FP), AX
+	MOVL (AX), CX
+	MOVQ 8(AX), CX
 	MOVQ hashval_base+8(FP), DX
 
 	// lsh512_ssse3_final
-	MOVQ AX, SI
-	MOVB $0x80, 144(BX)(SI*1)
-	MOVQ $0x000000ff, DI
-	SUBQ SI, DI
+	MOVQ CX, BX
+	MOVB $0x80, 144(AX)(BX*1)
+	MOVQ $0x000000ff, SI
+	SUBQ BX, SI
 
 	// memset
-	LEAQ 145(BX)(SI*1), SI
-	CMPQ DI, $0x00000010
+	LEAQ 145(AX)(BX*1), BX
+	CMPQ SI, $0x00000010
 	JL   memset_2_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
 
 memset_2_sz16_start:
-	MOVOU X0, (SI)
-	SUBQ  $0x00000010, DI
-	ADDQ  $0x00000010, SI
-	CMPQ  DI, $0x00000010
+	MOVOU X0, (BX)
+	SUBQ  $0x00000010, SI
+	ADDQ  $0x00000010, BX
+	CMPQ  SI, $0x00000010
 	JL    memset_2_sz16_end
 	JMP   memset_2_sz16_start
 
 memset_2_sz16_end:
-	CMPQ DI, $0x00000008
+	CMPQ SI, $0x00000008
 	JL   memset_2_sz8_end
-	MOVQ memset_value_0<>+0(SB), R8
+	MOVQ memset_value_0<>+0(SB), DI
 
 memset_2_sz8_start:
-	MOVQ R8, (SI)
-	SUBQ $0x00000008, DI
-	ADDQ $0x00000008, SI
-	CMPQ DI, $0x00000008
+	MOVQ DI, (BX)
+	SUBQ $0x00000008, SI
+	ADDQ $0x00000008, BX
+	CMPQ SI, $0x00000008
 	JL   memset_2_sz8_end
 	JMP  memset_2_sz8_start
 
 memset_2_sz8_end:
-	CMPQ DI, $0x00000004
+	CMPQ SI, $0x00000004
 	JL   memset_2_sz4_end
-	MOVL memset_value_0<>+0(SB), R8
+	MOVL memset_value_0<>+0(SB), DI
 
 memset_2_sz4_start:
-	MOVL R8, (SI)
-	SUBQ $0x00000004, DI
-	ADDQ $0x00000004, SI
-	CMPQ DI, $0x00000004
+	MOVL DI, (BX)
+	SUBQ $0x00000004, SI
+	ADDQ $0x00000004, BX
+	CMPQ SI, $0x00000004
 	JL   memset_2_sz4_end
 	JMP  memset_2_sz4_start
 
 memset_2_sz4_end:
-	CMPQ DI, $0x00000002
+	CMPQ SI, $0x00000002
 	JL   memset_2_sz2_end
-	MOVW memset_value_0<>+0(SB), R8
+	MOVW memset_value_0<>+0(SB), DI
 
 memset_2_sz2_start:
-	MOVW R8, (SI)
-	SUBQ $0x00000002, DI
-	ADDQ $0x00000002, SI
-	CMPQ DI, $0x00000002
+	MOVW DI, (BX)
+	SUBQ $0x00000002, SI
+	ADDQ $0x00000002, BX
+	CMPQ SI, $0x00000002
 	JL   memset_2_sz2_end
 	JMP  memset_2_sz2_start
 
 memset_2_sz2_end:
 memset_2_1_start:
-	CMPQ DI, $0x00000000
+	CMPQ SI, $0x00000000
 	JE   memset_2_1_end
-	MOVB $0x00, (SI)
-	SUBQ $0x00000001, DI
-	ADDQ $0x00000001, SI
+	MOVB $0x00, (BX)
+	SUBQ $0x00000001, SI
+	ADDQ $0x00000001, BX
 	JMP  memset_2_1_start
 
 memset_2_1_end:
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// compress
 	// load_blk_mem2mem
-	MOVOU 144(BX), X8
+	MOVOU 144(AX), X8
 	MOVOU X8, (SP)
-	MOVOU 160(BX), X8
+	MOVOU 160(AX), X8
 	MOVOU X8, 16(SP)
-	MOVOU 176(BX), X8
+	MOVOU 176(AX), X8
 	MOVOU X8, 32(SP)
-	MOVOU 192(BX), X8
+	MOVOU 192(AX), X8
 	MOVOU X8, 48(SP)
 
 	// load_blk_mem2mem
-	MOVOU 208(BX), X8
+	MOVOU 208(AX), X8
 	MOVOU X8, 64(SP)
-	MOVOU 224(BX), X8
+	MOVOU 224(AX), X8
 	MOVOU X8, 80(SP)
-	MOVOU 240(BX), X8
+	MOVOU 240(AX), X8
 	MOVOU X8, 96(SP)
-	MOVOU 256(BX), X8
+	MOVOU 256(AX), X8
 	MOVOU X8, 112(SP)
 
 	// load_blk_mem2mem
-	MOVOU 272(BX), X8
+	MOVOU 272(AX), X8
 	MOVOU X8, 128(SP)
-	MOVOU 288(BX), X8
+	MOVOU 288(AX), X8
 	MOVOU X8, 144(SP)
-	MOVOU 304(BX), X8
+	MOVOU 304(AX), X8
 	MOVOU X8, 160(SP)
-	MOVOU 320(BX), X8
+	MOVOU 320(AX), X8
 	MOVOU X8, 176(SP)
 
 	// load_blk_mem2mem
-	MOVOU 336(BX), X8
+	MOVOU 336(AX), X8
 	MOVOU X8, 192(SP)
-	MOVOU 352(BX), X8
+	MOVOU 352(AX), X8
 	MOVOU X8, 208(SP)
-	MOVOU 368(BX), X8
+	MOVOU 368(AX), X8
 	MOVOU X8, 224(SP)
-	MOVOU 384(BX), X8
+	MOVOU 384(AX), X8
 	MOVOU X8, 240(SP)
 
 	// msg_add_even
@@ -37895,16 +37884,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -37992,16 +37981,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -38133,16 +38122,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -38230,16 +38219,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -38371,16 +38360,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -38468,16 +38457,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -38609,16 +38598,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -38706,16 +38695,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -38847,16 +38836,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -38944,16 +38933,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -39085,16 +39074,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -39182,16 +39171,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -39323,16 +39312,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -39420,16 +39409,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -39561,16 +39550,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -39658,16 +39647,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -39799,16 +39788,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -39896,16 +39885,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -40037,16 +40026,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -40134,16 +40123,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -40275,16 +40264,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -40372,16 +40361,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -40513,16 +40502,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -40610,16 +40599,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -40751,16 +40740,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -40848,16 +40837,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -40989,16 +40978,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -41086,16 +41075,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -41227,16 +41216,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -41324,16 +41313,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -41465,16 +41454,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -41562,16 +41551,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -41703,16 +41692,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -41800,16 +41789,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -41941,16 +41930,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -42038,16 +42027,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -42179,16 +42168,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -42276,16 +42265,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -42417,16 +42406,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -42514,16 +42503,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -42655,16 +42644,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -42752,16 +42741,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -42893,16 +42882,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -42990,16 +42979,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -43131,16 +43120,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -43228,16 +43217,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -43369,16 +43358,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -43466,16 +43455,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -43607,16 +43596,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -43704,16 +43693,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -43845,16 +43834,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_odd
@@ -43942,16 +43931,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_odd
@@ -44083,16 +44072,16 @@ memset_2_1_end:
 
 	// save___start
 	// load_blk_vec2mem
-	MOVOU X0, 16(BX)
-	MOVOU X1, 32(BX)
-	MOVOU X2, 48(BX)
-	MOVOU X3, 64(BX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 
 	// load_blk_vec2mem
-	MOVOU X4, 80(BX)
-	MOVOU X5, 96(BX)
-	MOVOU X6, 112(BX)
-	MOVOU X7, 128(BX)
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
 
 	// save___end
 	// msg_exp_even
@@ -44180,16 +44169,16 @@ memset_2_1_end:
 	// i_state_save___end
 	// load___start
 	// load_blk_mem2vec
-	MOVOU 16(BX), X0
-	MOVOU 32(BX), X1
-	MOVOU 48(BX), X2
-	MOVOU 64(BX), X3
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// load_blk_mem2vec
-	MOVOU 80(BX), X4
-	MOVOU 96(BX), X5
-	MOVOU 112(BX), X6
-	MOVOU 128(BX), X7
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
 
 	// load___end
 	// msg_add_even
@@ -44220,24 +44209,13 @@ memset_2_1_end:
 	PXOR X7, X3
 
 	// get_hash
-	MOVL CX, BX
-	ANDL $0x0000ffff, BX
-	SHRL $0x18, CX
-
 	// store_blk
 	MOVOU X0, (DX)
 	MOVOU X1, 16(DX)
 	MOVOU X2, 32(DX)
 	MOVOU X3, 48(DX)
-	CMPL  CX, $0x00000000
-	JE    get_hash_if_end
-	MOVB  $0xff, SI
-	SHLB  CL, SI
-	MOVB  SI, -1(DX)(BX*1)
-
-get_hash_if_end:
-	MOVQ ctx+0(FP), CX
-	MOVQ AX, 8(CX)
+	MOVQ  ctx+0(FP), AX
+	MOVQ  CX, 8(AX)
 	RET
 
 // func lsh512InitAVX2(ctx *lsh512ContextAsmData)
@@ -44322,7 +44300,7 @@ lsh512_avx2_init_ret:
 
 // func lsh512UpdateAVX2(ctx *lsh512ContextAsmData, data []byte)
 // Requires: AVX, AVX2, SSE2
-TEXT ·lsh512UpdateAVX2(SB), NOSPLIT, $256-32
+TEXT ·lsh512UpdateAVX2(SB), NOSPLIT, $0-32
 	MOVQ ctx+0(FP), AX
 	MOVL (AX), CX
 	MOVQ 8(AX), CX
@@ -44605,36 +44583,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -44692,36 +44649,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -44779,36 +44715,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -44866,36 +44781,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -44953,36 +44847,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -45040,36 +44913,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -45127,36 +44979,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -45214,36 +45045,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -45301,36 +45111,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -45388,36 +45177,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -45475,36 +45243,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -45562,36 +45309,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -45649,36 +45375,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -45736,36 +45441,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -45823,36 +45507,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -45910,36 +45573,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -45997,36 +45639,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -46084,36 +45705,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -46171,36 +45771,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -46258,36 +45837,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -46345,36 +45903,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -46432,36 +45969,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -46519,36 +46035,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -46606,36 +46101,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -46693,36 +46167,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -46780,36 +46233,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -46867,36 +46299,15 @@ memcpy_8_sz1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -47044,36 +46455,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -47131,36 +46521,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -47218,36 +46587,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -47305,36 +46653,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -47392,36 +46719,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -47479,36 +46785,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -47566,36 +46851,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -47653,36 +46917,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -47740,36 +46983,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -47827,36 +47049,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -47914,36 +47115,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -48001,36 +47181,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -48088,36 +47247,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -48175,36 +47313,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -48262,36 +47379,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -48349,36 +47445,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -48436,36 +47511,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -48523,36 +47577,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -48610,36 +47643,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -48697,36 +47709,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -48784,36 +47775,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -48871,36 +47841,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -48958,36 +47907,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -49045,36 +47973,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -49132,36 +48039,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -49219,36 +48105,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -49306,36 +48171,15 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(AX)
-	VMOVDQU Y1, 48(AX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(AX)
-	VMOVDQU Y3, 112(AX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(AX), Y0
-	VMOVDQU 48(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(AX), Y2
-	VMOVDQU 112(AX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -49426,105 +48270,105 @@ lsh512_avx2_update_ret:
 
 // func lsh512FinalAVX2(ctx *lsh512ContextAsmData, hashval []byte)
 // Requires: AVX, AVX2, SSE2
-TEXT ·lsh512FinalAVX2(SB), NOSPLIT, $512-32
-	MOVQ ctx+0(FP), BX
-	MOVL (BX), CX
-	MOVQ 8(BX), AX
+TEXT ·lsh512FinalAVX2(SB), NOSPLIT, $0-32
+	MOVQ ctx+0(FP), AX
+	MOVL (AX), CX
+	MOVQ 8(AX), CX
 	MOVQ hashval_base+8(FP), DX
 
 	// lsh512_avx2_final
-	MOVQ AX, SI
-	MOVB $0x80, 144(BX)(SI*1)
-	MOVQ $0x000000ff, DI
-	SUBQ SI, DI
+	MOVQ CX, BX
+	MOVB $0x80, 144(AX)(BX*1)
+	MOVQ $0x000000ff, SI
+	SUBQ BX, SI
 
 	// memset
-	LEAQ 145(BX)(SI*1), SI
-	CMPQ DI, $0x00000010
+	LEAQ 145(AX)(BX*1), BX
+	CMPQ SI, $0x00000010
 	JL   memset_3_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
 
 memset_3_sz16_start:
-	MOVOU X0, (SI)
-	SUBQ  $0x00000010, DI
-	ADDQ  $0x00000010, SI
-	CMPQ  DI, $0x00000010
+	MOVOU X0, (BX)
+	SUBQ  $0x00000010, SI
+	ADDQ  $0x00000010, BX
+	CMPQ  SI, $0x00000010
 	JL    memset_3_sz16_end
 	JMP   memset_3_sz16_start
 
 memset_3_sz16_end:
-	CMPQ DI, $0x00000008
+	CMPQ SI, $0x00000008
 	JL   memset_3_sz8_end
-	MOVQ memset_value_0<>+0(SB), R8
+	MOVQ memset_value_0<>+0(SB), DI
 
 memset_3_sz8_start:
-	MOVQ R8, (SI)
-	SUBQ $0x00000008, DI
-	ADDQ $0x00000008, SI
-	CMPQ DI, $0x00000008
+	MOVQ DI, (BX)
+	SUBQ $0x00000008, SI
+	ADDQ $0x00000008, BX
+	CMPQ SI, $0x00000008
 	JL   memset_3_sz8_end
 	JMP  memset_3_sz8_start
 
 memset_3_sz8_end:
-	CMPQ DI, $0x00000004
+	CMPQ SI, $0x00000004
 	JL   memset_3_sz4_end
-	MOVL memset_value_0<>+0(SB), R8
+	MOVL memset_value_0<>+0(SB), DI
 
 memset_3_sz4_start:
-	MOVL R8, (SI)
-	SUBQ $0x00000004, DI
-	ADDQ $0x00000004, SI
-	CMPQ DI, $0x00000004
+	MOVL DI, (BX)
+	SUBQ $0x00000004, SI
+	ADDQ $0x00000004, BX
+	CMPQ SI, $0x00000004
 	JL   memset_3_sz4_end
 	JMP  memset_3_sz4_start
 
 memset_3_sz4_end:
-	CMPQ DI, $0x00000002
+	CMPQ SI, $0x00000002
 	JL   memset_3_sz2_end
-	MOVW memset_value_0<>+0(SB), R8
+	MOVW memset_value_0<>+0(SB), DI
 
 memset_3_sz2_start:
-	MOVW R8, (SI)
-	SUBQ $0x00000002, DI
-	ADDQ $0x00000002, SI
-	CMPQ DI, $0x00000002
+	MOVW DI, (BX)
+	SUBQ $0x00000002, SI
+	ADDQ $0x00000002, BX
+	CMPQ SI, $0x00000002
 	JL   memset_3_sz2_end
 	JMP  memset_3_sz2_start
 
 memset_3_sz2_end:
 memset_3_1_start:
-	CMPQ DI, $0x00000000
+	CMPQ SI, $0x00000000
 	JE   memset_3_1_end
-	MOVB $0x00, (SI)
-	SUBQ $0x00000001, DI
-	ADDQ $0x00000001, SI
+	MOVB $0x00, (BX)
+	SUBQ $0x00000001, SI
+	ADDQ $0x00000001, BX
 	JMP  memset_3_1_start
 
 memset_3_1_end:
 	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
+	VMOVDQU 16(AX), Y0
+	VMOVDQU 48(AX), Y1
 
 	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
+	VMOVDQU 80(AX), Y2
+	VMOVDQU 112(AX), Y3
 
 	// compress
 	// load_blk_mem2vec
-	VMOVDQU 144(BX), Y6
-	VMOVDQU 176(BX), Y7
+	VMOVDQU 144(AX), Y6
+	VMOVDQU 176(AX), Y7
 
 	// load_blk_mem2vec
-	VMOVDQU 208(BX), Y8
-	VMOVDQU 240(BX), Y9
+	VMOVDQU 208(AX), Y8
+	VMOVDQU 240(AX), Y9
 
 	// load_blk_mem2vec
-	VMOVDQU 272(BX), Y10
-	VMOVDQU 304(BX), Y11
+	VMOVDQU 272(AX), Y10
+	VMOVDQU 304(AX), Y11
 
 	// load_blk_mem2vec
-	VMOVDQU 336(BX), Y12
-	VMOVDQU 368(BX), Y13
+	VMOVDQU 336(AX), Y12
+	VMOVDQU 368(AX), Y13
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -49641,36 +48485,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -49728,36 +48551,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -49815,36 +48617,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -49902,36 +48683,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -49989,36 +48749,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -50076,36 +48815,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -50163,36 +48881,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -50250,36 +48947,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -50337,36 +49013,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -50424,36 +49079,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -50511,36 +49145,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -50598,36 +49211,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -50685,36 +49277,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -50772,36 +49343,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -50859,36 +49409,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -50946,36 +49475,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -51033,36 +49541,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -51120,36 +49607,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -51207,36 +49673,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -51294,36 +49739,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -51381,36 +49805,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -51468,36 +49871,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -51555,36 +49937,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -51642,36 +50003,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -51729,36 +50069,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -51816,36 +50135,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y10, Y10
+	VPADDQ  Y6, Y10, Y10
+	VPERMQ  $0x93, Y11, Y11
+	VPADDQ  Y7, Y11, Y11
+	VPERMQ  $0x4b, Y12, Y12
+	VPADDQ  Y8, Y12, Y12
+	VPERMQ  $0x93, Y13, Y13
+	VPADDQ  Y9, Y13, Y13
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y10, Y10
-	VPADDQ Y6, Y10, Y10
-	VPERMQ $0x93, Y11, Y11
-	VPADDQ Y7, Y11, Y11
-	VPERMQ $0x4b, Y12, Y12
-	VPADDQ Y8, Y12, Y12
-	VPERMQ $0x93, Y13, Y13
-	VPADDQ Y9, Y13, Y13
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
 	VPXOR Y11, Y1, Y1
@@ -51903,36 +50201,15 @@ memset_3_1_end:
 	VMOVDQA Y3, Y1
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
+	VPERMQ  $0x4b, Y6, Y6
+	VPADDQ  Y10, Y6, Y6
+	VPERMQ  $0x93, Y7, Y7
+	VPADDQ  Y11, Y7, Y7
+	VPERMQ  $0x4b, Y8, Y8
+	VPADDQ  Y12, Y8, Y8
+	VPERMQ  $0x93, Y9, Y9
+	VPADDQ  Y13, Y9, Y9
 
-	// save___start
-	// load_blk_vec2mem
-	VMOVDQU Y0, 16(BX)
-	VMOVDQU Y1, 48(BX)
-
-	// load_blk_vec2mem
-	VMOVDQU Y2, 80(BX)
-	VMOVDQU Y3, 112(BX)
-
-	// save___end
-	VPERMQ $0x4b, Y6, Y6
-	VPADDQ Y10, Y6, Y6
-	VPERMQ $0x93, Y7, Y7
-	VPADDQ Y11, Y7, Y7
-	VPERMQ $0x4b, Y8, Y8
-	VPADDQ Y12, Y8, Y8
-	VPERMQ $0x93, Y9, Y9
-	VPADDQ Y13, Y9, Y9
-
-	// load___start
-	// load_blk_mem2vec
-	VMOVDQU 16(BX), Y0
-	VMOVDQU 48(BX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU 80(BX), Y2
-	VMOVDQU 112(BX), Y3
-
-	// load___end
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
 	VPXOR Y7, Y1, Y1
@@ -51944,589 +50221,8 @@ memset_3_1_end:
 	VPXOR Y3, Y1, Y1
 
 	// get_hash
-	MOVL    CX, BX
-	ANDL    $0x0000ffff, BX
-	SHRL    $0x18, CX
 	VMOVDQU Y0, (DX)
 	VMOVDQU Y1, 32(DX)
-	CMPL    CX, $0x00000000
-	JE      get_hash_if_end
-	MOVB    $0xff, SI
-	SHLB    CL, SI
-	MOVB    SI, -1(DX)(BX*1)
-
-get_hash_if_end:
-	MOVQ ctx+0(FP), CX
-	MOVQ AX, 8(CX)
-	RET
-
-// func add_blk(cv_l []uint64, cv_r []uint64)
-// Requires: AVX, AVX2
-TEXT ·add_blk(SB), NOSPLIT, $0-48
-	MOVQ cv_l_base+0(FP), AX
-	MOVQ cv_r_base+24(FP), CX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU (CX), Y2
-	VMOVDQU 32(CX), Y3
-
-	// add_blk
-	VPADDQ Y2, Y0, Y0
-	VPADDQ Y3, Y1, Y1
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-
-	// store_blk
-	VMOVDQU Y2, (CX)
-	VMOVDQU Y3, 32(CX)
-	RET
-
-// func mix_even(cv_l []uint64, cv_r []uint64, const_v []uint64)
-// Requires: AVX, AVX2
-TEXT ·mix_even(SB), NOSPLIT, $0-72
-	MOVQ cv_l_base+0(FP), AX
-	MOVQ cv_r_base+24(FP), CX
-	MOVQ const_v_base+48(FP), DX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU (CX), Y2
-	VMOVDQU 32(CX), Y3
-
-	// load_blk_mem2vec
-	VMOVDQU (DX), Y4
-	VMOVDQU 32(DX), Y5
-
-	// mix_even
-	// add_blk
-	VPADDQ Y2, Y0, Y0
-	VPADDQ Y3, Y1, Y1
-
-	// rotate_blk_even_alpha
-	VPSLLQ $0x17, Y0, Y6
-	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y6, Y0, Y0
-	VPSLLQ $0x17, Y1, Y6
-	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y6, Y1, Y1
-	VPXOR  Y4, Y0, Y0
-	VPXOR  Y5, Y1, Y1
-
-	// add_blk
-	VPADDQ Y0, Y2, Y2
-	VPADDQ Y1, Y3, Y3
-
-	// rotate_blk_even_beta
-	VPSLLQ $0x3b, Y2, Y6
-	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y6, Y2, Y2
-	VPSLLQ $0x3b, Y3, Y6
-	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y6, Y3, Y3
-
-	// add_blk
-	VPADDQ Y2, Y0, Y0
-	VPADDQ Y3, Y1, Y1
-
-	// rotate_msg_gamma
-	VPSHUFB g_BytePermInfo_avx2<>+0(SB), Y2, Y2
-	VPSHUFB g_BytePermInfo_avx2<>+32(SB), Y3, Y3
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-
-	// store_blk
-	VMOVDQU Y2, (CX)
-	VMOVDQU Y3, 32(CX)
-
-	// store_blk
-	VMOVDQU Y4, (DX)
-	VMOVDQU Y5, 32(DX)
-	RET
-
-// func mix_odd(cv_l []uint64, cv_r []uint64, const_v []uint64)
-// Requires: AVX, AVX2
-TEXT ·mix_odd(SB), NOSPLIT, $0-72
-	MOVQ cv_l_base+0(FP), AX
-	MOVQ cv_r_base+24(FP), CX
-	MOVQ const_v_base+48(FP), DX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU (CX), Y2
-	VMOVDQU 32(CX), Y3
-
-	// load_blk_mem2vec
-	VMOVDQU (DX), Y4
-	VMOVDQU 32(DX), Y5
-
-	// mix_odd
-	// add_blk
-	VPADDQ Y2, Y0, Y0
-	VPADDQ Y3, Y1, Y1
-
-	// rotate_blk_odd_alpha
-	VPSLLQ $0x07, Y0, Y6
-	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y6, Y0, Y0
-	VPSLLQ $0x07, Y1, Y6
-	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y6, Y1, Y1
-	VPXOR  Y4, Y0, Y0
-	VPXOR  Y5, Y1, Y1
-
-	// add_blk
-	VPADDQ Y0, Y2, Y2
-	VPADDQ Y1, Y3, Y3
-
-	// rotate_blk_odd_beta
-	VPSLLQ $0x03, Y2, Y6
-	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y6, Y2, Y2
-	VPSLLQ $0x03, Y3, Y6
-	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y6, Y3, Y3
-
-	// add_blk
-	VPADDQ Y2, Y0, Y0
-	VPADDQ Y3, Y1, Y1
-
-	// rotate_msg_gamma
-	VPSHUFB g_BytePermInfo_avx2<>+0(SB), Y2, Y2
-	VPSHUFB g_BytePermInfo_avx2<>+32(SB), Y3, Y3
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-
-	// store_blk
-	VMOVDQU Y2, (CX)
-	VMOVDQU Y3, 32(CX)
-
-	// store_blk
-	VMOVDQU Y4, (DX)
-	VMOVDQU Y5, 32(DX)
-	RET
-
-// func msg_add_even(cv_l []uint64, cv_r []uint64, el []uint64, er []uint64, ol []uint64, or []uint64)
-// Requires: AVX, AVX2
-TEXT ·msg_add_even(SB), NOSPLIT, $0-144
-	MOVQ cv_l_base+0(FP), AX
-	MOVQ cv_r_base+24(FP), CX
-	MOVQ el_base+48(FP), DX
-
-	// load_blk_mem2vec
-	VMOVDQU (DX), Y4
-	VMOVDQU 32(DX), Y5
-	MOVQ    er_base+72(FP), DX
-
-	// load_blk_mem2vec
-	VMOVDQU (DX), Y6
-	VMOVDQU 32(DX), Y7
-	MOVQ    ol_base+96(FP), DX
-
-	// load_blk_mem2vec
-	VMOVDQU (DX), Y8
-	VMOVDQU 32(DX), Y9
-	MOVQ    or_base+120(FP), DX
-
-	// load_blk_mem2vec
-	VMOVDQU (DX), Y10
-	VMOVDQU 32(DX), Y11
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y2
-	VMOVDQU 32(AX), Y3
-
-	// load_blk_mem2vec
-	VMOVDQU (CX), Y0
-	VMOVDQU 32(CX), Y1
-
-	// msg_add_even
-	VPXOR Y4, Y2, Y2
-	VPXOR Y5, Y3, Y3
-	VPXOR Y6, Y0, Y0
-	VPXOR Y7, Y1, Y1
-
-	// store_blk
-	VMOVDQU Y2, (AX)
-	VMOVDQU Y3, 32(AX)
-
-	// store_blk
-	VMOVDQU Y0, (CX)
-	VMOVDQU Y1, 32(CX)
-	MOVQ    el_base+48(FP), AX
-
-	// store_blk
-	VMOVDQU Y4, (AX)
-	VMOVDQU Y5, 32(AX)
-	MOVQ    er_base+72(FP), AX
-
-	// store_blk
-	VMOVDQU Y6, (AX)
-	VMOVDQU Y7, 32(AX)
-	MOVQ    ol_base+96(FP), AX
-
-	// store_blk
-	VMOVDQU Y8, (AX)
-	VMOVDQU Y9, 32(AX)
-	MOVQ    or_base+120(FP), AX
-
-	// store_blk
-	VMOVDQU Y10, (AX)
-	VMOVDQU Y11, 32(AX)
-	RET
-
-// func msg_add_odd(cv_l []uint64, cv_r []uint64, el []uint64, er []uint64, ol []uint64, or []uint64)
-// Requires: AVX, AVX2
-TEXT ·msg_add_odd(SB), NOSPLIT, $0-144
-	MOVQ cv_l_base+0(FP), AX
-	MOVQ cv_r_base+24(FP), CX
-	MOVQ el_base+48(FP), DX
-
-	// load_blk_mem2vec
-	VMOVDQU (DX), Y4
-	VMOVDQU 32(DX), Y5
-	MOVQ    er_base+72(FP), DX
-
-	// load_blk_mem2vec
-	VMOVDQU (DX), Y6
-	VMOVDQU 32(DX), Y7
-	MOVQ    ol_base+96(FP), DX
-
-	// load_blk_mem2vec
-	VMOVDQU (DX), Y8
-	VMOVDQU 32(DX), Y9
-	MOVQ    or_base+120(FP), DX
-
-	// load_blk_mem2vec
-	VMOVDQU (DX), Y10
-	VMOVDQU 32(DX), Y11
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y2
-	VMOVDQU 32(AX), Y3
-
-	// load_blk_mem2vec
-	VMOVDQU (CX), Y0
-	VMOVDQU 32(CX), Y1
-
-	// msg_add_odd
-	VPXOR Y8, Y2, Y2
-	VPXOR Y9, Y3, Y3
-	VPXOR Y10, Y0, Y0
-	VPXOR Y11, Y1, Y1
-
-	// store_blk
-	VMOVDQU Y2, (AX)
-	VMOVDQU Y3, 32(AX)
-
-	// store_blk
-	VMOVDQU Y0, (CX)
-	VMOVDQU Y1, 32(CX)
-	MOVQ    el_base+48(FP), AX
-
-	// store_blk
-	VMOVDQU Y4, (AX)
-	VMOVDQU Y5, 32(AX)
-	MOVQ    er_base+72(FP), AX
-
-	// store_blk
-	VMOVDQU Y6, (AX)
-	VMOVDQU Y7, 32(AX)
-	MOVQ    ol_base+96(FP), AX
-
-	// store_blk
-	VMOVDQU Y8, (AX)
-	VMOVDQU Y9, 32(AX)
-	MOVQ    or_base+120(FP), AX
-
-	// store_blk
-	VMOVDQU Y10, (AX)
-	VMOVDQU Y11, 32(AX)
-	RET
-
-// func msg_exp_even(el []uint64, er []uint64, ol []uint64, or []uint64)
-// Requires: AVX, AVX2
-TEXT ·msg_exp_even(SB), NOSPLIT, $0-96
-	MOVQ el_base+0(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-	MOVQ    er_base+24(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y2
-	VMOVDQU 32(AX), Y3
-	MOVQ    ol_base+48(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y4
-	VMOVDQU 32(AX), Y5
-	MOVQ    or_base+72(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y6
-	VMOVDQU 32(AX), Y7
-	VPERMQ  $0x4b, Y0, Y0
-	VPADDQ  Y4, Y0, Y0
-	VPERMQ  $0x93, Y1, Y1
-	VPADDQ  Y5, Y1, Y1
-	VPERMQ  $0x4b, Y2, Y2
-	VPADDQ  Y6, Y2, Y2
-	VPERMQ  $0x93, Y3, Y3
-	VPADDQ  Y7, Y3, Y3
-	MOVQ    el_base+0(FP), AX
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-	MOVQ    er_base+24(FP), AX
-
-	// store_blk
-	VMOVDQU Y2, (AX)
-	VMOVDQU Y3, 32(AX)
-	MOVQ    ol_base+48(FP), AX
-
-	// store_blk
-	VMOVDQU Y4, (AX)
-	VMOVDQU Y5, 32(AX)
-	MOVQ    or_base+72(FP), AX
-
-	// store_blk
-	VMOVDQU Y6, (AX)
-	VMOVDQU Y7, 32(AX)
-	RET
-
-// func msg_exp_odd(el []uint64, er []uint64, ol []uint64, or []uint64)
-// Requires: AVX, AVX2
-TEXT ·msg_exp_odd(SB), NOSPLIT, $0-96
-	MOVQ el_base+0(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-	MOVQ    er_base+24(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y2
-	VMOVDQU 32(AX), Y3
-	MOVQ    ol_base+48(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y4
-	VMOVDQU 32(AX), Y5
-	MOVQ    or_base+72(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y6
-	VMOVDQU 32(AX), Y7
-	VPERMQ  $0x4b, Y4, Y4
-	VPADDQ  Y0, Y4, Y4
-	VPERMQ  $0x93, Y5, Y5
-	VPADDQ  Y1, Y5, Y5
-	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y2, Y6, Y6
-	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y3, Y7, Y7
-	MOVQ    el_base+0(FP), AX
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-	MOVQ    er_base+24(FP), AX
-
-	// store_blk
-	VMOVDQU Y2, (AX)
-	VMOVDQU Y3, 32(AX)
-	MOVQ    ol_base+48(FP), AX
-
-	// store_blk
-	VMOVDQU Y4, (AX)
-	VMOVDQU Y5, 32(AX)
-	MOVQ    or_base+72(FP), AX
-
-	// store_blk
-	VMOVDQU Y6, (AX)
-	VMOVDQU Y7, 32(AX)
-	RET
-
-// func rotate_blk_even_alpha(cv []uint64)
-// Requires: AVX, AVX2
-TEXT ·rotate_blk_even_alpha(SB), NOSPLIT, $0-24
-	MOVQ cv_base+0(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-
-	// rotate_blk_even_alpha
-	VPSLLQ $0x17, Y0, Y2
-	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y2, Y0, Y0
-	VPSLLQ $0x17, Y1, Y2
-	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y2, Y1, Y1
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-	RET
-
-// func rotate_blk_even_beta(cv []uint64)
-// Requires: AVX, AVX2
-TEXT ·rotate_blk_even_beta(SB), NOSPLIT, $0-24
-	MOVQ cv_base+0(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-
-	// rotate_blk_even_beta
-	VPSLLQ $0x3b, Y0, Y2
-	VPSRLQ $0x05, Y0, Y0
-	VPOR   Y2, Y0, Y0
-	VPSLLQ $0x3b, Y1, Y2
-	VPSRLQ $0x05, Y1, Y1
-	VPOR   Y2, Y1, Y1
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-	RET
-
-// func rotate_blk_odd_alpha(cv []uint64)
-// Requires: AVX, AVX2
-TEXT ·rotate_blk_odd_alpha(SB), NOSPLIT, $0-24
-	MOVQ cv_base+0(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-
-	// rotate_blk_odd_alpha
-	VPSLLQ $0x07, Y0, Y2
-	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y2, Y0, Y0
-	VPSLLQ $0x07, Y1, Y2
-	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y2, Y1, Y1
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-	RET
-
-// func rotate_blk_odd_beta(cv []uint64)
-// Requires: AVX, AVX2
-TEXT ·rotate_blk_odd_beta(SB), NOSPLIT, $0-24
-	MOVQ cv_base+0(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-
-	// rotate_blk_odd_beta
-	VPSLLQ $0x03, Y0, Y2
-	VPSRLQ $0x3d, Y0, Y0
-	VPOR   Y2, Y0, Y0
-	VPSLLQ $0x03, Y1, Y2
-	VPSRLQ $0x3d, Y1, Y1
-	VPOR   Y2, Y1, Y1
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-	RET
-
-// func rotate_msg_gamma(cv_r []uint64)
-// Requires: AVX, AVX2
-TEXT ·rotate_msg_gamma(SB), NOSPLIT, $0-24
-	MOVQ cv_r_base+0(FP), AX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-
-	// rotate_msg_gamma
-	VPSHUFB g_BytePermInfo_avx2<>+0(SB), Y0, Y0
-	VPSHUFB g_BytePermInfo_avx2<>+32(SB), Y1, Y1
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-	RET
-
-// func word_perm(cv_l []uint64, cv_r []uint64)
-// Requires: AVX, AVX2
-TEXT ·word_perm(SB), NOSPLIT, $0-48
-	MOVQ cv_l_base+0(FP), AX
-	MOVQ cv_r_base+24(FP), CX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU (CX), Y2
-	VMOVDQU 32(CX), Y3
-
-	// word_perm
-	VPERMQ  $0xd2, Y0, Y0
-	VPERMQ  $0xd2, Y1, Y1
-	VPERMQ  $0x6c, Y2, Y2
-	VPERMQ  $0x6c, Y3, Y3
-	VMOVDQA Y0, Y4
-	VMOVDQA Y2, Y5
-	VMOVDQA Y1, Y0
-	VMOVDQA Y3, Y1
-	VMOVDQA Y4, Y2
-	VMOVDQA Y5, Y3
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-
-	// store_blk
-	VMOVDQU Y2, (CX)
-	VMOVDQU Y3, 32(CX)
-	RET
-
-// func xor_with_const(cv_l []uint64, const_v []uint64)
-// Requires: AVX, AVX2
-TEXT ·xor_with_const(SB), NOSPLIT, $0-48
-	MOVQ cv_l_base+0(FP), AX
-	MOVQ const_v_base+24(FP), CX
-
-	// load_blk_mem2vec
-	VMOVDQU (AX), Y0
-	VMOVDQU 32(AX), Y1
-
-	// load_blk_mem2vec
-	VMOVDQU (CX), Y2
-	VMOVDQU 32(CX), Y3
-	VPXOR   Y2, Y0, Y0
-	VPXOR   Y3, Y1, Y1
-
-	// store_blk
-	VMOVDQU Y0, (AX)
-	VMOVDQU Y1, 32(AX)
-
-	// store_blk
-	VMOVDQU Y2, (CX)
-	VMOVDQU Y3, 32(CX)
+	MOVQ    ctx+0(FP), AX
+	MOVQ    CX, 8(AX)
 	RET
