@@ -8,7 +8,7 @@ import (
 
 type simdSet struct {
 	init   func(ctx *lsh512ContextAsmData)
-	update func(ctx *lsh512ContextAsmData, data []byte, databitlen uint32)
+	update func(ctx *lsh512ContextAsmData, data []byte)
 	final  func(ctx *lsh512ContextAsmData, hashval []byte)
 }
 
@@ -61,15 +61,13 @@ type lsh512ContextAsm struct {
 }
 type lsh512ContextAsmData struct {
 	// 16 aligned
-	algtype uint32
-	_pad0   [16 - 4]byte
-	// 16 aligned
-	remain_databitlen uint32
-	_pad1             [16 - 4]byte
+	algtype            uint32
+	_                  [4]byte
+	remain_databytelen uint64
 
-	cv_l       [8]uint64
-	cv_r       [8]uint64
-	last_block [256]byte
+	cv_l         [8]uint64
+	cv_r         [8]uint64
+	i_last_block [256]byte
 }
 
 func initContextAsm(ctx *lsh512ContextAsm, algtype int, simd simdSet) {
@@ -87,7 +85,7 @@ func (ctx *lsh512ContextAsm) BlockSize() int {
 }
 
 func (ctx *lsh512ContextAsm) Reset() {
-	ctx.data.remain_databitlen = 0
+	ctx.data.remain_databytelen = 0
 	ctx.simd.init(&ctx.data)
 }
 
@@ -95,7 +93,7 @@ func (ctx *lsh512ContextAsm) Write(data []byte) (n int, err error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
-	ctx.simd.update(&ctx.data, data, uint32(len(data)*8))
+	ctx.simd.update(&ctx.data, data)
 
 	return len(data), nil
 }

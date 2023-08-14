@@ -74,10 +74,11 @@ func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
 	tmp := GP64()
 
 	if enableXYZ {
+		reg := YMM()
 		if useAVX2 {
-			step(32, YMM(), MOVO, VMOVDQ_autoAU)
+			step(32, reg, MOVO, VMOVDQ_autoAU)
 		}
-		step(16, XMM(), MOVO, MOVO_autoAU)
+		step(16, reg.AsX(), MOVO, MOVO_autoAU)
 	}
 	step(8, tmp.As64(), MOVQ, MOVQ)
 	step(4, tmp.As32(), MOVL, MOVL)

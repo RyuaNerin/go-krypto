@@ -66,7 +66,7 @@ Operation
 
 	dst[127:0] := (a[127:0] XOR b[127:0])
 */
-func F_mm_xor_si128(dst Op, src VecVirtual) Op {
+func F_mm_xor_si128(dst Op, src Op) Op {
 	CheckType(
 		`
 		//	PXOR m128 xmm
@@ -95,7 +95,7 @@ Operation
 
 	dst[127:0] := (a[127:0] OR b[127:0])
 */
-func F_mm_or_si128(dst Op, src VecVirtual) Op {
+func F_mm_or_si128(dst Op, src Op) Op {
 	CheckType(
 		`
 		//	POR m128 xmm
@@ -124,7 +124,7 @@ Operation
 
 	dst[127:0] := (a[127:0] AND b[127:0])
 */
-func F_mm_and_si128(dst Op, src VecVirtual) Op {
+func F_mm_and_si128(dst Op, src Op) Op {
 	CheckType(
 		`
 		//	PAND m128 xmm
@@ -307,8 +307,42 @@ Operation
 	dst[127:0] := INTERLEAVE_QWORDS(a[127:0], b[127:0])
 */
 func F_mm_unpacklo_epi64(dst, a, b Op) Op {
-	MOVO_autoAU2(dst, a)
-	MOVLHPS(b, dst)
+	if dst == a {
+		CheckType(
+			`
+			//	PUNPCKLQDQ m128 xmm
+			//	PUNPCKLQDQ xmm  xmm
+			`,
+			b, dst,
+		)
+
+		PUNPCKLQDQ(b, dst)
+	} else if dst == b {
+		CheckType(
+			`
+			//	PUNPCKLQDQ m128 xmm
+			//	PUNPCKLQDQ xmm  xmm
+			`,
+			a, dst,
+		)
+
+		tmp := XMM()
+		MOVO_autoAU2(tmp, b)
+		MOVO_autoAU2(dst, a)
+		PUNPCKLQDQ(tmp, dst)
+	} else {
+		CheckType(
+			`
+			//	PUNPCKLQDQ m128 xmm
+			//	PUNPCKLQDQ xmm  xmm
+			`,
+			b, dst,
+		)
+
+		MOVO_autoAU2(dst, a)
+		PUNPCKLQDQ(b, dst)
+	}
+
 	return dst
 }
 
@@ -335,7 +369,149 @@ Operation
 	dst[127:0] := INTERLEAVE_HIGH_QWORDS(a[127:0], b[127:0])
 */
 func F_mm_unpackhi_epi64(dst, a, b Op) Op {
-	MOVO_autoAU2(dst, a)
-	UNPCKHPD(b, dst)
+	if dst == a {
+		CheckType(
+			`
+			//	PUNPCKHQDQ m128 xmm
+			//	PUNPCKHQDQ xmm  xmm
+			`,
+			b, dst,
+		)
+
+		PUNPCKHQDQ(b, dst)
+	} else if dst == b {
+		CheckType(
+			`
+			//	PUNPCKHQDQ m128 xmm
+			//	PUNPCKHQDQ xmm  xmm
+			`,
+			a, dst,
+		)
+
+		tmp := XMM()
+		MOVO_autoAU2(tmp, b)
+		MOVO_autoAU2(dst, a)
+		PUNPCKHQDQ(tmp, dst)
+	} else {
+		CheckType(
+			`
+			//	PUNPCKHQDQ m128 xmm
+			//	PUNPCKHQDQ xmm  xmm
+			`,
+			b, dst,
+		)
+
+		MOVO_autoAU2(dst, a)
+		PUNPCKHQDQ(b, dst)
+	}
+	return dst
+}
+
+/*
+*
+Synopsis
+
+	__m128i _mm_add_epi64 (__m128i a, __m128i b)
+	#include <emmintrin.h>
+	Instruction: paddq xmm, xmm
+	CPUID Flags: SSE2
+
+Description
+
+	Add packed 64-bit integers in a and b, and store the results in dst.
+
+Operation
+
+	FOR j := 0 to 1
+		i := j*64
+		dst[i+63:i] := a[i+63:i] + b[i+63:i]
+	ENDFOR
+*/
+func F_mm_add_epi64(dst Op, b Op) Op {
+	CheckType(
+		`
+		//	PADDQ m128 xmm
+		//	PADDQ xmm  xmm
+		`,
+		b, dst,
+	)
+
+	PADDQ(b, dst)
+	return dst
+}
+
+/*
+*
+Synopsis
+
+	__m128i _mm_srli_epi64 (__m128i a, int imm8)
+	#include <emmintrin.h>
+	Instruction: psrlq xmm, imm8
+	CPUID Flags: SSE2
+
+Description
+
+	Shift packed 64-bit integers in a right by imm8 while shifting in zeros, and store the results in dst.
+
+Operation
+
+	FOR j := 0 to 1
+		i := j*64
+		IF imm8[7:0] > 63
+			dst[i+63:i] := 0
+		ELSE
+			dst[i+63:i] := ZeroExtend64(a[i+63:i] >> imm8[7:0])
+		FI
+	ENDFOR
+*/
+func F_mm_srli_epi64(dst, imm8 Op) Op {
+	CheckType(
+		`
+		//	PSRLQ imm8 xmm
+		//	PSRLQ m128 xmm
+		//	PSRLQ xmm  xmm
+		`,
+		imm8, dst,
+	)
+
+	PSRLQ(imm8, dst)
+	return dst
+}
+
+/*
+*
+Synopsis
+
+	__m128i _mm_slli_epi64 (__m128i a, int imm8)
+	#include <emmintrin.h>
+	Instruction: psllq xmm, imm8
+	CPUID Flags: SSE2
+
+Description
+
+	Shift packed 64-bit integers in a left by imm8 while shifting in zeros, and store the results in dst.
+
+Operation
+
+	FOR j := 0 to 1
+		i := j*64
+		IF imm8[7:0] > 63
+			dst[i+63:i] := 0
+		ELSE
+			dst[i+63:i] := ZeroExtend64(a[i+63:i] << imm8[7:0])
+		FI
+	ENDFOR
+*/
+func F_mm_slli_epi64(dst, imm8 Op) Op {
+	CheckType(
+		`
+		//	PSLLQ imm8 xmm
+		//	PSLLQ m128 xmm
+		//	PSLLQ xmm  xmm
+		`,
+		imm8, dst,
+	)
+
+	PSLLQ(imm8, dst)
 	return dst
 }

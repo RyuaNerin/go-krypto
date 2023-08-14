@@ -27,6 +27,25 @@ type LSH512SSE2_internal struct {
 	submsg_e_r []VecVirtual
 	submsg_o_l []VecVirtual
 	submsg_o_r []VecVirtual
+
+	submsg_e_l_Mem Mem // xmmSize * 4
+	submsg_e_r_Mem Mem // xmmSize * 4
+	submsg_o_l_Mem Mem // xmmSize * 4
+	submsg_o_r_Mem Mem // xmmSize * 4
+
+	tempVec0 []VecVirtual
+	tempVec1 []VecVirtual
+}
+
+func (ctx *LSH512SSE2_internal) load(v []VecVirtual, m Mem) {
+	Comment("i_state_load___start")
+	load_blk_mem2vec(v, m)
+	Comment("i_state_load___end")
+}
+func (ctx *LSH512SSE2_internal) save(v []VecVirtual, m Mem) {
+	Comment("i_state_save___start")
+	load_blk_vec2mem(m, v)
+	Comment("i_state_save___end")
 }
 
 /* -------------------------------------------------------- */
@@ -38,9 +57,9 @@ func load_blk_mem2vec(dst []VecVirtual, src Mem) {
 	Comment("load_blk_mem2vec")
 
 	//dest[0] = LOAD((const __m128i*)src);
-	LOAD(dst[0], src)
+	LOAD(dst[0], src.Offset(XmmSize*0))
 	//dest[1] = LOAD((const __m128i*)src + 1);
-	LOAD(dst[1], src.Offset(XmmSize))
+	LOAD(dst[1], src.Offset(XmmSize*1))
 	//dest[2] = LOAD((const __m128i*)src + 2);
 	LOAD(dst[2], src.Offset(XmmSize*2))
 	//dest[3] = LOAD((const __m128i*)src + 3);
@@ -50,9 +69,9 @@ func load_blk_vec2mem(dst Mem, src []VecVirtual) {
 	Comment("load_blk_vec2mem")
 
 	//dest[0] = LOAD((const __m128i*)src);
-	LOAD(dst, src[0])
+	LOAD(dst.Offset(XmmSize*0), src[0])
 	//dest[1] = LOAD((const __m128i*)src + 1);
-	LOAD(dst.Offset(XmmSize), src[1])
+	LOAD(dst.Offset(XmmSize*1), src[1])
 	//dest[2] = LOAD((const __m128i*)src + 2);
 	LOAD(dst.Offset(XmmSize*2), src[2])
 	//dest[3] = LOAD((const __m128i*)src + 3);
@@ -66,8 +85,8 @@ func load_blk_mem2mem(dst Mem, src Mem) {
 	LOAD(tmp, src)
 	LOAD(dst, tmp)
 	//dest[1] = LOAD((const __m128i*)src + 1);
-	LOAD(tmp, src.Offset(XmmSize))
-	LOAD(dst.Offset(XmmSize), tmp)
+	LOAD(tmp, src.Offset(XmmSize*1))
+	LOAD(dst.Offset(XmmSize*1), tmp)
 	//dest[2] = LOAD((const __m128i*)src + 2);
 	LOAD(tmp, src.Offset(XmmSize*2))
 	LOAD(dst.Offset(XmmSize*2), tmp)
@@ -93,21 +112,35 @@ func store_blk(dst Mem, src []VecVirtual) {
 // static INLINE void load_msg_blk(LSH512SSE2_internal * i_state, const lsh_u64* msgblk){
 func load_msg_blk(i_state LSH512SSE2_internal, msgblk Mem /* uint32 */) {
 	//load_blk(i_state->submsg_e_l, msgblk + 0);
-	load_blk_mem2vec(i_state.submsg_e_l, msgblk.Offset(0*8))
+	load_blk_mem2mem(i_state.submsg_e_l_Mem, msgblk.Offset(0*8))
 	//load_blk(i_state->submsg_e_r, msgblk + 8);
-	load_blk_mem2vec(i_state.submsg_e_r, msgblk.Offset(8*8))
+	load_blk_mem2mem(i_state.submsg_e_r_Mem, msgblk.Offset(8*8))
 	//load_blk(i_state->submsg_o_l, msgblk + 16);
-	load_blk_mem2vec(i_state.submsg_o_l, msgblk.Offset(16*8))
+	load_blk_mem2mem(i_state.submsg_o_l_Mem, msgblk.Offset(16*8))
 	//load_blk(i_state->submsg_o_r, msgblk + 24);
-	load_blk_mem2vec(i_state.submsg_o_r, msgblk.Offset(24*8))
+	load_blk_mem2mem(i_state.submsg_o_r_Mem, msgblk.Offset(24*8))
 }
 
 // static INLINE void msg_exp_even(LSH512SSE2_internal * i_state){
 func msg_exp_even(i_state LSH512SSE2_internal) {
+	if i_state.tempVec0 == nil || i_state.tempVec1 == nil {
+		panic(`tempVec is required`)
+	}
 	Comment("msg_exp_even")
+
+	ADD := ADD64_
 
 	//__m128i temp;
 	temp := XMM()
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	i_state.submsg_e_l = i_state.tempVec0
+	i_state.load(i_state.submsg_e_l, i_state.submsg_e_l_Mem)
+
+	i_state.submsg_o_l = i_state.tempVec1
+	i_state.load(i_state.submsg_o_l, i_state.submsg_o_l_Mem)
+
 	//i_state->submsg_e_l[1] = _mm_shuffle_epi32(i_state->submsg_e_l[1], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_e_l[1], i_state.submsg_e_l[1], U8(0x4e))
 	//temp = i_state->submsg_e_l[0];
@@ -119,11 +152,31 @@ func msg_exp_even(i_state LSH512SSE2_internal) {
 	//i_state->submsg_e_l[3] = _mm_shuffle_epi32(i_state->submsg_e_l[3], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_e_l[3], i_state.submsg_e_l[3], U8(0x4e))
 	//temp = i_state->submsg_e_l[2];
-	MOVO_autoAU2(i_state.submsg_e_l[1], temp)
+	MOVO_autoAU2(temp, i_state.submsg_e_l[2])
 	//i_state->submsg_e_l[2] = _mm_unpacklo_epi64(i_state->submsg_e_l[3], i_state->submsg_e_l[2]);
 	F_mm_unpacklo_epi64(i_state.submsg_e_l[2], i_state.submsg_e_l[3], i_state.submsg_e_l[2])
 	//i_state->submsg_e_l[3] = _mm_unpackhi_epi64(temp, i_state->submsg_e_l[3]);
 	F_mm_unpackhi_epi64(i_state.submsg_e_l[3], temp, i_state.submsg_e_l[3])
+
+	//i_state->submsg_e_l[0] = ADD(i_state->submsg_o_l[0], i_state->submsg_e_l[0]);
+	ADD(i_state.submsg_e_l[0], i_state.submsg_o_l[0], i_state.submsg_e_l[0])
+	//i_state->submsg_e_l[1] = ADD(i_state->submsg_o_l[1], i_state->submsg_e_l[1]);
+	ADD(i_state.submsg_e_l[1], i_state.submsg_o_l[1], i_state.submsg_e_l[1])
+	//i_state->submsg_e_l[2] = ADD(i_state->submsg_o_l[2], i_state->submsg_e_l[2]);
+	ADD(i_state.submsg_e_l[2], i_state.submsg_o_l[2], i_state.submsg_e_l[2])
+	//i_state->submsg_e_l[3] = ADD(i_state->submsg_o_l[3], i_state->submsg_e_l[3]);
+	ADD(i_state.submsg_e_l[3], i_state.submsg_o_l[3], i_state.submsg_e_l[3])
+
+	i_state.save(i_state.submsg_e_l, i_state.submsg_e_l_Mem)
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	i_state.submsg_e_r = i_state.tempVec0
+	i_state.load(i_state.submsg_e_r, i_state.submsg_e_r_Mem)
+
+	i_state.submsg_o_r = i_state.tempVec1
+	i_state.load(i_state.submsg_o_r, i_state.submsg_o_r_Mem)
+
 	//i_state->submsg_e_r[1] = _mm_shuffle_epi32(i_state->submsg_e_r[1], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_e_r[1], i_state.submsg_e_r[1], U8(0x4e))
 	//temp = i_state->submsg_e_r[0];
@@ -141,16 +194,6 @@ func msg_exp_even(i_state LSH512SSE2_internal) {
 	//i_state->submsg_e_r[3] = _mm_unpackhi_epi64(temp, i_state->submsg_e_r[3]);
 	F_mm_unpackhi_epi64(i_state.submsg_e_r[3], temp, i_state.submsg_e_r[3])
 
-	ADD := ADD3
-
-	//i_state->submsg_e_l[0] = ADD(i_state->submsg_o_l[0], i_state->submsg_e_l[0]);
-	ADD(i_state.submsg_e_l[0], i_state.submsg_o_l[0], i_state.submsg_e_l[0])
-	//i_state->submsg_e_l[1] = ADD(i_state->submsg_o_l[1], i_state->submsg_e_l[1]);
-	ADD(i_state.submsg_e_l[1], i_state.submsg_o_l[1], i_state.submsg_e_l[1])
-	//i_state->submsg_e_l[2] = ADD(i_state->submsg_o_l[2], i_state->submsg_e_l[2]);
-	ADD(i_state.submsg_e_l[2], i_state.submsg_o_l[2], i_state.submsg_e_l[2])
-	//i_state->submsg_e_l[3] = ADD(i_state->submsg_o_l[3], i_state->submsg_e_l[3]);
-	ADD(i_state.submsg_e_l[3], i_state.submsg_o_l[3], i_state.submsg_e_l[3])
 	//i_state->submsg_e_r[0] = ADD(i_state->submsg_o_r[0], i_state->submsg_e_r[0]);
 	ADD(i_state.submsg_e_r[0], i_state.submsg_o_r[0], i_state.submsg_e_r[0])
 	//i_state->submsg_e_r[1] = ADD(i_state->submsg_o_r[1], i_state->submsg_e_r[1]);
@@ -159,14 +202,30 @@ func msg_exp_even(i_state LSH512SSE2_internal) {
 	ADD(i_state.submsg_e_r[2], i_state.submsg_o_r[2], i_state.submsg_e_r[2])
 	//i_state->submsg_e_r[3] = ADD(i_state->submsg_o_r[3], i_state->submsg_e_r[3]);
 	ADD(i_state.submsg_e_r[3], i_state.submsg_o_r[3], i_state.submsg_e_r[3])
+
+	i_state.save(i_state.submsg_e_r, i_state.submsg_e_r_Mem)
 }
 
 // static INLINE void msg_exp_odd(LSH512SSE2_internal * i_state){
 func msg_exp_odd(i_state LSH512SSE2_internal) {
+	if i_state.tempVec0 == nil || i_state.tempVec1 == nil {
+		panic(`tempVec is required`)
+	}
 	Comment("msg_exp_odd")
+
+	ADD := ADD64_
 
 	//__m128i temp;
 	temp := XMM()
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	i_state.submsg_o_l = i_state.tempVec0
+	i_state.load(i_state.submsg_o_l, i_state.submsg_o_l_Mem)
+
+	i_state.submsg_e_l = i_state.tempVec1
+	i_state.load(i_state.submsg_e_l, i_state.submsg_e_l_Mem)
+
 	//i_state->submsg_o_l[1] = _mm_shuffle_epi32(i_state->submsg_o_l[1], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_o_l[1], i_state.submsg_o_l[1], U8(0x4e))
 	//temp = i_state->submsg_o_l[0];
@@ -183,6 +242,26 @@ func msg_exp_odd(i_state LSH512SSE2_internal) {
 	F_mm_unpacklo_epi64(i_state.submsg_o_l[2], i_state.submsg_o_l[3], i_state.submsg_o_l[2])
 	//i_state->submsg_o_l[3] = _mm_unpackhi_epi64(temp, i_state->submsg_o_l[3]);
 	F_mm_unpackhi_epi64(i_state.submsg_o_l[3], temp, i_state.submsg_o_l[3])
+
+	//i_state->submsg_o_l[0] = ADD(i_state->submsg_e_l[0], i_state->submsg_o_l[0]);
+	//i_state->submsg_o_l[1] = ADD(i_state->submsg_e_l[1], i_state->submsg_o_l[1]);
+	//i_state->submsg_o_l[2] = ADD(i_state->submsg_e_l[2], i_state->submsg_o_l[2]);
+	//i_state->submsg_o_l[3] = ADD(i_state->submsg_e_l[3], i_state->submsg_o_l[3]);
+	ADD(i_state.submsg_o_l[0], i_state.submsg_e_l[0], i_state.submsg_o_l[0])
+	ADD(i_state.submsg_o_l[1], i_state.submsg_e_l[1], i_state.submsg_o_l[1])
+	ADD(i_state.submsg_o_l[2], i_state.submsg_e_l[2], i_state.submsg_o_l[2])
+	ADD(i_state.submsg_o_l[3], i_state.submsg_e_l[3], i_state.submsg_o_l[3])
+
+	i_state.save(i_state.submsg_o_l, i_state.submsg_o_l_Mem)
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	i_state.submsg_o_r = i_state.tempVec0
+	i_state.load(i_state.submsg_o_r, i_state.submsg_o_r_Mem)
+
+	i_state.submsg_e_r = i_state.tempVec1
+	i_state.load(i_state.submsg_e_r, i_state.submsg_e_r_Mem)
+
 	//i_state->submsg_o_r[1] = _mm_shuffle_epi32(i_state->submsg_o_r[1], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_o_r[1], i_state.submsg_o_r[1], U8(0x4e))
 	//temp = i_state->submsg_o_r[0];
@@ -200,23 +279,16 @@ func msg_exp_odd(i_state LSH512SSE2_internal) {
 	//i_state->submsg_o_r[3] = _mm_unpackhi_epi64(temp, i_state->submsg_o_r[3]);
 	F_mm_unpackhi_epi64(i_state.submsg_o_r[3], temp, i_state.submsg_o_r[3])
 
-	ADD := ADD3
-	//i_state->submsg_o_l[0] = ADD(i_state->submsg_e_l[0], i_state->submsg_o_l[0]);
-	ADD(i_state.submsg_o_l[0], i_state.submsg_e_l[0], i_state.submsg_o_l[0])
-	//i_state->submsg_o_l[1] = ADD(i_state->submsg_e_l[1], i_state->submsg_o_l[1]);
-	ADD(i_state.submsg_o_l[1], i_state.submsg_e_l[1], i_state.submsg_o_l[1])
-	//i_state->submsg_o_l[2] = ADD(i_state->submsg_e_l[2], i_state->submsg_o_l[2]);
-	ADD(i_state.submsg_o_l[2], i_state.submsg_e_l[2], i_state.submsg_o_l[2])
-	//i_state->submsg_o_l[3] = ADD(i_state->submsg_e_l[3], i_state->submsg_o_l[3]);
-	ADD(i_state.submsg_o_l[3], i_state.submsg_e_l[3], i_state.submsg_o_l[3])
 	//i_state->submsg_o_r[0] = ADD(i_state->submsg_e_r[0], i_state->submsg_o_r[0]);
-	ADD(i_state.submsg_o_r[0], i_state.submsg_e_r[0], i_state.submsg_o_r[0])
 	//i_state->submsg_o_r[1] = ADD(i_state->submsg_e_r[1], i_state->submsg_o_r[1]);
-	ADD(i_state.submsg_o_r[1], i_state.submsg_e_r[1], i_state.submsg_o_r[1])
 	//i_state->submsg_o_r[2] = ADD(i_state->submsg_e_r[2], i_state->submsg_o_r[2]);
-	ADD(i_state.submsg_o_r[2], i_state.submsg_e_r[2], i_state.submsg_o_r[2])
 	//i_state->submsg_o_r[3] = ADD(i_state->submsg_e_r[3], i_state->submsg_o_r[3]);
+	ADD(i_state.submsg_o_r[0], i_state.submsg_e_r[0], i_state.submsg_o_r[0])
+	ADD(i_state.submsg_o_r[1], i_state.submsg_e_r[1], i_state.submsg_o_r[1])
+	ADD(i_state.submsg_o_r[2], i_state.submsg_e_r[2], i_state.submsg_o_r[2])
 	ADD(i_state.submsg_o_r[3], i_state.submsg_e_r[3], i_state.submsg_o_r[3])
+
+	i_state.save(i_state.submsg_o_r, i_state.submsg_o_r_Mem)
 }
 
 // static INLINE void load_sc(__m128i* const_v, lsh_uint i){
@@ -229,47 +301,55 @@ func load_sc(const_v []VecVirtual, i int) {
 }
 
 // static INLINE void msg_add_even(__m128i* cv_l, __m128i* cv_r, const LSH512SSE2_internal * i_state){
-func msg_add_even(cv_l, cv_r []VecVirtual, i_state LSH512SSE2_internal) {
+func msg_add_even(cv_l, cv_r []VecVirtual, i_state LSH512SSE2_internal, tempVec []VecVirtual) {
 	Comment("msg_add_even")
 
 	//cv_l[0] = XOR(cv_l[0], i_state->submsg_e_l[0]);
-	XOR(cv_l[0], i_state.submsg_e_l[0])
 	//cv_r[0] = XOR(cv_r[0], i_state->submsg_e_r[0]);
-	XOR(cv_r[0], i_state.submsg_e_r[0])
 	//cv_l[1] = XOR(cv_l[1], i_state->submsg_e_l[1]);
-	XOR(cv_l[1], i_state.submsg_e_l[1])
 	//cv_r[1] = XOR(cv_r[1], i_state->submsg_e_r[1]);
-	XOR(cv_r[1], i_state.submsg_e_r[1])
 	//cv_l[2] = XOR(cv_l[2], i_state->submsg_e_l[2]);
-	XOR(cv_l[2], i_state.submsg_e_l[2])
 	//cv_r[2] = XOR(cv_r[2], i_state->submsg_e_r[2]);
-	XOR(cv_r[2], i_state.submsg_e_r[2])
 	//cv_l[3] = XOR(cv_l[3], i_state->submsg_e_l[3]);
-	XOR(cv_l[3], i_state.submsg_e_l[3])
 	//cv_r[3] = XOR(cv_r[3], i_state->submsg_e_r[3]);
-	XOR(cv_r[3], i_state.submsg_e_r[3])
+
+	load_blk_mem2vec(tempVec, i_state.submsg_e_l_Mem)
+	XOR(cv_l[0], tempVec[0])
+	XOR(cv_l[1], tempVec[1])
+	XOR(cv_l[2], tempVec[2])
+	XOR(cv_l[3], tempVec[3])
+
+	load_blk_mem2vec(tempVec, i_state.submsg_e_r_Mem)
+	XOR(cv_r[0], tempVec[0])
+	XOR(cv_r[1], tempVec[1])
+	XOR(cv_r[2], tempVec[2])
+	XOR(cv_r[3], tempVec[3])
 }
 
 // static INLINE void msg_add_odd(__m128i* cv_l, __m128i* cv_r, const LSH512SSE2_internal * i_state){
-func msg_add_odd(cv_l, cv_r []VecVirtual, i_state LSH512SSE2_internal) {
+func msg_add_odd(cv_l, cv_r []VecVirtual, i_state LSH512SSE2_internal, tempVec []VecVirtual) {
 	Comment("msg_add_odd")
 
 	//cv_l[0] = XOR(cv_l[0], i_state->submsg_o_l[0]);
-	XOR(cv_l[0], i_state.submsg_o_l[0])
 	//cv_r[0] = XOR(cv_r[0], i_state->submsg_o_r[0]);
-	XOR(cv_r[0], i_state.submsg_o_r[0])
 	//cv_l[1] = XOR(cv_l[1], i_state->submsg_o_l[1]);
-	XOR(cv_l[1], i_state.submsg_o_l[1])
 	//cv_r[1] = XOR(cv_r[1], i_state->submsg_o_r[1]);
-	XOR(cv_r[1], i_state.submsg_o_r[1])
 	//cv_l[2] = XOR(cv_l[2], i_state->submsg_o_l[2]);
-	XOR(cv_l[2], i_state.submsg_o_l[2])
 	//cv_r[2] = XOR(cv_r[2], i_state->submsg_o_r[2]);
-	XOR(cv_r[2], i_state.submsg_o_r[2])
 	//cv_l[3] = XOR(cv_l[3], i_state->submsg_o_l[3]);
-	XOR(cv_l[3], i_state.submsg_o_l[3])
 	//cv_r[3] = XOR(cv_r[3], i_state->submsg_o_r[3]);
-	XOR(cv_r[3], i_state.submsg_o_r[3])
+
+	load_blk_mem2vec(tempVec, i_state.submsg_o_l_Mem)
+	XOR(cv_l[0], tempVec[0])
+	XOR(cv_l[1], tempVec[1])
+	XOR(cv_l[2], tempVec[2])
+	XOR(cv_l[3], tempVec[3])
+
+	load_blk_mem2vec(tempVec, i_state.submsg_o_r_Mem)
+	XOR(cv_r[0], tempVec[0])
+	XOR(cv_r[1], tempVec[1])
+	XOR(cv_r[2], tempVec[2])
+	XOR(cv_r[3], tempVec[3])
 }
 
 // static INLINE void add_blk(__m128i* cv_l, const __m128i* cv_r){
@@ -277,26 +357,23 @@ func add_blk(cv_l, cv_r []VecVirtual) {
 	Comment("add_blk")
 
 	//cv_l[0] = ADD(cv_l[0], cv_r[0]);
-	ADD(cv_l[0], cv_r[0])
+	ADD64(cv_l[0], cv_r[0])
 	//cv_l[1] = ADD(cv_l[1], cv_r[1]);
-	ADD(cv_l[1], cv_r[1])
+	ADD64(cv_l[1], cv_r[1])
 	//cv_l[2] = ADD(cv_l[2], cv_r[2]);
-	ADD(cv_l[2], cv_r[2])
+	ADD64(cv_l[2], cv_r[2])
 	//cv_l[3] = ADD(cv_l[3], cv_r[3]);
-	ADD(cv_l[3], cv_r[3])
+	ADD64(cv_l[3], cv_r[3])
 }
 
-// dst = OR(SHIFT_L(dst, ROT_EVEN_ALPHA), SHIFT_R(dst, WORD_BIT_LEN - ROT_EVEN_ALPHA))
 func rotate_blk(dst VecVirtual, v int) {
 	tmpXmm := XMM()
 
 	// dst = OR(SHIFT_L(dst, ROT_EVEN_ALPHA), SHIFT_R(dst, WORD_BIT_LEN - ROT_EVEN_ALPHA))
-
-	MOVO_autoAU2(tmpXmm, dst)
-	SHIFT_L(tmpXmm, U8(v))
-
-	SHIFT_R(dst, U8(WORD_BIT_LEN-v))
-	OR(dst, tmpXmm)
+	MOVO_autoAU2(tmpXmm, dst)          //         tmpXmm = dst
+	SHIFT_L64(tmpXmm, U8(v))           // tmpXmm = SHIFT_L(dst, ROT_EVEN_ALPHA)
+	SHIFT_R64(dst, U8(WORD_BIT_LEN-v)) //                                  dst = SHIFT_R(dst, WORD_BIT_LEN - ROT_EVEN_ALPHA)
+	OR(dst, tmpXmm)                    // dst = OR(SHIFT_L(dst, ROT_EVEN_ALPHA), SHIFT_R(dst, WORD_BIT_LEN - ROT_EVEN_ALPHA))
 }
 
 // static INLINE void rotate_blk_even_alpha(__m128i* cv){
@@ -371,41 +448,83 @@ func xor_with_const(cv_l []VecVirtual, const_v []VecVirtual) {
 func rotate_msg_gamma(cv_r []VecVirtual) {
 	Comment("rotate_msg_gamma")
 
+	__tmp := XMM()
+
 	//__m128i temp;
+	temp := XMM()
+
+	step := func(idx int) {
+		//temp = _mm_and_si128(cv_r[0], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0));\
+		//cv_r[0] = _mm_and_si128(cv_r[0], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff));\
+		//temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48));\
+		//cv_r[0] = _mm_xor_si128(cv_r[0], temp);\
+
+		MOVO_autoAU2(temp, g_BytePermInfo) //temp =                        _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0)
+		F_mm_and_si128(temp, cv_r[idx])    //temp = _mm_and_si128(cv_r[0], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0))
+
+		F_mm_and_si128(cv_r[idx], g_BytePermInfo.Offset(XmmSize)) //cv_r[0] = _mm_and_si128(cv_r[0], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff))
+
+		MOVO_autoAU2(__tmp, temp)      //	                                                     __tmp = temp
+		F_mm_srli_epi64(__tmp, I8(48)) //                                      (__tmp =) _mm_srli_epi64(temp, 48))
+		F_mm_slli_epi64(temp, I8(16))  // temp =               _mm_slli_epi64(temp, 16)
+		F_mm_xor_si128(temp, __tmp)    // temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48))
+
+		F_mm_xor_si128(cv_r[idx], temp) //cv_r[0] = _mm_xor_si128(cv_r[0], temp);
+	}
+	step2 := func(idx, slli, srli int) {
+		MOVO_autoAU2(temp, cv_r[idx])        //                                                              temp = cv_r[1]
+		F_mm_srli_epi64(temp, I8(srli))      //                                               temp = _mm_srli_epi64(cv_r[1], 32))
+		F_mm_slli_epi64(cv_r[idx], I8(slli)) //               cv_r[1] = _mm_slli_epi64(cv_r[1], 32)
+		F_mm_xor_si128(cv_r[idx], temp)      // cv_r[1] = _mm_xor_si128(_mm_slli_epi64(cv_r[1], 32), _mm_srli_epi64(cv_r[1], 32))
+	}
+
 	//temp = _mm_and_si128(cv_r[0], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0));\
 	//cv_r[0] = _mm_and_si128(cv_r[0], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff));\
 	//temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48));\
 	//cv_r[0] = _mm_xor_si128(cv_r[0], temp);\
+	step(0)
+
 	//cv_r[1] = _mm_xor_si128(_mm_slli_epi64(cv_r[1], 32), _mm_srli_epi64(cv_r[1], 32));\
+	step2(1, 32, 32)
+
 	//temp = _mm_and_si128(cv_r[1], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0));\
 	//cv_r[1] = _mm_and_si128(cv_r[1], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff));\
 	//temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48));\
 	//cv_r[1] = _mm_xor_si128(cv_r[1], temp);\
+	step(1)
+
 	//cv_r[2] = _mm_xor_si128(_mm_slli_epi64(cv_r[2], 8), _mm_srli_epi64(cv_r[2], 56));\
+	step2(2, 8, 56)
+
 	//temp = _mm_and_si128(cv_r[2], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0));\
 	//cv_r[2] = _mm_and_si128(cv_r[2], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff));\
 	//temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48));\
 	//cv_r[2] = _mm_xor_si128(cv_r[2], temp);\
+	step(2)
+
 	//cv_r[3] = _mm_xor_si128(_mm_slli_epi64(cv_r[3], 40), _mm_srli_epi64(cv_r[3], 24));\
+	step2(3, 40, 24)
+
 	//temp= _mm_and_si128(cv_r[3], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0));\
 	//cv_r[3] = _mm_and_si128(cv_r[3], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff));\
 	//temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48));\
 	//cv_r[3] = _mm_xor_si128(cv_r[3], temp);
-} //
+	step(3)
+}
 
 // static INLINE void word_perm(__m128i* cv_l, __m128i* cv_r){
-func word_perm(cv_l, cv_r []VecVirtual) {
+func word_perm(cv_l, cv_r []VecVirtual, temp []VecVirtual) {
+	Comment("word_perm")
 	//__m128i temp[2];
-	temp := []Op{XMM(), XMM()} // AllocLocal(XmmSize)
 
 	//temp[0] = cv_l[0];
-	MOVO_autoAU(temp[0], cv_l[0])
+	MOVO_autoAU2(temp[0], cv_l[0])
 	//cv_l[0] = _mm_unpacklo_epi64(cv_l[1], cv_l[0]);
 	F_mm_unpacklo_epi64(cv_l[0], cv_l[1], cv_l[0])
 	//cv_l[1] = _mm_unpackhi_epi64(temp[0], cv_l[1]);
 	F_mm_unpackhi_epi64(cv_l[1], temp[0], cv_l[1])
 	//temp[0] = cv_l[2];
-	MOVO_autoAU(temp[0], cv_l[2])
+	MOVO_autoAU2(temp[0], cv_l[2])
 	//cv_l[2] = _mm_unpacklo_epi64(cv_l[3], cv_l[2]);
 	F_mm_unpacklo_epi64(cv_l[2], cv_l[3], cv_l[2])
 	//cv_l[3] = _mm_unpackhi_epi64(temp[0], cv_l[3]);
@@ -413,7 +532,7 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 	//cv_r[1] = _mm_shuffle_epi32(cv_r[1], 0x4e);
 	F_mm_shuffle_epi32(cv_r[1], cv_r[1], U8(0x4e))
 	//temp[0] = cv_r[0];
-	MOVO_autoAU(temp[0], cv_r[0])
+	MOVO_autoAU2(temp[0], cv_r[0])
 	//cv_r[0] = _mm_unpacklo_epi64(cv_r[0], cv_r[1]);
 	F_mm_unpacklo_epi64(cv_r[0], cv_r[0], cv_r[1])
 	//cv_r[1] = _mm_unpackhi_epi64(cv_r[1], temp[0]);
@@ -421,31 +540,31 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 	//cv_r[3] = _mm_shuffle_epi32(cv_r[3], 0x4e);
 	F_mm_shuffle_epi32(cv_r[3], cv_r[3], U8(0x4e))
 	//temp[0] = cv_r[2];
-	MOVO_autoAU(temp[0], cv_r[2])
+	MOVO_autoAU2(temp[0], cv_r[2])
 	//cv_r[2] = _mm_unpacklo_epi64(cv_r[2], cv_r[3]);
 	F_mm_unpacklo_epi64(cv_r[2], cv_r[2], cv_r[3])
 	//cv_r[3] = _mm_unpackhi_epi64(cv_r[3], temp[0]);
 	F_mm_unpackhi_epi64(cv_r[3], cv_r[3], temp[0])
 	//temp[0] = cv_l[0];
-	MOVO_autoAU(temp[0], cv_l[0])
+	MOVO_autoAU2(temp[0], cv_l[0])
 	//temp[1] = cv_l[1];
-	MOVO_autoAU(temp[1], cv_l[1])
+	MOVO_autoAU2(temp[1], cv_l[1])
 	//cv_l[0] = cv_l[2];
-	MOVO_autoAU(cv_l[0], cv_l[2])
+	MOVO_autoAU2(cv_l[0], cv_l[2])
 	//cv_l[1] = cv_l[3];
-	MOVO_autoAU(cv_l[1], cv_l[3])
+	MOVO_autoAU2(cv_l[1], cv_l[3])
 	//cv_l[2] = cv_r[2];
-	MOVO_autoAU(cv_l[2], cv_r[2])
+	MOVO_autoAU2(cv_l[2], cv_r[2])
 	//cv_l[3] = cv_r[3];
-	MOVO_autoAU(cv_l[3], cv_r[3])
+	MOVO_autoAU2(cv_l[3], cv_r[3])
 	//cv_r[2] = cv_r[0];
-	MOVO_autoAU(cv_r[2], cv_r[0])
+	MOVO_autoAU2(cv_r[2], cv_r[0])
 	//cv_r[3] = cv_r[1];
-	MOVO_autoAU(cv_r[3], cv_r[1])
+	MOVO_autoAU2(cv_r[3], cv_r[1])
 	//cv_r[0] = temp[0];
-	MOVO_autoAU(cv_r[0], temp[0])
+	MOVO_autoAU2(cv_r[0], temp[0])
 	//cv_r[1] = temp[1];
-	MOVO_autoAU(cv_r[1], temp[1])
+	MOVO_autoAU2(cv_r[1], temp[1])
 }
 
 /* -------------------------------------------------------- */
@@ -483,48 +602,71 @@ func mix_odd(cv_l, cv_r []VecVirtual, const_v []VecVirtual) {
 /* -------------------------------------------------------- */
 
 // static INLINE void compress(__m128i* cv_l, __m128i* cv_r, const lsh_u64 pdMsgBlk[MSG_BLK_WORD_LEN])
-func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem) {
+func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv_r_mem Mem) {
 	Comment("compress")
+	xmmTemp := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+
 	//__m128i const_v[4];			// step function constant
-	const_v := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	const_v := xmmTemp
 	//LSH512SSE2_internal i_state[1];
 	i_state := LSH512SSE2_internal{
-		submsg_e_l: []VecVirtual{XMM(), XMM(), XMM(), XMM()},
-		submsg_e_r: []VecVirtual{XMM(), XMM(), XMM(), XMM()},
-		submsg_o_l: []VecVirtual{XMM(), XMM(), XMM(), XMM()},
-		submsg_o_r: []VecVirtual{XMM(), XMM(), XMM(), XMM()},
+		tempVec0:       cv_l,
+		tempVec1:       cv_r,
+		submsg_e_l_Mem: i_state_alloc.Offset(XmmSize * 4 * 0),
+		submsg_e_r_Mem: i_state_alloc.Offset(XmmSize * 4 * 1),
+		submsg_o_l_Mem: i_state_alloc.Offset(XmmSize * 4 * 2),
+		submsg_o_r_Mem: i_state_alloc.Offset(XmmSize * 4 * 3),
 	}
 	//int i;
 
+	save := func() {
+		Comment("save___start")
+		load_blk_vec2mem(cv_l_mem, cv_l)
+		load_blk_vec2mem(cv_r_mem, cv_r)
+		Comment("save___end")
+	}
+	load := func() {
+		Comment("load___start")
+		load_blk_mem2vec(cv_l, cv_l_mem)
+		load_blk_mem2vec(cv_r, cv_r_mem)
+		Comment("load___end")
+	}
+
 	load_msg_blk(i_state, pdMsgBlk)
 
-	msg_add_even(cv_l, cv_r, i_state)
+	msg_add_even(cv_l, cv_r, i_state, xmmTemp)
 	load_sc(const_v, 0)
 	mix_even(cv_l, cv_r, const_v)
-	word_perm(cv_l, cv_r)
+	word_perm(cv_l, cv_r, xmmTemp)
 
-	msg_add_odd(cv_l, cv_r, i_state)
+	msg_add_odd(cv_l, cv_r, i_state, xmmTemp)
 	load_sc(const_v, 8)
 	mix_odd(cv_l, cv_r, const_v)
-	word_perm(cv_l, cv_r)
+	word_perm(cv_l, cv_r, xmmTemp)
 
 	//for (i = 1; i < NUM_STEPS / 2; i++){
 	for i := 1; i < NUM_STEPS/2; i++ {
+		save()
 		msg_exp_even(i_state)
-		msg_add_even(cv_l, cv_r, i_state)
+		load()
+		msg_add_even(cv_l, cv_r, i_state, xmmTemp)
 		load_sc(const_v, i*16)
 		mix_even(cv_l, cv_r, const_v)
-		word_perm(cv_l, cv_r)
+		word_perm(cv_l, cv_r, xmmTemp)
 
+		save()
 		msg_exp_odd(i_state)
-		msg_add_odd(cv_l, cv_r, i_state)
+		load()
+		msg_add_odd(cv_l, cv_r, i_state, xmmTemp)
 		load_sc(const_v, i*16+8)
 		mix_odd(cv_l, cv_r, const_v)
-		word_perm(cv_l, cv_r)
+		word_perm(cv_l, cv_r, xmmTemp)
 	}
 
+	save()
 	msg_exp_even(i_state)
-	msg_add_even(cv_l, cv_r, i_state)
+	load()
+	msg_add_even(cv_l, cv_r, i_state, xmmTemp)
 }
 
 /* -------------------------------------------------------- */
@@ -535,7 +677,7 @@ func init224(state *LSH512_Context) {
 	//load_blk(state->cv_l, g_IV224);
 	load_blk_mem2mem(state.Cv_l, G_IV224)
 	//load_blk(state->cv_r, g_IV224 + 8);
-	load_blk_mem2mem(state.Cv_l, G_IV224)
+	load_blk_mem2mem(state.Cv_r, G_IV224.Offset(8*8))
 }
 
 // static INLINE void init256(LSH512SSE2_Context* state)
@@ -545,7 +687,7 @@ func init256(state *LSH512_Context) {
 	//load_blk(state->cv_l, g_IV256);
 	load_blk_mem2mem(state.Cv_l, G_IV256)
 	//load_blk(state->cv_r, g_IV256 + 8);
-	load_blk_mem2mem(state.Cv_l, G_IV256)
+	load_blk_mem2mem(state.Cv_r, G_IV256.Offset(8*8))
 }
 
 // static INLINE void init384(LSH512SSE2_Context* state)
@@ -555,7 +697,7 @@ func init384(state *LSH512_Context) {
 	//load_blk(state->cv_l, g_IV384);
 	load_blk_mem2mem(state.Cv_l, G_IV384)
 	//load_blk(state->cv_r, g_IV384 + 8);
-	load_blk_mem2mem(state.Cv_l, G_IV384)
+	load_blk_mem2mem(state.Cv_r, G_IV384.Offset(8*8))
 }
 
 // static INLINE void init512(LSH512SSE2_Context* state)
@@ -565,7 +707,7 @@ func init512(state *LSH512_Context) {
 	//load_blk(state->cv_l, g_IV512);
 	load_blk_mem2mem(state.Cv_l, G_IV512)
 	//load_blk(state->cv_r, g_IV512 + 8);
-	load_blk_mem2mem(state.Cv_l, G_IV512)
+	load_blk_mem2mem(state.Cv_r, G_IV512.Offset(8*8))
 }
 
 /* -------------------------------------------------------- */
@@ -612,11 +754,7 @@ func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 		MOVB(hash_val_bit_len.As8(), CL)
 		SHLB(CL, tmp8)
 
-		addr := GP32()
-		MOVL(hash_val_byte_len, addr.As32())
-		SUBL(U8(1), addr)
-
-		MOVB(tmp8, pbHashVal.Idx(addr, 1))
+		MOVB(tmp8, pbHashVal.Offset(-1).Idx(hash_val_byte_len, 1))
 	}
 	Label("get_hash_if_end")
 }
@@ -722,6 +860,8 @@ func Lsh512_sse2_init(ctx *LSH512_Context) {
 func Lsh512_sse2_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 	Comment("lsh512_sse2_update")
 
+	i_state_alloc := AllocLocal(XmmSize * 4 * 4)
+
 	//__m128i cv_l[4];
 	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 	//__m128i cv_r[4];
@@ -791,7 +931,7 @@ func Lsh512_sse2_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 		//memcpy(ctx->i_last_block + remain_msg_byte, data, more_BYTE);
 		Memcpy(ctx.I_last_block.Idx(remain_msg_byte, 1), data, more_BYTE, false)
 		//compress(cv_l, cv_r, (lsh_u64*)ctx->i_last_block);
-		compress(cv_l, cv_r, ctx.I_last_block)
+		compress(cv_l, cv_r, ctx.I_last_block, i_state_alloc, ctx.Cv_l, ctx.Cv_r)
 		//data += more_BYTE;
 		ADDQ(more_BYTE, data.Base)
 		//databytelen -= more_BYTE;
@@ -809,7 +949,7 @@ func Lsh512_sse2_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 	JL(LabelRef("lsh512_sse2_update_while_end"))
 	{
 		//compress(cv_l, cv_r, (lsh_u64*)data);
-		compress(cv_l, cv_r, data)
+		compress(cv_l, cv_r, data, i_state_alloc, ctx.Cv_l, ctx.Cv_r)
 		//data += LSH512_MSG_BLK_BYTE_LEN;
 		ADDQ(U32(LSH512_MSG_BLK_BYTE_LEN), data.Base)
 		//databytelen -= LSH512_MSG_BLK_BYTE_LEN;
@@ -848,6 +988,8 @@ func Lsh512_sse2_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 func Lsh512_sse2_final(ctx *LSH512_Context, hashval Mem) {
 	Comment("lsh512_sse2_final")
 
+	i_state_alloc := AllocLocal(XmmSize * 4 * 4)
+
 	//__m128i cv_l[4];
 	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 	//__m128i cv_r[4];
@@ -884,7 +1026,7 @@ func Lsh512_sse2_final(ctx *LSH512_Context, hashval Mem) {
 	size := GP64()
 	MOVQ(U32(LSH512_MSG_BLK_BYTE_LEN-1), size)
 	SUBQ(remain_msg_byte, size)
-	Memset(ctx.I_last_block.Offset(-1).Idx(remain_msg_byte, 1), 0, size, false)
+	Memset(ctx.I_last_block.Offset(1).Idx(remain_msg_byte, 1), 0, size, false)
 
 	//load_blk(cv_l, ctx->cv_l);
 	load_blk_mem2vec(cv_l, ctx.Cv_l)
@@ -892,7 +1034,7 @@ func Lsh512_sse2_final(ctx *LSH512_Context, hashval Mem) {
 	load_blk_mem2vec(cv_r, ctx.Cv_r)
 
 	//compress(cv_l, cv_r, (lsh_u64*)ctx->i_last_block);
-	compress(cv_l, cv_r, ctx.I_last_block)
+	compress(cv_l, cv_r, ctx.I_last_block, i_state_alloc, ctx.Cv_l, ctx.Cv_r)
 
 	//fin(cv_l, cv_r);
 	fin(cv_l, cv_r)

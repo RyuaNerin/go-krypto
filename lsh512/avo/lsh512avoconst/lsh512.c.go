@@ -126,7 +126,7 @@ func init() {
 		mem := GLOBL(name, NOPTR|RODATA)
 
 		for i, v := range arr {
-			DATA(i*8, U32(v))
+			DATA(i*8, U64(v))
 		}
 
 		return mem

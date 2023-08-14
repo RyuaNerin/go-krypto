@@ -14,6 +14,8 @@ func main() {
 	lsh512common.LSH512Update("SSE2", lsh512sse2.Lsh512_sse2_update)
 	lsh512common.LSH512Final("SSE2", lsh512sse2.Lsh512_sse2_final)
 
+	lsh512sse2.UnitTest()
+
 	Generate()
 	print("done")
 }

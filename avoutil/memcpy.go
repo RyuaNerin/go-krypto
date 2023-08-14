@@ -23,7 +23,7 @@ func Memcpy(dst, src Op, size Register, avx2 bool) {
 	memcpyN++
 
 	op256 := YMM()
-	op128 := XMM()
+	op128 := op256.AsX()
 	op64 := GP64()
 	op32 := op64.As32()
 	op16 := op64.As16()
@@ -74,7 +74,7 @@ func Memcpy(dst, src Op, size Register, avx2 bool) {
 	cpy(1, op8, MOVB)
 }
 
-func MemcpyStatic(dstMem, srcMem Mem, size int, avx2 bool) {
+func MemcpyStatic(dst, src Mem, size int, avx2 bool) {
 	Comment("MemcpyStatic")
 
 	op256 := YMM()
@@ -83,14 +83,6 @@ func MemcpyStatic(dstMem, srcMem Mem, size int, avx2 bool) {
 	op32 := op64.As32()
 	op16 := op64.As16()
 	op8 := op64.As8()
-
-	//////////////////////////////
-
-	dst := Mem{Base: GP64()}
-	src := Mem{Base: GP64()}
-
-	LEAQ(dstMem, dst.Base)
-	LEAQ(srcMem, src.Base)
 
 	//////////////////////////////
 
@@ -103,8 +95,8 @@ func MemcpyStatic(dstMem, srcMem Mem, size int, avx2 bool) {
 			VMOVDQ_autoAU(op256, dst.Offset(idx))
 			sz = 32
 		} else if enableXYZ && size >= 16 {
-			MOVOU(src.Offset(idx), op128)
-			MOVOU(op128, dst.Offset(idx))
+			MOVO_autoAU(src.Offset(idx), op128)
+			MOVO_autoAU(op128, dst.Offset(idx))
 			sz = 16
 		} else if size >= 8 {
 			MOVQ(src.Offset(idx), op64)
