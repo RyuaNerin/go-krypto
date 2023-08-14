@@ -310,6 +310,22 @@ DATA g_BytePermInfo_sse2<>+24(SB)/4, $0x00000000
 DATA g_BytePermInfo_sse2<>+28(SB)/4, $0x00000000
 GLOBL g_BytePermInfo_sse2<>(SB), RODATA|NOPTR, $32
 
+DATA g_BytePermInfo_ssse3<>+0(SB)/8, $0x0706050403020100
+DATA g_BytePermInfo_ssse3<>+8(SB)/8, $0x0d0c0b0a09080f0e
+DATA g_BytePermInfo_ssse3<>+16(SB)/8, $0x0302010007060504
+DATA g_BytePermInfo_ssse3<>+24(SB)/8, $0x09080f0e0d0c0b0a
+DATA g_BytePermInfo_ssse3<>+32(SB)/8, $0x0605040302010007
+DATA g_BytePermInfo_ssse3<>+40(SB)/8, $0x0c0b0a09080f0e0d
+DATA g_BytePermInfo_ssse3<>+48(SB)/8, $0x0201000706050403
+DATA g_BytePermInfo_ssse3<>+56(SB)/8, $0x080f0e0d0c0b0a09
+GLOBL g_BytePermInfo_ssse3<>(SB), RODATA|NOPTR, $64
+
+DATA g_MsgWordPermInfo_ssse3<>+0(SB)/8, $0x0706050403020100
+DATA g_MsgWordPermInfo_ssse3<>+8(SB)/8, $0x0f0e0d0c0b0a0908
+DATA g_MsgWordPermInfo_ssse3<>+16(SB)/8, $0x1716151413121110
+DATA g_MsgWordPermInfo_ssse3<>+24(SB)/8, $0x1f1e1d1c1b1a1918
+GLOBL g_MsgWordPermInfo_ssse3<>(SB), RODATA|NOPTR, $32
+
 // func lsh512InitSSE2(ctx *lsh512ContextAsmData)
 // Requires: SSE2
 TEXT ·lsh512InitSSE2(SB), NOSPLIT, $0-8
@@ -24001,6 +24017,20331 @@ DATA memset_value_0<>+16(SB)/8, $0x0000000000000000
 DATA memset_value_0<>+24(SB)/8, $0x0000000000000000
 GLOBL memset_value_0<>(SB), RODATA|NOPTR, $32
 
+// func lsh512InitSSSE3(ctx *lsh512ContextAsmData)
+// Requires: SSE2
+TEXT ·lsh512InitSSSE3(SB), NOSPLIT, $0-8
+	MOVQ ctx+0(FP), AX
+	MOVL (AX), CX
+	MOVQ 8(AX), DX
+
+	// lsh512_ssse3_init
+	CMPL CX, $0x00000040
+	JNE  lsh512_ssse3_init_if0_end
+
+	// init512
+	// load_blk_mem2mem
+	MOVOA g_IV512<>+0(SB), X0
+	MOVOU X0, 16(AX)
+	MOVOA g_IV512<>+16(SB), X0
+	MOVOU X0, 32(AX)
+	MOVOA g_IV512<>+32(SB), X0
+	MOVOU X0, 48(AX)
+	MOVOA g_IV512<>+48(SB), X0
+	MOVOU X0, 64(AX)
+
+	// load_blk_mem2mem
+	MOVOA g_IV512<>+64(SB), X0
+	MOVOU X0, 80(AX)
+	MOVOA g_IV512<>+80(SB), X0
+	MOVOU X0, 96(AX)
+	MOVOA g_IV512<>+96(SB), X0
+	MOVOU X0, 112(AX)
+	MOVOA g_IV512<>+112(SB), X0
+	MOVOU X0, 128(AX)
+	JMP   lsh512_ssse3_init_ret
+
+lsh512_ssse3_init_if0_end:
+	CMPL CX, $0x00000030
+	JNE  lsh512_ssse3_init_if1_end
+
+	// init384
+	// load_blk_mem2mem
+	MOVOA g_IV384<>+0(SB), X0
+	MOVOU X0, 16(AX)
+	MOVOA g_IV384<>+16(SB), X0
+	MOVOU X0, 32(AX)
+	MOVOA g_IV384<>+32(SB), X0
+	MOVOU X0, 48(AX)
+	MOVOA g_IV384<>+48(SB), X0
+	MOVOU X0, 64(AX)
+
+	// load_blk_mem2mem
+	MOVOA g_IV384<>+64(SB), X0
+	MOVOU X0, 80(AX)
+	MOVOA g_IV384<>+80(SB), X0
+	MOVOU X0, 96(AX)
+	MOVOA g_IV384<>+96(SB), X0
+	MOVOU X0, 112(AX)
+	MOVOA g_IV384<>+112(SB), X0
+	MOVOU X0, 128(AX)
+	JMP   lsh512_ssse3_init_ret
+
+lsh512_ssse3_init_if1_end:
+	CMPL CX, $0x00000020
+	JNE  lsh512_ssse3_init_if2_end
+
+	// init256
+	// load_blk_mem2mem
+	MOVOA g_IV256<>+0(SB), X0
+	MOVOU X0, 16(AX)
+	MOVOA g_IV256<>+16(SB), X0
+	MOVOU X0, 32(AX)
+	MOVOA g_IV256<>+32(SB), X0
+	MOVOU X0, 48(AX)
+	MOVOA g_IV256<>+48(SB), X0
+	MOVOU X0, 64(AX)
+
+	// load_blk_mem2mem
+	MOVOA g_IV256<>+64(SB), X0
+	MOVOU X0, 80(AX)
+	MOVOA g_IV256<>+80(SB), X0
+	MOVOU X0, 96(AX)
+	MOVOA g_IV256<>+96(SB), X0
+	MOVOU X0, 112(AX)
+	MOVOA g_IV256<>+112(SB), X0
+	MOVOU X0, 128(AX)
+	JMP   lsh512_ssse3_init_ret
+
+lsh512_ssse3_init_if2_end:
+	// init224
+	// load_blk_mem2mem
+	MOVOA g_IV224<>+0(SB), X0
+	MOVOU X0, 16(AX)
+	MOVOA g_IV224<>+16(SB), X0
+	MOVOU X0, 32(AX)
+	MOVOA g_IV224<>+32(SB), X0
+	MOVOU X0, 48(AX)
+	MOVOA g_IV224<>+48(SB), X0
+	MOVOU X0, 64(AX)
+
+	// load_blk_mem2mem
+	MOVOA g_IV224<>+64(SB), X0
+	MOVOU X0, 80(AX)
+	MOVOA g_IV224<>+80(SB), X0
+	MOVOU X0, 96(AX)
+	MOVOA g_IV224<>+96(SB), X0
+	MOVOU X0, 112(AX)
+	MOVOA g_IV224<>+112(SB), X0
+	MOVOU X0, 128(AX)
+
+lsh512_ssse3_init_ret:
+	MOVQ ctx+0(FP), AX
+	MOVQ DX, 8(AX)
+	RET
+
+// func lsh512UpdateSSSE3(ctx *lsh512ContextAsmData, data []byte)
+// Requires: SSE2, SSSE3
+TEXT ·lsh512UpdateSSSE3(SB), NOSPLIT, $256-32
+	MOVQ ctx+0(FP), AX
+	MOVL (AX), CX
+	MOVQ 8(AX), CX
+	MOVQ data_base+8(FP), DX
+	MOVQ data_len+16(FP), BX
+
+	// lsh512_ssse3_update
+	MOVQ CX, SI
+	MOVQ BX, DI
+	ADDQ SI, DI
+	CMPQ DI, $0x00000100
+	JGE  lsh512_ssse3_update_if0_end
+
+	// Memcpy
+	LEAQ 144(AX)(SI*1), AX
+	LEAQ (DX), DI
+	MOVQ BX, R8
+
+memcpy_4_sz16_start:
+	CMPQ  R8, $0x00000010
+	JL    memcpy_4_sz16_end
+	MOVOU (DI), X0
+	MOVOU X0, (AX)
+	ADDQ  $0x00000010, DI
+	ADDQ  $0x00000010, AX
+	SUBQ  $0x00000010, R8
+	JMP   memcpy_4_sz16_start
+
+memcpy_4_sz16_end:
+memcpy_4_sz8_start:
+	CMPQ R8, $0x00000008
+	JL   memcpy_4_sz8_end
+	MOVQ (DI), DX
+	MOVQ DX, (AX)
+	ADDQ $0x00000008, DI
+	ADDQ $0x00000008, AX
+	SUBQ $0x00000008, R8
+	JMP  memcpy_4_sz8_start
+
+memcpy_4_sz8_end:
+memcpy_4_sz4_start:
+	CMPQ R8, $0x00000004
+	JL   memcpy_4_sz4_end
+	MOVL (DI), DX
+	MOVL DX, (AX)
+	ADDQ $0x00000004, DI
+	ADDQ $0x00000004, AX
+	SUBQ $0x00000004, R8
+	JMP  memcpy_4_sz4_start
+
+memcpy_4_sz4_end:
+memcpy_4_sz2_start:
+	CMPQ R8, $0x00000002
+	JL   memcpy_4_sz2_end
+	MOVW (DI), DX
+	MOVW DX, (AX)
+	ADDQ $0x00000002, DI
+	ADDQ $0x00000002, AX
+	SUBQ $0x00000002, R8
+	JMP  memcpy_4_sz2_start
+
+memcpy_4_sz2_end:
+memcpy_4_sz1_start:
+	CMPQ R8, $0x00000001
+	JL   memcpy_4_sz1_end
+	MOVB (DI), DL
+	MOVB DL, (AX)
+	ADDQ $0x00000001, DI
+	ADDQ $0x00000001, AX
+	SUBQ $0x00000001, R8
+	JMP  memcpy_4_sz1_start
+
+memcpy_4_sz1_end:
+	ADDQ BX, CX
+	ADDQ BX, SI
+	JMP  lsh512_ssse3_update_ret
+
+lsh512_ssse3_update_if0_end:
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+	CMPQ  SI, $0x00000000
+	JE    lsh512_ssse3_update_if1_end
+	MOVQ  $0x00000100, CX
+	SUBQ  SI, CX
+
+	// Memcpy
+	LEAQ 144(AX)(SI*1), DI
+	LEAQ (DX), R8
+	MOVQ CX, R9
+
+memcpy_5_sz16_start:
+	CMPQ  R9, $0x00000010
+	JL    memcpy_5_sz16_end
+	MOVOU (R8), X8
+	MOVOU X8, (DI)
+	ADDQ  $0x00000010, R8
+	ADDQ  $0x00000010, DI
+	SUBQ  $0x00000010, R9
+	JMP   memcpy_5_sz16_start
+
+memcpy_5_sz16_end:
+memcpy_5_sz8_start:
+	CMPQ R9, $0x00000008
+	JL   memcpy_5_sz8_end
+	MOVQ (R8), SI
+	MOVQ SI, (DI)
+	ADDQ $0x00000008, R8
+	ADDQ $0x00000008, DI
+	SUBQ $0x00000008, R9
+	JMP  memcpy_5_sz8_start
+
+memcpy_5_sz8_end:
+memcpy_5_sz4_start:
+	CMPQ R9, $0x00000004
+	JL   memcpy_5_sz4_end
+	MOVL (R8), SI
+	MOVL SI, (DI)
+	ADDQ $0x00000004, R8
+	ADDQ $0x00000004, DI
+	SUBQ $0x00000004, R9
+	JMP  memcpy_5_sz4_start
+
+memcpy_5_sz4_end:
+memcpy_5_sz2_start:
+	CMPQ R9, $0x00000002
+	JL   memcpy_5_sz2_end
+	MOVW (R8), SI
+	MOVW SI, (DI)
+	ADDQ $0x00000002, R8
+	ADDQ $0x00000002, DI
+	SUBQ $0x00000002, R9
+	JMP  memcpy_5_sz2_start
+
+memcpy_5_sz2_end:
+memcpy_5_sz1_start:
+	CMPQ R9, $0x00000001
+	JL   memcpy_5_sz1_end
+	MOVB (R8), SI
+	MOVB SI, (DI)
+	ADDQ $0x00000001, R8
+	ADDQ $0x00000001, DI
+	SUBQ $0x00000001, R9
+	JMP  memcpy_5_sz1_start
+
+memcpy_5_sz1_end:
+	// compress
+	// load_blk_mem2mem
+	MOVOU 144(AX), X8
+	MOVOU X8, (SP)
+	MOVOU 160(AX), X8
+	MOVOU X8, 16(SP)
+	MOVOU 176(AX), X8
+	MOVOU X8, 32(SP)
+	MOVOU 192(AX), X8
+	MOVOU X8, 48(SP)
+
+	// load_blk_mem2mem
+	MOVOU 208(AX), X8
+	MOVOU X8, 64(SP)
+	MOVOU 224(AX), X8
+	MOVOU X8, 80(SP)
+	MOVOU 240(AX), X8
+	MOVOU X8, 96(SP)
+	MOVOU 256(AX), X8
+	MOVOU X8, 112(SP)
+
+	// load_blk_mem2mem
+	MOVOU 272(AX), X8
+	MOVOU X8, 128(SP)
+	MOVOU 288(AX), X8
+	MOVOU X8, 144(SP)
+	MOVOU 304(AX), X8
+	MOVOU X8, 160(SP)
+	MOVOU 320(AX), X8
+	MOVOU X8, 176(SP)
+
+	// load_blk_mem2mem
+	MOVOU 336(AX), X8
+	MOVOU X8, 192(SP)
+	MOVOU 352(AX), X8
+	MOVOU X8, 208(SP)
+	MOVOU 368(AX), X8
+	MOVOU X8, 224(SP)
+	MOVOU 384(AX), X8
+	MOVOU X8, 240(SP)
+
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+0(SB), X8
+	MOVOA g_StepConstants<>+16(SB), X9
+	MOVOA g_StepConstants<>+32(SB), X10
+	MOVOA g_StepConstants<>+48(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+64(SB), X8
+	MOVOA g_StepConstants<>+80(SB), X9
+	MOVOA g_StepConstants<>+96(SB), X10
+	MOVOA g_StepConstants<>+112(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+128(SB), X8
+	MOVOA g_StepConstants<>+144(SB), X9
+	MOVOA g_StepConstants<>+160(SB), X10
+	MOVOA g_StepConstants<>+176(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+192(SB), X8
+	MOVOA g_StepConstants<>+208(SB), X9
+	MOVOA g_StepConstants<>+224(SB), X10
+	MOVOA g_StepConstants<>+240(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+256(SB), X8
+	MOVOA g_StepConstants<>+272(SB), X9
+	MOVOA g_StepConstants<>+288(SB), X10
+	MOVOA g_StepConstants<>+304(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+320(SB), X8
+	MOVOA g_StepConstants<>+336(SB), X9
+	MOVOA g_StepConstants<>+352(SB), X10
+	MOVOA g_StepConstants<>+368(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+384(SB), X8
+	MOVOA g_StepConstants<>+400(SB), X9
+	MOVOA g_StepConstants<>+416(SB), X10
+	MOVOA g_StepConstants<>+432(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+448(SB), X8
+	MOVOA g_StepConstants<>+464(SB), X9
+	MOVOA g_StepConstants<>+480(SB), X10
+	MOVOA g_StepConstants<>+496(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+512(SB), X8
+	MOVOA g_StepConstants<>+528(SB), X9
+	MOVOA g_StepConstants<>+544(SB), X10
+	MOVOA g_StepConstants<>+560(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+576(SB), X8
+	MOVOA g_StepConstants<>+592(SB), X9
+	MOVOA g_StepConstants<>+608(SB), X10
+	MOVOA g_StepConstants<>+624(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+640(SB), X8
+	MOVOA g_StepConstants<>+656(SB), X9
+	MOVOA g_StepConstants<>+672(SB), X10
+	MOVOA g_StepConstants<>+688(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+704(SB), X8
+	MOVOA g_StepConstants<>+720(SB), X9
+	MOVOA g_StepConstants<>+736(SB), X10
+	MOVOA g_StepConstants<>+752(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+768(SB), X8
+	MOVOA g_StepConstants<>+784(SB), X9
+	MOVOA g_StepConstants<>+800(SB), X10
+	MOVOA g_StepConstants<>+816(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+832(SB), X8
+	MOVOA g_StepConstants<>+848(SB), X9
+	MOVOA g_StepConstants<>+864(SB), X10
+	MOVOA g_StepConstants<>+880(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+896(SB), X8
+	MOVOA g_StepConstants<>+912(SB), X9
+	MOVOA g_StepConstants<>+928(SB), X10
+	MOVOA g_StepConstants<>+944(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+960(SB), X8
+	MOVOA g_StepConstants<>+976(SB), X9
+	MOVOA g_StepConstants<>+992(SB), X10
+	MOVOA g_StepConstants<>+1008(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1024(SB), X8
+	MOVOA g_StepConstants<>+1040(SB), X9
+	MOVOA g_StepConstants<>+1056(SB), X10
+	MOVOA g_StepConstants<>+1072(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1088(SB), X8
+	MOVOA g_StepConstants<>+1104(SB), X9
+	MOVOA g_StepConstants<>+1120(SB), X10
+	MOVOA g_StepConstants<>+1136(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1152(SB), X8
+	MOVOA g_StepConstants<>+1168(SB), X9
+	MOVOA g_StepConstants<>+1184(SB), X10
+	MOVOA g_StepConstants<>+1200(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1216(SB), X8
+	MOVOA g_StepConstants<>+1232(SB), X9
+	MOVOA g_StepConstants<>+1248(SB), X10
+	MOVOA g_StepConstants<>+1264(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1280(SB), X8
+	MOVOA g_StepConstants<>+1296(SB), X9
+	MOVOA g_StepConstants<>+1312(SB), X10
+	MOVOA g_StepConstants<>+1328(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1344(SB), X8
+	MOVOA g_StepConstants<>+1360(SB), X9
+	MOVOA g_StepConstants<>+1376(SB), X10
+	MOVOA g_StepConstants<>+1392(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1408(SB), X8
+	MOVOA g_StepConstants<>+1424(SB), X9
+	MOVOA g_StepConstants<>+1440(SB), X10
+	MOVOA g_StepConstants<>+1456(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1472(SB), X8
+	MOVOA g_StepConstants<>+1488(SB), X9
+	MOVOA g_StepConstants<>+1504(SB), X10
+	MOVOA g_StepConstants<>+1520(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1536(SB), X8
+	MOVOA g_StepConstants<>+1552(SB), X9
+	MOVOA g_StepConstants<>+1568(SB), X10
+	MOVOA g_StepConstants<>+1584(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1600(SB), X8
+	MOVOA g_StepConstants<>+1616(SB), X9
+	MOVOA g_StepConstants<>+1632(SB), X10
+	MOVOA g_StepConstants<>+1648(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1664(SB), X8
+	MOVOA g_StepConstants<>+1680(SB), X9
+	MOVOA g_StepConstants<>+1696(SB), X10
+	MOVOA g_StepConstants<>+1712(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1728(SB), X8
+	MOVOA g_StepConstants<>+1744(SB), X9
+	MOVOA g_StepConstants<>+1760(SB), X10
+	MOVOA g_StepConstants<>+1776(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+	ADDQ  CX, DX
+	SUBQ  CX, BX
+	MOVQ  $0x00000000, SI
+	MOVQ  $0x00000000, CX
+
+lsh512_ssse3_update_if1_end:
+lsh512_ssse3_update_while_start:
+	CMPQ BX, $0x00000100
+	JL   lsh512_ssse3_update_while_end
+
+	// compress
+	// load_blk_mem2mem
+	MOVOU (DX), X8
+	MOVOU X8, (SP)
+	MOVOU 16(DX), X8
+	MOVOU X8, 16(SP)
+	MOVOU 32(DX), X8
+	MOVOU X8, 32(SP)
+	MOVOU 48(DX), X8
+	MOVOU X8, 48(SP)
+
+	// load_blk_mem2mem
+	MOVOU 64(DX), X8
+	MOVOU X8, 64(SP)
+	MOVOU 80(DX), X8
+	MOVOU X8, 80(SP)
+	MOVOU 96(DX), X8
+	MOVOU X8, 96(SP)
+	MOVOU 112(DX), X8
+	MOVOU X8, 112(SP)
+
+	// load_blk_mem2mem
+	MOVOU 128(DX), X8
+	MOVOU X8, 128(SP)
+	MOVOU 144(DX), X8
+	MOVOU X8, 144(SP)
+	MOVOU 160(DX), X8
+	MOVOU X8, 160(SP)
+	MOVOU 176(DX), X8
+	MOVOU X8, 176(SP)
+
+	// load_blk_mem2mem
+	MOVOU 192(DX), X8
+	MOVOU X8, 192(SP)
+	MOVOU 208(DX), X8
+	MOVOU X8, 208(SP)
+	MOVOU 224(DX), X8
+	MOVOU X8, 224(SP)
+	MOVOU 240(DX), X8
+	MOVOU X8, 240(SP)
+
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+0(SB), X8
+	MOVOA g_StepConstants<>+16(SB), X9
+	MOVOA g_StepConstants<>+32(SB), X10
+	MOVOA g_StepConstants<>+48(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+64(SB), X8
+	MOVOA g_StepConstants<>+80(SB), X9
+	MOVOA g_StepConstants<>+96(SB), X10
+	MOVOA g_StepConstants<>+112(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+128(SB), X8
+	MOVOA g_StepConstants<>+144(SB), X9
+	MOVOA g_StepConstants<>+160(SB), X10
+	MOVOA g_StepConstants<>+176(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+192(SB), X8
+	MOVOA g_StepConstants<>+208(SB), X9
+	MOVOA g_StepConstants<>+224(SB), X10
+	MOVOA g_StepConstants<>+240(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+256(SB), X8
+	MOVOA g_StepConstants<>+272(SB), X9
+	MOVOA g_StepConstants<>+288(SB), X10
+	MOVOA g_StepConstants<>+304(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+320(SB), X8
+	MOVOA g_StepConstants<>+336(SB), X9
+	MOVOA g_StepConstants<>+352(SB), X10
+	MOVOA g_StepConstants<>+368(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+384(SB), X8
+	MOVOA g_StepConstants<>+400(SB), X9
+	MOVOA g_StepConstants<>+416(SB), X10
+	MOVOA g_StepConstants<>+432(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+448(SB), X8
+	MOVOA g_StepConstants<>+464(SB), X9
+	MOVOA g_StepConstants<>+480(SB), X10
+	MOVOA g_StepConstants<>+496(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+512(SB), X8
+	MOVOA g_StepConstants<>+528(SB), X9
+	MOVOA g_StepConstants<>+544(SB), X10
+	MOVOA g_StepConstants<>+560(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+576(SB), X8
+	MOVOA g_StepConstants<>+592(SB), X9
+	MOVOA g_StepConstants<>+608(SB), X10
+	MOVOA g_StepConstants<>+624(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+640(SB), X8
+	MOVOA g_StepConstants<>+656(SB), X9
+	MOVOA g_StepConstants<>+672(SB), X10
+	MOVOA g_StepConstants<>+688(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+704(SB), X8
+	MOVOA g_StepConstants<>+720(SB), X9
+	MOVOA g_StepConstants<>+736(SB), X10
+	MOVOA g_StepConstants<>+752(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+768(SB), X8
+	MOVOA g_StepConstants<>+784(SB), X9
+	MOVOA g_StepConstants<>+800(SB), X10
+	MOVOA g_StepConstants<>+816(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+832(SB), X8
+	MOVOA g_StepConstants<>+848(SB), X9
+	MOVOA g_StepConstants<>+864(SB), X10
+	MOVOA g_StepConstants<>+880(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+896(SB), X8
+	MOVOA g_StepConstants<>+912(SB), X9
+	MOVOA g_StepConstants<>+928(SB), X10
+	MOVOA g_StepConstants<>+944(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+960(SB), X8
+	MOVOA g_StepConstants<>+976(SB), X9
+	MOVOA g_StepConstants<>+992(SB), X10
+	MOVOA g_StepConstants<>+1008(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1024(SB), X8
+	MOVOA g_StepConstants<>+1040(SB), X9
+	MOVOA g_StepConstants<>+1056(SB), X10
+	MOVOA g_StepConstants<>+1072(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1088(SB), X8
+	MOVOA g_StepConstants<>+1104(SB), X9
+	MOVOA g_StepConstants<>+1120(SB), X10
+	MOVOA g_StepConstants<>+1136(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1152(SB), X8
+	MOVOA g_StepConstants<>+1168(SB), X9
+	MOVOA g_StepConstants<>+1184(SB), X10
+	MOVOA g_StepConstants<>+1200(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1216(SB), X8
+	MOVOA g_StepConstants<>+1232(SB), X9
+	MOVOA g_StepConstants<>+1248(SB), X10
+	MOVOA g_StepConstants<>+1264(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1280(SB), X8
+	MOVOA g_StepConstants<>+1296(SB), X9
+	MOVOA g_StepConstants<>+1312(SB), X10
+	MOVOA g_StepConstants<>+1328(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1344(SB), X8
+	MOVOA g_StepConstants<>+1360(SB), X9
+	MOVOA g_StepConstants<>+1376(SB), X10
+	MOVOA g_StepConstants<>+1392(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1408(SB), X8
+	MOVOA g_StepConstants<>+1424(SB), X9
+	MOVOA g_StepConstants<>+1440(SB), X10
+	MOVOA g_StepConstants<>+1456(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1472(SB), X8
+	MOVOA g_StepConstants<>+1488(SB), X9
+	MOVOA g_StepConstants<>+1504(SB), X10
+	MOVOA g_StepConstants<>+1520(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1536(SB), X8
+	MOVOA g_StepConstants<>+1552(SB), X9
+	MOVOA g_StepConstants<>+1568(SB), X10
+	MOVOA g_StepConstants<>+1584(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1600(SB), X8
+	MOVOA g_StepConstants<>+1616(SB), X9
+	MOVOA g_StepConstants<>+1632(SB), X10
+	MOVOA g_StepConstants<>+1648(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1664(SB), X8
+	MOVOA g_StepConstants<>+1680(SB), X9
+	MOVOA g_StepConstants<>+1696(SB), X10
+	MOVOA g_StepConstants<>+1712(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1728(SB), X8
+	MOVOA g_StepConstants<>+1744(SB), X9
+	MOVOA g_StepConstants<>+1760(SB), X10
+	MOVOA g_StepConstants<>+1776(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(AX), X4
+	MOVOU 96(AX), X5
+	MOVOU 112(AX), X6
+	MOVOU 128(AX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+	ADDQ  $0x00000100, DX
+	SUBQ  $0x00000100, BX
+	JMP   lsh512_ssse3_update_while_start
+
+lsh512_ssse3_update_while_end:
+	// store_blk
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
+
+	// store_blk
+	MOVOU X4, 80(AX)
+	MOVOU X5, 96(AX)
+	MOVOU X6, 112(AX)
+	MOVOU X7, 128(AX)
+	CMPQ  SI, $0x00000000
+	JE    lsh512_ssse3_update_if3_end
+
+	// Memcpy
+	LEAQ 144(AX), AX
+	LEAQ (DX), DX
+	MOVQ BX, SI
+
+memcpy_6_sz16_start:
+	CMPQ  SI, $0x00000010
+	JL    memcpy_6_sz16_end
+	MOVOU (DX), X0
+	MOVOU X0, (AX)
+	ADDQ  $0x00000010, DX
+	ADDQ  $0x00000010, AX
+	SUBQ  $0x00000010, SI
+	JMP   memcpy_6_sz16_start
+
+memcpy_6_sz16_end:
+memcpy_6_sz8_start:
+	CMPQ SI, $0x00000008
+	JL   memcpy_6_sz8_end
+	MOVQ (DX), CX
+	MOVQ CX, (AX)
+	ADDQ $0x00000008, DX
+	ADDQ $0x00000008, AX
+	SUBQ $0x00000008, SI
+	JMP  memcpy_6_sz8_start
+
+memcpy_6_sz8_end:
+memcpy_6_sz4_start:
+	CMPQ SI, $0x00000004
+	JL   memcpy_6_sz4_end
+	MOVL (DX), CX
+	MOVL CX, (AX)
+	ADDQ $0x00000004, DX
+	ADDQ $0x00000004, AX
+	SUBQ $0x00000004, SI
+	JMP  memcpy_6_sz4_start
+
+memcpy_6_sz4_end:
+memcpy_6_sz2_start:
+	CMPQ SI, $0x00000002
+	JL   memcpy_6_sz2_end
+	MOVW (DX), CX
+	MOVW CX, (AX)
+	ADDQ $0x00000002, DX
+	ADDQ $0x00000002, AX
+	SUBQ $0x00000002, SI
+	JMP  memcpy_6_sz2_start
+
+memcpy_6_sz2_end:
+memcpy_6_sz1_start:
+	CMPQ SI, $0x00000001
+	JL   memcpy_6_sz1_end
+	MOVB (DX), CL
+	MOVB CL, (AX)
+	ADDQ $0x00000001, DX
+	ADDQ $0x00000001, AX
+	SUBQ $0x00000001, SI
+	JMP  memcpy_6_sz1_start
+
+memcpy_6_sz1_end:
+	MOVQ BX, CX
+
+lsh512_ssse3_update_if3_end:
+lsh512_ssse3_update_ret:
+	MOVQ ctx+0(FP), AX
+	MOVQ CX, 8(AX)
+	RET
+
+// func lsh512FinalSSSE3(ctx *lsh512ContextAsmData, hashval []byte)
+// Requires: SSE2, SSSE3
+TEXT ·lsh512FinalSSSE3(SB), NOSPLIT, $256-32
+	MOVQ ctx+0(FP), BX
+	MOVL (BX), CX
+	MOVQ 8(BX), AX
+	MOVQ hashval_base+8(FP), DX
+
+	// lsh512_ssse3_final
+	MOVQ AX, SI
+	MOVB $0x80, 144(BX)(SI*1)
+	MOVQ $0x000000ff, DI
+	SUBQ SI, DI
+
+	// memset
+	LEAQ 145(BX)(SI*1), SI
+	CMPQ DI, $0x00000010
+	JL   memset_2_sz16_end
+	MOVO memset_value_0<>+0(SB), X0
+
+memset_2_sz16_start:
+	MOVOU X0, (SI)
+	SUBQ  $0x00000010, DI
+	ADDQ  $0x00000010, SI
+	CMPQ  DI, $0x00000010
+	JL    memset_2_sz16_end
+	JMP   memset_2_sz16_start
+
+memset_2_sz16_end:
+	CMPQ DI, $0x00000008
+	JL   memset_2_sz8_end
+	MOVQ memset_value_0<>+0(SB), R8
+
+memset_2_sz8_start:
+	MOVQ R8, (SI)
+	SUBQ $0x00000008, DI
+	ADDQ $0x00000008, SI
+	CMPQ DI, $0x00000008
+	JL   memset_2_sz8_end
+	JMP  memset_2_sz8_start
+
+memset_2_sz8_end:
+	CMPQ DI, $0x00000004
+	JL   memset_2_sz4_end
+	MOVL memset_value_0<>+0(SB), R8
+
+memset_2_sz4_start:
+	MOVL R8, (SI)
+	SUBQ $0x00000004, DI
+	ADDQ $0x00000004, SI
+	CMPQ DI, $0x00000004
+	JL   memset_2_sz4_end
+	JMP  memset_2_sz4_start
+
+memset_2_sz4_end:
+	CMPQ DI, $0x00000002
+	JL   memset_2_sz2_end
+	MOVW memset_value_0<>+0(SB), R8
+
+memset_2_sz2_start:
+	MOVW R8, (SI)
+	SUBQ $0x00000002, DI
+	ADDQ $0x00000002, SI
+	CMPQ DI, $0x00000002
+	JL   memset_2_sz2_end
+	JMP  memset_2_sz2_start
+
+memset_2_sz2_end:
+memset_2_1_start:
+	CMPQ DI, $0x00000000
+	JE   memset_2_1_end
+	MOVB $0x00, (SI)
+	SUBQ $0x00000001, DI
+	ADDQ $0x00000001, SI
+	JMP  memset_2_1_start
+
+memset_2_1_end:
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// compress
+	// load_blk_mem2mem
+	MOVOU 144(BX), X8
+	MOVOU X8, (SP)
+	MOVOU 160(BX), X8
+	MOVOU X8, 16(SP)
+	MOVOU 176(BX), X8
+	MOVOU X8, 32(SP)
+	MOVOU 192(BX), X8
+	MOVOU X8, 48(SP)
+
+	// load_blk_mem2mem
+	MOVOU 208(BX), X8
+	MOVOU X8, 64(SP)
+	MOVOU 224(BX), X8
+	MOVOU X8, 80(SP)
+	MOVOU 240(BX), X8
+	MOVOU X8, 96(SP)
+	MOVOU 256(BX), X8
+	MOVOU X8, 112(SP)
+
+	// load_blk_mem2mem
+	MOVOU 272(BX), X8
+	MOVOU X8, 128(SP)
+	MOVOU 288(BX), X8
+	MOVOU X8, 144(SP)
+	MOVOU 304(BX), X8
+	MOVOU X8, 160(SP)
+	MOVOU 320(BX), X8
+	MOVOU X8, 176(SP)
+
+	// load_blk_mem2mem
+	MOVOU 336(BX), X8
+	MOVOU X8, 192(SP)
+	MOVOU 352(BX), X8
+	MOVOU X8, 208(SP)
+	MOVOU 368(BX), X8
+	MOVOU X8, 224(SP)
+	MOVOU 384(BX), X8
+	MOVOU X8, 240(SP)
+
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+0(SB), X8
+	MOVOA g_StepConstants<>+16(SB), X9
+	MOVOA g_StepConstants<>+32(SB), X10
+	MOVOA g_StepConstants<>+48(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+64(SB), X8
+	MOVOA g_StepConstants<>+80(SB), X9
+	MOVOA g_StepConstants<>+96(SB), X10
+	MOVOA g_StepConstants<>+112(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+128(SB), X8
+	MOVOA g_StepConstants<>+144(SB), X9
+	MOVOA g_StepConstants<>+160(SB), X10
+	MOVOA g_StepConstants<>+176(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+192(SB), X8
+	MOVOA g_StepConstants<>+208(SB), X9
+	MOVOA g_StepConstants<>+224(SB), X10
+	MOVOA g_StepConstants<>+240(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+256(SB), X8
+	MOVOA g_StepConstants<>+272(SB), X9
+	MOVOA g_StepConstants<>+288(SB), X10
+	MOVOA g_StepConstants<>+304(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+320(SB), X8
+	MOVOA g_StepConstants<>+336(SB), X9
+	MOVOA g_StepConstants<>+352(SB), X10
+	MOVOA g_StepConstants<>+368(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+384(SB), X8
+	MOVOA g_StepConstants<>+400(SB), X9
+	MOVOA g_StepConstants<>+416(SB), X10
+	MOVOA g_StepConstants<>+432(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+448(SB), X8
+	MOVOA g_StepConstants<>+464(SB), X9
+	MOVOA g_StepConstants<>+480(SB), X10
+	MOVOA g_StepConstants<>+496(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+512(SB), X8
+	MOVOA g_StepConstants<>+528(SB), X9
+	MOVOA g_StepConstants<>+544(SB), X10
+	MOVOA g_StepConstants<>+560(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+576(SB), X8
+	MOVOA g_StepConstants<>+592(SB), X9
+	MOVOA g_StepConstants<>+608(SB), X10
+	MOVOA g_StepConstants<>+624(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+640(SB), X8
+	MOVOA g_StepConstants<>+656(SB), X9
+	MOVOA g_StepConstants<>+672(SB), X10
+	MOVOA g_StepConstants<>+688(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+704(SB), X8
+	MOVOA g_StepConstants<>+720(SB), X9
+	MOVOA g_StepConstants<>+736(SB), X10
+	MOVOA g_StepConstants<>+752(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+768(SB), X8
+	MOVOA g_StepConstants<>+784(SB), X9
+	MOVOA g_StepConstants<>+800(SB), X10
+	MOVOA g_StepConstants<>+816(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+832(SB), X8
+	MOVOA g_StepConstants<>+848(SB), X9
+	MOVOA g_StepConstants<>+864(SB), X10
+	MOVOA g_StepConstants<>+880(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+896(SB), X8
+	MOVOA g_StepConstants<>+912(SB), X9
+	MOVOA g_StepConstants<>+928(SB), X10
+	MOVOA g_StepConstants<>+944(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+960(SB), X8
+	MOVOA g_StepConstants<>+976(SB), X9
+	MOVOA g_StepConstants<>+992(SB), X10
+	MOVOA g_StepConstants<>+1008(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1024(SB), X8
+	MOVOA g_StepConstants<>+1040(SB), X9
+	MOVOA g_StepConstants<>+1056(SB), X10
+	MOVOA g_StepConstants<>+1072(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1088(SB), X8
+	MOVOA g_StepConstants<>+1104(SB), X9
+	MOVOA g_StepConstants<>+1120(SB), X10
+	MOVOA g_StepConstants<>+1136(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1152(SB), X8
+	MOVOA g_StepConstants<>+1168(SB), X9
+	MOVOA g_StepConstants<>+1184(SB), X10
+	MOVOA g_StepConstants<>+1200(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1216(SB), X8
+	MOVOA g_StepConstants<>+1232(SB), X9
+	MOVOA g_StepConstants<>+1248(SB), X10
+	MOVOA g_StepConstants<>+1264(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1280(SB), X8
+	MOVOA g_StepConstants<>+1296(SB), X9
+	MOVOA g_StepConstants<>+1312(SB), X10
+	MOVOA g_StepConstants<>+1328(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1344(SB), X8
+	MOVOA g_StepConstants<>+1360(SB), X9
+	MOVOA g_StepConstants<>+1376(SB), X10
+	MOVOA g_StepConstants<>+1392(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1408(SB), X8
+	MOVOA g_StepConstants<>+1424(SB), X9
+	MOVOA g_StepConstants<>+1440(SB), X10
+	MOVOA g_StepConstants<>+1456(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1472(SB), X8
+	MOVOA g_StepConstants<>+1488(SB), X9
+	MOVOA g_StepConstants<>+1504(SB), X10
+	MOVOA g_StepConstants<>+1520(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1536(SB), X8
+	MOVOA g_StepConstants<>+1552(SB), X9
+	MOVOA g_StepConstants<>+1568(SB), X10
+	MOVOA g_StepConstants<>+1584(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1600(SB), X8
+	MOVOA g_StepConstants<>+1616(SB), X9
+	MOVOA g_StepConstants<>+1632(SB), X10
+	MOVOA g_StepConstants<>+1648(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1664(SB), X8
+	MOVOA g_StepConstants<>+1680(SB), X9
+	MOVOA g_StepConstants<>+1696(SB), X10
+	MOVOA g_StepConstants<>+1712(SB), X11
+
+	// mix_even
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_even_alpha
+	MOVOA X0, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x17, X12
+	PSRLQ $0x29, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_even_beta
+	MOVOA X4, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x3b, X8
+	PSRLQ $0x05, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_odd
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X0
+	MOVOU 144(SP), X1
+	MOVOU 160(SP), X2
+	MOVOU 176(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X4
+	MOVOU 16(SP), X5
+	MOVOU 32(SP), X6
+	MOVOU 48(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 128(SP)
+	MOVOU X1, 144(SP)
+	MOVOU X2, 160(SP)
+	MOVOU X3, 176(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X0
+	MOVOU 208(SP), X1
+	MOVOU 224(SP), X2
+	MOVOU 240(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X4
+	MOVOU 80(SP), X5
+	MOVOU 96(SP), X6
+	MOVOU 112(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 192(SP)
+	MOVOU X1, 208(SP)
+	MOVOU X2, 224(SP)
+	MOVOU X3, 240(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_odd
+	// load_blk_mem2vec
+	MOVOU 128(SP), X8
+	MOVOU 144(SP), X9
+	MOVOU 160(SP), X10
+	MOVOU 176(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 192(SP), X8
+	MOVOU 208(SP), X9
+	MOVOU 224(SP), X10
+	MOVOU 240(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// load_sc
+	// load_blk_mem2vec
+	MOVOA g_StepConstants<>+1728(SB), X8
+	MOVOA g_StepConstants<>+1744(SB), X9
+	MOVOA g_StepConstants<>+1760(SB), X10
+	MOVOA g_StepConstants<>+1776(SB), X11
+
+	// mix_odd
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_blk_odd_alpha
+	MOVOA X0, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X0
+	POR   X12, X0
+	MOVOA X1, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X1
+	POR   X12, X1
+	MOVOA X2, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X2
+	POR   X12, X2
+	MOVOA X3, X12
+	PSLLQ $0x07, X12
+	PSRLQ $0x39, X3
+	POR   X12, X3
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// add_blk
+	PADDQ X0, X4
+	PADDQ X1, X5
+	PADDQ X2, X6
+	PADDQ X3, X7
+
+	// rotate_blk_odd_beta
+	MOVOA X4, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X4
+	POR   X8, X4
+	MOVOA X5, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X5
+	POR   X8, X5
+	MOVOA X6, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X6
+	POR   X8, X6
+	MOVOA X7, X8
+	PSLLQ $0x03, X8
+	PSRLQ $0x3d, X7
+	POR   X8, X7
+
+	// add_blk
+	PADDQ X4, X0
+	PADDQ X5, X1
+	PADDQ X6, X2
+	PADDQ X7, X3
+
+	// rotate_msg_gamma
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
+
+	// word_perm
+	MOVOA      X0, X8
+	MOVOA      X0, X9
+	MOVOA      X1, X0
+	PUNPCKLQDQ X9, X0
+	MOVOA      X1, X9
+	MOVOA      X8, X1
+	PUNPCKHQDQ X9, X1
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PSHUFD     $0x4e, X5, X5
+	MOVOA      X4, X8
+	PUNPCKLQDQ X5, X4
+	PUNPCKHQDQ X8, X5
+	PSHUFD     $0x4e, X7, X7
+	MOVOA      X6, X8
+	PUNPCKLQDQ X7, X6
+	PUNPCKHQDQ X8, X7
+	MOVOA      X0, X8
+	MOVOA      X1, X9
+	MOVOA      X2, X0
+	MOVOA      X3, X1
+	MOVOA      X6, X2
+	MOVOA      X7, X3
+	MOVOA      X4, X6
+	MOVOA      X5, X7
+	MOVOA      X8, X4
+	MOVOA      X9, X5
+
+	// save___start
+	// load_blk_vec2mem
+	MOVOU X0, 16(BX)
+	MOVOU X1, 32(BX)
+	MOVOU X2, 48(BX)
+	MOVOU X3, 64(BX)
+
+	// load_blk_vec2mem
+	MOVOU X4, 80(BX)
+	MOVOU X5, 96(BX)
+	MOVOU X6, 112(BX)
+	MOVOU X7, 128(BX)
+
+	// save___end
+	// msg_exp_even
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU (SP), X0
+	MOVOU 16(SP), X1
+	MOVOU 32(SP), X2
+	MOVOU 48(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 128(SP), X4
+	MOVOU 144(SP), X5
+	MOVOU 160(SP), X6
+	MOVOU 176(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, (SP)
+	MOVOU X1, 16(SP)
+	MOVOU X2, 32(SP)
+	MOVOU X3, 48(SP)
+
+	// i_state_save___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 64(SP), X0
+	MOVOU 80(SP), X1
+	MOVOU 96(SP), X2
+	MOVOU 112(SP), X3
+
+	// i_state_load___end
+	// i_state_load___start
+	// load_blk_mem2vec
+	MOVOU 192(SP), X4
+	MOVOU 208(SP), X5
+	MOVOU 224(SP), X6
+	MOVOU 240(SP), X7
+
+	// i_state_load___end
+	PSHUFD     $0x4e, X1, X1
+	MOVOA      X0, X8
+	MOVOA      X1, X0
+	MOVOA      X8, X1
+	PSHUFD     $0x4e, X3, X3
+	MOVOA      X2, X8
+	MOVOA      X2, X9
+	MOVOA      X3, X2
+	PUNPCKLQDQ X9, X2
+	MOVOA      X3, X9
+	MOVOA      X8, X3
+	PUNPCKHQDQ X9, X3
+	PADDQ      X4, X0
+	PADDQ      X5, X1
+	PADDQ      X6, X2
+	PADDQ      X7, X3
+
+	// i_state_save___start
+	// load_blk_vec2mem
+	MOVOU X0, 64(SP)
+	MOVOU X1, 80(SP)
+	MOVOU X2, 96(SP)
+	MOVOU X3, 112(SP)
+
+	// i_state_save___end
+	// load___start
+	// load_blk_mem2vec
+	MOVOU 16(BX), X0
+	MOVOU 32(BX), X1
+	MOVOU 48(BX), X2
+	MOVOU 64(BX), X3
+
+	// load_blk_mem2vec
+	MOVOU 80(BX), X4
+	MOVOU 96(BX), X5
+	MOVOU 112(BX), X6
+	MOVOU 128(BX), X7
+
+	// load___end
+	// msg_add_even
+	// load_blk_mem2vec
+	MOVOU (SP), X8
+	MOVOU 16(SP), X9
+	MOVOU 32(SP), X10
+	MOVOU 48(SP), X11
+	PXOR  X8, X0
+	PXOR  X9, X1
+	PXOR  X10, X2
+	PXOR  X11, X3
+
+	// load_blk_mem2vec
+	MOVOU 64(SP), X8
+	MOVOU 80(SP), X9
+	MOVOU 96(SP), X10
+	MOVOU 112(SP), X11
+	PXOR  X8, X4
+	PXOR  X9, X5
+	PXOR  X10, X6
+	PXOR  X11, X7
+
+	// fin
+	PXOR X4, X0
+	PXOR X5, X1
+	PXOR X6, X2
+	PXOR X7, X3
+
+	// get_hash
+	MOVL CX, BX
+	ANDL $0x0000ffff, BX
+	SHRL $0x18, CX
+
+	// store_blk
+	MOVOU X0, (DX)
+	MOVOU X1, 16(DX)
+	MOVOU X2, 32(DX)
+	MOVOU X3, 48(DX)
+	CMPL  CX, $0x00000000
+	JE    get_hash_if_end
+	MOVB  $0xff, SI
+	SHLB  CL, SI
+	MOVB  SI, -1(DX)(BX*1)
+
+get_hash_if_end:
+	MOVQ ctx+0(FP), CX
+	MOVQ AX, 8(CX)
+	RET
+
 // func add_blk(cv_l []uint64, cv_r []uint64)
 // Requires: SSE2
 TEXT ·add_blk(SB), NOSPLIT, $0-48
@@ -24039,7 +44380,7 @@ TEXT ·add_blk(SB), NOSPLIT, $0-48
 	RET
 
 // func mix_even(cv_l []uint64, cv_r []uint64, const_v []uint64)
-// Requires: SSE2
+// Requires: SSE2, SSSE3
 TEXT ·mix_even(SB), NOSPLIT, $0-72
 	MOVQ cv_l_base+0(FP), AX
 	MOVQ cv_r_base+24(FP), CX
@@ -24123,50 +44464,10 @@ TEXT ·mix_even(SB), NOSPLIT, $0-72
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X13
-	PAND  X4, X13
-	PAND  g_BytePermInfo_sse2<>+16(SB), X4
-	MOVOA X13, X12
-	PSRLQ $+48, X12
-	PSLLQ $+16, X13
-	PXOR  X12, X13
-	PXOR  X13, X4
-	MOVOA X5, X13
-	PSRLQ $+32, X13
-	PSLLQ $+32, X5
-	PXOR  X13, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X13
-	PAND  X5, X13
-	PAND  g_BytePermInfo_sse2<>+16(SB), X5
-	MOVOA X13, X12
-	PSRLQ $+48, X12
-	PSLLQ $+16, X13
-	PXOR  X12, X13
-	PXOR  X13, X5
-	MOVOA X6, X13
-	PSRLQ $+56, X13
-	PSLLQ $+8, X6
-	PXOR  X13, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X13
-	PAND  X6, X13
-	PAND  g_BytePermInfo_sse2<>+16(SB), X6
-	MOVOA X13, X12
-	PSRLQ $+48, X12
-	PSLLQ $+16, X13
-	PXOR  X12, X13
-	PXOR  X13, X6
-	MOVOA X7, X13
-	PSRLQ $+24, X13
-	PSLLQ $+40, X7
-	PXOR  X13, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X13
-	PAND  X7, X13
-	PAND  g_BytePermInfo_sse2<>+16(SB), X7
-	MOVOA X13, X12
-	PSRLQ $+48, X12
-	PSLLQ $+16, X13
-	PXOR  X12, X13
-	PXOR  X13, X7
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
 
 	// store_blk
 	MOVOU X0, (AX)
@@ -24188,7 +44489,7 @@ TEXT ·mix_even(SB), NOSPLIT, $0-72
 	RET
 
 // func mix_odd(cv_l []uint64, cv_r []uint64, const_v []uint64)
-// Requires: SSE2
+// Requires: SSE2, SSSE3
 TEXT ·mix_odd(SB), NOSPLIT, $0-72
 	MOVQ cv_l_base+0(FP), AX
 	MOVQ cv_r_base+24(FP), CX
@@ -24272,50 +44573,10 @@ TEXT ·mix_odd(SB), NOSPLIT, $0-72
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X13
-	PAND  X4, X13
-	PAND  g_BytePermInfo_sse2<>+16(SB), X4
-	MOVOA X13, X12
-	PSRLQ $+48, X12
-	PSLLQ $+16, X13
-	PXOR  X12, X13
-	PXOR  X13, X4
-	MOVOA X5, X13
-	PSRLQ $+32, X13
-	PSLLQ $+32, X5
-	PXOR  X13, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X13
-	PAND  X5, X13
-	PAND  g_BytePermInfo_sse2<>+16(SB), X5
-	MOVOA X13, X12
-	PSRLQ $+48, X12
-	PSLLQ $+16, X13
-	PXOR  X12, X13
-	PXOR  X13, X5
-	MOVOA X6, X13
-	PSRLQ $+56, X13
-	PSLLQ $+8, X6
-	PXOR  X13, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X13
-	PAND  X6, X13
-	PAND  g_BytePermInfo_sse2<>+16(SB), X6
-	MOVOA X13, X12
-	PSRLQ $+48, X12
-	PSLLQ $+16, X13
-	PXOR  X12, X13
-	PXOR  X13, X6
-	MOVOA X7, X13
-	PSRLQ $+24, X13
-	PSLLQ $+40, X7
-	PXOR  X13, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X13
-	PAND  X7, X13
-	PAND  g_BytePermInfo_sse2<>+16(SB), X7
-	MOVOA X13, X12
-	PSRLQ $+48, X12
-	PSLLQ $+16, X13
-	PXOR  X12, X13
-	PXOR  X13, X7
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X4
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X5
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X6
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X7
 
 	// store_blk
 	MOVOU X0, (AX)
@@ -24947,7 +45208,7 @@ TEXT ·rotate_blk_odd_beta(SB), NOSPLIT, $0-24
 	RET
 
 // func rotate_msg_gamma(cv_r []uint64)
-// Requires: SSE2
+// Requires: SSE2, SSSE3
 TEXT ·rotate_msg_gamma(SB), NOSPLIT, $0-24
 	MOVQ cv_r_base+0(FP), AX
 
@@ -24958,50 +45219,10 @@ TEXT ·rotate_msg_gamma(SB), NOSPLIT, $0-24
 	MOVOU 48(AX), X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X5
-	PAND  X0, X5
-	PAND  g_BytePermInfo_sse2<>+16(SB), X0
-	MOVOA X5, X4
-	PSRLQ $+48, X4
-	PSLLQ $+16, X5
-	PXOR  X4, X5
-	PXOR  X5, X0
-	MOVOA X1, X5
-	PSRLQ $+32, X5
-	PSLLQ $+32, X1
-	PXOR  X5, X1
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X5
-	PAND  X1, X5
-	PAND  g_BytePermInfo_sse2<>+16(SB), X1
-	MOVOA X5, X4
-	PSRLQ $+48, X4
-	PSLLQ $+16, X5
-	PXOR  X4, X5
-	PXOR  X5, X1
-	MOVOA X2, X5
-	PSRLQ $+56, X5
-	PSLLQ $+8, X2
-	PXOR  X5, X2
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X5
-	PAND  X2, X5
-	PAND  g_BytePermInfo_sse2<>+16(SB), X2
-	MOVOA X5, X4
-	PSRLQ $+48, X4
-	PSLLQ $+16, X5
-	PXOR  X4, X5
-	PXOR  X5, X2
-	MOVOA X3, X5
-	PSRLQ $+24, X5
-	PSLLQ $+40, X3
-	PXOR  X5, X3
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X5
-	PAND  X3, X5
-	PAND  g_BytePermInfo_sse2<>+16(SB), X3
-	MOVOA X5, X4
-	PSRLQ $+48, X4
-	PSLLQ $+16, X5
-	PXOR  X4, X5
-	PXOR  X5, X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X0
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X1
+	PSHUFB g_BytePermInfo_ssse3<>+32(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+48(SB), X3
 
 	// store_blk
 	MOVOU X0, (AX)

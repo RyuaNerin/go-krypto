@@ -8,6 +8,12 @@ func lsh512UpdateSSE2(ctx *lsh512ContextAsmData, data []byte)
 
 func lsh512FinalSSE2(ctx *lsh512ContextAsmData, hashval []byte)
 
+func lsh512InitSSSE3(ctx *lsh512ContextAsmData)
+
+func lsh512UpdateSSSE3(ctx *lsh512ContextAsmData, data []byte)
+
+func lsh512FinalSSSE3(ctx *lsh512ContextAsmData, hashval []byte)
+
 func add_blk(cv_l []uint64, cv_r []uint64)
 
 func mix_even(cv_l []uint64, cv_r []uint64, const_v []uint64)
