@@ -8,12 +8,14 @@ import (
 	. "github.com/mmcloughlin/avo/reg"
 )
 
-func leaEnc4SSE2() {
-	TEXT("leaEnc4SSE2", NOSPLIT, "func(ctx *leaContext, dst []byte, src []byte)")
+func leaEnc4NEON() {
+	TEXT("leaEnc4NEON", NOSPLIT, "func(ctx *leaContext, dst []byte, src []byte)")
 
 	ctx := GetCtx()
 	dst := Mem{Base: Load(Param("dst").Base(), GP64())}
 	src := Mem{Base: Load(Param("src").Base(), GP64())}
+
+	XMM()
 
 	/**
 	__m128i x0, x1, x2, x3, tmp;
@@ -152,8 +154,8 @@ func leaEnc4SSE2() {
 	RET()
 }
 
-func leaDec4SSE2() {
-	TEXT("leaDec4SSE2", NOSPLIT, "func(ctx *leaContext, dst []byte, src []byte)")
+func leaDec4NEON() {
+	TEXT("leaDec4NEON", NOSPLIT, "func(ctx *leaContext, dst []byte, src []byte)")
 
 	ctx := GetCtx()
 	dst := Mem{Base: Load(Param("dst").Base(), GP64())}

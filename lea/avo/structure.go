@@ -1,4 +1,4 @@
-package main
+package avo
 
 import (
 	. "github.com/mmcloughlin/avo/build"
@@ -12,12 +12,12 @@ type leaContext struct {
 	ecb   bool
 }
 
-type leaContextInner struct {
-	round Register
-	rk    Mem
+type LeaContext struct {
+	Round Register // U8
+	Rk    Mem
 }
 
-func getCtx() leaContextInner {
+func GetCtx() LeaContext {
 	ctx := Dereference(Param("ctx"))
 
 	round := Load(ctx.Field("round"), GP8())
@@ -26,8 +26,8 @@ func getCtx() leaContextInner {
 		panic(err)
 	}
 
-	return leaContextInner{
-		round: round,
-		rk:    rk.Addr,
+	return LeaContext{
+		Round: round,
+		Rk:    rk.Addr,
 	}
 }
