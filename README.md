@@ -47,6 +47,7 @@
 - It was based on the below.
 
     | Algorithm | x86 SIMD Supports       | Reference                                                   |
+    |:---------:|-------------------------|:-----------------------------------------------------------:|
     | LEA       | `SSE2` `AVX2`*          | [KISA](https://seed.kisa.or.kr/kisa/Board/20/detailView.do) |
     | LSH-256   | `SSE2` `SSSE3` `AVX2`** | [KISA](https://seed.kisa.or.kr/kisa/Board/22/detailView.do) |
     | LSH-512   | `SSE2` `SSSE3` `AVX2`   | [KISA](https://seed.kisa.or.kr/kisa/Board/22/detailView.do) |
