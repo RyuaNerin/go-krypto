@@ -17,7 +17,7 @@ var (
 
 type simdSet struct {
 	init   func(ctx *lsh256ContextAsmData)
-	update func(ctx *lsh256ContextAsmData, data []byte, databitlen uint32)
+	update func(ctx *lsh256ContextAsmData, data []byte)
 	final  func(ctx *lsh256ContextAsmData, hashval []byte)
 }
 
@@ -81,25 +81,23 @@ type lsh256ContextAsm struct {
 }
 type lsh256ContextAsmData struct {
 	// 16 aligned
-	int   uint32
-	_pad0 [16 - 4]byte
-	// 16 aligned
-	remain_databitlen uint32
-	_pad1             [16 - 4]byte
+	algtype            uint32
+	_                  [4]byte
+	remain_databytelen uint64
 
-	cv_l       [32 / 4]uint32
-	cv_r       [32 / 4]uint32
+	cv_l       [32]byte
+	cv_r       [32]byte
 	last_block [128]byte
 }
 
 func initContextAsm(ctx *lsh256ContextAsm, size int, simd simdSet) {
 	ctx.simd = simd
-	ctx.data.int = uint32(size)
+	ctx.data.algtype = uint32(size)
 	ctx.Reset()
 }
 
 func (ctx *lsh256ContextAsm) Size() int {
-	return int(ctx.data.int)
+	return int(ctx.data.algtype)
 }
 
 func (ctx *lsh256ContextAsm) BlockSize() int {
@@ -107,7 +105,7 @@ func (ctx *lsh256ContextAsm) BlockSize() int {
 }
 
 func (ctx *lsh256ContextAsm) Reset() {
-	ctx.data.remain_databitlen = 0
+	ctx.data.remain_databytelen = 0
 	ctx.simd.init(&ctx.data)
 }
 
@@ -115,7 +113,7 @@ func (ctx *lsh256ContextAsm) Write(data []byte) (n int, err error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
-	ctx.simd.update(&ctx.data, data, uint32(len(data)*8))
+	ctx.simd.update(&ctx.data, data)
 
 	return len(data), nil
 }
