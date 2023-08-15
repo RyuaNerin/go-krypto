@@ -1,4 +1,4 @@
-package lsh512ssse3
+package lsh512sse2
 
 import (
 	. "github.com/mmcloughlin/avo/build"
@@ -7,7 +7,7 @@ import (
 
 	. "kryptosimd/avoutil"
 	. "kryptosimd/avoutil/simd"
-	. "kryptosimd/lsh/ssse3"
+	. "kryptosimd/lsh/x86/sse2"
 	. "kryptosimd/lsh512/avo/lsh512avoconst"
 	. "kryptosimd/lsh512/avo/lsh512common"
 )
@@ -21,8 +21,8 @@ import (
 //		LSH_ALIGNED_(32) __m128i submsg_e_r[4];	/* even right sub-message */
 //		LSH_ALIGNED_(32) __m128i submsg_o_l[4];	/* odd left sub-message */
 //		LSH_ALIGNED_(32) __m128i submsg_o_r[4];	/* odd right sub-message */
-//	} LSH512SSSE3_internal;
-type LSH512SSSE3_internal struct {
+//	} LSH512SSE2_internal;
+type LSH512SSE2_internal struct {
 	submsg_e_l []VecVirtual
 	submsg_e_r []VecVirtual
 	submsg_o_l []VecVirtual
@@ -37,12 +37,12 @@ type LSH512SSSE3_internal struct {
 	tempVec1 []VecVirtual
 }
 
-func (ctx *LSH512SSSE3_internal) load(v []VecVirtual, m Mem) {
+func (ctx *LSH512SSE2_internal) load(v []VecVirtual, m Mem) {
 	Comment("i_state_load___start")
 	load_blk_mem2vec(v, m)
 	Comment("i_state_load___end")
 }
-func (ctx *LSH512SSSE3_internal) save(v []VecVirtual, m Mem) {
+func (ctx *LSH512SSE2_internal) save(v []VecVirtual, m Mem) {
 	Comment("i_state_save___start")
 	load_blk_vec2mem(m, v)
 	Comment("i_state_save___end")
@@ -109,8 +109,8 @@ func store_blk(dst Mem, src []VecVirtual) {
 	STORE(dst.Offset(XmmSize*3), src[3])
 }
 
-// static INLINE void load_msg_blk(LSH512SSSE3_internal * i_state, const lsh_u64* msgblk){
-func load_msg_blk(i_state LSH512SSSE3_internal, msgblk Mem /* uint32 */) {
+// static INLINE void load_msg_blk(LSH512SSE2_internal * i_state, const lsh_u64* msgblk){
+func load_msg_blk(i_state LSH512SSE2_internal, msgblk Mem /* uint32 */) {
 	//load_blk(i_state->submsg_e_l, msgblk + 0);
 	load_blk_mem2mem(i_state.submsg_e_l_Mem, msgblk.Offset(0*8))
 	//load_blk(i_state->submsg_e_r, msgblk + 8);
@@ -121,8 +121,8 @@ func load_msg_blk(i_state LSH512SSSE3_internal, msgblk Mem /* uint32 */) {
 	load_blk_mem2mem(i_state.submsg_o_r_Mem, msgblk.Offset(24*8))
 }
 
-// static INLINE void msg_exp_even(LSH512SSSE3_internal * i_state){
-func msg_exp_even(i_state LSH512SSSE3_internal) {
+// static INLINE void msg_exp_even(LSH512SSE2_internal * i_state){
+func msg_exp_even(i_state LSH512SSE2_internal) {
 	if i_state.tempVec0 == nil || i_state.tempVec1 == nil {
 		panic(`tempVec is required`)
 	}
@@ -206,8 +206,8 @@ func msg_exp_even(i_state LSH512SSSE3_internal) {
 	i_state.save(i_state.submsg_e_r, i_state.submsg_e_r_Mem)
 }
 
-// static INLINE void msg_exp_odd(LSH512SSSE3_internal * i_state){
-func msg_exp_odd(i_state LSH512SSSE3_internal) {
+// static INLINE void msg_exp_odd(LSH512SSE2_internal * i_state){
+func msg_exp_odd(i_state LSH512SSE2_internal) {
 	if i_state.tempVec0 == nil || i_state.tempVec1 == nil {
 		panic(`tempVec is required`)
 	}
@@ -300,8 +300,8 @@ func load_sc(const_v []VecVirtual, i int) {
 
 }
 
-// static INLINE void msg_add_even(__m128i* cv_l, __m128i* cv_r, const LSH512SSSE3_internal * i_state){
-func msg_add_even(cv_l, cv_r []VecVirtual, i_state LSH512SSSE3_internal, tempVec []VecVirtual) {
+// static INLINE void msg_add_even(__m128i* cv_l, __m128i* cv_r, const LSH512SSE2_internal * i_state){
+func msg_add_even(cv_l, cv_r []VecVirtual, i_state LSH512SSE2_internal, tempVec []VecVirtual) {
 	Comment("msg_add_even")
 
 	//cv_l[0] = XOR(cv_l[0], i_state->submsg_e_l[0]);
@@ -326,8 +326,8 @@ func msg_add_even(cv_l, cv_r []VecVirtual, i_state LSH512SSSE3_internal, tempVec
 	XOR(cv_r[3], tempVec[3])
 }
 
-// static INLINE void msg_add_odd(__m128i* cv_l, __m128i* cv_r, const LSH512SSSE3_internal * i_state){
-func msg_add_odd(cv_l, cv_r []VecVirtual, i_state LSH512SSSE3_internal, tempVec []VecVirtual) {
+// static INLINE void msg_add_odd(__m128i* cv_l, __m128i* cv_r, const LSH512SSE2_internal * i_state){
+func msg_add_odd(cv_l, cv_r []VecVirtual, i_state LSH512SSE2_internal, tempVec []VecVirtual) {
 	Comment("msg_add_odd")
 
 	//cv_l[0] = XOR(cv_l[0], i_state->submsg_o_l[0]);
@@ -444,18 +444,72 @@ func xor_with_const(cv_l []VecVirtual, const_v []VecVirtual) {
 	XOR(cv_l[3], const_v[3])
 }
 
-// static INLINE void rotate_msg_gamma(__m128i* cv_r, const __m128i * perm_step){
-func rotate_msg_gamma(cv_r []VecVirtual, perm_step []Mem) {
+// static INLINE void rotate_msg_gamma(__m128i* cv_r){
+func rotate_msg_gamma(cv_r []VecVirtual) {
 	Comment("rotate_msg_gamma")
 
-	//cv_r[0] = SHUFFLE8(cv_r[0], perm_step[0]);
-	SHUFFLE8(cv_r[0], perm_step[0])
-	//cv_r[1] = SHUFFLE8(cv_r[1], perm_step[1]);
-	SHUFFLE8(cv_r[1], perm_step[1])
-	//cv_r[2] = SHUFFLE8(cv_r[2], perm_step[2]);
-	SHUFFLE8(cv_r[2], perm_step[2])
-	//cv_r[3] = SHUFFLE8(cv_r[3], perm_step[3]);
-	SHUFFLE8(cv_r[3], perm_step[3])
+	__tmp := XMM()
+
+	//__m128i temp;
+	temp := XMM()
+
+	step := func(idx int) {
+		//temp = _mm_and_si128(cv_r[0], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0));\
+		//cv_r[0] = _mm_and_si128(cv_r[0], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff));\
+		//temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48));\
+		//cv_r[0] = _mm_xor_si128(cv_r[0], temp);\
+
+		MOVO_autoAU2(temp, g_BytePermInfo) //temp =                        _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0)
+		F_mm_and_si128(temp, cv_r[idx])    //temp = _mm_and_si128(cv_r[0], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0))
+
+		F_mm_and_si128(cv_r[idx], g_BytePermInfo.Offset(XmmSize)) //cv_r[0] = _mm_and_si128(cv_r[0], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff))
+
+		MOVO_autoAU2(__tmp, temp)      //	                                                     __tmp = temp
+		F_mm_srli_epi64(__tmp, I8(48)) //                                      (__tmp =) _mm_srli_epi64(temp, 48))
+		F_mm_slli_epi64(temp, I8(16))  // temp =               _mm_slli_epi64(temp, 16)
+		F_mm_xor_si128(temp, __tmp)    // temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48))
+
+		F_mm_xor_si128(cv_r[idx], temp) //cv_r[0] = _mm_xor_si128(cv_r[0], temp);
+	}
+	step2 := func(idx, slli, srli int) {
+		MOVO_autoAU2(temp, cv_r[idx])        //                                                              temp = cv_r[1]
+		F_mm_srli_epi64(temp, I8(srli))      //                                               temp = _mm_srli_epi64(cv_r[1], 32))
+		F_mm_slli_epi64(cv_r[idx], I8(slli)) //               cv_r[1] = _mm_slli_epi64(cv_r[1], 32)
+		F_mm_xor_si128(cv_r[idx], temp)      // cv_r[1] = _mm_xor_si128(_mm_slli_epi64(cv_r[1], 32), _mm_srli_epi64(cv_r[1], 32))
+	}
+
+	//temp = _mm_and_si128(cv_r[0], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0));\
+	//cv_r[0] = _mm_and_si128(cv_r[0], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff));\
+	//temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48));\
+	//cv_r[0] = _mm_xor_si128(cv_r[0], temp);\
+	step(0)
+
+	//cv_r[1] = _mm_xor_si128(_mm_slli_epi64(cv_r[1], 32), _mm_srli_epi64(cv_r[1], 32));\
+	step2(1, 32, 32)
+
+	//temp = _mm_and_si128(cv_r[1], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0));\
+	//cv_r[1] = _mm_and_si128(cv_r[1], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff));\
+	//temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48));\
+	//cv_r[1] = _mm_xor_si128(cv_r[1], temp);\
+	step(1)
+
+	//cv_r[2] = _mm_xor_si128(_mm_slli_epi64(cv_r[2], 8), _mm_srli_epi64(cv_r[2], 56));\
+	step2(2, 8, 56)
+
+	//temp = _mm_and_si128(cv_r[2], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0));\
+	//cv_r[2] = _mm_and_si128(cv_r[2], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff));\
+	//temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48));\
+	//cv_r[2] = _mm_xor_si128(cv_r[2], temp);\
+	step(2)
+
+	//cv_r[3] = _mm_xor_si128(_mm_slli_epi64(cv_r[3], 40), _mm_srli_epi64(cv_r[3], 24));\
+	step2(3, 40, 24)
+
+	//temp= _mm_and_si128(cv_r[3], _mm_set_epi32(0xffffffff, 0xffffffff, 0x0, 0x0));\
+	//cv_r[3] = _mm_and_si128(cv_r[3], _mm_set_epi32(0x0, 0x0, 0xffffffff, 0xffffffff));\
+	//temp = _mm_xor_si128(_mm_slli_epi64(temp, 16), _mm_srli_epi64(temp, 48));\
+	//cv_r[3] = _mm_xor_si128(cv_r[3], temp);
+	step(3)
 }
 
 // static INLINE void word_perm(__m128i* cv_l, __m128i* cv_r){
@@ -517,8 +571,8 @@ func word_perm(cv_l, cv_r []VecVirtual, temp []VecVirtual) {
 // step function
 /* -------------------------------------------------------- */
 
-// static INLINE void mix_even(__m128i* cv_l, __m128i* cv_r, const __m128i* const_v, const __m128i * perm_step){
-func mix_even(cv_l, cv_r []VecVirtual, const_v []VecVirtual, perm_step []Mem) {
+// static INLINE void mix_even(__m128i* cv_l, __m128i* cv_r, const __m128i* const_v){
+func mix_even(cv_l, cv_r []VecVirtual, const_v []VecVirtual) {
 	Comment("mix_even")
 
 	add_blk(cv_l, cv_r)
@@ -527,11 +581,11 @@ func mix_even(cv_l, cv_r []VecVirtual, const_v []VecVirtual, perm_step []Mem) {
 	add_blk(cv_r, cv_l)
 	rotate_blk_even_beta(cv_r)
 	add_blk(cv_l, cv_r)
-	rotate_msg_gamma(cv_r, perm_step)
+	rotate_msg_gamma(cv_r)
 }
 
-// static INLINE void mix_odd(__m128i* cv_l, __m128i* cv_r, const __m128i* const_v, const __m128i * perm_step){
-func mix_odd(cv_l, cv_r []VecVirtual, const_v []VecVirtual, perm_step []Mem) {
+// static INLINE void mix_odd(__m128i* cv_l, __m128i* cv_r, const __m128i* const_v){
+func mix_odd(cv_l, cv_r []VecVirtual, const_v []VecVirtual) {
 	Comment("mix_odd")
 
 	add_blk(cv_l, cv_r)
@@ -540,7 +594,7 @@ func mix_odd(cv_l, cv_r []VecVirtual, const_v []VecVirtual, perm_step []Mem) {
 	add_blk(cv_r, cv_l)
 	rotate_blk_odd_beta(cv_r)
 	add_blk(cv_l, cv_r)
-	rotate_msg_gamma(cv_r, perm_step)
+	rotate_msg_gamma(cv_r)
 }
 
 /* -------------------------------------------------------- */
@@ -554,10 +608,8 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv
 
 	//__m128i const_v[4];			// step function constant
 	const_v := xmmTemp
-	// __m128i perm_step[4];	// byte permutation info
-	perm_step := make([]Mem, 4)
-	//LSH512SSSE3_internal i_state[1];
-	i_state := LSH512SSSE3_internal{
+	//LSH512SSE2_internal i_state[1];
+	i_state := LSH512SSE2_internal{
 		tempVec0:       cv_l,
 		tempVec1:       cv_r,
 		submsg_e_l_Mem: i_state_alloc.Offset(XmmSize * 4 * 0),
@@ -566,15 +618,6 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv
 		submsg_o_r_Mem: i_state_alloc.Offset(XmmSize * 4 * 3),
 	}
 	//int i;
-
-	//perm_step[0] = LOAD(g_BytePermInfo[0]);
-	perm_step[0] = g_BytePermInfo.Offset(XmmSize * 0)
-	//perm_step[1] = LOAD(g_BytePermInfo[1]);
-	perm_step[1] = g_BytePermInfo.Offset(XmmSize * 1)
-	//perm_step[2] = LOAD(g_BytePermInfo[2]);
-	perm_step[2] = g_BytePermInfo.Offset(XmmSize * 2)
-	//perm_step[3] = LOAD(g_BytePermInfo[3]);
-	perm_step[3] = g_BytePermInfo.Offset(XmmSize * 3)
 
 	save := func() {
 		Comment("save___start")
@@ -593,12 +636,12 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv
 
 	msg_add_even(cv_l, cv_r, i_state, xmmTemp)
 	load_sc(const_v, 0)
-	mix_even(cv_l, cv_r, const_v, perm_step)
+	mix_even(cv_l, cv_r, const_v)
 	word_perm(cv_l, cv_r, xmmTemp)
 
 	msg_add_odd(cv_l, cv_r, i_state, xmmTemp)
 	load_sc(const_v, 8)
-	mix_odd(cv_l, cv_r, const_v, perm_step)
+	mix_odd(cv_l, cv_r, const_v)
 	word_perm(cv_l, cv_r, xmmTemp)
 
 	//for (i = 1; i < NUM_STEPS / 2; i++){
@@ -608,7 +651,7 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv
 		load()
 		msg_add_even(cv_l, cv_r, i_state, xmmTemp)
 		load_sc(const_v, i*16)
-		mix_even(cv_l, cv_r, const_v, perm_step)
+		mix_even(cv_l, cv_r, const_v)
 		word_perm(cv_l, cv_r, xmmTemp)
 
 		save()
@@ -616,7 +659,7 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv
 		load()
 		msg_add_odd(cv_l, cv_r, i_state, xmmTemp)
 		load_sc(const_v, i*16+8)
-		mix_odd(cv_l, cv_r, const_v, perm_step)
+		mix_odd(cv_l, cv_r, const_v)
 		word_perm(cv_l, cv_r, xmmTemp)
 	}
 
@@ -627,7 +670,7 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv
 }
 
 /* -------------------------------------------------------- */
-//static INLINE void init224(LSH512SSSE3_Context* state)
+//static INLINE void init224(LSH512SSE2_Context* state)
 func init224(state *LSH512_Context) {
 	Comment("init224")
 
@@ -637,7 +680,7 @@ func init224(state *LSH512_Context) {
 	load_blk_mem2mem(state.Cv_r, G_IV224.Offset(8*8))
 }
 
-// static INLINE void init256(LSH512SSSE3_Context* state)
+// static INLINE void init256(LSH512SSE2_Context* state)
 func init256(state *LSH512_Context) {
 	Comment("init256")
 
@@ -647,7 +690,7 @@ func init256(state *LSH512_Context) {
 	load_blk_mem2mem(state.Cv_r, G_IV256.Offset(8*8))
 }
 
-// static INLINE void init384(LSH512SSSE3_Context* state)
+// static INLINE void init384(LSH512SSE2_Context* state)
 func init384(state *LSH512_Context) {
 	Comment("init384")
 
@@ -657,7 +700,7 @@ func init384(state *LSH512_Context) {
 	load_blk_mem2mem(state.Cv_r, G_IV384.Offset(8*8))
 }
 
-// static INLINE void init512(LSH512SSSE3_Context* state)
+// static INLINE void init512(LSH512SSE2_Context* state)
 func init512(state *LSH512_Context) {
 	Comment("init512")
 
@@ -704,11 +747,11 @@ func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 
 /* -------------------------------------------------------- */
 
-// lsh_err lsh512_ssse3_init(struct LSH512_Context * _ctx, const lsh_type algtype){
-func Lsh512_ssse3_init(ctx *LSH512_Context) {
-	Comment("lsh512_ssse3_init")
+// lsh_err lsh512_sse2_init(struct LSH512_Context * _ctx, const lsh_type algtype){
+func Lsh512_sse2_init(ctx *LSH512_Context) {
+	Comment("lsh512_sse2_init")
 
-	//LSH512SSSE3_Context* ctx = (LSH512SSSE3_Context*)_ctx;
+	//LSH512SSE2_Context* ctx = (LSH512SSE2_Context*)_ctx;
 	//__m128i cv_l[4];
 	//__m128i cv_r[4];
 	//__m128i const_v[4];
@@ -732,40 +775,40 @@ func Lsh512_ssse3_init(ctx *LSH512_Context) {
 	//switch (algtype){
 	//case LSH_TYPE_512_512:
 	CMPL(ctx.Algtype, U32(LSH_TYPE_512_512))
-	JNE(LabelRef("lsh512_ssse3_init_if0_end"))
+	JNE(LabelRef("lsh512_sse2_init_if0_end"))
 	{
 		//	init512(ctx);
 		init512(ctx)
 		//	return LSH_SUCCESS;
-		JMP(LabelRef("lsh512_ssse3_init_ret"))
+		JMP(LabelRef("lsh512_sse2_init_ret"))
 	}
-	Label("lsh512_ssse3_init_if0_end")
+	Label("lsh512_sse2_init_if0_end")
 	//case LSH_TYPE_512_384:
 	CMPL(ctx.Algtype, U32(LSH_TYPE_512_384))
-	JNE(LabelRef("lsh512_ssse3_init_if1_end"))
+	JNE(LabelRef("lsh512_sse2_init_if1_end"))
 	{
 		//	init384(ctx);
 		init384(ctx)
 		//	return LSH_SUCCESS;
-		JMP(LabelRef("lsh512_ssse3_init_ret"))
+		JMP(LabelRef("lsh512_sse2_init_ret"))
 	}
-	Label("lsh512_ssse3_init_if1_end")
+	Label("lsh512_sse2_init_if1_end")
 	//case LSH_TYPE_512_256:
 	CMPL(ctx.Algtype, U32(LSH_TYPE_512_256))
-	JNE(LabelRef("lsh512_ssse3_init_if2_end"))
+	JNE(LabelRef("lsh512_sse2_init_if2_end"))
 	{
 		//	init256(ctx);
 		init256(ctx)
 		//	return LSH_SUCCESS;
-		JMP(LabelRef("lsh512_ssse3_init_ret"))
+		JMP(LabelRef("lsh512_sse2_init_ret"))
 	}
-	Label("lsh512_ssse3_init_if2_end")
+	Label("lsh512_sse2_init_if2_end")
 	//case LSH_TYPE_512_224:
 	{
 		//	init224(ctx);
 		init224(ctx)
 		//	return LSH_SUCCESS;
-		JMP(LabelRef("lsh512_ssse3_init_ret"))
+		JMP(LabelRef("lsh512_sse2_init_ret"))
 	}
 	//default:
 	//	break;
@@ -779,20 +822,16 @@ func Lsh512_ssse3_init(ctx *LSH512_Context) {
 	//cv_r[1] = _mm_setzero_si128();
 	//cv_r[2] = _mm_setzero_si128();
 	//cv_r[3] = _mm_setzero_si128();
-	//perm_step[0] = LOAD(g_BytePermInfo[0]);
-	//perm_step[1] = LOAD(g_BytePermInfo[1]);
-	//perm_step[2] = LOAD(g_BytePermInfo[2]);
-	//perm_step[3] = LOAD(g_BytePermInfo[3]);
 
 	//for (i = 0; i < NUM_STEPS / 2; i++)
 	//{
 	//	//Mix
 	//	load_sc(const_v, i * 16);
-	//	mix_even(cv_l, cv_r, const_v, perm_step);
+	//	mix_even(cv_l, cv_r, const_v);
 	//	word_perm(cv_l, cv_r);
 
 	//	load_sc(const_v, i * 16 + 8);
-	//	mix_odd(cv_l, cv_r, const_v, perm_step);
+	//	mix_odd(cv_l, cv_r, const_v);
 	//	word_perm(cv_l, cv_r);
 	//}
 
@@ -800,12 +839,12 @@ func Lsh512_ssse3_init(ctx *LSH512_Context) {
 	//store_blk(ctx->cv_r, cv_r);
 
 	//return LSH_SUCCESS;
-	Label("lsh512_ssse3_init_ret")
+	Label("lsh512_sse2_init_ret")
 }
 
-// lsh_err lsh512_ssse3_update(struct LSH512_Context * _ctx, const lsh_u8 * data, size_t databitlen){
-func Lsh512_ssse3_update(ctx *LSH512_Context, data Mem, databytelen Register) {
-	Comment("lsh512_ssse3_update")
+// lsh_err lsh512_sse2_update(struct LSH512_Context * _ctx, const lsh_u8 * data, size_t databitlen){
+func Lsh512_sse2_update(ctx *LSH512_Context, data Mem, databytelen Register) {
+	Comment("lsh512_sse2_update")
 
 	i_state_alloc := AllocLocal(XmmSize * 4 * 4)
 
@@ -816,7 +855,7 @@ func Lsh512_ssse3_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 	//size_t databytelen = databitlen >> 3;
 	//lsh_u32 pos2 = databitlen & 0x7;
 
-	//LSH512SSSE3_Context* ctx = (LSH512SSSE3_Context*)_ctx;
+	//LSH512SSE2_Context* ctx = (LSH512SSE2_Context*)_ctx;
 	//lsh_uint remain_msg_byte;
 	remain_msg_byte := GP64()
 	//lsh_uint remain_msg_bit;
@@ -846,7 +885,7 @@ func Lsh512_ssse3_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 	MOVQ(databytelen, tmp32)
 	ADDQ(remain_msg_byte, tmp32)
 	CMPQ(tmp32, U32(LSH512_MSG_BLK_BYTE_LEN))
-	JGE(LabelRef("lsh512_ssse3_update_if0_end"))
+	JGE(LabelRef("lsh512_sse2_update_if0_end"))
 	{
 		//memcpy(ctx->i_last_block + remain_msg_byte, data, databytelen);
 		Memcpy(ctx.I_last_block.Idx(remain_msg_byte, 1), data, databytelen, false)
@@ -858,9 +897,9 @@ func Lsh512_ssse3_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 		//	ctx->i_last_block[remain_msg_byte] = data[databytelen] & ((0xff >> pos2) ^ 0xff);
 		//}
 		//return LSH_SUCCESS;
-		JMP(LabelRef("lsh512_ssse3_update_ret"))
+		JMP(LabelRef("lsh512_sse2_update_ret"))
 	}
-	Label("lsh512_ssse3_update_if0_end")
+	Label("lsh512_sse2_update_if0_end")
 
 	//load_blk(cv_l, ctx->cv_l);
 	load_blk_mem2vec(cv_l, ctx.Cv_l)
@@ -869,7 +908,7 @@ func Lsh512_ssse3_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 
 	//if (remain_msg_byte > 0){
 	CMPQ(remain_msg_byte, U32(0))
-	JE(LabelRef("lsh512_ssse3_update_if1_end"))
+	JE(LabelRef("lsh512_sse2_update_if1_end"))
 	{
 		//size_t more_BYTE = LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte;
 		more_BYTE := GP64()
@@ -888,12 +927,12 @@ func Lsh512_ssse3_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 		//ctx->remain_databitlen = 0;
 		MOVQ(U32(0), ctx.Remain_databytelen)
 	}
-	Label("lsh512_ssse3_update_if1_end")
+	Label("lsh512_sse2_update_if1_end")
 
 	//while (databytelen >= LSH512_MSG_BLK_BYTE_LEN)
-	Label("lsh512_ssse3_update_while_start")
+	Label("lsh512_sse2_update_while_start")
 	CMPQ(databytelen, U32(LSH512_MSG_BLK_BYTE_LEN))
-	JL(LabelRef("lsh512_ssse3_update_while_end"))
+	JL(LabelRef("lsh512_sse2_update_while_end"))
 	{
 		//compress(cv_l, cv_r, (lsh_u64*)data);
 		compress(cv_l, cv_r, data, i_state_alloc, ctx.Cv_l, ctx.Cv_r)
@@ -902,9 +941,9 @@ func Lsh512_ssse3_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 		//databytelen -= LSH512_MSG_BLK_BYTE_LEN;
 		SUBQ(U32(LSH512_MSG_BLK_BYTE_LEN), databytelen)
 
-		JMP(LabelRef("lsh512_ssse3_update_while_start"))
+		JMP(LabelRef("lsh512_sse2_update_while_start"))
 	}
-	Label("lsh512_ssse3_update_while_end")
+	Label("lsh512_sse2_update_while_end")
 
 	//store_blk(ctx->cv_l, cv_l);
 	store_blk(ctx.Cv_l, cv_l)
@@ -913,14 +952,14 @@ func Lsh512_ssse3_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 
 	//if (databytelen > 0){
 	CMPQ(remain_msg_byte, U32(0))
-	JE(LabelRef("lsh512_ssse3_update_if3_end"))
+	JE(LabelRef("lsh512_sse2_update_if3_end"))
 	{
 		//memcpy(ctx->i_last_block, data, databytelen);
 		Memcpy(ctx.I_last_block, data, databytelen, false)
 		//ctx->remain_databitlen = (lsh_uint)(databytelen << 3);
 		MOVQ(databytelen, ctx.Remain_databytelen)
 	}
-	Label("lsh512_ssse3_update_if3_end")
+	Label("lsh512_sse2_update_if3_end")
 
 	//if (pos2){
 	//	ctx->i_last_block[databytelen] = data[databytelen] & ((0xff >> pos2) ^ 0xff);
@@ -928,12 +967,12 @@ func Lsh512_ssse3_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 	//}
 	//return LSH_SUCCESS;
 
-	Label("lsh512_ssse3_update_ret")
+	Label("lsh512_sse2_update_ret")
 }
 
-// lsh_err lsh512_ssse3_final(struct LSH512_Context * _ctx, lsh_u8 * hashval){
-func Lsh512_ssse3_final(ctx *LSH512_Context, hashval Mem) {
-	Comment("lsh512_ssse3_final")
+// lsh_err lsh512_sse2_final(struct LSH512_Context * _ctx, lsh_u8 * hashval){
+func Lsh512_sse2_final(ctx *LSH512_Context, hashval Mem) {
+	Comment("lsh512_sse2_final")
 
 	i_state_alloc := AllocLocal(XmmSize * 4 * 4)
 
@@ -941,7 +980,7 @@ func Lsh512_ssse3_final(ctx *LSH512_Context, hashval Mem) {
 	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 	//__m128i cv_r[4];
 	cv_r := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
-	//LSH512SSSE3_Context* ctx = (LSH512SSSE3_Context*)_ctx;
+	//LSH512SSE2_Context* ctx = (LSH512SSE2_Context*)_ctx;
 	//lsh_uint remain_msg_byte;
 	remain_msg_byte := GP64()
 	//lsh_uint remain_msg_bit;

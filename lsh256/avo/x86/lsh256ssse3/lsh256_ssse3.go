@@ -7,7 +7,7 @@ import (
 
 	. "kryptosimd/avoutil"
 	. "kryptosimd/avoutil/simd"
-	. "kryptosimd/lsh/ssse3"
+	. "kryptosimd/lsh/x86/ssse3"
 	. "kryptosimd/lsh256/avo/lsh256avoconst"
 	. "kryptosimd/lsh256/avo/lsh256common"
 )

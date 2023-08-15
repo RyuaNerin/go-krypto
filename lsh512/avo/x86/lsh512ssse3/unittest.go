@@ -1,4 +1,4 @@
-package lsh512avx2
+package lsh512ssse3
 
 import (
 	. "github.com/mmcloughlin/avo/build"
@@ -8,7 +8,7 @@ import (
 	. "kryptosimd/avoutil"
 	/*
 		. "kryptosimd/avoutil/simd"
-		. "kryptosimd/lsh/sse2"
+		. "kryptosimd/lsh/x86/sse2"
 		. "kryptosimd/lsh512/avo/lsh512avoconst"
 		. "kryptosimd/lsh512/avo/lsh512common"
 	*/)
@@ -30,36 +30,23 @@ func UnitTest() {
 	test_xor_with_const()
 }
 
-func loadState() LSH512AVX2_internal {
-	i_state := LSH512AVX2_internal{
-		submsg_e_l: []VecVirtual{YMM(), YMM()},
-		submsg_e_r: []VecVirtual{YMM(), YMM()},
-		submsg_o_l: []VecVirtual{YMM(), YMM()},
-		submsg_o_r: []VecVirtual{YMM(), YMM()},
-	}
-
-	load_blk_mem2vec(i_state.submsg_e_l, Mem{Base: Load(Param("el").Base(), GP64())})
-	load_blk_mem2vec(i_state.submsg_e_r, Mem{Base: Load(Param("er").Base(), GP64())})
-	load_blk_mem2vec(i_state.submsg_o_l, Mem{Base: Load(Param("ol").Base(), GP64())})
-	load_blk_mem2vec(i_state.submsg_o_r, Mem{Base: Load(Param("or").Base(), GP64())})
-
-	return i_state
-}
-func saveState(i_state LSH512AVX2_internal) {
-	store_blk(Mem{Base: Load(Param("el").Base(), GP64())}, i_state.submsg_e_l)
-	store_blk(Mem{Base: Load(Param("er").Base(), GP64())}, i_state.submsg_e_r)
-	store_blk(Mem{Base: Load(Param("ol").Base(), GP64())}, i_state.submsg_o_l)
-	store_blk(Mem{Base: Load(Param("or").Base(), GP64())}, i_state.submsg_o_r)
-}
-
 func test_msg_exp_even() {
 	TEXT("msg_exp_even", NOSPLIT, "func(el, er, ol, or []uint64)")
 
-	i_state := loadState()
+	tmp0 := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	tmp1 := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+
+	i_state := LSH512SSSE3_internal{
+		tempVec0: tmp0,
+		tempVec1: tmp1,
+
+		submsg_e_l_Mem: Mem{Base: Load(Param("el").Base(), GP64())},
+		submsg_e_r_Mem: Mem{Base: Load(Param("er").Base(), GP64())},
+		submsg_o_l_Mem: Mem{Base: Load(Param("ol").Base(), GP64())},
+		submsg_o_r_Mem: Mem{Base: Load(Param("or").Base(), GP64())},
+	}
 
 	msg_exp_even(i_state)
-
-	saveState(i_state)
 
 	RET()
 }
@@ -67,11 +54,20 @@ func test_msg_exp_even() {
 func test_msg_exp_odd() {
 	TEXT("msg_exp_odd", NOSPLIT, "func(el, er, ol, or []uint64)")
 
-	i_state := loadState()
+	tmp0 := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	tmp1 := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+
+	i_state := LSH512SSSE3_internal{
+		tempVec0: tmp0,
+		tempVec1: tmp1,
+
+		submsg_e_l_Mem: Mem{Base: Load(Param("el").Base(), GP64())},
+		submsg_e_r_Mem: Mem{Base: Load(Param("er").Base(), GP64())},
+		submsg_o_l_Mem: Mem{Base: Load(Param("ol").Base(), GP64())},
+		submsg_o_r_Mem: Mem{Base: Load(Param("or").Base(), GP64())},
+	}
 
 	msg_exp_odd(i_state)
-
-	saveState(i_state)
 
 	RET()
 }
@@ -82,20 +78,35 @@ func test_msg_add_even() {
 	cv_l_mem := Mem{Base: Load(Param("cv_l").Base(), GP64())}
 	cv_r_mem := Mem{Base: Load(Param("cv_r").Base(), GP64())}
 
-	cv_r := []VecVirtual{YMM(), YMM()}
-	cv_l := []VecVirtual{YMM(), YMM()}
+	cv_r := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	temp := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
-	i_state := loadState()
+	a := AllocLocal(XmmSize * 4 * 4)
+	MemcpyStatic(a.Offset(XmmSize*4*0), Mem{Base: Load(Param("el").Base(), GP64())}, XmmSize*4, false)
+	MemcpyStatic(a.Offset(XmmSize*4*1), Mem{Base: Load(Param("er").Base(), GP64())}, XmmSize*4, false)
+	MemcpyStatic(a.Offset(XmmSize*4*2), Mem{Base: Load(Param("ol").Base(), GP64())}, XmmSize*4, false)
+	MemcpyStatic(a.Offset(XmmSize*4*3), Mem{Base: Load(Param("or").Base(), GP64())}, XmmSize*4, false)
+
+	i_state := LSH512SSSE3_internal{
+		submsg_e_l_Mem: a.Offset(XmmSize * 4 * 0),
+		submsg_e_r_Mem: a.Offset(XmmSize * 4 * 1),
+		submsg_o_l_Mem: a.Offset(XmmSize * 4 * 2),
+		submsg_o_r_Mem: a.Offset(XmmSize * 4 * 3),
+	}
 
 	load_blk_mem2vec(cv_l, cv_l_mem)
 	load_blk_mem2vec(cv_r, cv_r_mem)
 
-	msg_add_even(cv_l, cv_r, i_state)
+	msg_add_even(cv_l, cv_r, i_state, temp)
 
 	store_blk(cv_l_mem, cv_l)
 	store_blk(cv_r_mem, cv_r)
 
-	saveState(i_state)
+	MemcpyStatic(Mem{Base: Load(Param("el").Base(), GP64())}, a.Offset(XmmSize*4*0), XmmSize*4, false)
+	MemcpyStatic(Mem{Base: Load(Param("er").Base(), GP64())}, a.Offset(XmmSize*4*1), XmmSize*4, false)
+	MemcpyStatic(Mem{Base: Load(Param("ol").Base(), GP64())}, a.Offset(XmmSize*4*2), XmmSize*4, false)
+	MemcpyStatic(Mem{Base: Load(Param("or").Base(), GP64())}, a.Offset(XmmSize*4*3), XmmSize*4, false)
 
 	RET()
 }
@@ -106,20 +117,35 @@ func test_msg_add_odd() {
 	cv_l_mem := Mem{Base: Load(Param("cv_l").Base(), GP64())}
 	cv_r_mem := Mem{Base: Load(Param("cv_r").Base(), GP64())}
 
-	cv_r := []VecVirtual{YMM(), YMM()}
-	cv_l := []VecVirtual{YMM(), YMM()}
+	cv_r := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	temp := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
-	i_state := loadState()
+	a := AllocLocal(XmmSize * 4 * 4)
+	MemcpyStatic(a.Offset(XmmSize*4*0), Mem{Base: Load(Param("el").Base(), GP64())}, XmmSize*4, false)
+	MemcpyStatic(a.Offset(XmmSize*4*1), Mem{Base: Load(Param("er").Base(), GP64())}, XmmSize*4, false)
+	MemcpyStatic(a.Offset(XmmSize*4*2), Mem{Base: Load(Param("ol").Base(), GP64())}, XmmSize*4, false)
+	MemcpyStatic(a.Offset(XmmSize*4*3), Mem{Base: Load(Param("or").Base(), GP64())}, XmmSize*4, false)
+
+	i_state := LSH512SSSE3_internal{
+		submsg_e_l_Mem: a.Offset(XmmSize * 4 * 0),
+		submsg_e_r_Mem: a.Offset(XmmSize * 4 * 1),
+		submsg_o_l_Mem: a.Offset(XmmSize * 4 * 2),
+		submsg_o_r_Mem: a.Offset(XmmSize * 4 * 3),
+	}
 
 	load_blk_mem2vec(cv_l, cv_l_mem)
 	load_blk_mem2vec(cv_r, cv_r_mem)
 
-	msg_add_odd(cv_l, cv_r, i_state)
+	msg_add_odd(cv_l, cv_r, i_state, temp)
 
 	store_blk(cv_l_mem, cv_l)
 	store_blk(cv_r_mem, cv_r)
 
-	saveState(i_state)
+	MemcpyStatic(Mem{Base: Load(Param("el").Base(), GP64())}, a.Offset(XmmSize*4*0), XmmSize*4, false)
+	MemcpyStatic(Mem{Base: Load(Param("er").Base(), GP64())}, a.Offset(XmmSize*4*1), XmmSize*4, false)
+	MemcpyStatic(Mem{Base: Load(Param("ol").Base(), GP64())}, a.Offset(XmmSize*4*2), XmmSize*4, false)
+	MemcpyStatic(Mem{Base: Load(Param("or").Base(), GP64())}, a.Offset(XmmSize*4*3), XmmSize*4, false)
 
 	RET()
 }
@@ -130,8 +156,8 @@ func test_add_blk() {
 	cv_l_mem := Mem{Base: Load(Param("cv_l").Base(), GP64())}
 	cv_r_mem := Mem{Base: Load(Param("cv_r").Base(), GP64())}
 
-	cv_l := []VecVirtual{YMM(), YMM()}
-	cv_r := []VecVirtual{YMM(), YMM()}
+	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	cv_r := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
 	load_blk_mem2vec(cv_l, cv_l_mem)
 	load_blk_mem2vec(cv_r, cv_r_mem)
@@ -149,7 +175,7 @@ func test_rotate_blk_even_alpha() {
 
 	cv_mem := Mem{Base: Load(Param("cv").Base(), GP64())}
 
-	cv := []VecVirtual{YMM(), YMM()}
+	cv := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
 	load_blk_mem2vec(cv, cv_mem)
 
@@ -165,7 +191,7 @@ func test_rotate_blk_even_beta() {
 
 	cv_mem := Mem{Base: Load(Param("cv").Base(), GP64())}
 
-	cv := []VecVirtual{YMM(), YMM()}
+	cv := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
 	load_blk_mem2vec(cv, cv_mem)
 
@@ -181,7 +207,7 @@ func test_rotate_blk_odd_alpha() {
 
 	cv_mem := Mem{Base: Load(Param("cv").Base(), GP64())}
 
-	cv := []VecVirtual{YMM(), YMM()}
+	cv := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
 	load_blk_mem2vec(cv, cv_mem)
 
@@ -197,7 +223,7 @@ func test_rotate_blk_odd_beta() {
 
 	cv_mem := Mem{Base: Load(Param("cv").Base(), GP64())}
 
-	cv := []VecVirtual{YMM(), YMM()}
+	cv := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
 	load_blk_mem2vec(cv, cv_mem)
 
@@ -214,8 +240,8 @@ func test_xor_with_const() {
 	cv_l_mem := Mem{Base: Load(Param("cv_l").Base(), GP64())}
 	const_v_mem := Mem{Base: Load(Param("const_v").Base(), GP64())}
 
-	cv_l := []VecVirtual{YMM(), YMM()}
-	const_v := []VecVirtual{YMM(), YMM()}
+	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	const_v := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
 	load_blk_mem2vec(cv_l, cv_l_mem)
 	load_blk_mem2vec(const_v, const_v_mem)
@@ -233,11 +259,13 @@ func test_rotate_msg_gamma() {
 
 	cv_r_mem := Mem{Base: Load(Param("cv_r").Base(), GP64())}
 
-	cv_r := []VecVirtual{YMM(), YMM()}
+	cv_r := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
 	perm_step := []Mem{
-		g_BytePermInfo.Offset(YmmSize * 0),
-		g_BytePermInfo.Offset(YmmSize * 1),
+		g_BytePermInfo.Offset(XmmSize * 0),
+		g_BytePermInfo.Offset(XmmSize * 1),
+		g_BytePermInfo.Offset(XmmSize * 2),
+		g_BytePermInfo.Offset(XmmSize * 3),
 	}
 
 	load_blk_mem2vec(cv_r, cv_r_mem)
@@ -255,13 +283,14 @@ func test_word_perm() {
 	cv_l_mem := Mem{Base: Load(Param("cv_l").Base(), GP64())}
 	cv_r_mem := Mem{Base: Load(Param("cv_r").Base(), GP64())}
 
-	cv_l := []VecVirtual{YMM(), YMM()}
-	cv_r := []VecVirtual{YMM(), YMM()}
+	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	cv_r := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	temp := []VecVirtual{XMM(), XMM()}
 
 	load_blk_mem2vec(cv_l, cv_l_mem)
 	load_blk_mem2vec(cv_r, cv_r_mem)
 
-	word_perm(cv_l, cv_r)
+	word_perm(cv_l, cv_r, temp)
 
 	store_blk(cv_l_mem, cv_l)
 	store_blk(cv_r_mem, cv_r)
@@ -276,13 +305,15 @@ func test_mix_even() {
 	cv_r_mem := Mem{Base: Load(Param("cv_r").Base(), GP64())}
 	const_v_mem := Mem{Base: Load(Param("const_v").Base(), GP64())}
 
-	cv_l := []VecVirtual{YMM(), YMM()}
-	cv_r := []VecVirtual{YMM(), YMM()}
-	const_v := []VecVirtual{YMM(), YMM()}
+	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	cv_r := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	const_v := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
 	perm_step := []Mem{
-		g_BytePermInfo.Offset(YmmSize * 0),
-		g_BytePermInfo.Offset(YmmSize * 1),
+		g_BytePermInfo.Offset(XmmSize * 0),
+		g_BytePermInfo.Offset(XmmSize * 1),
+		g_BytePermInfo.Offset(XmmSize * 2),
+		g_BytePermInfo.Offset(XmmSize * 3),
 	}
 
 	load_blk_mem2vec(cv_l, cv_l_mem)
@@ -305,13 +336,15 @@ func test_mix_odd() {
 	cv_r_mem := Mem{Base: Load(Param("cv_r").Base(), GP64())}
 	const_v_mem := Mem{Base: Load(Param("const_v").Base(), GP64())}
 
-	cv_l := []VecVirtual{YMM(), YMM()}
-	cv_r := []VecVirtual{YMM(), YMM()}
-	const_v := []VecVirtual{YMM(), YMM()}
+	cv_l := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	cv_r := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
+	const_v := []VecVirtual{XMM(), XMM(), XMM(), XMM()}
 
 	perm_step := []Mem{
-		g_BytePermInfo.Offset(YmmSize * 0),
-		g_BytePermInfo.Offset(YmmSize * 1),
+		g_BytePermInfo.Offset(XmmSize * 0),
+		g_BytePermInfo.Offset(XmmSize * 1),
+		g_BytePermInfo.Offset(XmmSize * 2),
+		g_BytePermInfo.Offset(XmmSize * 3),
 	}
 
 	load_blk_mem2vec(cv_l, cv_l_mem)
