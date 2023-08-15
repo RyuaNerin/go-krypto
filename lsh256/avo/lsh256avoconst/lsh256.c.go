@@ -1,8 +1,7 @@
 package lsh256avoconst
 
 import (
-	. "github.com/mmcloughlin/avo/build"
-	. "github.com/mmcloughlin/avo/operand"
+	"kryptosimd/avoutil"
 )
 
 const (
@@ -27,23 +26,18 @@ const (
 )
 
 var (
-	G_IV224         Mem
-	G_IV256         Mem
-	G_StepConstants Mem
-)
-
-func init() {
-	var g_IV224 = []uint32{
+	G_IV224 = avoutil.Alloc32(
+		"g_IV224",
 		0x068608D3, 0x62D8F7A7, 0xD76652AB, 0x4C600A43, 0xBDC40AA8, 0x1ECA0B68, 0xDA1A89BE, 0x3147D354,
 		0x707EB4F9, 0xF65B3862, 0x6B0B2ABE, 0x56B8EC0A, 0xCF237286, 0xEE0D1727, 0x33636595, 0x8BB8D05F,
-	}
-
-	var g_IV256 = []uint32{
+	)
+	G_IV256 = avoutil.Alloc32(
+		"g_IV256",
 		0x46a10f1f, 0xfddce486, 0xb41443a8, 0x198e6b9d, 0x3304388d, 0xb0f5a3c7, 0xb36061c4, 0x7adbd553,
 		0x105d5378, 0x2f74de54, 0x5c2f2d95, 0xf2553fbe, 0x8051357a, 0x138668c8, 0x47aa4484, 0xe01afb41,
-	}
-
-	var g_StepConstants = []uint32{
+	)
+	G_StepConstants = avoutil.Alloc32(
+		"g_StepConstants",
 		0x917caf90, 0x6c1b10a2, 0x6f352943, 0xcf778243, 0x2ceb7472, 0x29e96ff2, 0x8a9ba428, 0x2eeb2642,
 		0x0e2c4021, 0x872bb30e, 0xa45e6cb2, 0x46f9c612, 0x185fe69e, 0x1359621b, 0x263fccb2, 0x1a116870,
 		0x3a6c612f, 0xb2dec195, 0x02cb1f56, 0x40bfd858, 0x784684b6, 0x6cbb7d2e, 0x660c7ed8, 0x2b79d88a,
@@ -70,19 +64,5 @@ func init() {
 		0xf17f68da, 0x5deb5fd1, 0xa600c86d, 0x9f6c7eb0, 0xff92f864, 0xb615e07f, 0x38d3e448, 0x8d5d3a6a,
 		0x70e843cb, 0x494b312e, 0xa6c93613, 0x0beb2f4f, 0x928b5d63, 0xcbf66035, 0x0cb82c80, 0xea97a4f7,
 		0x592c0f3b, 0x947c5f77, 0x6fff49b9, 0xf71a7e5a, 0x1de8c0f5, 0xc2569600, 0xc4e4ac8c, 0x823c9ce1,
-	}
-
-	f := func(name string, arr []uint32) Mem {
-		mem := GLOBL(name, NOPTR|RODATA)
-
-		for i, v := range arr {
-			DATA(i*4, U32(v))
-		}
-
-		return mem
-	}
-
-	G_IV224 = f("g_IV224", g_IV224)
-	G_IV256 = f("g_IV256", g_IV256)
-	G_StepConstants = f("g_StepConstants", g_StepConstants)
-}
+	)
+)

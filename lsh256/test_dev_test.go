@@ -24,8 +24,8 @@ func Test_LSH256_AVX2_DEV(t *testing.T) { testAsmDev(t, Size, a256, SimdSetAVX2)
 
 func testAsmDev(t *testing.T, algType int, answer []byte, s simdSet) {
 	ctx := lsh256ContextAsmData{
-		algtype:           uint32(algType),
-		remain_databitlen: 0,
+		algtype:            uint32(algType),
+		remain_databytelen: 0,
 	}
 	s.init(&ctx)
 

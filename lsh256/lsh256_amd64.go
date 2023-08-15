@@ -10,7 +10,7 @@ import (
 
 var (
 	hasSSSE3 = cpu.X86.HasSSSE3
-	hasAVX2  = cpu.X86.HasAVX2
+	hasAVX2  = cpu.X86.HasSSSE3 && cpu.X86.HasAVX && cpu.X86.HasAVX2
 )
 
 type simdSet struct {
@@ -26,9 +26,6 @@ var (
 		init:   lsh256InitSSE2,
 		update: lsh256UpdateSSE2,
 		final:  lsh256FinalSSE2,
-	}
-	SimdSetSSE2_v2 = simdSet{
-		init: lsh256_sse2_init,
 	}
 	SimdSetSSSE3 = simdSet{
 		init:   lsh256InitSSE2,
@@ -67,11 +64,9 @@ type lsh256ContextAsm struct {
 }
 type lsh256ContextAsmData struct {
 	// 16 aligned
-	algtype uint32
-	_pad0   [16 - 4]byte
-	// 16 aligned
-	remain_databitlen uint32
-	_pad1             [16 - 4]byte
+	algtype            uint32
+	_                  [4]byte
+	remain_databytelen uint64
 
 	cv_l       [32]byte
 	cv_r       [32]byte
@@ -93,7 +88,7 @@ func (ctx *lsh256ContextAsm) BlockSize() int {
 }
 
 func (ctx *lsh256ContextAsm) Reset() {
-	ctx.data.remain_databitlen = 0
+	ctx.data.remain_databytelen = 0
 	ctx.simd.init(&ctx.data)
 }
 

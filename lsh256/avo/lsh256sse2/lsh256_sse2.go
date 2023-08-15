@@ -463,11 +463,7 @@ func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 	hash_val := pbHashVal
 
 	//lsh_uint hash_val_byte_len = LSH_GET_HASHBYTE(algtype);
-	hash_val_byte_len := GP32()
-	LSH_GET_HASHBYTE(hash_val_byte_len, algtype)
 	//lsh_uint hash_val_bit_len = LSH_GET_SMALL_HASHBIT(algtype);
-	hash_val_bit_len := GP32()
-	LSH_GET_SMALL_HASHBIT(hash_val_bit_len, algtype)
 
 	//STORE(hash_val, cv_l[0]);
 	STORE(hash_val, cv_l[0])
@@ -475,18 +471,8 @@ func get_hash(cv_l []VecVirtual, pbHashVal Mem, algtype Op) {
 	STORE((hash_val.Offset(16)), cv_l[1])
 	//memcpy(pbHashVal, hash_val, sizeof(lsh_u8) * hash_val_byte_len);
 	//if (hash_val_bit_len){
-	CMPL(hash_val_bit_len, U32(0))
-	JE(LabelRef("get_hash_if_end"))
-	{
-		//	pbHashVal[hash_val_byte_len-1] &= (((lsh_u8)0xff) << hash_val_bit_len);
-		tmp8 := GP8()
-		MOVB(U8(0xff), tmp8)
-		MOVB(hash_val_bit_len.As8(), CL)
-		SHLB(CL, tmp8)
-
-		MOVB(tmp8, pbHashVal.Offset(-1).Idx(hash_val_byte_len, 1))
-	}
-	Label("get_hash_if_end")
+	//	pbHashVal[hash_val_byte_len-1] &= (((lsh_u8)0xff) << hash_val_bit_len);
+	//}
 }
 
 /* -------------------------------------------------------- */

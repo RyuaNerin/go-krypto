@@ -318,76 +318,66 @@ DATA g_BytePermInfo_sse2<>+184(SB)/4, $0xffffffff
 DATA g_BytePermInfo_sse2<>+188(SB)/4, $0xffffffff
 GLOBL g_BytePermInfo_sse2<>(SB), RODATA|NOPTR, $192
 
-DATA g_BytePermInfo_L_ssse3<>+0(SB)/4, $0x03020100
-DATA g_BytePermInfo_L_ssse3<>+4(SB)/4, $0x06050407
-DATA g_BytePermInfo_L_ssse3<>+8(SB)/4, $0x09080b0a
-DATA g_BytePermInfo_L_ssse3<>+12(SB)/4, $0x0c0f0e0d
-GLOBL g_BytePermInfo_L_ssse3<>(SB), RODATA|NOPTR, $16
-
-DATA g_BytePermInfo_R_ssse3<>+0(SB)/4, $0x00030201
-DATA g_BytePermInfo_R_ssse3<>+4(SB)/4, $0x05040706
-DATA g_BytePermInfo_R_ssse3<>+8(SB)/4, $0x0a09080b
-DATA g_BytePermInfo_R_ssse3<>+12(SB)/4, $0x0f0e0d0c
-GLOBL g_BytePermInfo_R_ssse3<>(SB), RODATA|NOPTR, $16
-
-DATA g_MsgWordPermInfo_ssse3<>+0(SB)/4, $0x0f0e0d0c
-DATA g_MsgWordPermInfo_ssse3<>+4(SB)/4, $0x0b0a0908
-DATA g_MsgWordPermInfo_ssse3<>+8(SB)/4, $0x03020100
-DATA g_MsgWordPermInfo_ssse3<>+12(SB)/4, $0x07060504
-DATA g_MsgWordPermInfo_ssse3<>+16(SB)/4, $0x1f1e1d1c
-DATA g_MsgWordPermInfo_ssse3<>+20(SB)/4, $0x13121110
-DATA g_MsgWordPermInfo_ssse3<>+24(SB)/4, $0x17161514
-DATA g_MsgWordPermInfo_ssse3<>+28(SB)/4, $0x1b1a1918
-GLOBL g_MsgWordPermInfo_ssse3<>(SB), RODATA|NOPTR, $32
+DATA g_BytePermInfo_ssse3<>+0(SB)/4, $0x03020100
+DATA g_BytePermInfo_ssse3<>+4(SB)/4, $0x06050407
+DATA g_BytePermInfo_ssse3<>+8(SB)/4, $0x09080b0a
+DATA g_BytePermInfo_ssse3<>+12(SB)/4, $0x0c0f0e0d
+DATA g_BytePermInfo_ssse3<>+16(SB)/4, $0x00030201
+DATA g_BytePermInfo_ssse3<>+20(SB)/4, $0x05040706
+DATA g_BytePermInfo_ssse3<>+24(SB)/4, $0x0a09080b
+DATA g_BytePermInfo_ssse3<>+28(SB)/4, $0x0f0e0d0c
+GLOBL g_BytePermInfo_ssse3<>(SB), RODATA|NOPTR, $32
 
 // func lsh256InitSSE2(ctx *lsh256ContextAsmData)
 // Requires: SSE2
 TEXT ·lsh256InitSSE2(SB), NOSPLIT, $0-8
 	MOVQ ctx+0(FP), AX
-	MOVQ 16(AX), CX
+	MOVL (AX), CX
+	MOVQ 8(AX), DX
 
 	// lsh256_sse2_init
-	CMPL (AX), $0x00000020
+	CMPL CX, $0x00000020
 	JNE  lsh256_sse2_init_if0_end
 
 	// init256
 	// load_blk_mem2mem
 	MOVOA g_IV256<>+0(SB), X0
-	MOVOU X0, 32(AX)
+	MOVOU X0, 16(AX)
 	MOVOA g_IV256<>+16(SB), X0
-	MOVOU X0, 48(AX)
+	MOVOU X0, 32(AX)
 
 	// load_blk_mem2mem
 	MOVOA g_IV256<>+32(SB), X0
-	MOVOU X0, 64(AX)
+	MOVOU X0, 48(AX)
 	MOVOA g_IV256<>+48(SB), X0
-	MOVOU X0, 80(AX)
+	MOVOU X0, 64(AX)
 	JMP   lsh256_sse2_init_ret
 
 lsh256_sse2_init_if0_end:
 	// init224
 	// load_blk_mem2mem
 	MOVOA g_IV224<>+0(SB), X0
-	MOVOU X0, 32(AX)
+	MOVOU X0, 16(AX)
 	MOVOA g_IV224<>+16(SB), X0
-	MOVOU X0, 48(AX)
+	MOVOU X0, 32(AX)
 
 	// load_blk_mem2mem
 	MOVOA g_IV224<>+32(SB), X0
-	MOVOU X0, 64(AX)
+	MOVOU X0, 48(AX)
 	MOVOA g_IV224<>+48(SB), X0
-	MOVOU X0, 80(AX)
+	MOVOU X0, 64(AX)
 
 lsh256_sse2_init_ret:
 	MOVQ ctx+0(FP), AX
-	MOVQ CX, 16(AX)
+	MOVQ DX, 8(AX)
 	RET
 
 // func lsh256UpdateSSE2(ctx *lsh256ContextAsmData, data []byte)
 // Requires: SSE2
 TEXT ·lsh256UpdateSSE2(SB), NOSPLIT, $0-32
 	MOVQ ctx+0(FP), AX
-	MOVQ 16(AX), CX
+	MOVL (AX), CX
+	MOVQ 8(AX), CX
 	MOVQ data_base+8(FP), DX
 	MOVQ data_len+16(FP), BX
 
@@ -399,7 +389,7 @@ TEXT ·lsh256UpdateSSE2(SB), NOSPLIT, $0-32
 	JGE  lsh256_sse2_update_if0_end
 
 	// Memcpy
-	LEAQ 96(AX)(SI*1), AX
+	LEAQ 80(AX)(SI*1), AX
 	LEAQ (DX), SI
 	MOVQ BX, DI
 
@@ -463,19 +453,19 @@ memcpy_1_sz1_end:
 
 lsh256_sse2_update_if0_end:
 	// load_blk_mem2vec
-	MOVOU 32(AX), X0
-	MOVOU 48(AX), X1
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
 
 	// load_blk_mem2vec
-	MOVOU 64(AX), X2
-	MOVOU 80(AX), X3
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 	CMPQ  SI, $0x00000000
 	JE    lsh256_sse2_update_if2_end
 	MOVQ  $0x00000080, CX
 	SUBQ  SI, CX
 
 	// Memcpy
-	LEAQ 96(AX)(SI*1), DI
+	LEAQ 80(AX)(SI*1), DI
 	LEAQ (DX), R8
 	MOVQ CX, R9
 
@@ -537,20 +527,20 @@ memcpy_2_sz1_end:
 	// compress
 	// load_msg_blk
 	// load_blk_mem2vec
-	MOVOU 96(AX), X6
-	MOVOU 112(AX), X7
+	MOVOU 80(AX), X6
+	MOVOU 96(AX), X7
 
 	// load_blk_mem2vec
-	MOVOU 128(AX), X8
-	MOVOU 144(AX), X9
+	MOVOU 112(AX), X8
+	MOVOU 128(AX), X9
 
 	// load_blk_mem2vec
-	MOVOU 160(AX), X10
-	MOVOU 176(AX), X11
+	MOVOU 144(AX), X10
+	MOVOU 160(AX), X11
 
 	// load_blk_mem2vec
-	MOVOU 192(AX), X12
-	MOVOU 208(AX), X13
+	MOVOU 176(AX), X12
+	MOVOU 192(AX), X13
 
 	// msg_add_even
 	PXOR X6, X0
@@ -7076,17 +7066,17 @@ lsh256_sse2_update_while_start:
 
 lsh256_sse2_update_while_end:
 	// store_blk
-	MOVOU X0, 32(AX)
-	MOVOU X1, 48(AX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
 
 	// store_blk
-	MOVOU X2, 64(AX)
-	MOVOU X3, 80(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 	CMPQ  SI, $0x00000000
 	JE    lsh256_sse2_update_if3_end
 
 	// Memcpy
-	LEAQ 96(AX), AX
+	LEAQ 80(AX), AX
 	LEAQ (DX), DX
 	MOVQ BX, SI
 
@@ -7150,24 +7140,25 @@ memcpy_3_sz1_end:
 lsh256_sse2_update_if3_end:
 lsh256_sse2_update_ret:
 	MOVQ ctx+0(FP), AX
-	MOVQ CX, 16(AX)
+	MOVQ CX, 8(AX)
 	RET
 
 // func lsh256FinalSSE2(ctx *lsh256ContextAsmData, hashval []byte)
 // Requires: SSE2
 TEXT ·lsh256FinalSSE2(SB), NOSPLIT, $0-32
-	MOVQ ctx+0(FP), CX
-	MOVQ 16(CX), AX
+	MOVQ ctx+0(FP), AX
+	MOVL (AX), CX
+	MOVQ 8(AX), CX
 	MOVQ hashval_base+8(FP), DX
 
 	// lsh256_sse2_final
-	MOVQ AX, BX
-	MOVB $0x80, 96(CX)(BX*1)
+	MOVQ CX, BX
+	MOVB $0x80, 80(AX)(BX*1)
 	MOVQ $0x0000007f, SI
 	SUBQ BX, SI
 
 	// memset
-	LEAQ 97(CX)(BX*1), BX
+	LEAQ 81(AX)(BX*1), BX
 	CMPQ SI, $0x00000010
 	JL   memset_1_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
@@ -7230,30 +7221,30 @@ memset_1_1_start:
 
 memset_1_1_end:
 	// load_blk_mem2vec
-	MOVOU 32(CX), X0
-	MOVOU 48(CX), X1
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
 
 	// load_blk_mem2vec
-	MOVOU 64(CX), X2
-	MOVOU 80(CX), X3
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// compress
 	// load_msg_blk
 	// load_blk_mem2vec
-	MOVOU 96(CX), X6
-	MOVOU 112(CX), X7
+	MOVOU 80(AX), X6
+	MOVOU 96(AX), X7
 
 	// load_blk_mem2vec
-	MOVOU 128(CX), X8
-	MOVOU 144(CX), X9
+	MOVOU 112(AX), X8
+	MOVOU 128(AX), X9
 
 	// load_blk_mem2vec
-	MOVOU 160(CX), X10
-	MOVOU 176(CX), X11
+	MOVOU 144(AX), X10
+	MOVOU 160(AX), X11
 
 	// load_blk_mem2vec
-	MOVOU 192(CX), X12
-	MOVOU 208(CX), X13
+	MOVOU 176(AX), X12
+	MOVOU 192(AX), X13
 
 	// msg_add_even
 	PXOR X6, X0
@@ -10506,21 +10497,10 @@ memset_1_1_end:
 	PXOR X3, X1
 
 	// get_hash
-	MOVL  (CX), BX
-	ANDL  $0x0000ffff, BX
-	MOVL  (CX), CX
-	SHRL  $0x18, CX
 	MOVOU X0, (DX)
 	MOVOU X1, 16(DX)
-	CMPL  CX, $0x00000000
-	JE    get_hash_if_end
-	MOVB  $0xff, SI
-	SHLB  CL, SI
-	MOVB  SI, -1(DX)(BX*1)
-
-get_hash_if_end:
-	MOVQ ctx+0(FP), CX
-	MOVQ AX, 16(CX)
+	MOVQ  ctx+0(FP), AX
+	MOVQ  CX, 8(AX)
 	RET
 
 DATA memset_value_0<>+0(SB)/8, $0x0000000000000000
@@ -10533,7 +10513,8 @@ GLOBL memset_value_0<>(SB), RODATA|NOPTR, $32
 // Requires: SSE2, SSSE3
 TEXT ·lsh256UpdateSSSE3(SB), NOSPLIT, $0-32
 	MOVQ ctx+0(FP), AX
-	MOVQ 16(AX), CX
+	MOVL (AX), CX
+	MOVQ 8(AX), CX
 	MOVQ data_base+8(FP), DX
 	MOVQ data_len+16(FP), BX
 
@@ -10545,7 +10526,7 @@ TEXT ·lsh256UpdateSSSE3(SB), NOSPLIT, $0-32
 	JGE  lsh256_ssse3_update_if0_end
 
 	// Memcpy
-	LEAQ 96(AX)(SI*1), AX
+	LEAQ 80(AX)(SI*1), AX
 	LEAQ (DX), SI
 	MOVQ BX, DI
 
@@ -10609,19 +10590,19 @@ memcpy_4_sz1_end:
 
 lsh256_ssse3_update_if0_end:
 	// load_blk_mem2vec
-	MOVOU 32(AX), X0
-	MOVOU 48(AX), X1
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
 
 	// load_blk_mem2vec
-	MOVOU 64(AX), X2
-	MOVOU 80(AX), X3
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 	CMPQ  SI, $0x00000000
 	JE    lsh256_ssse3_update_if2_end
 	MOVQ  $0x00000080, CX
 	SUBQ  SI, CX
 
 	// Memcpy
-	LEAQ 96(AX)(SI*1), DI
+	LEAQ 80(AX)(SI*1), DI
 	LEAQ (DX), R8
 	MOVQ CX, R9
 
@@ -10683,20 +10664,20 @@ memcpy_5_sz1_end:
 	// compress
 	// load_msg_blk
 	// load_blk_mem2vec
-	MOVOU 96(AX), X6
-	MOVOU 112(AX), X7
+	MOVOU 80(AX), X6
+	MOVOU 96(AX), X7
 
 	// load_blk_mem2vec
-	MOVOU 128(AX), X8
-	MOVOU 144(AX), X9
+	MOVOU 112(AX), X8
+	MOVOU 128(AX), X9
 
 	// load_blk_mem2vec
-	MOVOU 160(AX), X10
-	MOVOU 176(AX), X11
+	MOVOU 144(AX), X10
+	MOVOU 160(AX), X11
 
 	// load_blk_mem2vec
-	MOVOU 192(AX), X12
-	MOVOU 208(AX), X13
+	MOVOU 176(AX), X12
+	MOVOU 192(AX), X13
 
 	// msg_add_even
 	PXOR X6, X0
@@ -10745,8 +10726,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -10806,8 +10787,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -10877,8 +10858,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -10948,8 +10929,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11019,8 +11000,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11090,8 +11071,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11161,8 +11142,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11232,8 +11213,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11303,8 +11284,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11374,8 +11355,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11445,8 +11426,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11516,8 +11497,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11587,8 +11568,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11658,8 +11639,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11729,8 +11710,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11800,8 +11781,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11871,8 +11852,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -11942,8 +11923,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12013,8 +11994,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12084,8 +12065,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12155,8 +12136,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12226,8 +12207,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12297,8 +12278,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12368,8 +12349,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12439,8 +12420,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12510,8 +12491,8 @@ memcpy_5_sz1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12614,8 +12595,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12675,8 +12656,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12746,8 +12727,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12817,8 +12798,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12888,8 +12869,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -12959,8 +12940,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13030,8 +13011,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13101,8 +13082,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13172,8 +13153,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13243,8 +13224,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13314,8 +13295,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13385,8 +13366,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13456,8 +13437,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13527,8 +13508,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13598,8 +13579,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13669,8 +13650,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13740,8 +13721,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13811,8 +13792,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13882,8 +13863,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -13953,8 +13934,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14024,8 +14005,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14095,8 +14076,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14166,8 +14147,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14237,8 +14218,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14308,8 +14289,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14379,8 +14360,8 @@ lsh256_ssse3_update_while_start:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14414,17 +14395,17 @@ lsh256_ssse3_update_while_start:
 
 lsh256_ssse3_update_while_end:
 	// store_blk
-	MOVOU X0, 32(AX)
-	MOVOU X1, 48(AX)
+	MOVOU X0, 16(AX)
+	MOVOU X1, 32(AX)
 
 	// store_blk
-	MOVOU X2, 64(AX)
-	MOVOU X3, 80(AX)
+	MOVOU X2, 48(AX)
+	MOVOU X3, 64(AX)
 	CMPQ  SI, $0x00000000
 	JE    lsh256_ssse3_update_if3_end
 
 	// Memcpy
-	LEAQ 96(AX), AX
+	LEAQ 80(AX), AX
 	LEAQ (DX), DX
 	MOVQ BX, SI
 
@@ -14488,24 +14469,25 @@ memcpy_6_sz1_end:
 lsh256_ssse3_update_if3_end:
 lsh256_ssse3_update_ret:
 	MOVQ ctx+0(FP), AX
-	MOVQ CX, 16(AX)
+	MOVQ CX, 8(AX)
 	RET
 
 // func lsh256FinalSSSE3(ctx *lsh256ContextAsmData, hashval []byte)
 // Requires: SSE2, SSSE3
 TEXT ·lsh256FinalSSSE3(SB), NOSPLIT, $0-32
-	MOVQ ctx+0(FP), CX
-	MOVQ 16(CX), AX
+	MOVQ ctx+0(FP), AX
+	MOVL (AX), CX
+	MOVQ 8(AX), CX
 	MOVQ hashval_base+8(FP), DX
 
 	// lsh256_ssse3_final
-	MOVQ AX, BX
-	MOVB $0x80, 96(CX)(BX*1)
+	MOVQ CX, BX
+	MOVB $0x80, 80(AX)(BX*1)
 	MOVQ $0x0000007f, SI
 	SUBQ BX, SI
 
 	// memset
-	LEAQ 97(CX)(BX*1), BX
+	LEAQ 81(AX)(BX*1), BX
 	CMPQ SI, $0x00000010
 	JL   memset_2_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
@@ -14568,30 +14550,30 @@ memset_2_1_start:
 
 memset_2_1_end:
 	// load_blk_mem2vec
-	MOVOU 32(CX), X0
-	MOVOU 48(CX), X1
+	MOVOU 16(AX), X0
+	MOVOU 32(AX), X1
 
 	// load_blk_mem2vec
-	MOVOU 64(CX), X2
-	MOVOU 80(CX), X3
+	MOVOU 48(AX), X2
+	MOVOU 64(AX), X3
 
 	// compress
 	// load_msg_blk
 	// load_blk_mem2vec
-	MOVOU 96(CX), X6
-	MOVOU 112(CX), X7
+	MOVOU 80(AX), X6
+	MOVOU 96(AX), X7
 
 	// load_blk_mem2vec
-	MOVOU 128(CX), X8
-	MOVOU 144(CX), X9
+	MOVOU 112(AX), X8
+	MOVOU 128(AX), X9
 
 	// load_blk_mem2vec
-	MOVOU 160(CX), X10
-	MOVOU 176(CX), X11
+	MOVOU 144(AX), X10
+	MOVOU 160(AX), X11
 
 	// load_blk_mem2vec
-	MOVOU 192(CX), X12
-	MOVOU 208(CX), X13
+	MOVOU 176(AX), X12
+	MOVOU 192(AX), X13
 
 	// msg_add_even
 	PXOR X6, X0
@@ -14640,8 +14622,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14701,8 +14683,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14772,8 +14754,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14843,8 +14825,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14914,8 +14896,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -14985,8 +14967,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15056,8 +15038,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15127,8 +15109,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15198,8 +15180,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15269,8 +15251,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15340,8 +15322,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15411,8 +15393,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15482,8 +15464,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15553,8 +15535,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15624,8 +15606,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15695,8 +15677,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15766,8 +15748,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15837,8 +15819,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15908,8 +15890,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -15979,8 +15961,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -16050,8 +16032,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -16121,8 +16103,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -16192,8 +16174,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -16263,8 +16245,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -16334,8 +16316,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -16405,8 +16387,8 @@ memset_2_1_end:
 	// add_blk
 	PADDD  X2, X0
 	PADDD  X3, X1
-	PSHUFB g_BytePermInfo_L_ssse3<>+0(SB), X2
-	PSHUFB g_BytePermInfo_R_ssse3<>+0(SB), X3
+	PSHUFB g_BytePermInfo_ssse3<>+0(SB), X2
+	PSHUFB g_BytePermInfo_ssse3<>+16(SB), X3
 
 	// word_perm
 	PSHUFD $0xd2, X0, X0
@@ -16440,63 +16422,54 @@ memset_2_1_end:
 	PXOR X3, X1
 
 	// get_hash
-	MOVL  (CX), BX
-	ANDL  $0x0000ffff, BX
-	MOVL  (CX), CX
-	SHRL  $0x18, CX
 	MOVOU X0, (DX)
 	MOVOU X1, 16(DX)
-	CMPL  CX, $0x00000000
-	JE    get_hash_if_end
-	MOVB  $0xff, SI
-	SHLB  CL, SI
-	MOVB  SI, -1(DX)(BX*1)
-
-get_hash_if_end:
-	MOVQ ctx+0(FP), CX
-	MOVQ AX, 16(CX)
+	MOVQ  ctx+0(FP), AX
+	MOVQ  CX, 8(AX)
 	RET
 
 // func lsh256InitAVX2(ctx *lsh256ContextAsmData)
 // Requires: AVX
 TEXT ·lsh256InitAVX2(SB), NOSPLIT, $0-8
 	MOVQ ctx+0(FP), AX
-	MOVQ 16(AX), CX
+	MOVL (AX), CX
+	MOVQ 8(AX), DX
 
 	// lsh256_avx2_init
-	CMPL (AX), $0x00000020
+	CMPL CX, $0x00000020
 	JNE  lsh256_avx2_init_if0_end
 
 	// init256
 	// load_blk_mem2mem
 	VMOVDQA g_IV256<>+0(SB), Y0
-	VMOVDQU Y0, 32(AX)
+	VMOVDQU Y0, 16(AX)
 
 	// load_blk_mem2mem
 	VMOVDQA g_IV256<>+32(SB), Y0
-	VMOVDQU Y0, 64(AX)
+	VMOVDQU Y0, 48(AX)
 	JMP     lsh256_avx2_init_ret
 
 lsh256_avx2_init_if0_end:
 	// init224
 	// load_blk_mem2mem
 	VMOVDQA g_IV224<>+0(SB), Y0
-	VMOVDQU Y0, 32(AX)
+	VMOVDQU Y0, 16(AX)
 
 	// load_blk_mem2mem
 	VMOVDQA g_IV224<>+32(SB), Y0
-	VMOVDQU Y0, 64(AX)
+	VMOVDQU Y0, 48(AX)
 
 lsh256_avx2_init_ret:
 	MOVQ ctx+0(FP), AX
-	MOVQ CX, 16(AX)
+	MOVQ DX, 8(AX)
 	RET
 
 // func lsh256UpdateAVX2(ctx *lsh256ContextAsmData, data []byte)
 // Requires: AVX, AVX2, SSE2
 TEXT ·lsh256UpdateAVX2(SB), NOSPLIT, $0-32
 	MOVQ ctx+0(FP), AX
-	MOVQ 16(AX), CX
+	MOVL (AX), CX
+	MOVQ 8(AX), CX
 	MOVQ data_base+8(FP), DX
 	MOVQ data_len+16(FP), BX
 
@@ -16508,7 +16481,7 @@ TEXT ·lsh256UpdateAVX2(SB), NOSPLIT, $0-32
 	JGE  lsh256_avx2_update_if0_end
 
 	// Memcpy
-	LEAQ 96(AX)(SI*1), AX
+	LEAQ 80(AX)(SI*1), AX
 	LEAQ (DX), SI
 	MOVQ BX, DI
 
@@ -16583,17 +16556,17 @@ memcpy_7_sz1_end:
 
 lsh256_avx2_update_if0_end:
 	// load_blk_mem2vec
-	VMOVDQU 32(AX), Y0
+	VMOVDQU 16(AX), Y0
 
 	// load_blk_mem2vec
-	VMOVDQU 64(AX), Y1
+	VMOVDQU 48(AX), Y1
 	CMPQ    SI, $0x00000000
 	JE      lsh256_avx2_update_if2_end
 	MOVQ    $0x00000080, CX
 	SUBQ    SI, CX
 
 	// Memcpy
-	LEAQ 96(AX)(SI*1), DI
+	LEAQ 80(AX)(SI*1), DI
 	LEAQ (DX), R8
 	MOVQ CX, R9
 
@@ -16669,16 +16642,16 @@ memcpy_8_sz1_end:
 
 	// load_msg_blk
 	// load_blk_mem2vec
-	VMOVDQU 96(AX), Y5
+	VMOVDQU 80(AX), Y5
 
 	// load_blk_mem2vec
-	VMOVDQU 128(AX), Y6
+	VMOVDQU 112(AX), Y6
 
 	// load_blk_mem2vec
-	VMOVDQU 160(AX), Y7
+	VMOVDQU 144(AX), Y7
 
 	// load_blk_mem2vec
-	VMOVDQU 192(AX), Y8
+	VMOVDQU 176(AX), Y8
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -19099,15 +19072,15 @@ lsh256_avx2_update_while_start:
 
 lsh256_avx2_update_while_end:
 	// store_blk
-	VMOVDQU Y0, 32(AX)
+	VMOVDQU Y0, 16(AX)
 
 	// store_blk
-	VMOVDQU Y1, 64(AX)
+	VMOVDQU Y1, 48(AX)
 	CMPQ    SI, $0x00000000
 	JE      lsh256_avx2_update_if3_end
 
 	// Memcpy
-	LEAQ 96(AX), AX
+	LEAQ 80(AX), AX
 	LEAQ (DX), DX
 	MOVQ BX, SI
 
@@ -19182,24 +19155,25 @@ memcpy_9_sz1_end:
 lsh256_avx2_update_if3_end:
 lsh256_avx2_update_ret:
 	MOVQ ctx+0(FP), AX
-	MOVQ CX, 16(AX)
+	MOVQ CX, 8(AX)
 	RET
 
 // func lsh256FinalAVX2(ctx *lsh256ContextAsmData, hashval []byte)
 // Requires: AVX, AVX2, SSE2
 TEXT ·lsh256FinalAVX2(SB), NOSPLIT, $0-32
-	MOVQ ctx+0(FP), CX
-	MOVQ 16(CX), AX
+	MOVQ ctx+0(FP), AX
+	MOVL (AX), CX
+	MOVQ 8(AX), CX
 	MOVQ hashval_base+8(FP), DX
 
 	// lsh256_avx2_final
-	MOVQ AX, BX
-	MOVB $0x80, 96(CX)(BX*1)
+	MOVQ CX, BX
+	MOVB $0x80, 80(AX)(BX*1)
 	MOVQ $0x000000000000007f, SI
 	SUBQ BX, SI
 
 	// memset
-	LEAQ 97(CX)(BX*1), BX
+	LEAQ 81(AX)(BX*1), BX
 	CMPQ SI, $0x00000010
 	JL   memset_3_sz16_end
 	MOVO memset_value_0<>+0(SB), X0
@@ -19262,10 +19236,10 @@ memset_3_1_start:
 
 memset_3_1_end:
 	// load_blk_mem2vec
-	VMOVDQU 32(CX), Y0
+	VMOVDQU 16(AX), Y0
 
 	// load_blk_mem2vec
-	VMOVDQU 64(CX), Y1
+	VMOVDQU 48(AX), Y1
 
 	// compress
 	VMOVDQA g_BytePermInfo_avx2<>+0(SB), Y3
@@ -19273,16 +19247,16 @@ memset_3_1_end:
 
 	// load_msg_blk
 	// load_blk_mem2vec
-	VMOVDQU 96(CX), Y5
+	VMOVDQU 80(AX), Y5
 
 	// load_blk_mem2vec
-	VMOVDQU 128(CX), Y6
+	VMOVDQU 112(AX), Y6
 
 	// load_blk_mem2vec
-	VMOVDQU 160(CX), Y7
+	VMOVDQU 144(AX), Y7
 
 	// load_blk_mem2vec
-	VMOVDQU 192(CX), Y8
+	VMOVDQU 176(AX), Y8
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -20482,18 +20456,7 @@ memset_3_1_end:
 	VPXOR Y1, Y0, Y0
 
 	// get_hash
-	MOVL    (CX), BX
-	ANDL    $0x0000ffff, BX
-	MOVL    (CX), CX
-	SHRL    $0x18, CX
 	VMOVDQU Y0, (DX)
-	CMPL    CX, $0x00000000
-	JE      get_hash_if_end
-	MOVB    $0xff, SI
-	SHLB    CL, SI
-	MOVB    SI, -1(DX)(BX*1)
-
-get_hash_if_end:
-	MOVQ ctx+0(FP), CX
-	MOVQ AX, 16(CX)
+	MOVQ    ctx+0(FP), AX
+	MOVQ    CX, 8(AX)
 	RET

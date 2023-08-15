@@ -31,7 +31,7 @@ func getCtx() *LSH256_Context {
 	}
 
 	return &LSH256_Context{
-		Algtype:            Load(ctx.Field("algtype"), GP64()),
+		Algtype:            Load(ctx.Field("algtype"), GP32()),
 		Remain_databytelen: Load(ctx.Field("remain_databytelen"), GP64()),
 		Cv_l:               cv_l.Addr,
 		Cv_r:               cv_r.Addr,
