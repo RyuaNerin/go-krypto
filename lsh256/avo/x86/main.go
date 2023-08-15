@@ -1,16 +1,17 @@
 package main
 
 import (
-	"kryptosimd/lsh256/avo/lsh256avx2"
-	. "kryptosimd/lsh256/avo/lsh256common"
-	"kryptosimd/lsh256/avo/lsh256sse2"
-	"kryptosimd/lsh256/avo/lsh256ssse3"
+	"kryptosimd/lsh256/avo/x86/lsh256avx2"
+	. "kryptosimd/lsh256/avo/x86/lsh256common"
+	"kryptosimd/lsh256/avo/x86/lsh256sse2"
+	"kryptosimd/lsh256/avo/x86/lsh256ssse3"
 
 	. "github.com/mmcloughlin/avo/build"
 )
 
 func main() {
-	Package("kryptosimd/lsh256/avo/lsh256avoconst")
+	Package("kryptosimd/lsh256/avo/x86/lsh256avoconst")
+	ConstraintExpr("amd64,gc,!purego")
 
 	LSH256Init("SSE2", lsh256sse2.Lsh256_sse2_init)
 	LSH256Update("SSE2", lsh256sse2.Lsh256_sse2_update)

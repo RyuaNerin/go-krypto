@@ -8,8 +8,8 @@ import (
 	. "kryptosimd/avoutil"
 	. "kryptosimd/avoutil/simd"
 	. "kryptosimd/lsh/x86/sse2"
-	. "kryptosimd/lsh256/avo/lsh256avoconst"
-	. "kryptosimd/lsh256/avo/lsh256common"
+	. "kryptosimd/lsh256/avo/x86/lsh256avoconst"
+	. "kryptosimd/lsh256/avo/x86/lsh256common"
 )
 
 //	typedef struct LSH_ALIGNED_(32) {

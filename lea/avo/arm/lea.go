@@ -6,6 +6,7 @@ import (
 
 func main() {
 	Package("kryptosimd/lea/avo")
+	ConstraintExpr("arm,gc,!purego")
 
 	leaEnc4NEON()
 	leaDec4NEON()

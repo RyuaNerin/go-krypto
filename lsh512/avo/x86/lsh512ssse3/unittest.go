@@ -9,8 +9,8 @@ import (
 	/*
 		. "kryptosimd/avoutil/simd"
 		. "kryptosimd/lsh/x86/sse2"
-		. "kryptosimd/lsh512/avo/lsh512avoconst"
-		. "kryptosimd/lsh512/avo/lsh512common"
+		. "kryptosimd/lsh512/avo/x86/lsh512avoconst"
+		. "kryptosimd/lsh512/avo/x86/lsh512common"
 	*/)
 
 func UnitTest() {
