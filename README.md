@@ -101,3 +101,5 @@ Todo
 - [ ] ARMv8 NEON supports
 
     - [mmcloughlin/avo: Generate x86 Assembly with Go](https://github.com/mmcloughlin/avo) does not support ARM.
+
+- Supoorts Post-Quantum Cryptography
