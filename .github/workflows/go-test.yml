@@ -30,11 +30,16 @@ jobs:
           go-version: ${{ matrix.go-version }}
           cache-dependency-path: go.sum
 
+      - name: Install dependencies
+        run: |
+          go get .
+          go get github.com/RyuaNerin/elliptic2@v1.0.0
+
       - name: Build
         run: go build -v ./...
 
       - name: Test
-        run: go test -v ./... -json > TestResults-${{ matrix.go-version }}.json
+        run: go test ./... -json > TestResults-${{ matrix.go-version }}.json
         
       - name: Upload Go test results
         uses: actions/upload-artifact@v3
