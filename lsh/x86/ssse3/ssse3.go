@@ -4,7 +4,6 @@ import (
 	. "github.com/mmcloughlin/avo/operand"
 	. "github.com/mmcloughlin/avo/reg"
 
-	. "kryptosimd/avoutil"
 	. "kryptosimd/avoutil/simd"
 )
 
@@ -16,61 +15,28 @@ import (
 /* -------------------------------------------------------- */
 
 // #define LOAD(x) _mm_loadu_si128((__m128i*)x)
-func LOAD(dst, src Op) Op { return F_mm_loadu_si128(dst, src) }
+func LOAD(dst VecVirtual, src Op) VecVirtual { return F_mm_loadu_si128(dst, src) }
 
 // #define STORE(x,y) _mm_storeu_si128((__m128i*)x, y)
 func STORE(dst, src Op) { F_mm_storeu_si128(dst, src) }
 
 // #define XOR(x,y) _mm_xor_si128(x,y)
-func XOR(dst Op, src VecVirtual) Op { return F_mm_xor_si128(dst, src) }
+func XOR(dst VecVirtual, x, y Op) VecVirtual { return F_mm_xor_si128(dst, x, y) }
 
 // #define OR(x,y) _mm_or_si128(x,y)
-func OR(dst Op, src VecVirtual) Op { return F_mm_or_si128(dst, src) }
+func OR(dst VecVirtual, x, y Op) VecVirtual { return F_mm_or_si128(dst, x, y) }
 
 // #define AND(x,y) _mm_and_si128(x,y)
-func AND(dst Op, src VecVirtual) Op { return F_mm_and_si128(dst, src) }
+func AND(dst VecVirtual, x, y Op) VecVirtual { return F_mm_and_si128(dst, x, y) }
 
 // #define SHUFFLE8(x,y) _mm_shuffle_epi8(x,y)
-//
-//	>> dst == x
-func SHUFFLE8(dst VecVirtual, y Op) Op { return F_mm_shuffle_epi8(dst, y) }
+func SHUFFLE8(dst VecVirtual, x, y Op) VecVirtual { return F_mm_shuffle_epi8(dst, x, y) }
 
-// #define ADD32(x,y) _mm_add_epi32(x,y)
-func ADD32(dst VecVirtual, y Op) Op { return F_mm_add_epi32(dst, y) }
-func ADD32_(dst VecVirtual, a, b Op) Op {
-	if dst == a {
-		ADD32(dst, b)
-	} else if dst == b {
-		ADD32(dst, a)
-	} else {
-		MOVO_autoAU2(dst, a)
-		ADD32(dst, b)
-	}
-	return dst
-}
+func ADD32(dst VecVirtual, x, y Op) VecVirtual { return F_mm_add_epi32(dst, x, y) } // #define ADD(x,y) _mm_add_epi32(x,y)
+func ADD64(dst VecVirtual, x, y Op) VecVirtual { return F_mm_add_epi64(dst, x, y) } // #define ADD(x,y) _mm_add_epi64(x,y)
 
-// #define SHIFT_L32(x,r) _mm_slli_epi32(x,r)
-func SHIFT_L32(dst VecVirtual, r Op) Op { return F_mm_slli_epi32(dst, r) }
+func SHIFT_L32(dst VecVirtual, x, r Op) VecVirtual { return F_mm_slli_epi32(dst, x, r) } // #define SHIFT_L(x,r) _mm_slli_epi32(x,r)
+func SHIFT_R32(dst VecVirtual, x, r Op) VecVirtual { return F_mm_srli_epi32(dst, x, r) } // #define SHIFT_R(x,r) _mm_srli_epi32(x,r)
 
-// #define SHIFT_R32(x,r) _mm_srli_epi32(x,r)
-func SHIFT_R32(dst VecVirtual, r Op) Op { return F_mm_srli_epi32(dst, r) }
-
-// #define ADD(x,y) F_mm_add_epi64(x,y)
-func ADD64(dst VecVirtual, y Op) Op { return F_mm_add_epi64(dst, y) }
-func ADD64_(dst VecVirtual, a, b Op) Op {
-	if dst == a {
-		ADD64(dst, b)
-	} else if dst == b {
-		ADD64(dst, a)
-	} else {
-		MOVO_autoAU2(dst, a)
-		ADD64(dst, b)
-	}
-	return dst
-}
-
-// #define SHIFT_L(x,r) _mm_slli_epi64(x,r)
-func SHIFT_L64(dst VecVirtual, r Op) Op { return F_mm_slli_epi64(dst, r) }
-
-// #define SHIFT_R(x,r) _mm_srli_epi64(x,r)
-func SHIFT_R64(dst VecVirtual, r Op) Op { return F_mm_srli_epi64(dst, r) }
+func SHIFT_L64(dst VecVirtual, x, r Op) VecVirtual { return F_mm_slli_epi64(dst, x, r) } // #define SHIFT_L(x,r) _mm_slli_epi64(x,r)
+func SHIFT_R64(dst VecVirtual, x, r Op) VecVirtual { return F_mm_srli_epi64(dst, x, r) } // #define SHIFT_R(x,r) _mm_srli_epi64(x,r)

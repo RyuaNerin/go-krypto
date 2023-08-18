@@ -32,19 +32,11 @@ func load_blk_mem2vec(dest []VecVirtual, src Mem) {
 	//dest[0] = LOAD(src);
 	LOAD(dest[0], src)
 }
-func load_blk_vec2mem(dest Mem, src []VecVirtual) {
-	Comment("load_blk_vec2mem")
-
-	//dest[0] = LOAD(src);
-	LOAD(dest, src[0])
-}
 func load_blk_mem2mem(dest, src Mem) {
 	Comment("load_blk_mem2mem")
 
-	tmp := YMM()
 	//dest[0] = LOAD(src);
-	LOAD(tmp, src)
-	LOAD(dest, tmp)
+	MemcpyStatic(dest, src, YmmSize, true)
 }
 
 // static INLINE void store_blk(__m256i* dest, const __m256i* src){
@@ -60,12 +52,12 @@ func load_msg_blk(i_state LSH256AVX2_internal, msgblk Mem) {
 	Comment("load_msg_blk")
 
 	//load_blk(i_state->submsg_e_l, msgblk + 0);
-	load_blk_mem2vec(i_state.submsg_e_l, msgblk.Offset(0*4))
 	//load_blk(i_state->submsg_e_r, msgblk + 8);
-	load_blk_mem2vec(i_state.submsg_e_r, msgblk.Offset(8*4))
 	//load_blk(i_state->submsg_o_l, msgblk + 16);
-	load_blk_mem2vec(i_state.submsg_o_l, msgblk.Offset(16*4))
 	//load_blk(i_state->submsg_o_r, msgblk + 24);
+	load_blk_mem2vec(i_state.submsg_e_l, msgblk.Offset(0*4))
+	load_blk_mem2vec(i_state.submsg_e_r, msgblk.Offset(8*4))
+	load_blk_mem2vec(i_state.submsg_o_l, msgblk.Offset(16*4))
 	load_blk_mem2vec(i_state.submsg_o_r, msgblk.Offset(24*4))
 }
 
@@ -74,11 +66,9 @@ func msg_exp_even(i_state LSH256AVX2_internal, perm_step Op) {
 	Comment("msg_exp_even")
 
 	//i_state->submsg_e_l[0] = ADD(i_state->submsg_o_l[0], SHUFFLE8(i_state->submsg_e_l[0], perm_step));
-	SHUFFLE8(i_state.submsg_e_l[0], i_state.submsg_e_l[0], perm_step)
-	ADD32(i_state.submsg_e_l[0], i_state.submsg_e_l[0], i_state.submsg_o_l[0])
 	//i_state->submsg_e_r[0] = ADD(i_state->submsg_o_r[0], SHUFFLE8(i_state->submsg_e_r[0], perm_step));
-	SHUFFLE8(i_state.submsg_e_r[0], i_state.submsg_e_r[0], perm_step)
-	ADD32(i_state.submsg_e_r[0], i_state.submsg_e_r[0], i_state.submsg_o_r[0])
+	ADD32(i_state.submsg_e_l[0], i_state.submsg_o_l[0], SHUFFLE8(i_state.submsg_e_l[0], i_state.submsg_e_l[0], perm_step))
+	ADD32(i_state.submsg_e_r[0], i_state.submsg_o_r[0], SHUFFLE8(i_state.submsg_e_r[0], i_state.submsg_e_r[0], perm_step))
 }
 
 // static INLINE void msg_exp_odd(LSH256AVX2_internal * i_state, const __m256i perm_step){
@@ -86,11 +76,9 @@ func msg_exp_odd(i_state LSH256AVX2_internal, perm_step Op) {
 	Comment("msg_exp_odd")
 
 	//i_state->submsg_o_l[0] = ADD(i_state->submsg_e_l[0], SHUFFLE8(i_state->submsg_o_l[0], perm_step));
-	SHUFFLE8(i_state.submsg_o_l[0], i_state.submsg_o_l[0], perm_step)
-	ADD32(i_state.submsg_o_l[0], i_state.submsg_o_l[0], i_state.submsg_e_l[0])
 	//i_state->submsg_o_r[0] = ADD(i_state->submsg_e_r[0], SHUFFLE8(i_state->submsg_o_r[0], perm_step));
-	SHUFFLE8(i_state.submsg_o_r[0], i_state.submsg_o_r[0], perm_step)
-	ADD32(i_state.submsg_o_r[0], i_state.submsg_o_r[0], i_state.submsg_e_r[0])
+	ADD32(i_state.submsg_o_l[0], i_state.submsg_e_l[0], SHUFFLE8(i_state.submsg_o_l[0], i_state.submsg_o_l[0], perm_step))
+	ADD32(i_state.submsg_o_r[0], i_state.submsg_e_r[0], SHUFFLE8(i_state.submsg_o_r[0], i_state.submsg_o_r[0], perm_step))
 }
 
 // static INLINE void load_sc(__m256i* const_v, lsh_uint i){
@@ -107,8 +95,8 @@ func msg_add_even(cv_l, cv_r []VecVirtual, i_state LSH256AVX2_internal) {
 	Comment("msg_add_even")
 
 	//*cv_l = XOR(*cv_l, i_state->submsg_e_l[0]);
-	XOR(cv_l[0], cv_l[0], i_state.submsg_e_l[0])
 	//*cv_r = XOR(*cv_r, i_state->submsg_e_r[0]);
+	XOR(cv_l[0], cv_l[0], i_state.submsg_e_l[0])
 	XOR(cv_r[0], cv_r[0], i_state.submsg_e_r[0])
 }
 
@@ -117,8 +105,8 @@ func msg_add_odd(cv_l, cv_r []VecVirtual, i_state LSH256AVX2_internal) {
 	Comment("msg_add_odd")
 
 	//*cv_l = XOR(*cv_l, i_state->submsg_o_l[0]);
-	XOR(cv_l[0], cv_l[0], i_state.submsg_o_l[0])
 	//*cv_r = XOR(*cv_r, i_state->submsg_o_r[0]);
+	XOR(cv_l[0], cv_l[0], i_state.submsg_o_l[0])
 	XOR(cv_r[0], cv_r[0], i_state.submsg_o_r[0])
 }
 
@@ -134,44 +122,36 @@ func add_blk(cv_l, cv_r []VecVirtual) {
 func rotate_blk_even_alpha(cv []VecVirtual) {
 	Comment("rotate_blk_even_alpha")
 
-	tmpYmm := YMM()
+	tmp := YMM()
 	//*cv = OR(SHIFT_L(*cv, ROT_EVEN_ALPHA), SHIFT_R(*cv, WORD_BIT_LEN - ROT_EVEN_ALPHA));
-	SHIFT_L32(tmpYmm, cv[0], U8(ROT_EVEN_ALPHA))
-	SHIFT_R32(cv[0], cv[0], U8(WORD_BIT_LEN-ROT_EVEN_ALPHA))
-	OR(cv[0], cv[0], tmpYmm)
+	OR(cv[0], SHIFT_L32(tmp, cv[0], U8(ROT_EVEN_ALPHA)), SHIFT_R32(cv[0], cv[0], U8(WORD_BIT_LEN-ROT_EVEN_ALPHA)))
 }
 
 // static INLINE void rotate_blk_even_beta(__m256i* cv){
 func rotate_blk_even_beta(cv []VecVirtual) {
 	Comment("rotate_blk_even_beta")
 
-	tmpYmm := YMM()
+	tmp := YMM()
 	//*cv = OR(SHIFT_L(*cv, ROT_EVEN_BETA), SHIFT_R(*cv, WORD_BIT_LEN - ROT_EVEN_BETA));
-	SHIFT_L32(tmpYmm, cv[0], U8(ROT_EVEN_BETA))
-	SHIFT_R32(cv[0], cv[0], U8(WORD_BIT_LEN-ROT_EVEN_BETA))
-	OR(cv[0], cv[0], tmpYmm)
+	OR(cv[0], SHIFT_L32(tmp, cv[0], U8(ROT_EVEN_BETA)), SHIFT_R32(cv[0], cv[0], U8(WORD_BIT_LEN-ROT_EVEN_BETA)))
 }
 
 // static INLINE void rotate_blk_odd_alpha(__m256i* cv){
 func rotate_blk_odd_alpha(cv []VecVirtual) {
 	Comment("rotate_blk_odd_alpha")
 
-	tmpYmm := YMM()
+	tmp := YMM()
 	//*cv = OR(SHIFT_L(*cv, ROT_ODD_ALPHA), SHIFT_R(*cv, WORD_BIT_LEN - ROT_ODD_ALPHA));
-	SHIFT_L32(tmpYmm, cv[0], U8(ROT_ODD_ALPHA))
-	SHIFT_R32(cv[0], cv[0], U8(WORD_BIT_LEN-ROT_ODD_ALPHA))
-	OR(cv[0], cv[0], tmpYmm)
+	OR(cv[0], SHIFT_L32(tmp, cv[0], U8(ROT_ODD_ALPHA)), SHIFT_R32(cv[0], cv[0], U8(WORD_BIT_LEN-ROT_ODD_ALPHA)))
 }
 
 // static INLINE void rotate_blk_odd_beta(__m256i* cv){
 func rotate_blk_odd_beta(cv []VecVirtual) {
 	Comment("rotate_blk_odd_beta")
 
-	tmpYmm := YMM()
+	tmp := YMM()
 	//*cv = OR(SHIFT_L(*cv, ROT_ODD_BETA), SHIFT_R(*cv, WORD_BIT_LEN - ROT_ODD_BETA));
-	SHIFT_L32(tmpYmm, cv[0], U8(ROT_ODD_BETA))
-	SHIFT_R32(cv[0], cv[0], U8(WORD_BIT_LEN-ROT_ODD_BETA))
-	OR(cv[0], cv[0], tmpYmm)
+	OR(cv[0], SHIFT_L32(tmp, cv[0], U8(ROT_ODD_BETA)), SHIFT_R32(cv[0], cv[0], U8(WORD_BIT_LEN-ROT_ODD_BETA)))
 }
 
 // static INLINE void xor_with_const(__m256i* cv_l, const __m256i* const_v){
@@ -197,12 +177,12 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 	//__m256i temp;
 	temp := YMM()
 	//temp = _mm256_shuffle_epi32(*cv_l, 0xd2);
-	F_mm256_shuffle_epi32(temp, cv_l[0], U8(0xd2))
 	//*cv_r = _mm256_shuffle_epi32(*cv_r, 0x6c);
+	F_mm256_shuffle_epi32(temp, cv_l[0], U8(0xd2))
 	F_mm256_shuffle_epi32(cv_r[0], cv_r[0], U8(0x6c))
 	//*cv_l = _mm256_permute2x128_si256(temp, *cv_r, 0x31);
-	F_mm256_permute2x128_si256(cv_l[0], temp, cv_r[0], U8(0x31))
 	//*cv_r = _mm256_permute2x128_si256(temp, *cv_r, 0x20);
+	F_mm256_permute2x128_si256(cv_l[0], temp, cv_r[0], U8(0x31))
 	F_mm256_permute2x128_si256(cv_r[0], temp, cv_r[0], U8(0x20))
 }
 
@@ -303,8 +283,8 @@ func init224(state *LSH256_Context) {
 	Comment("init224")
 
 	//load_blk(state->cv_l, g_IV224);
-	load_blk_mem2mem(state.Cv_l, G_IV224)
 	//load_blk(state->cv_r, g_IV224 + 8);
+	load_blk_mem2mem(state.Cv_l, G_IV224)
 	load_blk_mem2mem(state.Cv_r, G_IV224.Offset(8*4))
 }
 
@@ -313,8 +293,8 @@ func init256(state *LSH256_Context) {
 	Comment("init256")
 
 	//load_blk(state->cv_l, g_IV256);
-	load_blk_mem2mem(state.Cv_l, G_IV256)
 	//load_blk(state->cv_r, g_IV256 + 8);
+	load_blk_mem2mem(state.Cv_l, G_IV256)
 	load_blk_mem2mem(state.Cv_r, G_IV256.Offset(8*4))
 }
 

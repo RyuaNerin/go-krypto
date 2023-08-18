@@ -343,12 +343,14 @@ TEXT ·lsh256InitSSE2(SB), NOSPLIT, $0-8
 
 	// init256
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV256<>+0(SB), X0
 	MOVOU X0, 16(AX)
 	MOVOA g_IV256<>+16(SB), X0
 	MOVOU X0, 32(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV256<>+32(SB), X0
 	MOVOU X0, 48(AX)
 	MOVOA g_IV256<>+48(SB), X0
@@ -358,12 +360,14 @@ TEXT ·lsh256InitSSE2(SB), NOSPLIT, $0-8
 lsh256_sse2_init_if0_end:
 	// init224
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV224<>+0(SB), X0
 	MOVOU X0, 16(AX)
 	MOVOA g_IV224<>+16(SB), X0
 	MOVOU X0, 32(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV224<>+32(SB), X0
 	MOVOU X0, 48(AX)
 	MOVOA g_IV224<>+48(SB), X0
@@ -593,55 +597,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -708,55 +706,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -833,55 +825,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -958,55 +944,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -1083,55 +1063,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -1208,55 +1182,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -1333,55 +1301,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -1458,55 +1420,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -1583,55 +1539,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -1708,55 +1658,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -1833,55 +1777,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -1958,55 +1896,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -2083,55 +2015,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -2208,55 +2134,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -2333,55 +2253,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -2458,55 +2372,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -2583,55 +2491,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -2708,55 +2610,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -2833,55 +2729,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -2958,55 +2848,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -3083,55 +2967,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -3208,55 +3086,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -3333,55 +3205,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -3458,55 +3324,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -3583,55 +3443,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -3708,55 +3562,49 @@ memcpy_2_sz1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -3866,55 +3714,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -3981,55 +3823,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -4106,55 +3942,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -4231,55 +4061,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -4356,55 +4180,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -4481,55 +4299,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -4606,55 +4418,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -4731,55 +4537,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -4856,55 +4656,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -4981,55 +4775,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -5106,55 +4894,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -5231,55 +5013,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -5356,55 +5132,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -5481,55 +5251,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -5606,55 +5370,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -5731,55 +5489,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -5856,55 +5608,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -5981,55 +5727,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -6106,55 +5846,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -6231,55 +5965,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -6356,55 +6084,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -6481,55 +6203,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -6606,55 +6322,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -6731,55 +6441,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -6856,55 +6560,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -6981,55 +6679,49 @@ lsh256_sse2_update_while_start:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -7297,55 +6989,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -7412,55 +7098,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -7537,55 +7217,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -7662,55 +7336,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -7787,55 +7455,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -7912,55 +7574,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -8037,55 +7693,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -8162,55 +7812,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -8287,55 +7931,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -8412,55 +8050,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -8537,55 +8169,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -8662,55 +8288,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -8787,55 +8407,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -8912,55 +8526,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -9037,55 +8645,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -9162,55 +8764,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -9287,55 +8883,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -9412,55 +9002,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -9537,55 +9121,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -9662,55 +9240,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -9787,55 +9359,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -9912,55 +9478,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -10037,55 +9597,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -10162,55 +9716,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -10287,55 +9835,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -10412,55 +9954,49 @@ memset_1_1_end:
 	PADDD X3, X1
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+16(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+0(SB), X4
+	PAND  g_BytePermInfo_sse2<>+16(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+32(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+48(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+32(SB), X4
+	PAND  g_BytePermInfo_sse2<>+48(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+64(SB), X4
-	PAND  X2, X4
-	MOVOA g_BytePermInfo_sse2<>+80(SB), X5
-	PAND  X5, X2
+	MOVOA X2, X4
+	PAND  g_BytePermInfo_sse2<>+64(SB), X4
+	PAND  g_BytePermInfo_sse2<>+80(SB), X2
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X2
-	MOVOA g_BytePermInfo_sse2<>+96(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+112(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+96(SB), X4
+	PAND  g_BytePermInfo_sse2<>+112(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+128(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+144(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+128(SB), X4
+	PAND  g_BytePermInfo_sse2<>+144(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
 	PXOR  X5, X4
 	PXOR  X4, X3
-	MOVOA g_BytePermInfo_sse2<>+160(SB), X4
-	PAND  X3, X4
-	MOVOA g_BytePermInfo_sse2<>+176(SB), X5
-	PAND  X5, X3
+	MOVOA X3, X4
+	PAND  g_BytePermInfo_sse2<>+160(SB), X4
+	PAND  g_BytePermInfo_sse2<>+176(SB), X3
 	MOVOA X4, X5
 	PSLLL $0x08, X5
 	PSRLL $0x18, X4
@@ -16443,10 +15979,12 @@ TEXT ·lsh256InitAVX2(SB), NOSPLIT, $0-8
 
 	// init256
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV256<>+0(SB), Y0
 	VMOVDQU Y0, 16(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV256<>+32(SB), Y0
 	VMOVDQU Y0, 48(AX)
 	JMP     lsh256_avx2_init_ret
@@ -16454,10 +15992,12 @@ TEXT ·lsh256InitAVX2(SB), NOSPLIT, $0-8
 lsh256_avx2_init_if0_end:
 	// init224
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV224<>+0(SB), Y0
 	VMOVDQU Y0, 16(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV224<>+32(SB), Y0
 	VMOVDQU Y0, 48(AX)
 
@@ -16670,7 +16210,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -16681,7 +16221,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -16710,7 +16250,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -16721,7 +16261,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -16737,9 +16277,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -16756,7 +16296,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -16767,7 +16307,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -16783,9 +16323,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -16802,7 +16342,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -16813,7 +16353,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -16829,9 +16369,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -16848,7 +16388,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -16859,7 +16399,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -16875,9 +16415,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -16894,7 +16434,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -16905,7 +16445,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -16921,9 +16461,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -16940,7 +16480,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -16951,7 +16491,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -16967,9 +16507,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -16986,7 +16526,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -16997,7 +16537,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17013,9 +16553,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17032,7 +16572,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17043,7 +16583,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17059,9 +16599,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -17078,7 +16618,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17089,7 +16629,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17105,9 +16645,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17124,7 +16664,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17135,7 +16675,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17151,9 +16691,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -17170,7 +16710,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17181,7 +16721,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17197,9 +16737,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17216,7 +16756,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17227,7 +16767,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17243,9 +16783,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -17262,7 +16802,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17273,7 +16813,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17289,9 +16829,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17308,7 +16848,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17319,7 +16859,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17335,9 +16875,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -17354,7 +16894,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17365,7 +16905,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17381,9 +16921,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17400,7 +16940,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17411,7 +16951,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17427,9 +16967,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -17446,7 +16986,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17457,7 +16997,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17473,9 +17013,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17492,7 +17032,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17503,7 +17043,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17519,9 +17059,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -17538,7 +17078,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17549,7 +17089,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17565,9 +17105,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17584,7 +17124,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17595,7 +17135,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17611,9 +17151,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -17630,7 +17170,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17641,7 +17181,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17657,9 +17197,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17676,7 +17216,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17687,7 +17227,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17703,9 +17243,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -17722,7 +17262,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17733,7 +17273,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17749,9 +17289,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17768,7 +17308,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17779,7 +17319,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17795,9 +17335,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -17814,7 +17354,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17825,7 +17365,7 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17841,9 +17381,9 @@ memcpy_8_sz1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17890,7 +17430,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17901,7 +17441,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17930,7 +17470,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17941,7 +17481,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -17957,9 +17497,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -17976,7 +17516,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -17987,7 +17527,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18003,9 +17543,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18022,7 +17562,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18033,7 +17573,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18049,9 +17589,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18068,7 +17608,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18079,7 +17619,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18095,9 +17635,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18114,7 +17654,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18125,7 +17665,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18141,9 +17681,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18160,7 +17700,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18171,7 +17711,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18187,9 +17727,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18206,7 +17746,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18217,7 +17757,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18233,9 +17773,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18252,7 +17792,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18263,7 +17803,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18279,9 +17819,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18298,7 +17838,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18309,7 +17849,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18325,9 +17865,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18344,7 +17884,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18355,7 +17895,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18371,9 +17911,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18390,7 +17930,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18401,7 +17941,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18417,9 +17957,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18436,7 +17976,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18447,7 +17987,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18463,9 +18003,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18482,7 +18022,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18493,7 +18033,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18509,9 +18049,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18528,7 +18068,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18539,7 +18079,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18555,9 +18095,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18574,7 +18114,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18585,7 +18125,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18601,9 +18141,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18620,7 +18160,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18631,7 +18171,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18647,9 +18187,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18666,7 +18206,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18677,7 +18217,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18693,9 +18233,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18712,7 +18252,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18723,7 +18263,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18739,9 +18279,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18758,7 +18298,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18769,7 +18309,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18785,9 +18325,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18804,7 +18344,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18815,7 +18355,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18831,9 +18371,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18850,7 +18390,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18861,7 +18401,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18877,9 +18417,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18896,7 +18436,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18907,7 +18447,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18923,9 +18463,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -18942,7 +18482,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18953,7 +18493,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -18969,9 +18509,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -18988,7 +18528,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -18999,7 +18539,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19015,9 +18555,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -19034,7 +18574,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19045,7 +18585,7 @@ lsh256_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19061,9 +18601,9 @@ lsh256_avx2_update_while_start:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -19275,7 +18815,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19286,7 +18826,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19315,7 +18855,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19326,7 +18866,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19342,9 +18882,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -19361,7 +18901,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19372,7 +18912,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19388,9 +18928,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -19407,7 +18947,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19418,7 +18958,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19434,9 +18974,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -19453,7 +18993,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19464,7 +19004,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19480,9 +19020,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -19499,7 +19039,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19510,7 +19050,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19526,9 +19066,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -19545,7 +19085,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19556,7 +19096,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19572,9 +19112,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -19591,7 +19131,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19602,7 +19142,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19618,9 +19158,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -19637,7 +19177,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19648,7 +19188,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19664,9 +19204,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -19683,7 +19223,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19694,7 +19234,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19710,9 +19250,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -19729,7 +19269,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19740,7 +19280,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19756,9 +19296,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -19775,7 +19315,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19786,7 +19326,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19802,9 +19342,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -19821,7 +19361,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19832,7 +19372,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19848,9 +19388,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -19867,7 +19407,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19878,7 +19418,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19894,9 +19434,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -19913,7 +19453,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19924,7 +19464,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19940,9 +19480,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -19959,7 +19499,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -19970,7 +19510,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -19986,9 +19526,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -20005,7 +19545,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -20016,7 +19556,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -20032,9 +19572,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -20051,7 +19591,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -20062,7 +19602,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -20078,9 +19618,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -20097,7 +19637,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -20108,7 +19648,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -20124,9 +19664,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -20143,7 +19683,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -20154,7 +19694,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -20170,9 +19710,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -20189,7 +19729,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -20200,7 +19740,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -20216,9 +19756,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -20235,7 +19775,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -20246,7 +19786,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -20262,9 +19802,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -20281,7 +19821,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -20292,7 +19832,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -20308,9 +19848,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -20327,7 +19867,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -20338,7 +19878,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -20354,9 +19894,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0
@@ -20373,7 +19913,7 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLD $0x1d, Y0, Y9
 	VPSRLD $0x03, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -20384,7 +19924,7 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLD $0x01, Y1, Y2
 	VPSRLD $0x1f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -20400,9 +19940,9 @@ memset_3_1_end:
 
 	// msg_exp_odd
 	VPSHUFB Y4, Y7, Y7
-	VPADDD  Y5, Y7, Y7
+	VPADDD  Y7, Y5, Y7
 	VPSHUFB Y4, Y8, Y8
-	VPADDD  Y6, Y8, Y8
+	VPADDD  Y8, Y6, Y8
 
 	// msg_add_odd
 	VPXOR Y7, Y0, Y0
@@ -20419,7 +19959,7 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLD $0x05, Y0, Y9
 	VPSRLD $0x1b, Y0, Y0
-	VPOR   Y9, Y0, Y0
+	VPOR   Y0, Y9, Y0
 
 	// xor_with_const
 	VPXOR Y2, Y0, Y0
@@ -20430,7 +19970,7 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLD $0x11, Y1, Y2
 	VPSRLD $0x0f, Y1, Y1
-	VPOR   Y2, Y1, Y1
+	VPOR   Y1, Y2, Y1
 
 	// add_blk
 	VPADDD Y1, Y0, Y0
@@ -20446,9 +19986,9 @@ memset_3_1_end:
 
 	// msg_exp_even
 	VPSHUFB Y4, Y5, Y5
-	VPADDD  Y7, Y5, Y5
+	VPADDD  Y5, Y7, Y5
 	VPSHUFB Y4, Y6, Y6
-	VPADDD  Y8, Y6, Y6
+	VPADDD  Y6, Y8, Y6
 
 	// msg_add_even
 	VPXOR Y5, Y0, Y0

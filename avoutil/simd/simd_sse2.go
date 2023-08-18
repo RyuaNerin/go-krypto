@@ -24,8 +24,8 @@ Operation
 
 	dst[127:0] := MEM[mem_addr+127:mem_addr]
 */
-func F_mm_loadu_si128(dst Op, src Op) Op {
-	MOVO_autoAU(src, dst)
+func F_mm_loadu_si128(dst VecVirtual, src Op) VecVirtual {
+	MOVO_autoAU2(dst, src)
 	return dst
 }
 
@@ -45,9 +45,8 @@ Operation
 
 	MEM[mem_addr+127:mem_addr] := a[127:0]
 */
-func F_mm_storeu_si128(dst, src Op) Op {
-	MOVO_autoAU(src, dst)
-	return dst
+func F_mm_storeu_si128(dst, src Op) {
+	MOVO_autoAU2(dst, src)
 }
 
 /*
@@ -66,16 +65,39 @@ Operation
 
 	dst[127:0] := (a[127:0] XOR b[127:0])
 */
-func F_mm_xor_si128(dst Op, src Op) Op {
-	CheckType(
-		`
-		//	PXOR m128 xmm
-		//	PXOR xmm  xmm
-		`,
-		src, dst,
-	)
+func F_mm_xor_si128(dst VecVirtual, a, b Op) VecVirtual {
+	switch {
+	case dst == a:
+		CheckType(
+			`
+			//	PXOR m128 xmm
+			//	PXOR xmm  xmm
+			`,
+			b, dst,
+		)
+		PXOR(b, dst)
+	case dst == b:
+		CheckType(
+			`
+			//	PXOR m128 xmm
+			//	PXOR xmm  xmm
+			`,
+			b, dst,
+		)
+		PXOR(a, dst)
+	default:
+		CheckType(
+			`
+			//	PXOR m128 xmm
+			//	PXOR xmm  xmm
+			`,
+			b, dst,
+		)
 
-	PXOR(src, dst)
+		MOVO_autoAU2(dst, a)
+		PXOR(b, dst)
+	}
+
 	return dst
 }
 
@@ -95,16 +117,38 @@ Operation
 
 	dst[127:0] := (a[127:0] OR b[127:0])
 */
-func F_mm_or_si128(dst Op, src Op) Op {
-	CheckType(
-		`
-		//	POR m128 xmm
-		//	POR xmm  xmm
-		`,
-		src, dst,
-	)
+func F_mm_or_si128(dst VecVirtual, a, b Op) VecVirtual {
+	switch {
+	case dst == a:
+		CheckType(
+			`
+			//	POR m128 xmm
+			//	POR xmm  xmm
+			`,
+			b, dst,
+		)
+		POR(b, dst)
+	case dst == b:
+		CheckType(
+			`
+			//	POR m128 xmm
+			//	POR xmm  xmm
+			`,
+			b, dst,
+		)
+		POR(a, dst)
+	default:
+		CheckType(
+			`
+			//	POR m128 xmm
+			//	POR xmm  xmm
+			`,
+			b, dst,
+		)
 
-	POR(src, dst)
+		MOVO_autoAU2(dst, a)
+		POR(b, dst)
+	}
 	return dst
 }
 
@@ -124,16 +168,38 @@ Operation
 
 	dst[127:0] := (a[127:0] AND b[127:0])
 */
-func F_mm_and_si128(dst Op, src Op) Op {
-	CheckType(
-		`
-		//	PAND m128 xmm
-		//	PAND xmm  xmm
-		`,
-		src, dst,
-	)
+func F_mm_and_si128(dst VecVirtual, a, b Op) VecVirtual {
+	switch {
+	case dst == a:
+		CheckType(
+			`
+			//	PAND m128 xmm
+			//	PAND xmm  xmm
+			`,
+			b, dst,
+		)
+		PAND(b, dst)
+	case dst == b:
+		CheckType(
+			`
+			//	PAND m128 xmm
+			//	PAND xmm  xmm
+			`,
+			b, dst,
+		)
+		PAND(a, dst)
+	default:
+		CheckType(
+			`
+			//	PAND m128 xmm
+			//	PAND xmm  xmm
+			`,
+			b, dst,
+		)
 
-	PAND(src, dst)
+		MOVO_autoAU2(dst, a)
+		PAND(b, dst)
+	}
 	return dst
 }
 
@@ -156,16 +222,38 @@ Operation
 		dst[i+31:i] := a[i+31:i] + b[i+31:i]
 	ENDFOR
 */
-func F_mm_add_epi32(dst VecVirtual, src Op) Op {
-	CheckType(
-		`
-		//	PADDD m128 xmm
-		//	PADDD xmm  xmm
-		`,
-		src, dst,
-	)
+func F_mm_add_epi32(dst VecVirtual, a, b Op) VecVirtual {
+	switch {
+	case dst == a:
+		CheckType(
+			`
+			//	PADDD m128 xmm
+			//	PADDD xmm  xmm
+			`,
+			b, dst,
+		)
+		PADDD(b, dst)
+	case dst == b:
+		CheckType(
+			`
+			//	PADDD m128 xmm
+			//	PADDD xmm  xmm
+			`,
+			b, dst,
+		)
+		PADDD(a, dst)
+	default:
+		CheckType(
+			`
+			//	PADDD m128 xmm
+			//	PADDD xmm  xmm
+			`,
+			b, dst,
+		)
 
-	PADDD(src, dst)
+		MOVO_autoAU2(dst, a)
+		PADDD(b, dst)
+	}
 	return dst
 }
 
@@ -192,17 +280,21 @@ Operation
 		FI
 	ENDFOR
 */
-func F_mm_slli_epi32(dst VecVirtual, r Op) VecVirtual {
+func F_mm_slli_epi32(dst VecVirtual, a, imm8 Op) VecVirtual {
+	if dst != a {
+		MOVO_autoAU2(dst, a)
+	}
+
 	CheckType(
 		`
 		//	PSLLL imm8 xmm
 		//	PSLLL m128 xmm
 		//	PSLLL xmm  xmm
 		`,
-		r, dst,
+		imm8, dst,
 	)
 
-	PSLLL(r, dst)
+	PSLLL(imm8, dst)
 	return dst
 }
 
@@ -229,17 +321,21 @@ Operation
 		FI
 	ENDFOR
 */
-func F_mm_srli_epi32(dst VecVirtual, r Op) VecVirtual {
+func F_mm_srli_epi32(dst VecVirtual, a, imm8 Op) VecVirtual {
+	if dst != a {
+		MOVO_autoAU2(dst, a)
+	}
+
 	CheckType(
 		`
 		//	PSRLL imm8 xmm
 		//	PSRLL m128 xmm
 		//	PSRLL xmm  xmm
 		`,
-		r, dst,
+		imm8, dst,
 	)
 
-	PSRLL(r, dst)
+	PSRLL(imm8, dst)
 	return dst
 }
 
@@ -271,16 +367,20 @@ Operation
 	dst[95:64] := SELECT4(a[127:0], imm8[5:4])
 	dst[127:96] := SELECT4(a[127:0], imm8[7:6])
 */
-func F_mm_shuffle_epi32(dst VecVirtual, x, i Op) VecVirtual {
+func F_mm_shuffle_epi32(dst VecVirtual, a, imm8 Op) VecVirtual {
+	if dst != a {
+		MOVO_autoAU2(dst, a)
+	}
+
 	CheckType(
 		`
 		//	PSHUFD imm8 m128 xmm
 		//	PSHUFD imm8 xmm  xmm
 		`,
-		i, x, dst,
+		imm8, a, dst,
 	)
 
-	PSHUFD(i, x, dst)
+	PSHUFD(imm8, a, dst)
 	return dst
 }
 
@@ -306,8 +406,9 @@ Operation
 	}
 	dst[127:0] := INTERLEAVE_QWORDS(a[127:0], b[127:0])
 */
-func F_mm_unpacklo_epi64(dst, a, b Op) Op {
-	if dst == a {
+func F_mm_unpacklo_epi64(dst VecVirtual, a, b Op) VecVirtual {
+	switch {
+	case dst == a:
 		CheckType(
 			`
 			//	PUNPCKLQDQ m128 xmm
@@ -317,7 +418,8 @@ func F_mm_unpacklo_epi64(dst, a, b Op) Op {
 		)
 
 		PUNPCKLQDQ(b, dst)
-	} else if dst == b {
+
+	case dst == b:
 		CheckType(
 			`
 			//	PUNPCKLQDQ m128 xmm
@@ -330,7 +432,8 @@ func F_mm_unpacklo_epi64(dst, a, b Op) Op {
 		MOVO_autoAU2(tmp, b)
 		MOVO_autoAU2(dst, a)
 		PUNPCKLQDQ(tmp, dst)
-	} else {
+
+	default:
 		CheckType(
 			`
 			//	PUNPCKLQDQ m128 xmm
@@ -368,8 +471,9 @@ Operation
 	}
 	dst[127:0] := INTERLEAVE_HIGH_QWORDS(a[127:0], b[127:0])
 */
-func F_mm_unpackhi_epi64(dst, a, b Op) Op {
-	if dst == a {
+func F_mm_unpackhi_epi64(dst VecVirtual, a, b Op) VecVirtual {
+	switch {
+	case dst == a:
 		CheckType(
 			`
 			//	PUNPCKHQDQ m128 xmm
@@ -379,7 +483,8 @@ func F_mm_unpackhi_epi64(dst, a, b Op) Op {
 		)
 
 		PUNPCKHQDQ(b, dst)
-	} else if dst == b {
+
+	case dst == b:
 		CheckType(
 			`
 			//	PUNPCKHQDQ m128 xmm
@@ -392,7 +497,8 @@ func F_mm_unpackhi_epi64(dst, a, b Op) Op {
 		MOVO_autoAU2(tmp, b)
 		MOVO_autoAU2(dst, a)
 		PUNPCKHQDQ(tmp, dst)
-	} else {
+
+	default:
 		CheckType(
 			`
 			//	PUNPCKHQDQ m128 xmm
@@ -404,6 +510,7 @@ func F_mm_unpackhi_epi64(dst, a, b Op) Op {
 		MOVO_autoAU2(dst, a)
 		PUNPCKHQDQ(b, dst)
 	}
+
 	return dst
 }
 
@@ -427,16 +534,41 @@ Operation
 		dst[i+63:i] := a[i+63:i] + b[i+63:i]
 	ENDFOR
 */
-func F_mm_add_epi64(dst Op, b Op) Op {
-	CheckType(
-		`
-		//	PADDQ m128 xmm
-		//	PADDQ xmm  xmm
-		`,
-		b, dst,
-	)
+func F_mm_add_epi64(dst VecVirtual, a, b Op) VecVirtual {
+	switch {
+	case dst == a:
+		CheckType(
+			`
+			//	PADDQ m128 xmm
+			//	PADDQ xmm  xmm
+			`,
+			b, dst,
+		)
 
-	PADDQ(b, dst)
+		PADDQ(b, dst)
+
+	case dst == b:
+		CheckType(
+			`
+			//	PADDQ m128 xmm
+			//	PADDQ xmm  xmm
+			`,
+			a, dst,
+		)
+		PADDQ(a, dst)
+
+	default:
+		CheckType(
+			`
+			//	PADDQ m128 xmm
+			//	PADDQ xmm  xmm
+			`,
+			b, dst,
+		)
+
+		MOVO_autoAU2(dst, a)
+		PADDQ(b, dst)
+	}
 	return dst
 }
 
@@ -464,7 +596,11 @@ Operation
 		FI
 	ENDFOR
 */
-func F_mm_srli_epi64(dst, imm8 Op) Op {
+func F_mm_srli_epi64(dst VecVirtual, a, imm8 Op) VecVirtual {
+	if dst != a {
+		MOVO_autoAU2(dst, a)
+	}
+
 	CheckType(
 		`
 		//	PSRLQ imm8 xmm
@@ -502,7 +638,11 @@ Operation
 		FI
 	ENDFOR
 */
-func F_mm_slli_epi64(dst, imm8 Op) Op {
+func F_mm_slli_epi64(dst VecVirtual, a, imm8 Op) VecVirtual {
+	if dst != a {
+		MOVO_autoAU2(dst, a)
+	}
+
 	CheckType(
 		`
 		//	PSLLQ imm8 xmm
@@ -544,5 +684,42 @@ func F_mm_load_si128(dst VecVirtual, src Mem) VecVirtual {
 	return dst
 }
 
-func A_mm_loadu_si128(src Op) Op { return F_mm_loadu_si128(XMM(), src) }
-func A_mm_load_si128(src Mem) Op { return F_mm_load_si128(XMM(), src) }
+/*
+*
+Synopsis
+
+	__m128i _mm_srli_epi16 (__m128i a, int imm8)
+	#include <emmintrin.h>
+	Instruction: psrlw xmm, imm8
+	CPUID Flags: SSE2
+
+Description
+
+	Shift packed 16-bit integers in a right by imm8 while shifting in zeros, and store the results in dst.
+
+Operation
+
+	FOR j := 0 to 7
+		i := j*16
+		IF imm8[7:0] > 15
+			dst[i+15:i] := 0
+		ELSE
+			dst[i+15:i] := ZeroExtend16(a[i+15:i] >> imm8[7:0])
+		FI
+	ENDFOR
+*/
+func F_mm_srli_epi16(dst VecVirtual, a, imm8 Op) VecVirtual {
+	if dst != a {
+		MOVO_autoAU2(dst, a)
+	}
+
+	CheckType(
+		`
+		//	PSRLW imm8 xmm
+		`,
+		imm8, dst,
+	)
+
+	PSRLW(imm8, dst)
+	return dst
+}

@@ -29,11 +29,13 @@ func processFinSSE2() {
 		dst[j] = rk[j] ^ t[j]
 	}
 	*/
+	tmp := XMM()
 	F_mm_storeu_si128(
 		dst,
 		F_mm_xor_si128(
-			A_mm_loadu_si128(rk),
-			A_mm_loadu_si128(t),
+			tmp,
+			F_mm_loadu_si128(tmp, rk),
+			F_mm_loadu_si128(XMM(), t),
 		),
 	)
 

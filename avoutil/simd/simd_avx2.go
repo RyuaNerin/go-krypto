@@ -3,6 +3,7 @@ package simd
 import (
 	. "github.com/mmcloughlin/avo/build"
 	. "github.com/mmcloughlin/avo/operand"
+	. "github.com/mmcloughlin/avo/reg"
 
 	. "kryptosimd/avoutil"
 )
@@ -24,8 +25,8 @@ Operation
 	dst[255:0] := MEM[mem_addr+255:mem_addr]
 	dst[MAX:256] := 0
 */
-func F_mm256_loadu_si256(dst, src Op) Op {
-	VMOVDQ_autoAU(src, dst)
+func F_mm256_loadu_si256(dst VecVirtual, src Op) VecVirtual {
+	VMOVDQ_autoAU2(dst, src)
 	return dst
 }
 
@@ -45,9 +46,8 @@ Operation
 
 	MEM[mem_addr+255:mem_addr] := a[255:0]
 */
-func F_mm256_storeu_si256(dst, src Op) Op {
-	VMOVDQ_autoAU(src, dst)
-	return dst
+func F_mm256_storeu_si256(dst, src Op) {
+	VMOVDQ_autoAU2(dst, src)
 }
 
 /*
@@ -67,7 +67,7 @@ Operation
 	dst[255:0] := (a[255:0] XOR b[255:0])
 	dst[MAX:256] := 0
 */
-func F_mm256_xor_si256(dst, a, b Op) Op {
+func F_mm256_xor_si256(dst VecVirtual, a, b Op) VecVirtual {
 	CheckType(
 		`
 		//	VPXOR m256 ymm ymm
@@ -99,7 +99,7 @@ Operation
 	dst[255:0] := (a[255:0] OR b[255:0])
 	dst[MAX:256] := 0
 */
-func F_mm256_or_si256(dst, a, b Op) Op {
+func F_mm256_or_si256(dst VecVirtual, a, b Op) VecVirtual {
 	CheckType(
 		`
 		//	VPOR m256 ymm ymm
@@ -131,7 +131,7 @@ Operation
 	dst[255:0] := (a[255:0] AND b[255:0])
 	dst[MAX:256] := 0
 */
-func F_mm256_and_si256(dst, a, b Op) Op {
+func F_mm256_and_si256(dst VecVirtual, a, b Op) VecVirtual {
 	CheckType(
 		`
 		//	VPAND m256 ymm ymm
@@ -177,7 +177,7 @@ Operation
 	ENDFOR
 	dst[MAX:256] := 0
 */
-func F_mm256_shuffle_epi8(dst, x, y Op) Op {
+func F_mm256_shuffle_epi8(dst VecVirtual, x, y Op) VecVirtual {
 	CheckType(
 		`
 		//	VPSHUFB m256 ymm ymm
@@ -220,7 +220,7 @@ Operation
 	ENDFOR
 	dst[MAX:256] := 0
 */
-func F_mm256_add_epi32(dst, a, b Op) Op {
+func F_mm256_add_epi32(dst VecVirtual, a, b Op) VecVirtual {
 	CheckType(
 		`
 		//	VPADDD m256 ymm ymm
@@ -267,7 +267,7 @@ Operation
 	ENDFOR
 	dst[MAX:256] := 0
 */
-func F_mm256_slli_epi32(dst, a, imm8 Op) Op {
+func F_mm256_slli_epi32(dst VecVirtual, a, imm8 Op) VecVirtual {
 	CheckType(
 		`
 		//	VPSLLD imm8 ymm  ymm
@@ -326,7 +326,7 @@ Operation
 	ENDFOR
 	dst[MAX:256] := 0
 */
-func F_mm256_srli_epi32(dst, a, imm8 Op) Op {
+func F_mm256_srli_epi32(dst VecVirtual, a, imm8 Op) VecVirtual {
 	CheckType(
 		`
 		//	VPSRLD imm8 ymm  ymm
@@ -394,7 +394,7 @@ Operation
 	dst[255:224] := SELECT4(a[255:128], imm8[7:6])
 	dst[MAX:256] := 0
 */
-func F_mm256_shuffle_epi32(dst, a, imm8 Op) Op {
+func F_mm256_shuffle_epi32(dst VecVirtual, a, imm8 Op) VecVirtual {
 	CheckType(
 		`
 		//	VPSHUFD imm8 m256 ymm
@@ -447,7 +447,7 @@ Operation
 	dst[255:128] := SELECT4(a[255:0], b[255:0], imm8[7:4])
 	dst[MAX:256] := 0
 */
-func F_mm256_permute2x128_si256(dst, a, b, imm8 Op) Op {
+func F_mm256_permute2x128_si256(dst VecVirtual, a, b, imm8 Op) VecVirtual {
 	CheckType(
 		`
 		//	VPERM2I128 imm8 m256 ymm ymm
@@ -481,7 +481,7 @@ Operation
 	ENDFOR
 	dst[MAX:256] := 0
 */
-func F_mm256_add_epi64(dst, x, y Op) Op {
+func F_mm256_add_epi64(dst VecVirtual, x, y Op) VecVirtual {
 	CheckType(
 		`
 		//	VPADDQ m256 ymm ymm
@@ -529,7 +529,7 @@ Operation
 	ENDFOR
 	dst[MAX:256] := 0
 */
-func F_mm256_slli_epi64(dst, x, r Op) Op {
+func F_mm256_slli_epi64(dst VecVirtual, x, r Op) VecVirtual {
 	CheckType(
 		`
 		//	VPSLLQ imm8 ymm  ymm
@@ -589,7 +589,7 @@ Operation
 	ENDFOR
 	dst[MAX:256] := 0
 */
-func F_mm256_srli_epi64(dst, x, r Op) Op {
+func F_mm256_srli_epi64(dst VecVirtual, x, r Op) VecVirtual {
 	CheckType(
 		`
 		//	VPSRLQ imm8 ymm  ymm
@@ -654,7 +654,7 @@ Operation
 	dst[255:192] := SELECT4(a[255:0], imm8[7:6])
 	dst[MAX:256] := 0
 */
-func F_mm256_permute4x64_epi64(dst, a, imm8 Op) Op {
+func F_mm256_permute4x64_epi64(dst VecVirtual, a, imm8 Op) VecVirtual {
 	CheckType(
 		`
 		//	VPERMQ imm8 m256 ymm

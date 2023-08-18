@@ -33,8 +33,9 @@ func isAligned(alignedByte int, args ...Op) bool {
 	return true
 }
 
-func VMOVDQ_autoAU2(dst, src Op) {
+func VMOVDQ_autoAU2(dst, src Op) Op {
 	VMOVDQ_autoAU(src, dst)
+	return dst
 }
 func VMOVDQ_autoAU(mxy, mxy1 Op) {
 	if isAligned(YmmSize, mxy, mxy1) {
@@ -68,8 +69,9 @@ func VMOVDQ_autoAU(mxy, mxy1 Op) {
 	}
 }
 
-func MOVO_autoAU2(dst, src Op) {
+func MOVO_autoAU2(dst, src Op) Op {
 	MOVO_autoAU(src, dst)
+	return dst
 }
 func MOVO_autoAU(mx, mx1 Op) {
 	if isAligned(XmmSize, mx, mx1) {

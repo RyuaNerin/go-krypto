@@ -36,7 +36,7 @@ func (ctx *LSH512AVX2_internal) load(v []VecVirtual, m Mem) {
 }
 func (ctx *LSH512AVX2_internal) save(v []VecVirtual, m Mem) {
 	Comment("i_state_save___start")
-	load_blk_vec2mem(m, v)
+	store_blk(m, v)
 	Comment("i_state_save___end")
 }
 
@@ -53,24 +53,12 @@ func load_blk_mem2vec(dst []VecVirtual, src Mem) {
 	//dest[1] = LOAD((const __m256i*)src + 1);
 	LOAD(dst[1], src.Offset(YmmSize*1))
 }
-func load_blk_vec2mem(dst Mem, src []VecVirtual) {
-	Comment("load_blk_vec2mem")
-
-	//dest[0] = LOAD((const __m256i*)src);
-	LOAD(dst.Offset(YmmSize*0), src[0])
-	//dest[1] = LOAD((const __m256i*)src + 1);
-	LOAD(dst.Offset(YmmSize*1), src[1])
-}
 func load_blk_mem2mem(dst Mem, src Mem) {
 	Comment("load_blk_mem2mem")
 
-	tmp := YMM()
 	//dest[0] = LOAD((const __m256i*)src);
-	LOAD(tmp, src)
-	LOAD(dst, tmp)
 	//dest[1] = LOAD((const __m256i*)src + 1);
-	LOAD(tmp, src.Offset(YmmSize*1))
-	LOAD(dst.Offset(YmmSize*1), tmp)
+	MemcpyStatic(dst, src, YmmSize*2, true)
 }
 
 // static INLINE void store_blk(__m256i* dest, const __m256i* src){
@@ -86,12 +74,12 @@ func store_blk(dst Mem, src []VecVirtual) {
 // static INLINE void load_msg_blk(LSH512AVX2_internal * i_state, const lsh_u64* msgblk){
 func load_msg_blk(i_state LSH512AVX2_internal, msgblk Mem /* uint32 */) {
 	//load_blk(i_state->submsg_e_l, msgblk + 0);
-	load_blk_mem2vec(i_state.submsg_e_l, msgblk.Offset(0*8))
 	//load_blk(i_state->submsg_e_r, msgblk + 8);
-	load_blk_mem2vec(i_state.submsg_e_r, msgblk.Offset(8*8))
 	//load_blk(i_state->submsg_o_l, msgblk + 16);
-	load_blk_mem2vec(i_state.submsg_o_l, msgblk.Offset(16*8))
 	//load_blk(i_state->submsg_o_r, msgblk + 24);
+	load_blk_mem2vec(i_state.submsg_e_l, msgblk.Offset(0*8))
+	load_blk_mem2vec(i_state.submsg_e_r, msgblk.Offset(8*8))
+	load_blk_mem2vec(i_state.submsg_o_l, msgblk.Offset(16*8))
 	load_blk_mem2vec(i_state.submsg_o_r, msgblk.Offset(24*8))
 }
 
@@ -99,8 +87,7 @@ func msg_exp(dst, a VecVirtual, v int) {
 	//i_state->submsg_e_l[0] = ADD(i_state->submsg_o_l[0], _mm256_permute4x64_epi64(i_state->submsg_e_l[0], 0x4b));
 	//dst                    = ADD(a                     , _mm256_permute4x64_epi64(dst                   , v   ));
 
-	F_mm256_permute4x64_epi64(dst, dst, U8(v)) // dst =        _mm256_permute4x64_epi64(dst, v)
-	ADD64(dst, dst, a)                         // dst = ADD(a, _mm256_permute4x64_epi64(dst, v));
+	ADD64(dst, a, F_mm256_permute4x64_epi64(dst, dst, U8(v)))
 }
 
 // static INLINE void msg_exp_even(LSH512AVX2_internal * i_state, const __m256i perm_step){
@@ -182,9 +169,7 @@ func rotate_blk(dst VecVirtual, v int) {
 	tmp := YMM()
 
 	// dst = OR(SHIFT_L(dst, ROT_EVEN_ALPHA), SHIFT_R(dst, WORD_BIT_LEN - ROT_EVEN_ALPHA))
-	SHIFT_L64(tmp, dst, U8(v))              // tmp =    SHIFT_L(dst, ROT_EVEN_ALPHA)
-	SHIFT_R64(dst, dst, U8(WORD_BIT_LEN-v)) //                                  dst = SHIFT_R(dst, WORD_BIT_LEN - ROT_EVEN_ALPHA)
-	OR(dst, dst, tmp)                       // dst = OR(SHIFT_L(dst, ROT_EVEN_ALPHA), SHIFT_R(dst, WORD_BIT_LEN - ROT_EVEN_ALPHA))
+	OR(dst, SHIFT_L64(tmp, dst, U8(v)), SHIFT_R64(dst, dst, U8(WORD_BIT_LEN-v)))
 }
 
 // static INLINE void rotate_blk_even_alpha(__m256i* cv){
@@ -238,8 +223,8 @@ func rotate_blk_odd_beta(cv []VecVirtual) {
 // static INLINE void xor_with_const(__m256i* cv_l, const __m256i* const_v){
 func xor_with_const(cv_l []VecVirtual, const_v []VecVirtual) {
 	//cv_l[0] = XOR(cv_l[0], const_v[0]);
-	XOR(cv_l[0], cv_l[0], const_v[0])
 	//cv_l[1] = XOR(cv_l[1], const_v[1]);
+	XOR(cv_l[0], cv_l[0], const_v[0])
 	XOR(cv_l[1], cv_l[1], const_v[1])
 }
 
@@ -248,8 +233,8 @@ func rotate_msg_gamma(cv_r []VecVirtual, byte_perm_step []Mem) {
 	Comment("rotate_msg_gamma")
 
 	//cv_r[0] = SHUFFLE8(cv_r[0], byte_perm_step[0]);
-	SHUFFLE8(cv_r[0], cv_r[0], byte_perm_step[0])
 	//cv_r[1] = SHUFFLE8(cv_r[1], byte_perm_step[1]);
+	SHUFFLE8(cv_r[0], cv_r[0], byte_perm_step[0])
 	SHUFFLE8(cv_r[1], cv_r[1], byte_perm_step[1])
 }
 
@@ -259,24 +244,24 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 	//__m256i temp[2];
 	temp := []VecVirtual{YMM(), YMM()}
 	//cv_l[0] = _mm256_permute4x64_epi64(cv_l[0], 0xd2);
-	F_mm256_permute4x64_epi64(cv_l[0], cv_l[0], U8(0xd2))
 	//cv_l[1] = _mm256_permute4x64_epi64(cv_l[1], 0xd2);
-	F_mm256_permute4x64_epi64(cv_l[1], cv_l[1], U8(0xd2))
 	//cv_r[0] = _mm256_permute4x64_epi64(cv_r[0], 0x6c);
-	F_mm256_permute4x64_epi64(cv_r[0], cv_r[0], U8(0x6c))
 	//cv_r[1] = _mm256_permute4x64_epi64(cv_r[1], 0x6c);
+	F_mm256_permute4x64_epi64(cv_l[0], cv_l[0], U8(0xd2))
+	F_mm256_permute4x64_epi64(cv_l[1], cv_l[1], U8(0xd2))
+	F_mm256_permute4x64_epi64(cv_r[0], cv_r[0], U8(0x6c))
 	F_mm256_permute4x64_epi64(cv_r[1], cv_r[1], U8(0x6c))
 	//temp[0] = cv_l[0];
-	VMOVDQ_autoAU2(temp[0], cv_l[0])
 	//temp[1] = cv_r[0];
-	VMOVDQ_autoAU2(temp[1], cv_r[0])
 	//cv_l[0] = cv_l[1];
-	VMOVDQ_autoAU2(cv_l[0], cv_l[1])
 	//cv_l[1] = cv_r[1];
-	VMOVDQ_autoAU2(cv_l[1], cv_r[1])
 	//cv_r[0] = temp[0];
-	VMOVDQ_autoAU2(cv_r[0], temp[0])
 	//cv_r[1] = temp[1];
+	VMOVDQ_autoAU2(temp[0], cv_l[0])
+	VMOVDQ_autoAU2(temp[1], cv_r[0])
+	VMOVDQ_autoAU2(cv_l[0], cv_l[1])
+	VMOVDQ_autoAU2(cv_l[1], cv_r[1])
+	VMOVDQ_autoAU2(cv_r[0], temp[0])
 	VMOVDQ_autoAU2(cv_r[1], temp[1])
 }
 
@@ -375,8 +360,8 @@ func init224(state *LSH512_Context) {
 	Comment("init224")
 
 	//load_blk(state->cv_l, g_IV224);
-	load_blk_mem2mem(state.Cv_l, G_IV224)
 	//load_blk(state->cv_r, g_IV224 + 8);
+	load_blk_mem2mem(state.Cv_l, G_IV224)
 	load_blk_mem2mem(state.Cv_r, G_IV224.Offset(8*8))
 }
 
@@ -385,8 +370,8 @@ func init256(state *LSH512_Context) {
 	Comment("init256")
 
 	//load_blk(state->cv_l, g_IV256);
-	load_blk_mem2mem(state.Cv_l, G_IV256)
 	//load_blk(state->cv_r, g_IV256 + 8);
+	load_blk_mem2mem(state.Cv_l, G_IV256)
 	load_blk_mem2mem(state.Cv_r, G_IV256.Offset(8*8))
 }
 
@@ -395,8 +380,8 @@ func init384(state *LSH512_Context) {
 	Comment("init384")
 
 	//load_blk(state->cv_l, g_IV384);
-	load_blk_mem2mem(state.Cv_l, G_IV384)
 	//load_blk(state->cv_r, g_IV384 + 8);
+	load_blk_mem2mem(state.Cv_l, G_IV384)
 	load_blk_mem2mem(state.Cv_r, G_IV384.Offset(8*8))
 }
 
@@ -405,8 +390,8 @@ func init512(state *LSH512_Context) {
 	Comment("init512")
 
 	//load_blk(state->cv_l, g_IV512);
-	load_blk_mem2mem(state.Cv_l, G_IV512)
 	//load_blk(state->cv_r, g_IV512 + 8);
+	load_blk_mem2mem(state.Cv_l, G_IV512)
 	load_blk_mem2mem(state.Cv_r, G_IV512.Offset(8*8))
 }
 
@@ -417,8 +402,8 @@ func fin(cv_l, cv_r []VecVirtual) {
 	Comment("fin")
 
 	//cv_l[0] = XOR(cv_l[0], cv_r[0]);
-	XOR(cv_l[0], cv_l[0], cv_r[0])
 	//cv_l[1] = XOR(cv_l[1], cv_r[1]);
+	XOR(cv_l[0], cv_l[0], cv_r[0])
 	XOR(cv_l[1], cv_l[1], cv_r[1])
 }
 

@@ -44,7 +44,7 @@ func (ctx *LSH512SSSE3_internal) load(v []VecVirtual, m Mem) {
 }
 func (ctx *LSH512SSSE3_internal) save(v []VecVirtual, m Mem) {
 	Comment("i_state_save___start")
-	load_blk_vec2mem(m, v)
+	store_blk(m, v)
 	Comment("i_state_save___end")
 }
 
@@ -57,42 +57,22 @@ func load_blk_mem2vec(dst []VecVirtual, src Mem) {
 	Comment("load_blk_mem2vec")
 
 	//dest[0] = LOAD((const __m128i*)src);
+	//dest[1] = LOAD((const __m128i*)src + 1);
+	//dest[2] = LOAD((const __m128i*)src + 2);
+	//dest[3] = LOAD((const __m128i*)src + 3);
 	LOAD(dst[0], src.Offset(XmmSize*0))
-	//dest[1] = LOAD((const __m128i*)src + 1);
 	LOAD(dst[1], src.Offset(XmmSize*1))
-	//dest[2] = LOAD((const __m128i*)src + 2);
 	LOAD(dst[2], src.Offset(XmmSize*2))
-	//dest[3] = LOAD((const __m128i*)src + 3);
 	LOAD(dst[3], src.Offset(XmmSize*3))
-}
-func load_blk_vec2mem(dst Mem, src []VecVirtual) {
-	Comment("load_blk_vec2mem")
-
-	//dest[0] = LOAD((const __m128i*)src);
-	LOAD(dst.Offset(XmmSize*0), src[0])
-	//dest[1] = LOAD((const __m128i*)src + 1);
-	LOAD(dst.Offset(XmmSize*1), src[1])
-	//dest[2] = LOAD((const __m128i*)src + 2);
-	LOAD(dst.Offset(XmmSize*2), src[2])
-	//dest[3] = LOAD((const __m128i*)src + 3);
-	LOAD(dst.Offset(XmmSize*3), src[3])
 }
 func load_blk_mem2mem(dst Mem, src Mem) {
 	Comment("load_blk_mem2mem")
 
-	tmp := XMM()
 	//dest[0] = LOAD((const __m128i*)src);
-	LOAD(tmp, src)
-	LOAD(dst, tmp)
 	//dest[1] = LOAD((const __m128i*)src + 1);
-	LOAD(tmp, src.Offset(XmmSize*1))
-	LOAD(dst.Offset(XmmSize*1), tmp)
 	//dest[2] = LOAD((const __m128i*)src + 2);
-	LOAD(tmp, src.Offset(XmmSize*2))
-	LOAD(dst.Offset(XmmSize*2), tmp)
 	//dest[3] = LOAD((const __m128i*)src + 3);
-	LOAD(tmp, src.Offset(XmmSize*3))
-	LOAD(dst.Offset(XmmSize*3), tmp)
+	MemcpyStatic(dst, src, XmmSize*4, false)
 }
 
 // static INLINE void store_blk(__m128i* dest, const __m128i* src){
@@ -100,24 +80,24 @@ func store_blk(dst Mem, src []VecVirtual) {
 	Comment("store_blk")
 
 	//STORE(dest, src[0]);
-	STORE(dst, src[0])
 	//STORE(dest + 1, src[1]);
-	STORE(dst.Offset(XmmSize), src[1])
 	//STORE(dest + 2, src[2]);
-	STORE(dst.Offset(XmmSize*2), src[2])
 	//STORE(dest + 3, src[3]);
+	STORE(dst, src[0])
+	STORE(dst.Offset(XmmSize), src[1])
+	STORE(dst.Offset(XmmSize*2), src[2])
 	STORE(dst.Offset(XmmSize*3), src[3])
 }
 
 // static INLINE void load_msg_blk(LSH512SSSE3_internal * i_state, const lsh_u64* msgblk){
 func load_msg_blk(i_state LSH512SSSE3_internal, msgblk Mem /* uint32 */) {
 	//load_blk(i_state->submsg_e_l, msgblk + 0);
-	load_blk_mem2mem(i_state.submsg_e_l_Mem, msgblk.Offset(0*8))
 	//load_blk(i_state->submsg_e_r, msgblk + 8);
-	load_blk_mem2mem(i_state.submsg_e_r_Mem, msgblk.Offset(8*8))
 	//load_blk(i_state->submsg_o_l, msgblk + 16);
-	load_blk_mem2mem(i_state.submsg_o_l_Mem, msgblk.Offset(16*8))
 	//load_blk(i_state->submsg_o_r, msgblk + 24);
+	load_blk_mem2mem(i_state.submsg_e_l_Mem, msgblk.Offset(0*8))
+	load_blk_mem2mem(i_state.submsg_e_r_Mem, msgblk.Offset(8*8))
+	load_blk_mem2mem(i_state.submsg_o_l_Mem, msgblk.Offset(16*8))
 	load_blk_mem2mem(i_state.submsg_o_r_Mem, msgblk.Offset(24*8))
 }
 
@@ -127,8 +107,6 @@ func msg_exp_even(i_state LSH512SSSE3_internal) {
 		panic(`tempVec is required`)
 	}
 	Comment("msg_exp_even")
-
-	ADD := ADD64_
 
 	//__m128i temp;
 	temp := XMM()
@@ -159,13 +137,13 @@ func msg_exp_even(i_state LSH512SSSE3_internal) {
 	F_mm_unpackhi_epi64(i_state.submsg_e_l[3], temp, i_state.submsg_e_l[3])
 
 	//i_state->submsg_e_l[0] = ADD(i_state->submsg_o_l[0], i_state->submsg_e_l[0]);
-	ADD(i_state.submsg_e_l[0], i_state.submsg_o_l[0], i_state.submsg_e_l[0])
 	//i_state->submsg_e_l[1] = ADD(i_state->submsg_o_l[1], i_state->submsg_e_l[1]);
-	ADD(i_state.submsg_e_l[1], i_state.submsg_o_l[1], i_state.submsg_e_l[1])
 	//i_state->submsg_e_l[2] = ADD(i_state->submsg_o_l[2], i_state->submsg_e_l[2]);
-	ADD(i_state.submsg_e_l[2], i_state.submsg_o_l[2], i_state.submsg_e_l[2])
 	//i_state->submsg_e_l[3] = ADD(i_state->submsg_o_l[3], i_state->submsg_e_l[3]);
-	ADD(i_state.submsg_e_l[3], i_state.submsg_o_l[3], i_state.submsg_e_l[3])
+	ADD64(i_state.submsg_e_l[0], i_state.submsg_o_l[0], i_state.submsg_e_l[0])
+	ADD64(i_state.submsg_e_l[1], i_state.submsg_o_l[1], i_state.submsg_e_l[1])
+	ADD64(i_state.submsg_e_l[2], i_state.submsg_o_l[2], i_state.submsg_e_l[2])
+	ADD64(i_state.submsg_e_l[3], i_state.submsg_o_l[3], i_state.submsg_e_l[3])
 
 	i_state.save(i_state.submsg_e_l, i_state.submsg_e_l_Mem)
 
@@ -195,13 +173,13 @@ func msg_exp_even(i_state LSH512SSSE3_internal) {
 	F_mm_unpackhi_epi64(i_state.submsg_e_r[3], temp, i_state.submsg_e_r[3])
 
 	//i_state->submsg_e_r[0] = ADD(i_state->submsg_o_r[0], i_state->submsg_e_r[0]);
-	ADD(i_state.submsg_e_r[0], i_state.submsg_o_r[0], i_state.submsg_e_r[0])
 	//i_state->submsg_e_r[1] = ADD(i_state->submsg_o_r[1], i_state->submsg_e_r[1]);
-	ADD(i_state.submsg_e_r[1], i_state.submsg_o_r[1], i_state.submsg_e_r[1])
 	//i_state->submsg_e_r[2] = ADD(i_state->submsg_o_r[2], i_state->submsg_e_r[2]);
-	ADD(i_state.submsg_e_r[2], i_state.submsg_o_r[2], i_state.submsg_e_r[2])
 	//i_state->submsg_e_r[3] = ADD(i_state->submsg_o_r[3], i_state->submsg_e_r[3]);
-	ADD(i_state.submsg_e_r[3], i_state.submsg_o_r[3], i_state.submsg_e_r[3])
+	ADD64(i_state.submsg_e_r[0], i_state.submsg_o_r[0], i_state.submsg_e_r[0])
+	ADD64(i_state.submsg_e_r[1], i_state.submsg_o_r[1], i_state.submsg_e_r[1])
+	ADD64(i_state.submsg_e_r[2], i_state.submsg_o_r[2], i_state.submsg_e_r[2])
+	ADD64(i_state.submsg_e_r[3], i_state.submsg_o_r[3], i_state.submsg_e_r[3])
 
 	i_state.save(i_state.submsg_e_r, i_state.submsg_e_r_Mem)
 }
@@ -212,8 +190,6 @@ func msg_exp_odd(i_state LSH512SSSE3_internal) {
 		panic(`tempVec is required`)
 	}
 	Comment("msg_exp_odd")
-
-	ADD := ADD64_
 
 	//__m128i temp;
 	temp := XMM()
@@ -247,10 +223,10 @@ func msg_exp_odd(i_state LSH512SSSE3_internal) {
 	//i_state->submsg_o_l[1] = ADD(i_state->submsg_e_l[1], i_state->submsg_o_l[1]);
 	//i_state->submsg_o_l[2] = ADD(i_state->submsg_e_l[2], i_state->submsg_o_l[2]);
 	//i_state->submsg_o_l[3] = ADD(i_state->submsg_e_l[3], i_state->submsg_o_l[3]);
-	ADD(i_state.submsg_o_l[0], i_state.submsg_e_l[0], i_state.submsg_o_l[0])
-	ADD(i_state.submsg_o_l[1], i_state.submsg_e_l[1], i_state.submsg_o_l[1])
-	ADD(i_state.submsg_o_l[2], i_state.submsg_e_l[2], i_state.submsg_o_l[2])
-	ADD(i_state.submsg_o_l[3], i_state.submsg_e_l[3], i_state.submsg_o_l[3])
+	ADD64(i_state.submsg_o_l[0], i_state.submsg_e_l[0], i_state.submsg_o_l[0])
+	ADD64(i_state.submsg_o_l[1], i_state.submsg_e_l[1], i_state.submsg_o_l[1])
+	ADD64(i_state.submsg_o_l[2], i_state.submsg_e_l[2], i_state.submsg_o_l[2])
+	ADD64(i_state.submsg_o_l[3], i_state.submsg_e_l[3], i_state.submsg_o_l[3])
 
 	i_state.save(i_state.submsg_o_l, i_state.submsg_o_l_Mem)
 
@@ -283,10 +259,10 @@ func msg_exp_odd(i_state LSH512SSSE3_internal) {
 	//i_state->submsg_o_r[1] = ADD(i_state->submsg_e_r[1], i_state->submsg_o_r[1]);
 	//i_state->submsg_o_r[2] = ADD(i_state->submsg_e_r[2], i_state->submsg_o_r[2]);
 	//i_state->submsg_o_r[3] = ADD(i_state->submsg_e_r[3], i_state->submsg_o_r[3]);
-	ADD(i_state.submsg_o_r[0], i_state.submsg_e_r[0], i_state.submsg_o_r[0])
-	ADD(i_state.submsg_o_r[1], i_state.submsg_e_r[1], i_state.submsg_o_r[1])
-	ADD(i_state.submsg_o_r[2], i_state.submsg_e_r[2], i_state.submsg_o_r[2])
-	ADD(i_state.submsg_o_r[3], i_state.submsg_e_r[3], i_state.submsg_o_r[3])
+	ADD64(i_state.submsg_o_r[0], i_state.submsg_e_r[0], i_state.submsg_o_r[0])
+	ADD64(i_state.submsg_o_r[1], i_state.submsg_e_r[1], i_state.submsg_o_r[1])
+	ADD64(i_state.submsg_o_r[2], i_state.submsg_e_r[2], i_state.submsg_o_r[2])
+	ADD64(i_state.submsg_o_r[3], i_state.submsg_e_r[3], i_state.submsg_o_r[3])
 
 	i_state.save(i_state.submsg_o_r, i_state.submsg_o_r_Mem)
 }
@@ -314,16 +290,16 @@ func msg_add_even(cv_l, cv_r []VecVirtual, i_state LSH512SSSE3_internal, tempVec
 	//cv_r[3] = XOR(cv_r[3], i_state->submsg_e_r[3]);
 
 	load_blk_mem2vec(tempVec, i_state.submsg_e_l_Mem)
-	XOR(cv_l[0], tempVec[0])
-	XOR(cv_l[1], tempVec[1])
-	XOR(cv_l[2], tempVec[2])
-	XOR(cv_l[3], tempVec[3])
+	XOR(cv_l[0], cv_l[0], tempVec[0])
+	XOR(cv_l[1], cv_l[1], tempVec[1])
+	XOR(cv_l[2], cv_l[2], tempVec[2])
+	XOR(cv_l[3], cv_l[3], tempVec[3])
 
 	load_blk_mem2vec(tempVec, i_state.submsg_e_r_Mem)
-	XOR(cv_r[0], tempVec[0])
-	XOR(cv_r[1], tempVec[1])
-	XOR(cv_r[2], tempVec[2])
-	XOR(cv_r[3], tempVec[3])
+	XOR(cv_r[0], cv_r[0], tempVec[0])
+	XOR(cv_r[1], cv_r[1], tempVec[1])
+	XOR(cv_r[2], cv_r[2], tempVec[2])
+	XOR(cv_r[3], cv_r[3], tempVec[3])
 }
 
 // static INLINE void msg_add_odd(__m128i* cv_l, __m128i* cv_r, const LSH512SSSE3_internal * i_state){
@@ -340,16 +316,16 @@ func msg_add_odd(cv_l, cv_r []VecVirtual, i_state LSH512SSSE3_internal, tempVec 
 	//cv_r[3] = XOR(cv_r[3], i_state->submsg_o_r[3]);
 
 	load_blk_mem2vec(tempVec, i_state.submsg_o_l_Mem)
-	XOR(cv_l[0], tempVec[0])
-	XOR(cv_l[1], tempVec[1])
-	XOR(cv_l[2], tempVec[2])
-	XOR(cv_l[3], tempVec[3])
+	XOR(cv_l[0], cv_l[0], tempVec[0])
+	XOR(cv_l[1], cv_l[1], tempVec[1])
+	XOR(cv_l[2], cv_l[2], tempVec[2])
+	XOR(cv_l[3], cv_l[3], tempVec[3])
 
 	load_blk_mem2vec(tempVec, i_state.submsg_o_r_Mem)
-	XOR(cv_r[0], tempVec[0])
-	XOR(cv_r[1], tempVec[1])
-	XOR(cv_r[2], tempVec[2])
-	XOR(cv_r[3], tempVec[3])
+	XOR(cv_r[0], cv_r[0], tempVec[0])
+	XOR(cv_r[1], cv_r[1], tempVec[1])
+	XOR(cv_r[2], cv_r[2], tempVec[2])
+	XOR(cv_r[3], cv_r[3], tempVec[3])
 }
 
 // static INLINE void add_blk(__m128i* cv_l, const __m128i* cv_r){
@@ -357,23 +333,20 @@ func add_blk(cv_l, cv_r []VecVirtual) {
 	Comment("add_blk")
 
 	//cv_l[0] = ADD(cv_l[0], cv_r[0]);
-	ADD64(cv_l[0], cv_r[0])
 	//cv_l[1] = ADD(cv_l[1], cv_r[1]);
-	ADD64(cv_l[1], cv_r[1])
 	//cv_l[2] = ADD(cv_l[2], cv_r[2]);
-	ADD64(cv_l[2], cv_r[2])
 	//cv_l[3] = ADD(cv_l[3], cv_r[3]);
-	ADD64(cv_l[3], cv_r[3])
+	ADD64(cv_l[0], cv_l[0], cv_r[0])
+	ADD64(cv_l[1], cv_l[1], cv_r[1])
+	ADD64(cv_l[2], cv_l[2], cv_r[2])
+	ADD64(cv_l[3], cv_l[3], cv_r[3])
 }
 
 func rotate_blk(dst VecVirtual, v int) {
-	tmpXmm := XMM()
+	tmp := XMM()
 
 	// dst = OR(SHIFT_L(dst, ROT_EVEN_ALPHA), SHIFT_R(dst, WORD_BIT_LEN - ROT_EVEN_ALPHA))
-	MOVO_autoAU2(tmpXmm, dst)          //         tmpXmm = dst
-	SHIFT_L64(tmpXmm, U8(v))           // tmpXmm = SHIFT_L(dst, ROT_EVEN_ALPHA)
-	SHIFT_R64(dst, U8(WORD_BIT_LEN-v)) //                                  dst = SHIFT_R(dst, WORD_BIT_LEN - ROT_EVEN_ALPHA)
-	OR(dst, tmpXmm)                    // dst = OR(SHIFT_L(dst, ROT_EVEN_ALPHA), SHIFT_R(dst, WORD_BIT_LEN - ROT_EVEN_ALPHA))
+	OR(dst, SHIFT_L64(tmp, dst, U8(v)), SHIFT_R64(dst, dst, U8(WORD_BIT_LEN-v)))
 }
 
 // static INLINE void rotate_blk_even_alpha(__m128i* cv){
@@ -435,13 +408,13 @@ func rotate_blk_odd_beta(cv []VecVirtual) {
 // static INLINE void xor_with_const(__m128i* cv_l, const __m128i* const_v){
 func xor_with_const(cv_l []VecVirtual, const_v []VecVirtual) {
 	//cv_l[0] = XOR(cv_l[0], const_v[0]);
-	XOR(cv_l[0], const_v[0])
 	//cv_l[1] = XOR(cv_l[1], const_v[1]);
-	XOR(cv_l[1], const_v[1])
 	//cv_l[2] = XOR(cv_l[2], const_v[2]);
-	XOR(cv_l[2], const_v[2])
 	//cv_l[3] = XOR(cv_l[3], const_v[3]);
-	XOR(cv_l[3], const_v[3])
+	XOR(cv_l[0], cv_l[0], const_v[0])
+	XOR(cv_l[1], cv_l[1], const_v[1])
+	XOR(cv_l[2], cv_l[2], const_v[2])
+	XOR(cv_l[3], cv_l[3], const_v[3])
 }
 
 // static INLINE void rotate_msg_gamma(__m128i* cv_r, const __m128i * perm_step){
@@ -449,13 +422,13 @@ func rotate_msg_gamma(cv_r []VecVirtual, perm_step []Mem) {
 	Comment("rotate_msg_gamma")
 
 	//cv_r[0] = SHUFFLE8(cv_r[0], perm_step[0]);
-	SHUFFLE8(cv_r[0], perm_step[0])
 	//cv_r[1] = SHUFFLE8(cv_r[1], perm_step[1]);
-	SHUFFLE8(cv_r[1], perm_step[1])
 	//cv_r[2] = SHUFFLE8(cv_r[2], perm_step[2]);
-	SHUFFLE8(cv_r[2], perm_step[2])
 	//cv_r[3] = SHUFFLE8(cv_r[3], perm_step[3]);
-	SHUFFLE8(cv_r[3], perm_step[3])
+	SHUFFLE8(cv_r[0], cv_r[0], perm_step[0])
+	SHUFFLE8(cv_r[1], cv_r[1], perm_step[1])
+	SHUFFLE8(cv_r[2], cv_r[2], perm_step[2])
+	SHUFFLE8(cv_r[3], cv_r[3], perm_step[3])
 }
 
 // static INLINE void word_perm(__m128i* cv_l, __m128i* cv_r){
@@ -578,8 +551,8 @@ func compress(cv_l, cv_r []VecVirtual, pdMsgBlk Mem, i_state_alloc, cv_l_mem, cv
 
 	save := func() {
 		Comment("save___start")
-		load_blk_vec2mem(cv_l_mem, cv_l)
-		load_blk_vec2mem(cv_r_mem, cv_r)
+		store_blk(cv_l_mem, cv_l)
+		store_blk(cv_r_mem, cv_r)
 		Comment("save___end")
 	}
 	load := func() {
@@ -674,13 +647,13 @@ func fin(cv_l, cv_r []VecVirtual) {
 	Comment("fin")
 
 	//cv_l[0] = XOR(cv_l[0], cv_r[0]);
-	XOR(cv_l[0], cv_r[0])
 	//cv_l[1] = XOR(cv_l[1], cv_r[1]);
-	XOR(cv_l[1], cv_r[1])
 	//cv_l[2] = XOR(cv_l[2], cv_r[2]);
-	XOR(cv_l[2], cv_r[2])
 	//cv_l[3] = XOR(cv_l[3], cv_r[3]);
-	XOR(cv_l[3], cv_r[3])
+	XOR(cv_l[0], cv_l[0], cv_r[0])
+	XOR(cv_l[1], cv_l[1], cv_r[1])
+	XOR(cv_l[2], cv_l[2], cv_r[2])
+	XOR(cv_l[3], cv_l[3], cv_r[3])
 }
 
 /* -------------------------------------------------------- */

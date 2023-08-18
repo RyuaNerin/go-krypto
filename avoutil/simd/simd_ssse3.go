@@ -5,6 +5,7 @@ import (
 
 	. "github.com/mmcloughlin/avo/build"
 	. "github.com/mmcloughlin/avo/operand"
+	. "github.com/mmcloughlin/avo/reg"
 )
 
 /**
@@ -29,7 +30,11 @@ Operation
 dst = a
 */
 
-func F_mm_shuffle_epi8(dst, b Op) Op {
+func F_mm_shuffle_epi8(dst VecVirtual, a, b Op) VecVirtual {
+	if dst != a {
+		MOVO_autoAU2(dst, a)
+	}
+
 	CheckType(
 		`
 		//	PSHUFB m128 xmm
