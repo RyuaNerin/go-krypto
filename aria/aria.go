@@ -23,6 +23,10 @@ type aria struct {
 	dk     [rkSize]byte
 }
 
+var (
+	processFin func(dst []byte, rk []byte, t []byte) = processFinGo
+)
+
 // NewCipher creates and returns a new cipher.Block. The key argument should be the ARIA key, either 16, 24, or 32 bytes to select ARIA-128, ARIA-192, or ARIA-256.
 func NewCipher(key []byte) (cipher.Block, error) {
 	l := len(key)
@@ -174,11 +178,11 @@ func (s *aria) Decrypt(dst, src []byte) {
 }
 
 func (cb *aria) crypt(dst, src []byte, encryption bool) {
-	var e []byte
+	var rk []byte
 	if encryption {
-		e = cb.ek[:]
+		rk = cb.ek[:]
 	} else {
-		e = cb.dk[:]
+		rk = cb.dk[:]
 	}
 
 	var i, j int
@@ -189,19 +193,24 @@ func (cb *aria) crypt(dst, src []byte, encryption bool) {
 	ei := 0
 	for i = 0; i < cb.rounds/2; i++ {
 		for j = 0; j < 16; j++ {
-			t[j] = s[j%4][e[ei+j]^dst[j]]
+			t[j] = s[j%4][rk[ei+j]^dst[j]]
 		}
 		dl(t[:], dst)
 		ei += 16
 		for j = 0; j < 16; j++ {
-			t[j] = s[(2+j)%4][e[ei+j]^dst[j]]
+			t[j] = s[(2+j)%4][rk[ei+j]^dst[j]]
 		}
 		dl(t[:], dst)
 		ei += 16
 	}
 	dl(dst, t[:])
-	for j = 0; j < 16; j++ {
-		dst[j] = e[ei+j] ^ t[j]
+
+	processFin(dst, rk[ei:], t[:])
+}
+
+func processFinGo(dst []byte, rk []byte, t []byte) {
+	for idx := 0; idx < 16; idx++ {
+		dst[idx] = rk[idx] ^ t[idx]
 	}
 }
 
