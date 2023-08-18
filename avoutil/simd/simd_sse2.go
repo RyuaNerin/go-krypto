@@ -24,7 +24,7 @@ Operation
 
 	dst[127:0] := MEM[mem_addr+127:mem_addr]
 */
-func F_mm_loadu_si128(dst, src Op) Op {
+func F_mm_loadu_si128(dst Op, src Op) Op {
 	MOVO_autoAU(src, dst)
 	return dst
 }
@@ -515,3 +515,34 @@ func F_mm_slli_epi64(dst, imm8 Op) Op {
 	PSLLQ(imm8, dst)
 	return dst
 }
+
+/*
+*
+Synopsis
+
+	__m128i _mm_load_si128 (__m128i const* mem_addr)
+	#include <emmintrin.h>
+	Instruction: movdqa xmm, m128
+	CPUID Flags: SSE2
+
+Description
+
+	Load 128-bits of integer data from memory into dst. mem_addr must be aligned on a 16-byte boundary or a general-protection exception may be generated.
+
+Operation
+
+	dst[127:0] := MEM[mem_addr+127:mem_addr]
+*/
+func F_mm_load_si128(dst VecVirtual, src Mem) VecVirtual {
+	CheckType(
+		`
+		//	MOVOA m128 xmm
+		`,
+		src, dst,
+	)
+	MOVOA(dst, src)
+	return dst
+}
+
+func A_mm_loadu_si128(src Op) Op { return F_mm_loadu_si128(XMM(), src) }
+func A_mm_load_si128(src Mem) Op { return F_mm_load_si128(XMM(), src) }

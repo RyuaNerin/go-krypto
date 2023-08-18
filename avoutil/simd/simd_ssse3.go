@@ -1,11 +1,10 @@
 package simd
 
 import (
+	. "kryptosimd/avoutil"
+
 	. "github.com/mmcloughlin/avo/build"
 	. "github.com/mmcloughlin/avo/operand"
-	. "github.com/mmcloughlin/avo/reg"
-
-	. "kryptosimd/avoutil"
 )
 
 /**
@@ -30,7 +29,7 @@ Operation
 dst = a
 */
 
-func F_mm_shuffle_epi8(dst VecVirtual, b Op) VecVirtual {
+func F_mm_shuffle_epi8(dst, b Op) Op {
 	CheckType(
 		`
 		//	PSHUFB m128 xmm

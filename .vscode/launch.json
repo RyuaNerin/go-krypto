@@ -12,6 +12,19 @@
             "program": "${file}"
         },
         {
+            "name": "Build ARIA (AMD64)",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/aria/avo/x86",
+            "env": {},
+            "args": [
+                "-out", "../../aria_amd64.s",
+                "-stubs", "../../aria_amd64_stubs.go",
+                "-pkg", "aria",
+            ]
+        },
+        {
             "name": "Build LEA (AMD64)",
             "type": "go",
             "request": "launch",
