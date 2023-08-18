@@ -1,11 +1,11 @@
 package simd
 
 import (
+	. "kryptosimd/avoutil"
+
 	. "github.com/mmcloughlin/avo/build"
 	. "github.com/mmcloughlin/avo/operand"
 	. "github.com/mmcloughlin/avo/reg"
-
-	. "kryptosimd/avoutil"
 )
 
 /*
@@ -25,7 +25,7 @@ Operation
 	dst[127:0] := MEM[mem_addr+127:mem_addr]
 */
 func F_mm_loadu_si128(dst VecVirtual, src Op) VecVirtual {
-	MOVO_autoAU2(dst, src)
+	MOVOad(dst, src)
 	return dst
 }
 
@@ -46,7 +46,7 @@ Operation
 	MEM[mem_addr+127:mem_addr] := a[127:0]
 */
 func F_mm_storeu_si128(dst, src Op) {
-	MOVO_autoAU2(dst, src)
+	MOVOad(dst, src)
 }
 
 /*
@@ -94,7 +94,7 @@ func F_mm_xor_si128(dst VecVirtual, a, b Op) VecVirtual {
 			b, dst,
 		)
 
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 		PXOR(b, dst)
 	}
 
@@ -146,7 +146,7 @@ func F_mm_or_si128(dst VecVirtual, a, b Op) VecVirtual {
 			b, dst,
 		)
 
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 		POR(b, dst)
 	}
 	return dst
@@ -197,7 +197,7 @@ func F_mm_and_si128(dst VecVirtual, a, b Op) VecVirtual {
 			b, dst,
 		)
 
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 		PAND(b, dst)
 	}
 	return dst
@@ -251,7 +251,7 @@ func F_mm_add_epi32(dst VecVirtual, a, b Op) VecVirtual {
 			b, dst,
 		)
 
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 		PADDD(b, dst)
 	}
 	return dst
@@ -282,7 +282,7 @@ Operation
 */
 func F_mm_slli_epi32(dst VecVirtual, a, imm8 Op) VecVirtual {
 	if dst != a {
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 	}
 
 	CheckType(
@@ -323,7 +323,7 @@ Operation
 */
 func F_mm_srli_epi32(dst VecVirtual, a, imm8 Op) VecVirtual {
 	if dst != a {
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 	}
 
 	CheckType(
@@ -369,7 +369,7 @@ Operation
 */
 func F_mm_shuffle_epi32(dst VecVirtual, a, imm8 Op) VecVirtual {
 	if dst != a {
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 	}
 
 	CheckType(
@@ -429,8 +429,8 @@ func F_mm_unpacklo_epi64(dst VecVirtual, a, b Op) VecVirtual {
 		)
 
 		tmp := XMM()
-		MOVO_autoAU2(tmp, b)
-		MOVO_autoAU2(dst, a)
+		MOVOad(tmp, b)
+		MOVOad(dst, a)
 		PUNPCKLQDQ(tmp, dst)
 
 	default:
@@ -442,7 +442,7 @@ func F_mm_unpacklo_epi64(dst VecVirtual, a, b Op) VecVirtual {
 			b, dst,
 		)
 
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 		PUNPCKLQDQ(b, dst)
 	}
 
@@ -494,8 +494,8 @@ func F_mm_unpackhi_epi64(dst VecVirtual, a, b Op) VecVirtual {
 		)
 
 		tmp := XMM()
-		MOVO_autoAU2(tmp, b)
-		MOVO_autoAU2(dst, a)
+		MOVOad(tmp, b)
+		MOVOad(dst, a)
 		PUNPCKHQDQ(tmp, dst)
 
 	default:
@@ -507,7 +507,7 @@ func F_mm_unpackhi_epi64(dst VecVirtual, a, b Op) VecVirtual {
 			b, dst,
 		)
 
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 		PUNPCKHQDQ(b, dst)
 	}
 
@@ -566,7 +566,7 @@ func F_mm_add_epi64(dst VecVirtual, a, b Op) VecVirtual {
 			b, dst,
 		)
 
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 		PADDQ(b, dst)
 	}
 	return dst
@@ -598,7 +598,7 @@ Operation
 */
 func F_mm_srli_epi64(dst VecVirtual, a, imm8 Op) VecVirtual {
 	if dst != a {
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 	}
 
 	CheckType(
@@ -640,7 +640,7 @@ Operation
 */
 func F_mm_slli_epi64(dst VecVirtual, a, imm8 Op) VecVirtual {
 	if dst != a {
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 	}
 
 	CheckType(
@@ -710,7 +710,7 @@ Operation
 */
 func F_mm_srli_epi16(dst VecVirtual, a, imm8 Op) VecVirtual {
 	if dst != a {
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 	}
 
 	CheckType(
@@ -723,3 +723,78 @@ func F_mm_srli_epi16(dst VecVirtual, a, imm8 Op) VecVirtual {
 	PSRLW(imm8, dst)
 	return dst
 }
+
+/*
+*
+Synopsis
+
+	void _mm_prefetch (char const* p, int i)
+	#include <immintrin.h>
+	Instruction: prefetchnta m8
+				prefetcht0 m8
+				prefetcht1 m8
+				prefetcht2 m8
+	CPUID Flags: SSE
+
+Description
+
+	Fetch the line of data from memory that contains address p to a location in the cache hierarchy specified by the locality hint i, which can be one of:
+	_MM_HINT_T0 // 3, move data using the T0 hint. The PREFETCHT0 instruction will be generated.
+	_MM_HINT_T1 // 2, move data using the T1 hint. The PREFETCHT1 instruction will be generated.
+	_MM_HINT_T2 // 1, move data using the T2 hint. The PREFETCHT2 instruction will be generated.
+	_MM_HINT_NTA // 0, move data using the non-temporal access (NTA) hint. The PREFETCHNTA instruction will be generated.
+*/
+func F_mm_prefetch(p Op, i MM_HINT) {
+	switch i {
+	case C_MM_HINT_T0:
+		CheckType(
+			`
+			//	PREFETCHT0 m8
+			`,
+			p,
+		)
+
+		PREFETCHT0(p)
+
+	case C_MM_HINT_T1:
+		CheckType(
+			`
+			//	PREFETCHT1 m8
+			`,
+			p,
+		)
+
+		PREFETCHT1(p)
+
+	case C_MM_HINT_T2:
+		CheckType(
+			`
+			//	PREFETCHT2 m8
+			`,
+			p,
+		)
+
+		PREFETCHT2(p)
+
+	case C_MM_HINT_NTA:
+		CheckType(
+			`
+			//	PREFETCHNTA m8
+			`,
+			p,
+		)
+
+		PREFETCHNTA(p)
+	default:
+		panic("wrong i")
+	}
+}
+
+type MM_HINT int
+
+const (
+	C_MM_HINT_T0  = 3
+	C_MM_HINT_T1  = 2
+	C_MM_HINT_T2  = 1
+	C_MM_HINT_NTA = 0
+)

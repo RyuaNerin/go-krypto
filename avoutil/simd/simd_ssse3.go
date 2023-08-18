@@ -32,7 +32,7 @@ dst = a
 
 func F_mm_shuffle_epi8(dst VecVirtual, a, b Op) VecVirtual {
 	if dst != a {
-		MOVO_autoAU2(dst, a)
+		MOVOad(dst, a)
 	}
 
 	CheckType(

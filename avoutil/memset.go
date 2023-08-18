@@ -20,7 +20,7 @@ var (
 // size : gp32
 func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
 	if size.Size() != 8 {
-		panic("wong arguments")
+		panic("size must be gp64")
 	}
 
 	Comment("memset")
@@ -76,9 +76,9 @@ func Memset(dst Op, val uint8, size Register, useAVX2 bool) {
 	if enableXYZ {
 		reg := YMM()
 		if useAVX2 {
-			step(32, reg, MOVO, VMOVDQ_autoAU)
+			step(32, reg, MOVO, VMOVDQa)
 		}
-		step(16, reg.AsX(), MOVO, MOVO_autoAU)
+		step(16, reg.AsX(), MOVO, MOVOa)
 	}
 	step(8, tmp.As64(), MOVQ, MOVQ)
 	step(4, tmp.As32(), MOVL, MOVL)

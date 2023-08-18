@@ -32,6 +32,15 @@ func Alloc8(name string, values ...uint32) Mem {
 	return mem
 }
 
+func Alloc16(name string, values ...uint16) Mem {
+	mem := GLOBL(name, NOPTR|RODATA)
+
+	for idx, v := range values {
+		DATA(2*idx, U16(v))
+	}
+	return mem
+}
+
 func Alloc32(name string, values ...uint32) Mem {
 	mem := GLOBL(name, NOPTR|RODATA)
 

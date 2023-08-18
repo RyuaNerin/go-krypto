@@ -33,11 +33,14 @@ func isAligned(alignedByte int, args ...Op) bool {
 	return true
 }
 
-func VMOVDQ_autoAU2(dst, src Op) Op {
-	VMOVDQ_autoAU(src, dst)
+// VMOVDQA vs VMOVDQU + dst, src
+func VMOVDQad(dst, src Op) Op {
+	VMOVDQa(src, dst)
 	return dst
 }
-func VMOVDQ_autoAU(mxy, mxy1 Op) {
+
+// VMOVDQA vs VMOVDQU
+func VMOVDQa(mxy, mxy1 Op) {
 	if isAligned(YmmSize, mxy, mxy1) {
 		CheckType(
 			`
@@ -69,11 +72,14 @@ func VMOVDQ_autoAU(mxy, mxy1 Op) {
 	}
 }
 
-func MOVO_autoAU2(dst, src Op) Op {
-	MOVO_autoAU(src, dst)
+// MOVOA vs MOVOU + dst, src
+func MOVOad(dst, src Op) Op {
+	MOVOa(src, dst)
 	return dst
 }
-func MOVO_autoAU(mx, mx1 Op) {
+
+// MOVOA vs MOVOU
+func MOVOa(mx, mx1 Op) {
 	if isAligned(XmmSize, mx, mx1) {
 		CheckType(
 			`

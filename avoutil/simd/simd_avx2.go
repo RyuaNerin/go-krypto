@@ -1,11 +1,11 @@
 package simd
 
 import (
+	. "kryptosimd/avoutil"
+
 	. "github.com/mmcloughlin/avo/build"
 	. "github.com/mmcloughlin/avo/operand"
 	. "github.com/mmcloughlin/avo/reg"
-
-	. "kryptosimd/avoutil"
 )
 
 /*
@@ -26,7 +26,7 @@ Operation
 	dst[MAX:256] := 0
 */
 func F_mm256_loadu_si256(dst VecVirtual, src Op) VecVirtual {
-	VMOVDQ_autoAU2(dst, src)
+	VMOVDQad(dst, src)
 	return dst
 }
 
@@ -47,7 +47,7 @@ Operation
 	MEM[mem_addr+255:mem_addr] := a[255:0]
 */
 func F_mm256_storeu_si256(dst, src Op) {
-	VMOVDQ_autoAU2(dst, src)
+	VMOVDQad(dst, src)
 }
 
 /*

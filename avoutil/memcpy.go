@@ -16,7 +16,7 @@ var memcpyN = 0
 // size: uint64
 func Memcpy(dst, src Op, size Register, avx2 bool) {
 	if size.Size() != 8 {
-		panic("wong arguments")
+		panic("size must be gp64")
 	}
 
 	Comment("Memcpy")
@@ -41,6 +41,9 @@ func Memcpy(dst, src Op, size Register, avx2 bool) {
 
 	//////////////////////////////
 
+	////_mm_prefetch(src, C_MM_HINT_NTA)
+	//PREFETCHNTA(src)
+
 	cpy := func(sz int, tmp Op, mov func(a, b Op)) {
 		labelStart := fmt.Sprintf("memcpy_%d_sz%d_start", memcpyN, sz)
 		labelEnd := fmt.Sprintf("memcpy_%d_sz%d_end", memcpyN, sz)
@@ -63,9 +66,9 @@ func Memcpy(dst, src Op, size Register, avx2 bool) {
 
 	if enableXYZ {
 		if avx2 {
-			cpy(32, op256, VMOVDQ_autoAU)
+			cpy(32, op256, VMOVDQa)
 		}
-		cpy(16, op128, MOVO_autoAU)
+		cpy(16, op128, MOVOa)
 
 	}
 	cpy(8, op64, MOVQ)
@@ -86,17 +89,20 @@ func MemcpyStatic(dst, src Mem, size int, avx2 bool) {
 
 	//////////////////////////////
 
+	////_mm_prefetch(src, C_MM_HINT_NTA)
+	//PREFETCHNTA(src)
+
 	idx := 0
 	for size > 0 {
 		sz := 1
 
 		if enableXYZ && avx2 && size >= 32 {
-			VMOVDQ_autoAU(src.Offset(idx), op256)
-			VMOVDQ_autoAU(op256, dst.Offset(idx))
+			VMOVDQa(src.Offset(idx), op256)
+			VMOVDQa(op256, dst.Offset(idx))
 			sz = 32
 		} else if enableXYZ && size >= 16 {
-			MOVO_autoAU(src.Offset(idx), op128)
-			MOVO_autoAU(op128, dst.Offset(idx))
+			MOVOa(src.Offset(idx), op128)
+			MOVOa(op128, dst.Offset(idx))
 			sz = 16
 		} else if size >= 8 {
 			MOVQ(src.Offset(idx), op64)
