@@ -35,15 +35,15 @@ func tb(blocks int, funcGo, funcAsm funcBlock, do bool) func(t *testing.T, keySi
 		srcAsm := make([]byte, BlockSize*blocks)
 		dstAsm := make([]byte, BlockSize*blocks)
 
-		var ctx leaContextAsm
-		err := ctx.g.initContext(k)
+		var ctx leaContext
+		err := ctx.initContext(k)
 		if err != nil {
 			t.Error(err)
 		}
 
 		for i := 0; i < testBlocks/blocks; i++ {
-			funcGo(&ctx.g, dstGo, srcGo)
-			funcAsm(&ctx.g, dstAsm, srcAsm)
+			funcGo(&ctx, dstGo, srcGo)
+			funcAsm(&ctx, dstAsm, srcAsm)
 
 			if !bytes.Equal(dstGo, dstAsm) {
 				t.Error("did not match")

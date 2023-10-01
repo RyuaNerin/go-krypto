@@ -30,6 +30,12 @@ func Benchmark_New(b *testing.B) { benchAll(b, benchNewCipher) }
 func Benchmark_Encrypt_1Block_Go(b *testing.B) { benchAll(b, block(b, 1, leaEnc1Go, true)) }
 func Benchmark_Decrypt_1Block_Go(b *testing.B) { benchAll(b, block(b, 1, leaDec1Go, true)) }
 
+func Benchmark_Encrypt_4Blocks_Go(b *testing.B) { benchAll(b, block(b, 4, leaEnc4Go, true)) }
+func Benchmark_Encrypt_8Blocks_Go(b *testing.B) { benchAll(b, block(b, 8, leaEnc8Go, true)) }
+
+func Benchmark_Decrypt_4Blocks_Go(b *testing.B) { benchAll(b, block(b, 4, leaDec4Go, true)) }
+func Benchmark_Decrypt_8Blocks_Go(b *testing.B) { benchAll(b, block(b, 8, leaDec8Go, true)) }
+
 func benchNewCipher(b *testing.B, keySize int) {
 	k := make([]byte, keySize/8)
 
@@ -51,16 +57,15 @@ func block(b *testing.B, blocks int, f funcBlock, do bool) func(b *testing.B, ke
 			return
 		}
 
-		k := make([]byte, keySize/8)
-		rnd.Read(k)
-
+		key := make([]byte, keySize/8)
 		src := make([]byte, BlockSize*blocks)
 		dst := make([]byte, BlockSize*blocks)
 
+		rnd.Read(key)
 		rnd.Read(src)
 
 		var ctx leaContext
-		err := ctx.initContext(k)
+		err := ctx.initContext(key)
 		if err != nil {
 			b.Error(err)
 		}

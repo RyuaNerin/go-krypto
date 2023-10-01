@@ -13,29 +13,29 @@ type cbcDecAble interface {
 }
 
 // Assert that leaContext implements the cbcDecAble interfaces.
-var _ cbcDecAble = (*leaContextAsm)(nil)
+var _ cbcDecAble = (*leaContext)(nil)
 
-type leaCbcContext struct {
-	leaCtx *leaContextAsm
-	iv     []byte
-	tmp    []byte
+type cbcContext struct {
+	ctx *leaContext
+	iv  []byte
+	tmp []byte
 }
 
-func (leaCtx *leaContextAsm) NewCBCDecrypter(iv []byte) cipher.BlockMode {
-	cbc := &leaCbcContext{
-		leaCtx: leaCtx,
-		iv:     make([]byte, BlockSize),
-		tmp:    make([]byte, BlockSize*8),
+func (ctx *leaContext) NewCBCDecrypter(iv []byte) cipher.BlockMode {
+	cbc := &cbcContext{
+		ctx: ctx,
+		iv:  make([]byte, BlockSize),
+		tmp: make([]byte, BlockSize*8),
 	}
 	copy(cbc.iv, iv)
 	return cbc
 }
 
-func (b *leaCbcContext) BlockSize() int {
+func (b *cbcContext) BlockSize() int {
 	return b.BlockSize()
 }
 
-func (b *leaCbcContext) CryptBlocks(dst, src []byte) {
+func (b *cbcContext) CryptBlocks(dst, src []byte) {
 	if len(src)%BlockSize != 0 {
 		panic("krypto/lea: input not full blocks")
 	}
@@ -57,7 +57,7 @@ func (b *leaCbcContext) CryptBlocks(dst, src []byte) {
 		srcIdx -= BlockSize * 8
 
 		dstLocal := dst[dstIdx : dstIdx+BlockSize*8]
-		leaDec8(&b.leaCtx.g, dstLocal, src[srcIdx:])
+		leaDec8(b.ctx, dstLocal, src[srcIdx:])
 		if remainBlock > 0 {
 			xorBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
 		} else {
@@ -72,7 +72,7 @@ func (b *leaCbcContext) CryptBlocks(dst, src []byte) {
 		srcIdx -= BlockSize * 4
 
 		dstLocal := dst[dstIdx : dstIdx+BlockSize*4]
-		leaDec4(&b.leaCtx.g, dstLocal, src[srcIdx:])
+		leaDec4(b.ctx, dstLocal, src[srcIdx:])
 		if remainBlock > 0 {
 			xorBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
 		} else {
@@ -87,7 +87,7 @@ func (b *leaCbcContext) CryptBlocks(dst, src []byte) {
 		srcIdx -= BlockSize
 
 		dstLocal := dst[dstIdx : dstIdx+BlockSize]
-		leaDec1(&b.leaCtx.g, dstLocal, src[srcIdx:])
+		leaDec1(b.ctx, dstLocal, src[srcIdx:])
 
 		if remainBlock > 0 { // Ignore the first block, must use iv.
 			xorBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])

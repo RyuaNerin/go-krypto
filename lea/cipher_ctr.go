@@ -13,33 +13,31 @@ type ctrAble interface {
 }
 
 // Assert that lea_key implements the ctrAble interfaces.
-var _ ctrAble = (*leaContextAsm)(nil)
+var _ ctrAble = (*leaContext)(nil)
 
 const streamBufferBlockSize = 8 * 4 // * BlockSize = 256 bytes
 
-type leaCtrContext struct {
-	leaCtx *leaContextAsm
-	ctr    []byte
-	out    []byte
+type ctrContext struct {
+	ctx    *leaContext
+	ctr    [BlockSize]byte
+	out    [BlockSize * streamBufferBlockSize]byte
 	outPos int
 }
 
-func (leaCtx *leaContextAsm) NewCTR(iv []byte) cipher.Stream {
-	ctr := &leaCtrContext{
-		leaCtx: leaCtx,
-		ctr:    make([]byte, BlockSize),
-		out:    make([]byte, BlockSize*streamBufferBlockSize),
+func (leaCtx *leaContext) NewCTR(iv []byte) cipher.Stream {
+	ctr := &ctrContext{
+		ctx: leaCtx,
 	}
-	copy(ctr.ctr, iv)
+	copy(ctr.ctr[:], iv)
 	ctr.refill()
 
 	return ctr
 }
 
-func (ctr *leaCtrContext) fillCtr(outIdx int) {
-	copy(ctr.out[outIdx:], ctr.ctr)
+func (ctr *ctrContext) fillCtr(outIdx int) {
+	copy(ctr.out[:][outIdx:], ctr.ctr[:])
 
-	for i := 15; i >= 0; i-- {
+	for i := BlockSize - 1; i >= 0; i-- {
 		c := ctr.ctr[i]
 		c++
 		ctr.ctr[i] = c
@@ -49,20 +47,20 @@ func (ctr *leaCtrContext) fillCtr(outIdx int) {
 	}
 }
 
-func (ctr *leaCtrContext) refill() {
+func (ctr *ctrContext) refill() {
 	for i := 0; i < streamBufferBlockSize; i++ {
 		ctr.fillCtr(BlockSize * i)
 	}
 
 	for i := 0; i < streamBufferBlockSize/8; i++ {
 		out := ctr.out[0x80*i:]
-		leaEnc8(&ctr.leaCtx.g, out, out)
+		leaEnc8(ctr.ctx, out, out)
 	}
 
 	ctr.outPos = 0
 }
 
-func (ctr *leaCtrContext) XORKeyStream(dst, src []byte) {
+func (ctr *ctrContext) XORKeyStream(dst, src []byte) {
 	if len(dst) < len(src) {
 		panic("krypto/lea: output smaller than input")
 	}
