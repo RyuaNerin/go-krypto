@@ -61,6 +61,8 @@ func (ctx *has160Context) Write(p []byte) (n int, err error) {
 		return
 	}
 
+	lenP := len(p)
+
 	ctx.length += len(p)
 
 	gap := BlockSize - ctx.boff
@@ -82,7 +84,7 @@ func (ctx *has160Context) Write(p []byte) (n int, err error) {
 		ctx.boff += len(p)
 	}
 
-	return len(p), nil
+	return lenP, nil
 }
 
 func (ctx *has160Context) Sum(p []byte) []byte {
