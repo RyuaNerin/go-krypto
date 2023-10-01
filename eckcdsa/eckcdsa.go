@@ -12,17 +12,6 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
 )
 
-type PublicKey struct {
-	elliptic.Curve
-
-	X *big.Int
-	Y *big.Int
-}
-type PrivateKey struct {
-	PublicKey
-	D *big.Int
-}
-
 var (
 	ErrParametersNotSetUp = errors.New("krypto/eckcdsa: parameters not set up before generating key")
 	ErrInvalidK           = errors.New("krypto/eckcdsa: use another K")
