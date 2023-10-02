@@ -225,11 +225,11 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 	//cv_l[1] = cv_r[1];
 	//cv_r[1] = cv_r[0];
 	//cv_r[0] = temp;
-	MOVO_autoAU2(temp, cv_l[0])
-	MOVO_autoAU2(cv_l[0], cv_l[1])
-	MOVO_autoAU2(cv_l[1], cv_r[1])
-	MOVO_autoAU2(cv_r[1], cv_r[0])
-	MOVO_autoAU2(cv_r[0], temp)
+	MOVOad(temp, cv_l[0])
+	MOVOad(cv_l[0], cv_l[1])
+	MOVOad(cv_l[1], cv_r[1])
+	MOVOad(cv_r[1], cv_r[0])
+	MOVOad(cv_r[0], temp)
 }
 
 // static INLINE void mix_even(__m128i* cv_l, __m128i* cv_r, const __m128i* const_v, const __m128i * perm_step){

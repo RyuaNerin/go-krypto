@@ -278,11 +278,11 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 	//cv_l[1] = cv_r[1];
 	//cv_r[1] = cv_r[0];
 	//cv_r[0] = temp;
-	MOVO_autoAU2(temp, cv_l[0])
-	MOVO_autoAU2(cv_l[0], cv_l[1])
-	MOVO_autoAU2(cv_l[1], cv_r[1])
-	MOVO_autoAU2(cv_r[1], cv_r[0])
-	MOVO_autoAU2(cv_r[0], temp)
+	MOVOad(temp, cv_l[0])
+	MOVOad(cv_l[0], cv_l[1])
+	MOVOad(cv_l[1], cv_r[1])
+	MOVOad(cv_r[1], cv_r[0])
+	MOVOad(cv_r[0], temp)
 }
 
 /* -------------------------------------------------------- */

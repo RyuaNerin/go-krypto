@@ -798,3 +798,108 @@ const (
 	C_MM_HINT_T2  = 1
 	C_MM_HINT_NTA = 0
 )
+
+/*
+*
+Synopsis
+
+	__m128i _mm_srli_si128 (__m128i a, int imm8)
+	#include <emmintrin.h>
+	Instruction: psrldq xmm, imm8
+	CPUID Flags: SSE2
+
+Description
+
+	Shift a right by imm8 bytes while shifting in zeros, and store the results in dst.
+
+Operation
+
+	tmp := imm8[7:0]
+	IF tmp > 15
+		tmp := 16
+	FI
+	dst[127:0] := a[127:0] >> (tmp*8)
+*/
+func F_mm_srli_si128(dst VecVirtual, a, imm8 Op) VecVirtual {
+	if dst != a {
+		MOVOad(dst, a)
+	}
+
+	CheckType(
+		`
+		//	PSRLDQ imm8 xmm
+		`,
+		imm8, dst,
+	)
+
+	PSRLDQ(imm8, dst)
+	return dst
+}
+
+/*
+*
+Synopsis
+
+	__m128i _mm_slli_si128 (__m128i a, int imm8)
+	#include <emmintrin.h>
+	Instruction: pslldq xmm, imm8
+	CPUID Flags: SSE2
+
+Description
+
+	Shift a left by imm8 bytes while shifting in zeros, and store the results in dst.
+
+Operation
+
+	tmp := imm8[7:0]
+	IF tmp > 15
+		tmp := 16
+	FI
+	dst[127:0] := a[127:0] << (tmp*8)
+*/
+func F_mm_slli_si128(dst VecVirtual, a, imm8 Op) VecVirtual {
+	if dst != a {
+		MOVOad(dst, a)
+	}
+
+	CheckType(
+		`
+		//	PSLLDQ imm8 xmm
+		`,
+		imm8, dst,
+	)
+
+	PSLLDQ(imm8, dst)
+	return dst
+}
+
+/*
+*
+Synopsis
+
+	int _mm_extract_epi8 (__m128i a, const int imm8)
+	#include <smmintrin.h>
+	Instruction: pextrb r32, xmm, imm8
+	CPUID Flags: SSE4.1
+
+Description
+
+	Extract an 8-bit integer from a, selected with imm8, and store the result in the lower element of dst.
+
+Operation
+
+	dst[7:0] := (a[127:0] >> (imm8[3:0] * 8))[7:0]
+	dst[31:8] := 0
+*/
+func F_mm_extract_epi8(dst Register, a, imm8 Op) Register {
+	CheckType(
+		`
+		//	PEXTRB imm8 xmm m8
+		//	PEXTRB imm8 xmm r32
+		`,
+		imm8, a, dst,
+	)
+
+	PEXTRB(imm8, a, dst)
+	return dst
+}

@@ -31,19 +31,51 @@ dst = a
 */
 
 func F_mm_shuffle_epi8(dst VecVirtual, a, b Op) VecVirtual {
-	if dst != a {
+	// _mm_shuffle_epi8(a, b);
+	// -> pshufb  a, b
+	// -> PSHUFB (B, A)
+
+	switch {
+	case dst == a:
+		CheckType(
+			`
+			//	PSHUFB m128 xmm
+			//	PSHUFB xmm  xmm
+			`,
+			b, dst,
+		)
+
+		PSHUFB(b, dst)
+
+	case dst == b:
+		CheckType(
+			`
+			//	PSHUFB m128 xmm
+			//	PSHUFB xmm  xmm
+			`,
+			a, dst,
+		)
+
+		tmp := XMM()
+		MOVOad(tmp, b)
 		MOVOad(dst, a)
+		PSHUFB(tmp, dst)
+
+	default:
+		if dst != a {
+			MOVOad(dst, a)
+		}
+
+		CheckType(
+			`
+			//	PSHUFB m128 xmm
+			//	PSHUFB xmm  xmm
+			`,
+			b, dst,
+		)
+
+		PSHUFB(b, dst)
 	}
-
-	CheckType(
-		`
-		//	PSHUFB m128 xmm
-		//	PSHUFB xmm  xmm
-		`,
-		b, dst,
-	)
-
-	PSHUFB(b, dst)
 
 	return dst
 }

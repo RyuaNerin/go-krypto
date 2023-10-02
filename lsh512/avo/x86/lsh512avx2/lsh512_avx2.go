@@ -257,12 +257,12 @@ func word_perm(cv_l, cv_r []VecVirtual) {
 	//cv_l[1] = cv_r[1];
 	//cv_r[0] = temp[0];
 	//cv_r[1] = temp[1];
-	VMOVDQ_autoAU2(temp[0], cv_l[0])
-	VMOVDQ_autoAU2(temp[1], cv_r[0])
-	VMOVDQ_autoAU2(cv_l[0], cv_l[1])
-	VMOVDQ_autoAU2(cv_l[1], cv_r[1])
-	VMOVDQ_autoAU2(cv_r[0], temp[0])
-	VMOVDQ_autoAU2(cv_r[1], temp[1])
+	VMOVDQad(temp[0], cv_l[0])
+	VMOVDQad(temp[1], cv_r[0])
+	VMOVDQad(cv_l[0], cv_l[1])
+	VMOVDQad(cv_l[1], cv_r[1])
+	VMOVDQad(cv_r[0], temp[0])
+	VMOVDQad(cv_r[1], temp[1])
 }
 
 /* -------------------------------------------------------- */

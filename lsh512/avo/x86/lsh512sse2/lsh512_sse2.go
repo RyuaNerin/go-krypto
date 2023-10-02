@@ -122,15 +122,15 @@ func msg_exp_even(i_state LSH512SSE2_internal) {
 	//i_state->submsg_e_l[1] = _mm_shuffle_epi32(i_state->submsg_e_l[1], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_e_l[1], i_state.submsg_e_l[1], U8(0x4e))
 	//temp = i_state->submsg_e_l[0];
-	MOVO_autoAU2(temp, i_state.submsg_e_l[0])
+	MOVOad(temp, i_state.submsg_e_l[0])
 	//i_state->submsg_e_l[0] = i_state->submsg_e_l[1];
-	MOVO_autoAU2(i_state.submsg_e_l[0], i_state.submsg_e_l[1])
+	MOVOad(i_state.submsg_e_l[0], i_state.submsg_e_l[1])
 	//i_state->submsg_e_l[1] = temp;
-	MOVO_autoAU2(i_state.submsg_e_l[1], temp)
+	MOVOad(i_state.submsg_e_l[1], temp)
 	//i_state->submsg_e_l[3] = _mm_shuffle_epi32(i_state->submsg_e_l[3], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_e_l[3], i_state.submsg_e_l[3], U8(0x4e))
 	//temp = i_state->submsg_e_l[2];
-	MOVO_autoAU2(temp, i_state.submsg_e_l[2])
+	MOVOad(temp, i_state.submsg_e_l[2])
 	//i_state->submsg_e_l[2] = _mm_unpacklo_epi64(i_state->submsg_e_l[3], i_state->submsg_e_l[2]);
 	F_mm_unpacklo_epi64(i_state.submsg_e_l[2], i_state.submsg_e_l[3], i_state.submsg_e_l[2])
 	//i_state->submsg_e_l[3] = _mm_unpackhi_epi64(temp, i_state->submsg_e_l[3]);
@@ -158,15 +158,15 @@ func msg_exp_even(i_state LSH512SSE2_internal) {
 	//i_state->submsg_e_r[1] = _mm_shuffle_epi32(i_state->submsg_e_r[1], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_e_r[1], i_state.submsg_e_r[1], U8(0x4e))
 	//temp = i_state->submsg_e_r[0];
-	MOVO_autoAU2(temp, i_state.submsg_e_r[0])
+	MOVOad(temp, i_state.submsg_e_r[0])
 	//i_state->submsg_e_r[0] = i_state->submsg_e_r[1];
-	MOVO_autoAU2(i_state.submsg_e_r[0], i_state.submsg_e_r[1])
+	MOVOad(i_state.submsg_e_r[0], i_state.submsg_e_r[1])
 	//i_state->submsg_e_r[1] = temp;
-	MOVO_autoAU2(i_state.submsg_e_r[1], temp)
+	MOVOad(i_state.submsg_e_r[1], temp)
 	//i_state->submsg_e_r[3] = _mm_shuffle_epi32(i_state->submsg_e_r[3], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_e_r[3], i_state.submsg_e_r[3], U8(0x4e))
 	//temp = i_state->submsg_e_r[2];
-	MOVO_autoAU2(temp, i_state.submsg_e_r[2])
+	MOVOad(temp, i_state.submsg_e_r[2])
 	//i_state->submsg_e_r[2] = _mm_unpacklo_epi64(i_state->submsg_e_r[3], i_state->submsg_e_r[2]);
 	F_mm_unpacklo_epi64(i_state.submsg_e_r[2], i_state.submsg_e_r[3], i_state.submsg_e_r[2])
 	//i_state->submsg_e_r[3] = _mm_unpackhi_epi64(temp, i_state->submsg_e_r[3]);
@@ -205,15 +205,15 @@ func msg_exp_odd(i_state LSH512SSE2_internal) {
 	//i_state->submsg_o_l[1] = _mm_shuffle_epi32(i_state->submsg_o_l[1], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_o_l[1], i_state.submsg_o_l[1], U8(0x4e))
 	//temp = i_state->submsg_o_l[0];
-	MOVO_autoAU2(temp, i_state.submsg_o_l[0])
+	MOVOad(temp, i_state.submsg_o_l[0])
 	//i_state->submsg_o_l[0] = i_state->submsg_o_l[1];
-	MOVO_autoAU2(i_state.submsg_o_l[0], i_state.submsg_o_l[1])
+	MOVOad(i_state.submsg_o_l[0], i_state.submsg_o_l[1])
 	//i_state->submsg_o_l[1] = temp;
-	MOVO_autoAU2(i_state.submsg_o_l[1], temp)
+	MOVOad(i_state.submsg_o_l[1], temp)
 	//i_state->submsg_o_l[3] = _mm_shuffle_epi32(i_state->submsg_o_l[3], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_o_l[3], i_state.submsg_o_l[3], U8(0x4e))
 	//temp = i_state->submsg_o_l[2];
-	MOVO_autoAU2(temp, i_state.submsg_o_l[2])
+	MOVOad(temp, i_state.submsg_o_l[2])
 	//i_state->submsg_o_l[2] = _mm_unpacklo_epi64(i_state->submsg_o_l[3], i_state->submsg_o_l[2]);
 	F_mm_unpacklo_epi64(i_state.submsg_o_l[2], i_state.submsg_o_l[3], i_state.submsg_o_l[2])
 	//i_state->submsg_o_l[3] = _mm_unpackhi_epi64(temp, i_state->submsg_o_l[3]);
@@ -241,15 +241,15 @@ func msg_exp_odd(i_state LSH512SSE2_internal) {
 	//i_state->submsg_o_r[1] = _mm_shuffle_epi32(i_state->submsg_o_r[1], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_o_r[1], i_state.submsg_o_r[1], U8(0x4e))
 	//temp = i_state->submsg_o_r[0];
-	MOVO_autoAU2(temp, i_state.submsg_o_r[0])
+	MOVOad(temp, i_state.submsg_o_r[0])
 	//i_state->submsg_o_r[0] = i_state->submsg_o_r[1];
-	MOVO_autoAU2(i_state.submsg_o_r[0], i_state.submsg_o_r[1])
+	MOVOad(i_state.submsg_o_r[0], i_state.submsg_o_r[1])
 	//i_state->submsg_o_r[1] = temp;
-	MOVO_autoAU2(i_state.submsg_o_r[1], temp)
+	MOVOad(i_state.submsg_o_r[1], temp)
 	//i_state->submsg_o_r[3] = _mm_shuffle_epi32(i_state->submsg_o_r[3], 0x4e);
 	F_mm_shuffle_epi32(i_state.submsg_o_r[3], i_state.submsg_o_r[3], U8(0x4e))
 	//temp = i_state->submsg_o_r[2];
-	MOVO_autoAU2(temp, i_state.submsg_o_r[2])
+	MOVOad(temp, i_state.submsg_o_r[2])
 	//i_state->submsg_o_r[2] = _mm_unpacklo_epi64(i_state->submsg_o_r[3], i_state->submsg_o_r[2]);
 	F_mm_unpacklo_epi64(i_state.submsg_o_r[2], i_state.submsg_o_r[3], i_state.submsg_o_r[2])
 	//i_state->submsg_o_r[3] = _mm_unpackhi_epi64(temp, i_state->submsg_o_r[3]);
@@ -490,13 +490,13 @@ func word_perm(cv_l, cv_r []VecVirtual, temp []VecVirtual) {
 	//__m128i temp[2];
 
 	//temp[0] = cv_l[0];
-	MOVO_autoAU2(temp[0], cv_l[0])
+	MOVOad(temp[0], cv_l[0])
 	//cv_l[0] = _mm_unpacklo_epi64(cv_l[1], cv_l[0]);
 	F_mm_unpacklo_epi64(cv_l[0], cv_l[1], cv_l[0])
 	//cv_l[1] = _mm_unpackhi_epi64(temp[0], cv_l[1]);
 	F_mm_unpackhi_epi64(cv_l[1], temp[0], cv_l[1])
 	//temp[0] = cv_l[2];
-	MOVO_autoAU2(temp[0], cv_l[2])
+	MOVOad(temp[0], cv_l[2])
 	//cv_l[2] = _mm_unpacklo_epi64(cv_l[3], cv_l[2]);
 	F_mm_unpacklo_epi64(cv_l[2], cv_l[3], cv_l[2])
 	//cv_l[3] = _mm_unpackhi_epi64(temp[0], cv_l[3]);
@@ -504,7 +504,7 @@ func word_perm(cv_l, cv_r []VecVirtual, temp []VecVirtual) {
 	//cv_r[1] = _mm_shuffle_epi32(cv_r[1], 0x4e);
 	F_mm_shuffle_epi32(cv_r[1], cv_r[1], U8(0x4e))
 	//temp[0] = cv_r[0];
-	MOVO_autoAU2(temp[0], cv_r[0])
+	MOVOad(temp[0], cv_r[0])
 	//cv_r[0] = _mm_unpacklo_epi64(cv_r[0], cv_r[1]);
 	F_mm_unpacklo_epi64(cv_r[0], cv_r[0], cv_r[1])
 	//cv_r[1] = _mm_unpackhi_epi64(cv_r[1], temp[0]);
@@ -512,31 +512,31 @@ func word_perm(cv_l, cv_r []VecVirtual, temp []VecVirtual) {
 	//cv_r[3] = _mm_shuffle_epi32(cv_r[3], 0x4e);
 	F_mm_shuffle_epi32(cv_r[3], cv_r[3], U8(0x4e))
 	//temp[0] = cv_r[2];
-	MOVO_autoAU2(temp[0], cv_r[2])
+	MOVOad(temp[0], cv_r[2])
 	//cv_r[2] = _mm_unpacklo_epi64(cv_r[2], cv_r[3]);
 	F_mm_unpacklo_epi64(cv_r[2], cv_r[2], cv_r[3])
 	//cv_r[3] = _mm_unpackhi_epi64(cv_r[3], temp[0]);
 	F_mm_unpackhi_epi64(cv_r[3], cv_r[3], temp[0])
 	//temp[0] = cv_l[0];
-	MOVO_autoAU2(temp[0], cv_l[0])
+	MOVOad(temp[0], cv_l[0])
 	//temp[1] = cv_l[1];
-	MOVO_autoAU2(temp[1], cv_l[1])
+	MOVOad(temp[1], cv_l[1])
 	//cv_l[0] = cv_l[2];
-	MOVO_autoAU2(cv_l[0], cv_l[2])
+	MOVOad(cv_l[0], cv_l[2])
 	//cv_l[1] = cv_l[3];
-	MOVO_autoAU2(cv_l[1], cv_l[3])
+	MOVOad(cv_l[1], cv_l[3])
 	//cv_l[2] = cv_r[2];
-	MOVO_autoAU2(cv_l[2], cv_r[2])
+	MOVOad(cv_l[2], cv_r[2])
 	//cv_l[3] = cv_r[3];
-	MOVO_autoAU2(cv_l[3], cv_r[3])
+	MOVOad(cv_l[3], cv_r[3])
 	//cv_r[2] = cv_r[0];
-	MOVO_autoAU2(cv_r[2], cv_r[0])
+	MOVOad(cv_r[2], cv_r[0])
 	//cv_r[3] = cv_r[1];
-	MOVO_autoAU2(cv_r[3], cv_r[1])
+	MOVOad(cv_r[3], cv_r[1])
 	//cv_r[0] = temp[0];
-	MOVO_autoAU2(cv_r[0], temp[0])
+	MOVOad(cv_r[0], temp[0])
 	//cv_r[1] = temp[1];
-	MOVO_autoAU2(cv_r[1], temp[1])
+	MOVOad(cv_r[1], temp[1])
 }
 
 /* -------------------------------------------------------- */
