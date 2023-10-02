@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	// The HIGHT block size in bytes.
+	// The ARIA block size in bytes.
 	BlockSize = 16
 )
 
