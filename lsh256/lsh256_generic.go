@@ -119,6 +119,7 @@ func (b *lsh256ContextGo) Write(p []byte) (n int, err error) {
 	if p == nil || len(p) == 0 {
 		return
 	}
+	plen := len(p)
 
 	gap := BlockSize - b.boff
 	if b.boff > 0 && len(p) >= gap {
@@ -140,7 +141,7 @@ func (b *lsh256ContextGo) Write(p []byte) (n int, err error) {
 		b.boff += len(p)
 	}
 
-	return len(p), nil
+	return plen, nil
 }
 
 func (b *lsh256ContextGo) Sum(p []byte) []byte {

@@ -1,16 +1,25 @@
+//go:build amd64 && gc && !purego
+
 package lsh256
 
 import (
 	"testing"
 )
 
-const shortWriteSize = 16 * 1024
+func Test_ShortWrite_SSE2(t *testing.T)  { testShortWrite(t, simdSetSSE2, true) }
+func Test_ShortWrite_SSSE3(t *testing.T) { testShortWrite(t, simdSetSSSE3, hasSSSE3) }
+func Test_ShortWrite_AVX2(t *testing.T)  { testShortWrite(t, simdSetAVX2, hasAVX2) }
 
-func Test_ShortWrite_Go(t *testing.T) {
+func testShortWrite(t *testing.T, simd simdSet, do bool) {
+	if !do {
+		t.Skip()
+		return
+	}
+
 	testSize(
 		t,
 		func(t *testing.T, size int) {
-			h := newContextGo(size)
+			h := newContextAsm(size, simd)
 
 			buf := make([]byte, shortWriteSize)
 			for i := 1; i < shortWriteSize; i++ {

@@ -2,11 +2,13 @@ package has160
 
 import "testing"
 
+const shortWriteSize = 16 * 1024
+
 func Test_ShortWrite(t *testing.T) {
 	h := New()
 
-	buf := make([]byte, 8*1024)
-	for i := 1; i < 8*1024; i++ {
+	buf := make([]byte, shortWriteSize)
+	for i := 1; i < shortWriteSize; i++ {
 		rnd.Read(buf[:i])
 		n, err := h.Write(buf[:i])
 		if err != nil {
