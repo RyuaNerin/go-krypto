@@ -6,8 +6,13 @@ import (
 	"hash"
 	"math/bits"
 
+	"github.com/RyuaNerin/go-krypto"
 	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
 )
+
+func init() {
+	krypto.RegisterHash(krypto.HAS160, New)
+}
 
 const (
 	// The size of a HAS-160 checksum in bytes.
