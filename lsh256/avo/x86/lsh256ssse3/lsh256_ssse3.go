@@ -548,7 +548,7 @@ func Lsh256_ssse3_update(ctx *LSH256_Context, data Mem, databytelen Register) {
 	store_blk(ctx.Cv_r, cv_r)
 
 	//if (databytelen > 0){
-	CMPQ(remain_msg_byte, U32(0))
+	CMPQ(databytelen, U32(0))
 	JE(LabelRef("lsh256_ssse3_update_if3_end"))
 	{
 		//memcpy(ctx->last_block, data, databytelen);

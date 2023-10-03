@@ -16117,7 +16117,7 @@ lsh512_sse2_update_while_end:
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
 	MOVOU X7, 128(AX)
-	CMPQ  SI, $0x00000000
+	CMPQ  BX, $0x00000000
 	JE    lsh512_sse2_update_if3_end
 
 	// Memcpy
@@ -37457,7 +37457,7 @@ lsh512_ssse3_update_while_end:
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
 	MOVOU X7, 128(AX)
-	CMPQ  SI, $0x00000000
+	CMPQ  BX, $0x00000000
 	JE    lsh512_ssse3_update_if3_end
 
 	// Memcpy
@@ -48239,7 +48239,7 @@ lsh512_avx2_update_while_end:
 	// store_blk
 	VMOVDQU Y2, 80(AX)
 	VMOVDQU Y3, 112(AX)
-	CMPQ    SI, $0x00000000
+	CMPQ    BX, $0x00000000
 	JE      lsh512_avx2_update_if3_end
 
 	// Memcpy

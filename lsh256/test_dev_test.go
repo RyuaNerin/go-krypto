@@ -31,6 +31,13 @@ func testAsmDev(t *testing.T, algType int, answer []byte, s simdSet) {
 
 	dst := make([]byte, Size)
 
+	/**
+	input := make([]byte, BlockSize+2) //2
+	for idx := range input {
+		input[idx] = byte(idx % 256)
+	}
+	*/
+
 	s.update(&ctx, input)
 	s.final(&ctx, dst)
 

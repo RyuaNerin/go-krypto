@@ -885,7 +885,7 @@ func Lsh512_ssse3_update(ctx *LSH512_Context, data Mem, databytelen Register) {
 	store_blk(ctx.Cv_r, cv_r)
 
 	//if (databytelen > 0){
-	CMPQ(remain_msg_byte, U32(0))
+	CMPQ(databytelen, U32(0))
 	JE(LabelRef("lsh512_ssse3_update_if3_end"))
 	{
 		//memcpy(ctx->i_last_block, data, databytelen);

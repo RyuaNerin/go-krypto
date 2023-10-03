@@ -6766,7 +6766,7 @@ lsh256_sse2_update_while_end:
 	// store_blk
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
-	CMPQ  SI, $0x00000000
+	CMPQ  BX, $0x00000000
 	JE    lsh256_sse2_update_if3_end
 
 	// Memcpy
@@ -13939,7 +13939,7 @@ lsh256_ssse3_update_while_end:
 	// store_blk
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
-	CMPQ  SI, $0x00000000
+	CMPQ  BX, $0x00000000
 	JE    lsh256_ssse3_update_if3_end
 
 	// Memcpy
@@ -18618,7 +18618,7 @@ lsh256_avx2_update_while_end:
 
 	// store_blk
 	VMOVDQU Y1, 48(AX)
-	CMPQ    SI, $0x00000000
+	CMPQ    BX, $0x00000000
 	JE      lsh256_avx2_update_if3_end
 
 	// Memcpy
