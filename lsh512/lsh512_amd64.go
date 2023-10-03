@@ -101,9 +101,13 @@ func (ctx *lsh512ContextAsm) Write(data []byte) (n int, err error) {
 	return len(data), nil
 }
 
-func (ctx *lsh512ContextAsm) Sum(b []byte) []byte {
-	hash := make([]byte, Size)
-	ctx.simd.final(&ctx.data, hash)
+func (ctx *lsh512ContextAsm) Sum(p []byte) []byte {
+	ctx0 := *ctx
+	hash := ctx0.checkSum()
+	return append(p, hash[:ctx.Size()]...)
+}
 
-	return append(b, hash[:ctx.Size()]...)
+func (ctx *lsh512ContextAsm) checkSum() (hash [Size]byte) {
+	ctx.simd.final(&ctx.data, hash[:])
+	return
 }

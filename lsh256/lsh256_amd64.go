@@ -10,7 +10,7 @@ import (
 
 var (
 	hasSSSE3 = cpu.X86.HasSSSE3
-	hasAVX2  = cpu.X86.HasAVX2 && cpu.X86.HasAVX
+	hasAVX2  = cpu.X86.HasSSSE3 && cpu.X86.HasAVX2 && cpu.X86.HasAVX
 
 	useAVX2 = false
 )
