@@ -1,15 +1,11 @@
 package eckcdsa
 
 import (
-	"bufio"
 	"crypto/elliptic"
-	"crypto/rand"
 	"crypto/sha256"
 	"hash"
 	"testing"
 )
-
-var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
 
 func Benchmark_GenerateKey(b *testing.B) {
 	tests := []struct {
@@ -22,7 +18,6 @@ func Benchmark_GenerateKey(b *testing.B) {
 	for _, test := range tests {
 		test := test
 		b.Run(test.name, func(b *testing.B) {
-			rnd := bufio.NewReaderSize(rand.Reader, 1<<15)
 
 			b.ReportAllocs()
 			b.ResetTimer()

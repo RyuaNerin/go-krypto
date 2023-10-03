@@ -1,6 +1,7 @@
 package eckcdsa
 
 import (
+	"bufio"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
@@ -12,6 +13,8 @@ import (
 	"github.com/RyuaNerin/elliptic2/nist"
 	"github.com/RyuaNerin/go-krypto/internal"
 )
+
+var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
 
 type testCase struct {
 	curve elliptic.Curve

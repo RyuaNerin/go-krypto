@@ -1,12 +1,11 @@
-package has160
+package testingutil
 
-import "testing"
+import (
+	"hash"
+	"testing"
+)
 
-const shortWriteSize = 16 * 1024
-
-func Test_ShortWrite(t *testing.T) {
-	h := New()
-
+func TestShortWrite(t *testing.T, h hash.Hash) {
 	buf := make([]byte, shortWriteSize)
 	for i := 1; i < shortWriteSize; i++ {
 		rnd.Read(buf[:i])
@@ -19,11 +18,8 @@ func Test_ShortWrite(t *testing.T) {
 		}
 
 		rnd.Read(buf[:1])
-		switch buf[0] % 5 {
-		case 0:
+		if buf[0]%5 == 0 {
 			h.Reset()
-		case 1:
-			h.Sum(buf[:0])
 		}
 	}
 }

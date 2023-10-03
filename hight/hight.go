@@ -9,7 +9,8 @@ import (
 const (
 	// The HIGHT block size in bytes.
 	BlockSize = 8
-	KeySize   = 16
+	// The HIGHT key size in bytes.
+	KeySize = 16
 )
 
 type KeySizeError int

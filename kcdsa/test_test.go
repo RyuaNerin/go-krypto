@@ -1,12 +1,15 @@
 package kcdsa
 
 import (
+	"bufio"
 	"crypto/rand"
 	"math/big"
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
 )
+
+var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
 
 type testCase struct {
 	Sizes ParameterSizes

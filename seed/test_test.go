@@ -1,45 +1,38 @@
 package seed
 
 import (
-	"bytes"
-	"encoding/hex"
 	"testing"
+
+	"github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-type testCase struct {
-	Key    []byte
-	Plain  []byte
-	Secure []byte
+var (
+	allSizes = []testingutil.CipherSize{
+		{Name: "128", Size: 128},
+		{Name: "256", Size: 256},
+	}
+)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func Benchmark_New(b *testing.B) {
+	testingutil.BA(b, allSizes, func(b *testing.B, keySize int) {
+		testingutil.BBNew(b, keySize, 0, testingutil.BIW(NewCipher))
+	})
 }
 
-func testEncrypt(t *testing.T, testCases []testCase) {
-	dst := make([]byte, BlockSize)
+func Benchmark_Encrypt(b *testing.B) { bench(b, testingutil.CE) }
+func Benchmark_Decrypt(b *testing.B) { bench(b, testingutil.CD) }
 
-	for _, tc := range testCases {
-		c, err := NewCipher(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		c.Encrypt(dst, tc.Plain)
-		if !bytes.Equal(dst, tc.Secure) {
-			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(dst), hex.EncodeToString(tc.Secure))
-		}
-	}
-}
-
-func testDecrypt(t *testing.T, testCases []testCase) {
-	dst := make([]byte, BlockSize)
-
-	for _, tc := range testCases {
-		c, err := NewCipher(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		c.Decrypt(dst, tc.Secure)
-		if !bytes.Equal(dst, tc.Plain) {
-			t.Errorf("decrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(dst), hex.EncodeToString(tc.Plain))
-		}
-	}
+func bench(b *testing.B, do testingutil.BD) {
+	testingutil.BA(b, allSizes, func(b *testing.B, keySize int) {
+		testingutil.BBDo(
+			b,
+			keySize,
+			0,
+			BlockSize,
+			testingutil.BIW(NewCipher),
+			do,
+		)
+	})
 }

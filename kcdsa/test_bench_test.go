@@ -1,8 +1,6 @@
 package kcdsa
 
 import (
-	"bufio"
-	"crypto/rand"
 	"testing"
 )
 
@@ -23,8 +21,6 @@ func benchmarkAllSizes(b *testing.B, f func(*testing.B, ParameterSizes)) {
 		})
 	}
 }
-
-var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
 
 func Benchmark_GenerateParameters_GO(b *testing.B) {
 	benchmarkAllSizes(b, func(b *testing.B, ps ParameterSizes) {

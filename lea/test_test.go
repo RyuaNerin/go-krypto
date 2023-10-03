@@ -1,64 +1,51 @@
 package lea
 
 import (
-	"bytes"
-	"encoding/hex"
 	"testing"
+
+	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-type testCase struct {
-	Key    []byte
-	Plain  []byte
-	Secure []byte
+var (
+	as = []CipherSize{
+		{Name: "128", Size: 128},
+		{Name: "196", Size: 196},
+		{Name: "256", Size: 256},
+	}
+)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func Benchmark_New(b *testing.B) {
+	BA(b, as, func(b *testing.B, keySize int) {
+		BBNew(b, keySize, 0, BIW(NewCipher))
+	})
 }
 
-func testAll(t *testing.T, f func(*testing.T, int)) {
-	tests := []struct {
-		name    string
-		keySize int
-	}{
-		{"128", 128},
-		{"196", 196},
-		{"256", 256},
-	}
-	for _, test := range tests {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			f(t, test.keySize)
-		})
-	}
-}
+func Benchmark_Encrypt_1Blocks_Go(b *testing.B) { BA(b, as, bb(b, 1, leaEnc1Go, true)) }
+func Benchmark_Encrypt_4Blocks_Go(b *testing.B) { BA(b, as, bb(b, 4, leaEnc4Go, true)) }
+func Benchmark_Encrypt_8Blocks_Go(b *testing.B) { BA(b, as, bb(b, 8, leaEnc8Go, true)) }
 
-func testEncryptGo(t *testing.T, testCases []testCase) {
-	dst := make([]byte, BlockSize)
+func Benchmark_Decrypt_1Blocks_Go(b *testing.B) { BA(b, as, bb(b, 1, leaDec1Go, true)) }
+func Benchmark_Decrypt_4Blocks_Go(b *testing.B) { BA(b, as, bb(b, 4, leaDec4Go, true)) }
+func Benchmark_Decrypt_8Blocks_Go(b *testing.B) { BA(b, as, bb(b, 8, leaDec8Go, true)) }
 
-	var ctx leaContext
-	for _, tc := range testCases {
-		err := ctx.initContext(tc.Key)
-		if err != nil {
-			t.Error(err)
+func bb(b *testing.B, blocks int, f funcBlock, do bool) func(b *testing.B, keySize int) {
+	return func(b *testing.B, keySize int) {
+		if !do {
+			b.Skip()
+			return
 		}
 
-		leaEnc1Go(&ctx, dst, tc.Plain)
-		if !bytes.Equal(dst, tc.Secure) {
-			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(dst), hex.EncodeToString(tc.Secure))
-		}
-	}
-}
-
-func testDecryptGo(t *testing.T, testCases []testCase) {
-	dst := make([]byte, BlockSize)
-
-	var ctx leaContext
-	for _, tc := range testCases {
-		err := ctx.initContext(tc.Key)
-		if err != nil {
-			t.Error(err)
-		}
-
-		leaDec1Go(&ctx, dst, tc.Secure)
-		if !bytes.Equal(dst, tc.Plain) {
-			t.Errorf("encrypt failed.\nresult: %s\nanswer: %s", hex.EncodeToString(dst), hex.EncodeToString(tc.Plain))
-		}
+		BBDo(
+			b,
+			keySize,
+			0,
+			blocks*BlockSize,
+			BIW(NewCipher),
+			func(c interface{}, dst, src []byte) {
+				f(c.(*leaContext), dst, src)
+			},
+		)
 	}
 }

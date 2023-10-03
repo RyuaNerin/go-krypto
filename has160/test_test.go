@@ -1,27 +1,13 @@
 package has160
 
 import (
-	"bytes"
 	"testing"
+
+	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-type testCase struct {
-	M  []byte
-	MD []byte
-}
+func Test_HAS160_ShortWrite(t *testing.T) { TestShortWrite(t, New()) }
 
-func testGo(t *testing.T, testCases []testCase) {
-	h := New()
-
-	out := make([]byte, BlockSize)
-
-	for _, tc := range testCases {
-		h.Reset()
-		h.Write(tc.M)
-		out = h.Sum(out[:0])
-
-		if !bytes.Equal(out, tc.MD) {
-			t.Fail()
-		}
-	}
-}
+func Benchmark_Hash_8_Go(b *testing.B)  { HB(b, New(), 8) }
+func Benchmark_Hash_1K_Go(b *testing.B) { HB(b, New(), 1024) }
+func Benchmark_Hash_8K_Go(b *testing.B) { HB(b, New(), 8192) }

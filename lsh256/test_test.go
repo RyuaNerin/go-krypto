@@ -1,47 +1,37 @@
 package lsh256
 
 import (
-	"bufio"
-	"bytes"
-	"crypto/rand"
+	"hash"
 	"testing"
+
+	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-type testCase struct {
-	M  []byte
-	MD []byte
+var as = []CipherSize{
+	{Name: "256", Size: Size},
+	{Name: "224", Size: Size224},
 }
 
-var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
+func Test_ShortWrite(t *testing.T) {
+	TA(t, as, func(t *testing.T, size int) {
+		h := newContextGo(size)
+		TestShortWrite(t, h)
+	})
+}
 
-func testGo(t *testing.T, testCases []testCase, size int) {
-	h := newContextGo(size)
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	out := make([]byte, BlockSize)
+func Benchmark_Hash_8_Go(b *testing.B)  { BA(b, as, bh(b, newContextGo, 8, true)) }
+func Benchmark_Hash_1K_Go(b *testing.B) { BA(b, as, bh(b, newContextGo, 1024, true)) }
+func Benchmark_Hash_8K_Go(b *testing.B) { BA(b, as, bh(b, newContextGo, 8196, true)) }
 
-	for _, tc := range testCases {
-		h.Reset()
-		h.Write(tc.M)
-		out = h.Sum(out[:0])
-
-		if !bytes.Equal(out, tc.MD) {
-			t.Fail()
+func bh(b *testing.B, newHash func(size int) hash.Hash, dataLen int, do bool) func(b *testing.B, size int) {
+	return func(b *testing.B, size int) {
+		if !do {
+			b.Skip()
+			return
 		}
-	}
-}
 
-func testSize(t *testing.T, f func(t *testing.T, size int)) {
-	tests := []struct {
-		name string
-		size int
-	}{
-		{"256", Size},
-		{"224", Size224},
-	}
-	for _, test := range tests {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			f(t, test.size)
-		})
+		HB(b, newHash(size), dataLen)
 	}
 }
