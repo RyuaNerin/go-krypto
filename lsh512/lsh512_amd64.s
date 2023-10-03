@@ -351,6 +351,7 @@ TEXT ·lsh512InitSSE2(SB), NOSPLIT, $0-8
 
 	// init512
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV512<>+0(SB), X0
 	MOVOU X0, 16(AX)
 	MOVOA g_IV512<>+16(SB), X0
@@ -361,6 +362,7 @@ TEXT ·lsh512InitSSE2(SB), NOSPLIT, $0-8
 	MOVOU X0, 64(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV512<>+64(SB), X0
 	MOVOU X0, 80(AX)
 	MOVOA g_IV512<>+80(SB), X0
@@ -377,6 +379,7 @@ lsh512_sse2_init_if0_end:
 
 	// init384
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV384<>+0(SB), X0
 	MOVOU X0, 16(AX)
 	MOVOA g_IV384<>+16(SB), X0
@@ -387,6 +390,7 @@ lsh512_sse2_init_if0_end:
 	MOVOU X0, 64(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV384<>+64(SB), X0
 	MOVOU X0, 80(AX)
 	MOVOA g_IV384<>+80(SB), X0
@@ -403,6 +407,7 @@ lsh512_sse2_init_if1_end:
 
 	// init256
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV256<>+0(SB), X0
 	MOVOU X0, 16(AX)
 	MOVOA g_IV256<>+16(SB), X0
@@ -413,6 +418,7 @@ lsh512_sse2_init_if1_end:
 	MOVOU X0, 64(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV256<>+64(SB), X0
 	MOVOU X0, 80(AX)
 	MOVOA g_IV256<>+80(SB), X0
@@ -426,6 +432,7 @@ lsh512_sse2_init_if1_end:
 lsh512_sse2_init_if2_end:
 	// init224
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV224<>+0(SB), X0
 	MOVOU X0, 16(AX)
 	MOVOA g_IV224<>+16(SB), X0
@@ -436,6 +443,7 @@ lsh512_sse2_init_if2_end:
 	MOVOU X0, 64(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOA g_IV224<>+64(SB), X0
 	MOVOU X0, 80(AX)
 	MOVOA g_IV224<>+80(SB), X0
@@ -609,6 +617,7 @@ memcpy_2_sz1_start:
 memcpy_2_sz1_end:
 	// compress
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 144(AX), X8
 	MOVOU X8, (SP)
 	MOVOU 160(AX), X8
@@ -619,6 +628,7 @@ memcpy_2_sz1_end:
 	MOVOU X8, 48(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 208(AX), X8
 	MOVOU X8, 64(SP)
 	MOVOU 224(AX), X8
@@ -629,6 +639,7 @@ memcpy_2_sz1_end:
 	MOVOU X8, 112(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 272(AX), X8
 	MOVOU X8, 128(SP)
 	MOVOU 288(AX), X8
@@ -639,6 +650,7 @@ memcpy_2_sz1_end:
 	MOVOU X8, 176(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 336(AX), X8
 	MOVOU X8, 192(SP)
 	MOVOU 352(AX), X8
@@ -736,48 +748,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -903,48 +915,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -983,13 +995,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -1031,7 +1043,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -1072,7 +1084,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -1181,48 +1193,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -1261,13 +1273,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -1309,7 +1321,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -1350,7 +1362,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -1459,48 +1471,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -1539,13 +1551,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -1587,7 +1599,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -1628,7 +1640,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -1737,48 +1749,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -1817,13 +1829,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -1865,7 +1877,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -1906,7 +1918,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -2015,48 +2027,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -2095,13 +2107,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -2143,7 +2155,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -2184,7 +2196,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -2293,48 +2305,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -2373,13 +2385,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -2421,7 +2433,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -2462,7 +2474,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -2571,48 +2583,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -2651,13 +2663,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -2699,7 +2711,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -2740,7 +2752,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -2849,48 +2861,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -2929,13 +2941,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -2977,7 +2989,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -3018,7 +3030,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -3127,48 +3139,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -3207,13 +3219,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -3255,7 +3267,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -3296,7 +3308,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -3405,48 +3417,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -3485,13 +3497,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -3533,7 +3545,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -3574,7 +3586,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -3683,48 +3695,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -3763,13 +3775,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -3811,7 +3823,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -3852,7 +3864,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -3961,48 +3973,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -4041,13 +4053,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -4089,7 +4101,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -4130,7 +4142,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -4239,48 +4251,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -4319,13 +4331,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -4367,7 +4379,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -4408,7 +4420,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -4517,48 +4529,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -4597,13 +4609,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -4645,7 +4657,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -4686,7 +4698,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -4795,48 +4807,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -4875,13 +4887,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -4923,7 +4935,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -4964,7 +4976,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -5073,48 +5085,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -5153,13 +5165,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -5201,7 +5213,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -5242,7 +5254,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -5351,48 +5363,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -5431,13 +5443,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -5479,7 +5491,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -5520,7 +5532,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -5629,48 +5641,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -5709,13 +5721,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -5757,7 +5769,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -5798,7 +5810,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -5907,48 +5919,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -5987,13 +5999,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -6035,7 +6047,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -6076,7 +6088,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -6185,48 +6197,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -6265,13 +6277,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -6313,7 +6325,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -6354,7 +6366,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -6463,48 +6475,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -6543,13 +6555,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -6591,7 +6603,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -6632,7 +6644,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -6741,48 +6753,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -6821,13 +6833,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -6869,7 +6881,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -6910,7 +6922,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -7019,48 +7031,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -7099,13 +7111,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -7147,7 +7159,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -7188,7 +7200,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -7297,48 +7309,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -7377,13 +7389,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -7425,7 +7437,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -7466,7 +7478,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -7575,48 +7587,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -7655,13 +7667,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -7703,7 +7715,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -7744,7 +7756,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -7853,48 +7865,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -7933,13 +7945,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -7981,7 +7993,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -8022,7 +8034,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -8131,48 +8143,48 @@ memcpy_2_sz1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -8211,13 +8223,13 @@ memcpy_2_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -8259,7 +8271,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -8300,7 +8312,7 @@ memcpy_2_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -8353,6 +8365,7 @@ lsh512_sse2_update_while_start:
 
 	// compress
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU (DX), X8
 	MOVOU X8, (SP)
 	MOVOU 16(DX), X8
@@ -8363,6 +8376,7 @@ lsh512_sse2_update_while_start:
 	MOVOU X8, 48(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 64(DX), X8
 	MOVOU X8, 64(SP)
 	MOVOU 80(DX), X8
@@ -8373,6 +8387,7 @@ lsh512_sse2_update_while_start:
 	MOVOU X8, 112(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 128(DX), X8
 	MOVOU X8, 128(SP)
 	MOVOU 144(DX), X8
@@ -8383,6 +8398,7 @@ lsh512_sse2_update_while_start:
 	MOVOU X8, 176(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 192(DX), X8
 	MOVOU X8, 192(SP)
 	MOVOU 208(DX), X8
@@ -8480,48 +8496,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -8647,48 +8663,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -8727,13 +8743,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -8775,7 +8791,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -8816,7 +8832,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -8925,48 +8941,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -9005,13 +9021,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -9053,7 +9069,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -9094,7 +9110,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -9203,48 +9219,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -9283,13 +9299,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -9331,7 +9347,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -9372,7 +9388,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -9481,48 +9497,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -9561,13 +9577,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -9609,7 +9625,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -9650,7 +9666,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -9759,48 +9775,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -9839,13 +9855,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -9887,7 +9903,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -9928,7 +9944,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -10037,48 +10053,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -10117,13 +10133,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -10165,7 +10181,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -10206,7 +10222,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -10315,48 +10331,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -10395,13 +10411,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -10443,7 +10459,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -10484,7 +10500,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -10593,48 +10609,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -10673,13 +10689,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -10721,7 +10737,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -10762,7 +10778,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -10871,48 +10887,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -10951,13 +10967,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -10999,7 +11015,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -11040,7 +11056,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -11149,48 +11165,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -11229,13 +11245,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -11277,7 +11293,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -11318,7 +11334,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -11427,48 +11443,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -11507,13 +11523,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -11555,7 +11571,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -11596,7 +11612,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -11705,48 +11721,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -11785,13 +11801,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -11833,7 +11849,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -11874,7 +11890,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -11983,48 +11999,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -12063,13 +12079,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -12111,7 +12127,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -12152,7 +12168,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -12261,48 +12277,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -12341,13 +12357,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -12389,7 +12405,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -12430,7 +12446,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -12539,48 +12555,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -12619,13 +12635,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -12667,7 +12683,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -12708,7 +12724,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -12817,48 +12833,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -12897,13 +12913,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -12945,7 +12961,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -12986,7 +13002,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -13095,48 +13111,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -13175,13 +13191,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -13223,7 +13239,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -13264,7 +13280,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -13373,48 +13389,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -13453,13 +13469,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -13501,7 +13517,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -13542,7 +13558,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -13651,48 +13667,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -13731,13 +13747,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -13779,7 +13795,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -13820,7 +13836,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -13929,48 +13945,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -14009,13 +14025,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -14057,7 +14073,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -14098,7 +14114,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -14207,48 +14223,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -14287,13 +14303,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -14335,7 +14351,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -14376,7 +14392,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -14485,48 +14501,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -14565,13 +14581,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -14613,7 +14629,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -14654,7 +14670,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -14763,48 +14779,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -14843,13 +14859,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -14891,7 +14907,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -14932,7 +14948,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -15041,48 +15057,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -15121,13 +15137,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -15169,7 +15185,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -15210,7 +15226,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -15319,48 +15335,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -15399,13 +15415,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -15447,7 +15463,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -15488,7 +15504,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -15597,48 +15613,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -15677,13 +15693,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -15725,7 +15741,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -15766,7 +15782,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -15875,48 +15891,48 @@ lsh512_sse2_update_while_start:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -15955,13 +15971,13 @@ lsh512_sse2_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -16003,7 +16019,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -16044,7 +16060,7 @@ lsh512_sse2_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -16101,7 +16117,7 @@ lsh512_sse2_update_while_end:
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
 	MOVOU X7, 128(AX)
-	CMPQ  SI, $0x00000000
+	CMPQ  BX, $0x00000000
 	JE    lsh512_sse2_update_if3_end
 
 	// Memcpy
@@ -16263,6 +16279,7 @@ memset_1_1_end:
 
 	// compress
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 144(AX), X8
 	MOVOU X8, (SP)
 	MOVOU 160(AX), X8
@@ -16273,6 +16290,7 @@ memset_1_1_end:
 	MOVOU X8, 48(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 208(AX), X8
 	MOVOU X8, 64(SP)
 	MOVOU 224(AX), X8
@@ -16283,6 +16301,7 @@ memset_1_1_end:
 	MOVOU X8, 112(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 272(AX), X8
 	MOVOU X8, 128(SP)
 	MOVOU 288(AX), X8
@@ -16293,6 +16312,7 @@ memset_1_1_end:
 	MOVOU X8, 176(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 336(AX), X8
 	MOVOU X8, 192(SP)
 	MOVOU 352(AX), X8
@@ -16390,48 +16410,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -16557,48 +16577,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -16637,13 +16657,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -16685,7 +16705,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -16726,7 +16746,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -16835,48 +16855,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -16915,13 +16935,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -16963,7 +16983,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -17004,7 +17024,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -17113,48 +17133,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -17193,13 +17213,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -17241,7 +17261,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -17282,7 +17302,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -17391,48 +17411,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -17471,13 +17491,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -17519,7 +17539,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -17560,7 +17580,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -17669,48 +17689,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -17749,13 +17769,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -17797,7 +17817,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -17838,7 +17858,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -17947,48 +17967,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -18027,13 +18047,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -18075,7 +18095,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -18116,7 +18136,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -18225,48 +18245,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -18305,13 +18325,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -18353,7 +18373,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -18394,7 +18414,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -18503,48 +18523,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -18583,13 +18603,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -18631,7 +18651,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -18672,7 +18692,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -18781,48 +18801,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -18861,13 +18881,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -18909,7 +18929,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -18950,7 +18970,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -19059,48 +19079,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -19139,13 +19159,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -19187,7 +19207,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -19228,7 +19248,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -19337,48 +19357,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -19417,13 +19437,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -19465,7 +19485,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -19506,7 +19526,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -19615,48 +19635,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -19695,13 +19715,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -19743,7 +19763,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -19784,7 +19804,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -19893,48 +19913,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -19973,13 +19993,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -20021,7 +20041,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -20062,7 +20082,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -20171,48 +20191,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -20251,13 +20271,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -20299,7 +20319,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -20340,7 +20360,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -20449,48 +20469,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -20529,13 +20549,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -20577,7 +20597,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -20618,7 +20638,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -20727,48 +20747,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -20807,13 +20827,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -20855,7 +20875,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -20896,7 +20916,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -21005,48 +21025,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -21085,13 +21105,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -21133,7 +21153,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -21174,7 +21194,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -21283,48 +21303,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -21363,13 +21383,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -21411,7 +21431,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -21452,7 +21472,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -21561,48 +21581,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -21641,13 +21661,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -21689,7 +21709,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -21730,7 +21750,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -21839,48 +21859,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -21919,13 +21939,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -21967,7 +21987,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -22008,7 +22028,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -22117,48 +22137,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -22197,13 +22217,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -22245,7 +22265,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -22286,7 +22306,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -22395,48 +22415,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -22475,13 +22495,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -22523,7 +22543,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -22564,7 +22584,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -22673,48 +22693,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -22753,13 +22773,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -22801,7 +22821,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -22842,7 +22862,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -22951,48 +22971,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -23031,13 +23051,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -23079,7 +23099,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -23120,7 +23140,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -23229,48 +23249,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -23309,13 +23329,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -23357,7 +23377,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -23398,7 +23418,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -23507,48 +23527,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -23587,13 +23607,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -23635,7 +23655,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -23676,7 +23696,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -23785,48 +23805,48 @@ memset_1_1_end:
 	PADDQ X7, X3
 
 	// rotate_msg_gamma
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X4, X9
+	MOVOA X4, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X4
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X4
 	MOVOA X5, X9
-	PSRLQ $+32, X9
-	PSLLQ $+32, X5
+	PSLLQ $+32, X9
+	PSRLQ $+32, X5
 	PXOR  X9, X5
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X5, X9
+	MOVOA X5, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X5
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X5
 	MOVOA X6, X9
-	PSRLQ $+56, X9
-	PSLLQ $+8, X6
+	PSLLQ $+8, X9
+	PSRLQ $+56, X6
 	PXOR  X9, X6
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X6, X9
+	MOVOA X6, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X6
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X6
 	MOVOA X7, X9
-	PSRLQ $+24, X9
-	PSLLQ $+40, X7
+	PSLLQ $+40, X9
+	PSRLQ $+24, X7
 	PXOR  X9, X7
-	MOVOA g_BytePermInfo_sse2<>+0(SB), X9
-	PAND  X7, X9
+	MOVOA X7, X9
+	PAND  g_BytePermInfo_sse2<>+0(SB), X9
 	PAND  g_BytePermInfo_sse2<>+16(SB), X7
 	MOVOA X9, X8
-	PSRLQ $+48, X8
-	PSLLQ $+16, X9
+	PSLLQ $+16, X8
+	PSRLQ $+48, X9
 	PXOR  X8, X9
 	PXOR  X9, X7
 
@@ -23865,13 +23885,13 @@ memset_1_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -23913,7 +23933,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -23954,7 +23974,7 @@ memset_1_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -24177,6 +24197,7 @@ memcpy_5_sz1_start:
 memcpy_5_sz1_end:
 	// compress
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 144(AX), X8
 	MOVOU X8, (SP)
 	MOVOU 160(AX), X8
@@ -24187,6 +24208,7 @@ memcpy_5_sz1_end:
 	MOVOU X8, 48(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 208(AX), X8
 	MOVOU X8, 64(SP)
 	MOVOU 224(AX), X8
@@ -24197,6 +24219,7 @@ memcpy_5_sz1_end:
 	MOVOU X8, 112(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 272(AX), X8
 	MOVOU X8, 128(SP)
 	MOVOU 288(AX), X8
@@ -24207,6 +24230,7 @@ memcpy_5_sz1_end:
 	MOVOU X8, 176(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 336(AX), X8
 	MOVOU X8, 192(SP)
 	MOVOU 352(AX), X8
@@ -24471,13 +24495,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -24519,7 +24543,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -24560,7 +24584,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -24709,13 +24733,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -24757,7 +24781,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -24798,7 +24822,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -24947,13 +24971,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -24995,7 +25019,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -25036,7 +25060,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -25185,13 +25209,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -25233,7 +25257,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -25274,7 +25298,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -25423,13 +25447,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -25471,7 +25495,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -25512,7 +25536,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -25661,13 +25685,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -25709,7 +25733,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -25750,7 +25774,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -25899,13 +25923,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -25947,7 +25971,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -25988,7 +26012,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -26137,13 +26161,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -26185,7 +26209,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -26226,7 +26250,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -26375,13 +26399,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -26423,7 +26447,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -26464,7 +26488,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -26613,13 +26637,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -26661,7 +26685,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -26702,7 +26726,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -26851,13 +26875,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -26899,7 +26923,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -26940,7 +26964,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -27089,13 +27113,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -27137,7 +27161,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -27178,7 +27202,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -27327,13 +27351,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -27375,7 +27399,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -27416,7 +27440,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -27565,13 +27589,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -27613,7 +27637,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -27654,7 +27678,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -27803,13 +27827,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -27851,7 +27875,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -27892,7 +27916,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -28041,13 +28065,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -28089,7 +28113,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -28130,7 +28154,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -28279,13 +28303,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -28327,7 +28351,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -28368,7 +28392,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -28517,13 +28541,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -28565,7 +28589,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -28606,7 +28630,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -28755,13 +28779,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -28803,7 +28827,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -28844,7 +28868,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -28993,13 +29017,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -29041,7 +29065,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -29082,7 +29106,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -29231,13 +29255,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -29279,7 +29303,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -29320,7 +29344,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -29469,13 +29493,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -29517,7 +29541,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -29558,7 +29582,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -29707,13 +29731,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -29755,7 +29779,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -29796,7 +29820,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -29945,13 +29969,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -29993,7 +30017,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -30034,7 +30058,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -30183,13 +30207,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -30231,7 +30255,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -30272,7 +30296,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -30421,13 +30445,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -30469,7 +30493,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -30510,7 +30534,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -30659,13 +30683,13 @@ memcpy_5_sz1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -30707,7 +30731,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -30748,7 +30772,7 @@ memcpy_5_sz1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -30801,6 +30825,7 @@ lsh512_ssse3_update_while_start:
 
 	// compress
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU (DX), X8
 	MOVOU X8, (SP)
 	MOVOU 16(DX), X8
@@ -30811,6 +30836,7 @@ lsh512_ssse3_update_while_start:
 	MOVOU X8, 48(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 64(DX), X8
 	MOVOU X8, 64(SP)
 	MOVOU 80(DX), X8
@@ -30821,6 +30847,7 @@ lsh512_ssse3_update_while_start:
 	MOVOU X8, 112(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 128(DX), X8
 	MOVOU X8, 128(SP)
 	MOVOU 144(DX), X8
@@ -30831,6 +30858,7 @@ lsh512_ssse3_update_while_start:
 	MOVOU X8, 176(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 192(DX), X8
 	MOVOU X8, 192(SP)
 	MOVOU 208(DX), X8
@@ -31095,13 +31123,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -31143,7 +31171,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -31184,7 +31212,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -31333,13 +31361,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -31381,7 +31409,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -31422,7 +31450,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -31571,13 +31599,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -31619,7 +31647,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -31660,7 +31688,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -31809,13 +31837,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -31857,7 +31885,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -31898,7 +31926,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -32047,13 +32075,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -32095,7 +32123,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -32136,7 +32164,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -32285,13 +32313,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -32333,7 +32361,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -32374,7 +32402,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -32523,13 +32551,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -32571,7 +32599,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -32612,7 +32640,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -32761,13 +32789,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -32809,7 +32837,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -32850,7 +32878,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -32999,13 +33027,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -33047,7 +33075,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -33088,7 +33116,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -33237,13 +33265,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -33285,7 +33313,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -33326,7 +33354,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -33475,13 +33503,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -33523,7 +33551,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -33564,7 +33592,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -33713,13 +33741,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -33761,7 +33789,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -33802,7 +33830,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -33951,13 +33979,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -33999,7 +34027,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -34040,7 +34068,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -34189,13 +34217,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -34237,7 +34265,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -34278,7 +34306,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -34427,13 +34455,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -34475,7 +34503,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -34516,7 +34544,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -34665,13 +34693,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -34713,7 +34741,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -34754,7 +34782,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -34903,13 +34931,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -34951,7 +34979,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -34992,7 +35020,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -35141,13 +35169,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -35189,7 +35217,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -35230,7 +35258,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -35379,13 +35407,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -35427,7 +35455,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -35468,7 +35496,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -35617,13 +35645,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -35665,7 +35693,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -35706,7 +35734,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -35855,13 +35883,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -35903,7 +35931,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -35944,7 +35972,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -36093,13 +36121,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -36141,7 +36169,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -36182,7 +36210,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -36331,13 +36359,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -36379,7 +36407,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -36420,7 +36448,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -36569,13 +36597,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -36617,7 +36645,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -36658,7 +36686,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -36807,13 +36835,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -36855,7 +36883,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -36896,7 +36924,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -37045,13 +37073,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -37093,7 +37121,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -37134,7 +37162,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -37283,13 +37311,13 @@ lsh512_ssse3_update_while_start:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -37331,7 +37359,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -37372,7 +37400,7 @@ lsh512_ssse3_update_while_start:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -37429,7 +37457,7 @@ lsh512_ssse3_update_while_end:
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
 	MOVOU X7, 128(AX)
-	CMPQ  SI, $0x00000000
+	CMPQ  BX, $0x00000000
 	JE    lsh512_ssse3_update_if3_end
 
 	// Memcpy
@@ -37591,6 +37619,7 @@ memset_2_1_end:
 
 	// compress
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 144(AX), X8
 	MOVOU X8, (SP)
 	MOVOU 160(AX), X8
@@ -37601,6 +37630,7 @@ memset_2_1_end:
 	MOVOU X8, 48(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 208(AX), X8
 	MOVOU X8, 64(SP)
 	MOVOU 224(AX), X8
@@ -37611,6 +37641,7 @@ memset_2_1_end:
 	MOVOU X8, 112(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 272(AX), X8
 	MOVOU X8, 128(SP)
 	MOVOU 288(AX), X8
@@ -37621,6 +37652,7 @@ memset_2_1_end:
 	MOVOU X8, 176(SP)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	MOVOU 336(AX), X8
 	MOVOU X8, 192(SP)
 	MOVOU 352(AX), X8
@@ -37885,13 +37917,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -37933,7 +37965,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -37974,7 +38006,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -38123,13 +38155,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -38171,7 +38203,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -38212,7 +38244,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -38361,13 +38393,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -38409,7 +38441,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -38450,7 +38482,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -38599,13 +38631,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -38647,7 +38679,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -38688,7 +38720,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -38837,13 +38869,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -38885,7 +38917,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -38926,7 +38958,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -39075,13 +39107,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -39123,7 +39155,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -39164,7 +39196,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -39313,13 +39345,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -39361,7 +39393,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -39402,7 +39434,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -39551,13 +39583,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -39599,7 +39631,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -39640,7 +39672,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -39789,13 +39821,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -39837,7 +39869,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -39878,7 +39910,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -40027,13 +40059,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -40075,7 +40107,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -40116,7 +40148,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -40265,13 +40297,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -40313,7 +40345,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -40354,7 +40386,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -40503,13 +40535,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -40551,7 +40583,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -40592,7 +40624,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -40741,13 +40773,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -40789,7 +40821,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -40830,7 +40862,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -40979,13 +41011,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -41027,7 +41059,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -41068,7 +41100,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -41217,13 +41249,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -41265,7 +41297,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -41306,7 +41338,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -41455,13 +41487,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -41503,7 +41535,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -41544,7 +41576,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -41693,13 +41725,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -41741,7 +41773,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -41782,7 +41814,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -41931,13 +41963,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -41979,7 +42011,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -42020,7 +42052,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -42169,13 +42201,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -42217,7 +42249,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -42258,7 +42290,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -42407,13 +42439,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -42455,7 +42487,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -42496,7 +42528,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -42645,13 +42677,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -42693,7 +42725,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -42734,7 +42766,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -42883,13 +42915,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -42931,7 +42963,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -42972,7 +43004,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -43121,13 +43153,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -43169,7 +43201,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -43210,7 +43242,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -43359,13 +43391,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -43407,7 +43439,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -43448,7 +43480,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -43597,13 +43629,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -43645,7 +43677,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -43686,7 +43718,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -43835,13 +43867,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -43883,7 +43915,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 128(SP)
 	MOVOU X1, 144(SP)
 	MOVOU X2, 160(SP)
@@ -43924,7 +43956,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 192(SP)
 	MOVOU X1, 208(SP)
 	MOVOU X2, 224(SP)
@@ -44073,13 +44105,13 @@ memset_2_1_end:
 	MOVOA      X9, X5
 
 	// save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 16(AX)
 	MOVOU X1, 32(AX)
 	MOVOU X2, 48(AX)
 	MOVOU X3, 64(AX)
 
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X4, 80(AX)
 	MOVOU X5, 96(AX)
 	MOVOU X6, 112(AX)
@@ -44121,7 +44153,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, (SP)
 	MOVOU X1, 16(SP)
 	MOVOU X2, 32(SP)
@@ -44162,7 +44194,7 @@ memset_2_1_end:
 	PADDQ      X7, X3
 
 	// i_state_save___start
-	// load_blk_vec2mem
+	// store_blk
 	MOVOU X0, 64(SP)
 	MOVOU X1, 80(SP)
 	MOVOU X2, 96(SP)
@@ -44233,12 +44265,14 @@ TEXT ·lsh512InitAVX2(SB), NOSPLIT, $0-8
 
 	// init512
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV512<>+0(SB), Y0
 	VMOVDQU Y0, 16(AX)
 	VMOVDQA g_IV512<>+32(SB), Y0
 	VMOVDQU Y0, 48(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV512<>+64(SB), Y0
 	VMOVDQU Y0, 80(AX)
 	VMOVDQA g_IV512<>+96(SB), Y0
@@ -44251,12 +44285,14 @@ lsh512_avx2_init_if0_end:
 
 	// init384
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV384<>+0(SB), Y0
 	VMOVDQU Y0, 16(AX)
 	VMOVDQA g_IV384<>+32(SB), Y0
 	VMOVDQU Y0, 48(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV384<>+64(SB), Y0
 	VMOVDQU Y0, 80(AX)
 	VMOVDQA g_IV384<>+96(SB), Y0
@@ -44269,12 +44305,14 @@ lsh512_avx2_init_if1_end:
 
 	// init256
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV256<>+0(SB), Y0
 	VMOVDQU Y0, 16(AX)
 	VMOVDQA g_IV256<>+32(SB), Y0
 	VMOVDQU Y0, 48(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV256<>+64(SB), Y0
 	VMOVDQU Y0, 80(AX)
 	VMOVDQA g_IV256<>+96(SB), Y0
@@ -44284,12 +44322,14 @@ lsh512_avx2_init_if1_end:
 lsh512_avx2_init_if2_end:
 	// init224
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV224<>+0(SB), Y0
 	VMOVDQU Y0, 16(AX)
 	VMOVDQA g_IV224<>+32(SB), Y0
 	VMOVDQU Y0, 48(AX)
 
 	// load_blk_mem2mem
+	// MemcpyStatic
 	VMOVDQA g_IV224<>+64(SB), Y0
 	VMOVDQU Y0, 80(AX)
 	VMOVDQA g_IV224<>+96(SB), Y0
@@ -44489,10 +44529,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -44503,10 +44543,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -44547,10 +44587,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -44561,10 +44601,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -44586,13 +44626,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -44613,10 +44653,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -44627,10 +44667,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -44652,13 +44692,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -44679,10 +44719,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -44693,10 +44733,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -44718,13 +44758,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -44745,10 +44785,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -44759,10 +44799,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -44784,13 +44824,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -44811,10 +44851,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -44825,10 +44865,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -44850,13 +44890,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -44877,10 +44917,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -44891,10 +44931,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -44916,13 +44956,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -44943,10 +44983,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -44957,10 +44997,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -44982,13 +45022,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -45009,10 +45049,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45023,10 +45063,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45048,13 +45088,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -45075,10 +45115,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45089,10 +45129,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45114,13 +45154,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -45141,10 +45181,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45155,10 +45195,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45180,13 +45220,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -45207,10 +45247,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45221,10 +45261,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45246,13 +45286,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -45273,10 +45313,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45287,10 +45327,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45312,13 +45352,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -45339,10 +45379,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45353,10 +45393,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45378,13 +45418,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -45405,10 +45445,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45419,10 +45459,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45444,13 +45484,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -45471,10 +45511,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45485,10 +45525,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45510,13 +45550,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -45537,10 +45577,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45551,10 +45591,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45576,13 +45616,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -45603,10 +45643,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45617,10 +45657,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45642,13 +45682,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -45669,10 +45709,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45683,10 +45723,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45708,13 +45748,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -45735,10 +45775,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45749,10 +45789,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45774,13 +45814,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -45801,10 +45841,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45815,10 +45855,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45840,13 +45880,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -45867,10 +45907,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45881,10 +45921,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45906,13 +45946,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -45933,10 +45973,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -45947,10 +45987,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -45972,13 +46012,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -45999,10 +46039,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46013,10 +46053,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46038,13 +46078,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -46065,10 +46105,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46079,10 +46119,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46104,13 +46144,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -46131,10 +46171,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46145,10 +46185,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46170,13 +46210,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -46197,10 +46237,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46211,10 +46251,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46236,13 +46276,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -46263,10 +46303,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46277,10 +46317,10 @@ memcpy_8_sz1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46302,13 +46342,13 @@ memcpy_8_sz1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -46361,10 +46401,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46375,10 +46415,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46419,10 +46459,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46433,10 +46473,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46458,13 +46498,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -46485,10 +46525,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46499,10 +46539,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46524,13 +46564,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -46551,10 +46591,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46565,10 +46605,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46590,13 +46630,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -46617,10 +46657,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46631,10 +46671,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46656,13 +46696,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -46683,10 +46723,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46697,10 +46737,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46722,13 +46762,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -46749,10 +46789,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46763,10 +46803,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46788,13 +46828,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -46815,10 +46855,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46829,10 +46869,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46854,13 +46894,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -46881,10 +46921,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46895,10 +46935,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46920,13 +46960,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -46947,10 +46987,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -46961,10 +47001,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -46986,13 +47026,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -47013,10 +47053,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47027,10 +47067,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47052,13 +47092,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -47079,10 +47119,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47093,10 +47133,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47118,13 +47158,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -47145,10 +47185,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47159,10 +47199,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47184,13 +47224,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -47211,10 +47251,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47225,10 +47265,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47250,13 +47290,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -47277,10 +47317,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47291,10 +47331,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47316,13 +47356,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -47343,10 +47383,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47357,10 +47397,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47382,13 +47422,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -47409,10 +47449,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47423,10 +47463,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47448,13 +47488,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -47475,10 +47515,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47489,10 +47529,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47514,13 +47554,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -47541,10 +47581,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47555,10 +47595,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47580,13 +47620,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -47607,10 +47647,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47621,10 +47661,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47646,13 +47686,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -47673,10 +47713,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47687,10 +47727,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47712,13 +47752,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -47739,10 +47779,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47753,10 +47793,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47778,13 +47818,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -47805,10 +47845,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47819,10 +47859,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47844,13 +47884,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -47871,10 +47911,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47885,10 +47925,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47910,13 +47950,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -47937,10 +47977,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -47951,10 +47991,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -47976,13 +48016,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -48003,10 +48043,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48017,10 +48057,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48042,13 +48082,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -48069,10 +48109,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48083,10 +48123,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48108,13 +48148,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -48135,10 +48175,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48149,10 +48189,10 @@ lsh512_avx2_update_while_start:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48174,13 +48214,13 @@ lsh512_avx2_update_while_start:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -48199,7 +48239,7 @@ lsh512_avx2_update_while_end:
 	// store_blk
 	VMOVDQU Y2, 80(AX)
 	VMOVDQU Y3, 112(AX)
-	CMPQ    SI, $0x00000000
+	CMPQ    BX, $0x00000000
 	JE      lsh512_avx2_update_if3_end
 
 	// Memcpy
@@ -48391,10 +48431,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48405,10 +48445,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48449,10 +48489,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48463,10 +48503,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48488,13 +48528,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -48515,10 +48555,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48529,10 +48569,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48554,13 +48594,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -48581,10 +48621,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48595,10 +48635,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48620,13 +48660,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -48647,10 +48687,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48661,10 +48701,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48686,13 +48726,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -48713,10 +48753,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48727,10 +48767,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48752,13 +48792,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -48779,10 +48819,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48793,10 +48833,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48818,13 +48858,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -48845,10 +48885,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48859,10 +48899,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48884,13 +48924,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -48911,10 +48951,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48925,10 +48965,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -48950,13 +48990,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -48977,10 +49017,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -48991,10 +49031,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49016,13 +49056,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -49043,10 +49083,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49057,10 +49097,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49082,13 +49122,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -49109,10 +49149,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49123,10 +49163,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49148,13 +49188,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -49175,10 +49215,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49189,10 +49229,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49214,13 +49254,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -49241,10 +49281,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49255,10 +49295,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49280,13 +49320,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -49307,10 +49347,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49321,10 +49361,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49346,13 +49386,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -49373,10 +49413,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49387,10 +49427,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49412,13 +49452,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -49439,10 +49479,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49453,10 +49493,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49478,13 +49518,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -49505,10 +49545,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49519,10 +49559,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49544,13 +49584,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -49571,10 +49611,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49585,10 +49625,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49610,13 +49650,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -49637,10 +49677,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49651,10 +49691,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49676,13 +49716,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -49703,10 +49743,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49717,10 +49757,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49742,13 +49782,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -49769,10 +49809,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49783,10 +49823,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49808,13 +49848,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -49835,10 +49875,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49849,10 +49889,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49874,13 +49914,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -49901,10 +49941,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49915,10 +49955,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -49940,13 +49980,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -49967,10 +50007,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -49981,10 +50021,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -50006,13 +50046,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -50033,10 +50073,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -50047,10 +50087,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -50072,13 +50112,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
@@ -50099,10 +50139,10 @@ memset_3_1_end:
 	// rotate_blk_even_alpha
 	VPSLLQ $0x17, Y0, Y14
 	VPSRLQ $0x29, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x17, Y1, Y14
 	VPSRLQ $0x29, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -50113,10 +50153,10 @@ memset_3_1_end:
 	// rotate_blk_even_beta
 	VPSLLQ $0x3b, Y2, Y4
 	VPSRLQ $0x05, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x3b, Y3, Y4
 	VPSRLQ $0x05, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -50138,13 +50178,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y10, Y10
-	VPADDQ  Y6, Y10, Y10
+	VPADDQ  Y10, Y6, Y10
 	VPERMQ  $0x93, Y11, Y11
-	VPADDQ  Y7, Y11, Y11
+	VPADDQ  Y11, Y7, Y11
 	VPERMQ  $0x4b, Y12, Y12
-	VPADDQ  Y8, Y12, Y12
+	VPADDQ  Y12, Y8, Y12
 	VPERMQ  $0x93, Y13, Y13
-	VPADDQ  Y9, Y13, Y13
+	VPADDQ  Y13, Y9, Y13
 
 	// msg_add_odd
 	VPXOR Y10, Y0, Y0
@@ -50165,10 +50205,10 @@ memset_3_1_end:
 	// rotate_blk_odd_alpha
 	VPSLLQ $0x07, Y0, Y14
 	VPSRLQ $0x39, Y0, Y0
-	VPOR   Y14, Y0, Y0
+	VPOR   Y0, Y14, Y0
 	VPSLLQ $0x07, Y1, Y14
 	VPSRLQ $0x39, Y1, Y1
-	VPOR   Y14, Y1, Y1
+	VPOR   Y1, Y14, Y1
 	VPXOR  Y4, Y0, Y0
 	VPXOR  Y5, Y1, Y1
 
@@ -50179,10 +50219,10 @@ memset_3_1_end:
 	// rotate_blk_odd_beta
 	VPSLLQ $0x03, Y2, Y4
 	VPSRLQ $0x3d, Y2, Y2
-	VPOR   Y4, Y2, Y2
+	VPOR   Y2, Y4, Y2
 	VPSLLQ $0x03, Y3, Y4
 	VPSRLQ $0x3d, Y3, Y3
-	VPOR   Y4, Y3, Y3
+	VPOR   Y3, Y4, Y3
 
 	// add_blk
 	VPADDQ Y2, Y0, Y0
@@ -50204,13 +50244,13 @@ memset_3_1_end:
 	VMOVDQA Y4, Y2
 	VMOVDQA Y5, Y3
 	VPERMQ  $0x4b, Y6, Y6
-	VPADDQ  Y10, Y6, Y6
+	VPADDQ  Y6, Y10, Y6
 	VPERMQ  $0x93, Y7, Y7
-	VPADDQ  Y11, Y7, Y7
+	VPADDQ  Y7, Y11, Y7
 	VPERMQ  $0x4b, Y8, Y8
-	VPADDQ  Y12, Y8, Y8
+	VPADDQ  Y8, Y12, Y8
 	VPERMQ  $0x93, Y9, Y9
-	VPADDQ  Y13, Y9, Y9
+	VPADDQ  Y9, Y13, Y9
 
 	// msg_add_even
 	VPXOR Y6, Y0, Y0
