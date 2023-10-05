@@ -3,36 +3,22 @@ package seed
 import (
 	"testing"
 
-	"github.com/RyuaNerin/go-krypto/testingutil"
+	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
 var (
-	allSizes = []testingutil.CipherSize{
+	as = []CipherSize{
 		{Name: "128", Size: 128},
 		{Name: "256", Size: 256},
 	}
 )
 
+func Test_Encrypt_Src(t *testing.T) { BTSCA(t, as, 0, BlockSize, BIW(NewCipher), CE, false) }
+func Test_Decrypt_Src(t *testing.T) { BTSCA(t, as, 0, BlockSize, BIW(NewCipher), CD, false) }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func Benchmark_New(b *testing.B) {
-	testingutil.BA(b, allSizes, func(b *testing.B, keySize int) {
-		testingutil.BBNew(b, keySize, 0, testingutil.BIW(NewCipher))
-	})
-}
+func Benchmark_New(b *testing.B) { BBNA(b, as, 0, BIW(NewCipher), false) }
 
-func Benchmark_Encrypt(b *testing.B) { bench(b, testingutil.CE) }
-func Benchmark_Decrypt(b *testing.B) { bench(b, testingutil.CD) }
-
-func bench(b *testing.B, do testingutil.BD) {
-	testingutil.BA(b, allSizes, func(b *testing.B, keySize int) {
-		testingutil.BBDo(
-			b,
-			keySize,
-			0,
-			BlockSize,
-			testingutil.BIW(NewCipher),
-			do,
-		)
-	})
-}
+func Benchmark_Encrypt(b *testing.B) { BBDA(b, as, 0, BlockSize, BIW(NewCipher), CE, false) }
+func Benchmark_Decrypt(b *testing.B) { BBDA(b, as, 0, BlockSize, BIW(NewCipher), CD, false) }

@@ -7,6 +7,17 @@ import (
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
+
+	. "github.com/RyuaNerin/go-krypto/testingutil"
+)
+
+var (
+	as = []CipherSize{
+		{Name: "L2048 N224 SHA224", Size: int(L2048N224SHA224)},
+		{Name: "L2048 N224 SHA256", Size: int(L2048N224SHA256)},
+		{Name: "L2048 N256 SHA256", Size: int(L2048N256SHA256)},
+		{Name: "L3072 N256 SHA256", Size: int(L3072N256SHA256)},
+	}
 )
 
 var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
@@ -50,6 +61,7 @@ func testVerify(t *testing.T, testCases []testCase) {
 		ok := Verify(&key, tc.M, tc.R, tc.S)
 		if ok == tc.Fail {
 			t.Errorf("verify failed")
+			return
 		}
 	}
 }
@@ -71,6 +83,7 @@ func Test_SignVerify_With_BadPublicKey(t *testing.T) {
 		ok := Verify(&key, tc.M, tc.R, tc.S)
 		if ok {
 			t.Errorf("Verify unexpected success with non-existent mod inverse of Q")
+			return
 		}
 	}
 }
@@ -135,10 +148,12 @@ func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int, gp func(params *Par
 
 	if params.P.BitLen() > L {
 		t.Errorf("%d: params.BitLen got:%d want:%d", int(sizes), params.P.BitLen(), L)
+		return
 	}
 
 	if params.Q.BitLen() > N {
 		t.Errorf("%d: q.BitLen got:%d want:%d", int(sizes), params.Q.BitLen(), L)
+		return
 	}
 
 	err = gk(&priv)
@@ -161,5 +176,6 @@ func testSignAndVerify(t *testing.T, i int, priv *PrivateKey) {
 	ok := Verify(&priv.PublicKey, data, r, s)
 	if !ok {
 		t.Errorf("%d: Verify failed", i)
+		return
 	}
 }

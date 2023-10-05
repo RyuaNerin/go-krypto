@@ -26,14 +26,16 @@ func BIW(f func(key []byte) (cipher.Block, error)) BI {
 func BTE(
 	t *testing.T,
 	init BI,
-	do BD, // if nil, use testingutil.CE
+	do BD,
 	testCases []BlockTestCase,
+	skip bool,
 ) {
-	var dst []byte
-
-	if do == nil {
-		do = CE
+	if skip {
+		t.Skip()
+		return
 	}
+
+	var dst []byte
 
 	for _, tc := range testCases {
 		tc.parse()
@@ -60,14 +62,16 @@ func BTE(
 func BTD(
 	t *testing.T,
 	init BI,
-	do BD, // if nil, use testingutil.CD
+	do BD,
 	testCases []BlockTestCase,
+	skip bool,
 ) {
-	var dst []byte
-
-	if do == nil {
-		do = CD
+	if skip {
+		t.Skip()
+		return
 	}
+
+	var dst []byte
 
 	for _, tc := range testCases {
 		tc.parse()
@@ -100,7 +104,13 @@ func BTTC(
 	init BI,
 	DoA BD,
 	DoB BD,
+	skip bool,
 ) {
+	if skip {
+		t.Skip()
+		return
+	}
+
 	key := make([]byte, keySize/8)
 	additional := make([]byte, additionalSize)
 	rnd.Read(key)
@@ -142,12 +152,18 @@ func BTTC(
 }
 
 // Block Bench New
-func BBNew(
+func BBN(
 	b *testing.B,
 	keySize int, // in bites
 	additionalSize int, // in bytes, iv, nonce ...
 	init BI,
+	skip bool,
 ) {
+	if skip {
+		b.Skip()
+		return
+	}
+
 	key := make([]byte, keySize/8)
 	additional := make([]byte, additionalSize)
 
@@ -164,15 +180,39 @@ func BBNew(
 	}
 }
 
+// Block Bench New All
+func BBNA(
+	b *testing.B,
+	sizes []CipherSize,
+	additionalSize int, // in bytes, iv, nonce ...
+	init BI,
+	skip bool,
+) {
+	if skip {
+		b.Skip()
+		return
+	}
+
+	BA(b, sizes, func(b *testing.B, keySize int) {
+		BBN(b, keySize, additionalSize, init, false)
+	}, false)
+}
+
 // Block Bench Do
-func BBDo(
+func BBD(
 	b *testing.B,
 	keySize int, // in bites
 	additionalSize int, // in bytes, iv, nonce ...
 	srcSize int,
 	init BI,
 	do BD,
+	skip bool,
 ) {
+	if skip {
+		b.Skip()
+		return
+	}
+
 	key := make([]byte, keySize/8)
 	additional := make([]byte, additionalSize)
 
@@ -196,4 +236,24 @@ func BBDo(
 		do(c, dst, src)
 		copy(src, dst)
 	}
+}
+
+// Block Bench Do All
+func BBDA(
+	b *testing.B,
+	sizes []CipherSize,
+	additionalSize int, // in bytes, iv, nonce ...
+	srcSize int,
+	init BI,
+	do BD,
+	skip bool,
+) {
+	if skip {
+		b.Skip()
+		return
+	}
+
+	BA(b, sizes, func(b *testing.B, keySize int) {
+		BBD(b, keySize, 0, srcSize, init, do, false)
+	}, false)
 }

@@ -7,7 +7,7 @@ import (
 	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-func Test_HAS160(t *testing.T) { HT(t, New(), testCases) }
+func Test_HAS160(t *testing.T) { HT(t, New(), testCases, false) }
 
 // TTAS.KO-12.0011/R2
 var testCases = []HashTestCase{

@@ -6,12 +6,10 @@ import (
 	"crypto/cipher"
 	"testing"
 
-	"github.com/RyuaNerin/go-krypto/testingutil"
+	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-func Test_BlockMode_CBC_Decrypt(t *testing.T) {
-	testingutil.TA(t, as, testCBC(cipher.NewCBCDecrypter))
-}
+func Test_BlockMode_CBC_Decrypt(t *testing.T) { TA(t, as, testCBC(cipher.NewCBCDecrypter), false) }
 
 func testCBC(newBlockMode func(cipher.Block, []byte) cipher.BlockMode) func(t *testing.T, keySize int) {
 	return func(t *testing.T, keySize int) {
@@ -19,33 +17,31 @@ func testCBC(newBlockMode func(cipher.Block, []byte) cipher.BlockMode) func(t *t
 			std, asm cipher.BlockMode
 		}
 
-		testingutil.BTTC(
+		BTTC(
 			t,
 			keySize,
 			BlockSize, // iv
 			BlockSize*8,
 			BlockSize,
 			func(key, iv []byte) (interface{}, error) {
-				var ctxStd nonCipherContext
-				var ctxLib leaContext
-
-				err := ctxStd.ctx.initContext(key)
+				cStd, err := NewCipher(key)
 				if err != nil {
 					return nil, err
 				}
-				err = ctxLib.initContext(key)
+				cAsm, err := newCipherSimple(key)
 				if err != nil {
 					return nil, err
 				}
 
 				data := &ctr{
-					std: newBlockMode(&ctxStd, iv),
-					asm: newBlockMode(&ctxLib, iv),
+					std: newBlockMode(cStd, iv),
+					asm: newBlockMode(cAsm, iv),
 				}
 				return data, nil
 			},
 			func(data interface{}, dst, src []byte) { data.(*ctr).std.CryptBlocks(dst, src) },
 			func(data interface{}, dst, src []byte) { data.(*ctr).asm.CryptBlocks(dst, src) },
+			false,
 		)
 	}
 }
@@ -53,27 +49,15 @@ func testCBC(newBlockMode func(cipher.Block, []byte) cipher.BlockMode) func(t *t
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func Benchmark_BlockMode_CBC_Decrypt_Std(b *testing.B) {
-	testingutil.BA(b, as, benchCBC(
-		func(key []byte) (cipher.Block, error) {
-			var ctx nonCipherContext
-			return &ctx, ctx.ctx.initContext(key)
-		},
-		cipher.NewCBCDecrypter,
-	))
+	BA(b, as, benchCBC(newCipherSimple, cipher.NewCBCDecrypter), false)
 }
 func Benchmark_BlockMode_CBC_Decrypt_Asm(b *testing.B) {
-	testingutil.BA(b, as, benchCBC(
-		func(key []byte) (cipher.Block, error) {
-			var ctx leaContext
-			return &ctx, ctx.initContext(key)
-		},
-		cipher.NewCBCDecrypter,
-	))
+	BA(b, as, benchCBC(NewCipher, cipher.NewCBCDecrypter), false)
 }
 
 func benchCBC(newCipher func(key []byte) (cipher.Block, error), newBlockMode func(cipher.Block, []byte) cipher.BlockMode) func(b *testing.B, keySize int) {
 	return func(b *testing.B, keySize int) {
-		testingutil.BBDo(
+		BBD(
 			b,
 			keySize,
 			BlockSize,
@@ -90,6 +74,7 @@ func benchCBC(newCipher func(key []byte) (cipher.Block, error), newBlockMode fun
 			func(c interface{}, dst, src []byte) {
 				c.(cipher.BlockMode).CryptBlocks(dst, src)
 			},
+			false,
 		)
 	}
 }

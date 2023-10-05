@@ -6,7 +6,7 @@ import (
 	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-func Test_LSH512_512(t *testing.T) { HT(t, newContextGo(Size), testCases512) }
+func Test_LSH512_512(t *testing.T) { HT(t, newContextGo(Size), testCases512, false) }
 
 var testCases512 = []HashTestCase{
 	// 암호알고리즘 검증기준 V3.0

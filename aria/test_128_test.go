@@ -6,8 +6,8 @@ import (
 	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-func Test_ARIA128_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases128) }
-func Test_ARIA128_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases128) }
+func Test_ARIA128_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases128, false) }
+func Test_ARIA128_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases128, false) }
 
 // 암호알고리즘 검증기준 V3.0
 // 테스트 벡터

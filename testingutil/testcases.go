@@ -12,7 +12,17 @@ type CipherSize struct {
 }
 
 // Test All
-func TA(t *testing.T, tests []CipherSize, do func(t *testing.T, bitSize int)) {
+func TA(
+	t *testing.T,
+	tests []CipherSize,
+	do func(t *testing.T, bitSize int),
+	skip bool,
+) {
+	if skip {
+		t.Skip()
+		return
+	}
+
 	for _, test := range tests {
 		test := test
 		t.Run(test.Name, func(t *testing.T) {
@@ -22,7 +32,17 @@ func TA(t *testing.T, tests []CipherSize, do func(t *testing.T, bitSize int)) {
 }
 
 // Bench All
-func BA(b *testing.B, tests []CipherSize, do func(b *testing.B, bitSize int)) {
+func BA(
+	b *testing.B,
+	tests []CipherSize,
+	do func(b *testing.B, bitSize int),
+	skip bool,
+) {
+	if skip {
+		b.Skip()
+		return
+	}
+
 	for _, test := range tests {
 		test := test
 		b.Run(test.Name, func(b *testing.B) {

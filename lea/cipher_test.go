@@ -1,17 +1,27 @@
 package lea
 
-type nonCipherContext struct {
-	ctx leaContext
+import "crypto/cipher"
+
+func newCipherSimple(key []byte) (cipher.Block, error) {
+	block, err := NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	return &blockWrap{block}, nil
 }
 
-func (ctx *nonCipherContext) BlockSize() int {
-	return ctx.ctx.BlockSize()
+type blockWrap struct {
+	b cipher.Block
 }
 
-func (ctx *nonCipherContext) Encrypt(dst, src []byte) {
-	ctx.ctx.Encrypt(dst, src)
+func (bw *blockWrap) BlockSize() int {
+	return bw.b.BlockSize()
 }
 
-func (ctx *nonCipherContext) Decrypt(dst, src []byte) {
-	ctx.ctx.Decrypt(dst, src)
+func (bw *blockWrap) Encrypt(dst, src []byte) {
+	bw.b.Encrypt(dst, src)
+}
+
+func (bw *blockWrap) Decrypt(dst, src []byte) {
+	bw.b.Decrypt(dst, src)
 }

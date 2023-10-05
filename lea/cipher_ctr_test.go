@@ -6,72 +6,54 @@ import (
 	"crypto/cipher"
 	"testing"
 
-	"github.com/RyuaNerin/go-krypto/testingutil"
+	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-func Test_BlockMode_CTR(t *testing.T) {
-	testingutil.TA(t, as, testCTR)
-}
+func Test_BlockMode_CTR(t *testing.T) { TA(t, as, testCTR, false) }
 
 func testCTR(t *testing.T, keySize int) {
 	type ctr struct {
 		std, asm cipher.Stream
 	}
 
-	testingutil.BTTC(
+	BTTC(
 		t,
 		keySize,
 		BlockSize, // iv
 		BlockSize*8,
 		1,
 		func(key, iv []byte) (interface{}, error) {
-			var ctxStd nonCipherContext
-			var ctxLib leaContext
-
-			err := ctxStd.ctx.initContext(key)
+			cStd, err := NewCipher(key)
 			if err != nil {
 				return nil, err
 			}
-			err = ctxLib.initContext(key)
+			cAsm, err := newCipherSimple(key)
 			if err != nil {
 				return nil, err
 			}
 
 			data := &ctr{
-				std: cipher.NewCTR(&ctxStd, iv),
-				asm: cipher.NewCTR(&ctxLib, iv),
+				std: cipher.NewCTR(cStd, iv),
+				asm: cipher.NewCTR(cAsm, iv),
 			}
 			return data, nil
 		},
 		func(data interface{}, dst, src []byte) { data.(*ctr).std.XORKeyStream(dst, src) },
 		func(data interface{}, dst, src []byte) { data.(*ctr).asm.XORKeyStream(dst, src) },
+		false,
 	)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func Benchmark_BlockMode_CTR_Std(b *testing.B) {
-	testingutil.BA(b, as, benchCTR(
-		func(key []byte) (cipher.Block, error) {
-			var ctx nonCipherContext
-			return &ctx, ctx.ctx.initContext(key)
-		},
-	))
-}
-func Benchmark_BlockMode_CTR_Krypto(b *testing.B) {
-	testingutil.BA(b, as, benchCTR(
-		func(key []byte) (cipher.Block, error) {
-			var ctx leaContext
-			return &ctx, ctx.initContext(key)
-		},
-	))
-}
+func Benchmark_BlockMode_CTR_Std(b *testing.B)    { BA(b, as, benchCTR(newCipherSimple), false) }
+func Benchmark_BlockMode_CTR_Krypto(b *testing.B) { BA(b, as, benchCTR(NewCipher), false) }
 
 func benchCTR(
 	newCipher func(key []byte) (cipher.Block, error),
 ) func(b *testing.B, keySize int) {
 	return func(b *testing.B, keySize int) {
-		testingutil.BBDo(
+		BBD(
 			b,
 			keySize,
 			BlockSize,
@@ -88,6 +70,7 @@ func benchCTR(
 			func(c interface{}, dst, src []byte) {
 				c.(cipher.Stream).XORKeyStream(dst, src)
 			},
+			false,
 		)
 	}
 }

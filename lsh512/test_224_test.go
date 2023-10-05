@@ -6,7 +6,7 @@ import (
 	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-func Test_LSH512_224(t *testing.T) { HT(t, newContextGo(Size224), testCases224) }
+func Test_LSH512_224(t *testing.T) { HT(t, newContextGo(Size224), testCases224, false) }
 
 // 암호알고리즘 검증기준 V3.0
 // 테스트 벡터

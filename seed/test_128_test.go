@@ -6,8 +6,8 @@ import (
 	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-func Test_SEED128_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases128) }
-func Test_SEED128_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases128) }
+func Test_SEED128_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases128, false) }
+func Test_SEED128_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases128, false) }
 
 var testCases128 = []BlockTestCase{
 	// TTAS.KO-12.0004/R1

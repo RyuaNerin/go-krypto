@@ -163,6 +163,7 @@ func Test_Signing_With_DegenerateKeys(t *testing.T) {
 		data := []byte("testing")
 		if _, _, err := Sign(rand.Reader, &priv, sha256.New(), data); err == nil {
 			t.Errorf("#%d: unexpected success", i)
+			return
 		}
 	}
 }
@@ -198,5 +199,6 @@ func testSignAndVerify(
 	ok := Verify(&priv.PublicKey, h, data, r, s)
 	if !ok {
 		t.Errorf("%s: Verify failed", name)
+		return
 	}
 }
