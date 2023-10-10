@@ -13,9 +13,9 @@ func newSSE2(size int) hash.Hash  { return newContextAsm(size, simdSetSSE2) }
 func newSSSE3(size int) hash.Hash { return newContextAsm(size, simdSetSSSE3) }
 func newAVX2(size int) hash.Hash  { return newContextAsm(size, simdSetAVX2) }
 
-func Test_ShortWrite_SSE2(t *testing.T)  { HTSWA(t, as, newSSE2, true) }
-func Test_ShortWrite_SSSE3(t *testing.T) { HTSWA(t, as, newSSSE3, hasSSSE3) }
-func Test_ShortWrite_AVX2(t *testing.T)  { HTSWA(t, as, newAVX2, hasAVX2) }
+func Test_ShortWrite_SSE2(t *testing.T)  { HTSWA(t, as, newSSE2, false) }
+func Test_ShortWrite_SSSE3(t *testing.T) { HTSWA(t, as, newSSSE3, !hasSSSE3) }
+func Test_ShortWrite_AVX2(t *testing.T)  { HTSWA(t, as, newAVX2, !hasAVX2) }
 
 func Test_WITH_GO_SSE2(t *testing.T)  { HTSA(t, as, newContextGo, newSSE2, false) }
 func Test_WITH_GO_SSSE3(t *testing.T) { HTSA(t, as, newContextGo, newSSE2, !hasSSSE3) }

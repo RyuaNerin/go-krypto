@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"hash"
-	"log"
 	"testing"
 )
 
@@ -46,8 +45,6 @@ func HT(
 
 	for _, tc := range testCases {
 		tc.parse()
-
-		log.Println(len(tc.MsgBytes))
 
 		h.Reset()
 		h.Write(tc.MsgBytes)
