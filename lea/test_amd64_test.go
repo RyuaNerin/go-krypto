@@ -60,21 +60,21 @@ func tb(blocks int, funcGo, funcAsm funcBlock) func(t *testing.T, keySize int) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func Benchmark_Encrypt_4Blocks_SSE2(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaEnc4SSE2), false)
+	BBDA(b, as, 0, 4*BlockSize, BIW(newCipherGo), bb(leaEnc4SSE2), false)
 }
 func Benchmark_Encrypt_8Blocks_SSE2(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaEnc8SSE2), false)
+	BBDA(b, as, 0, 8*BlockSize, BIW(newCipherGo), bb(leaEnc8SSE2), false)
 }
 func Benchmark_Encrypt_8Blocks_AVX2(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaEnc8AVX2), !hasAVX2)
+	BBDA(b, as, 0, 8*BlockSize, BIW(newCipherGo), bb(leaEnc8AVX2), !hasAVX2)
 }
 
 func Benchmark_Decrypt_4Blocks_SSE2(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaDec4SSE2), false)
+	BBDA(b, as, 0, 4*BlockSize, BIW(newCipherGo), bb(leaDec4SSE2), false)
 }
 func Benchmark_Decrypt_8Blocks_SSE2(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaDec8SSE2), false)
+	BBDA(b, as, 0, 8*BlockSize, BIW(newCipherGo), bb(leaDec8SSE2), false)
 }
 func Benchmark_Decrypt_8Blocks_AVX2(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaDec8AVX2), !hasAVX2)
+	BBDA(b, as, 0, 8*BlockSize, BIW(newCipherGo), bb(leaDec8AVX2), !hasAVX2)
 }

@@ -6,8 +6,6 @@ import (
 	. "github.com/RyuaNerin/go-krypto/testingutil"
 )
 
-const bs = BlockSize
-
 var (
 	as = []CipherSize{
 		{Name: "128", Size: 128},
@@ -42,23 +40,23 @@ func Test_Decrypt_8Block_Src(t *testing.T) {
 func Benchmark_New(b *testing.B) { BBNA(b, as, 0, BIW(NewCipher), false) }
 
 func Benchmark_Encrypt_1Block(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaEnc1Go), false)
+	BBDA(b, as, 0, 1*BlockSize, BIW(newCipherGo), bb(leaEnc1Go), false)
 }
 func Benchmark_Encrypt_4Block(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaEnc4Go), false)
+	BBDA(b, as, 0, 4*BlockSize, BIW(newCipherGo), bb(leaEnc4Go), false)
 }
 func Benchmark_Encrypt_8Blocks(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaEnc8Go), false)
+	BBDA(b, as, 0, 8*BlockSize, BIW(newCipherGo), bb(leaEnc8Go), false)
 }
 
 func Bechmark_Decrypt_1Blocks(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaDec1Go), false)
+	BBDA(b, as, 0, 1*BlockSize, BIW(newCipherGo), bb(leaDec1Go), false)
 }
 func Benchmark_Decrypt_4Blocks(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaDec4Go), false)
+	BBDA(b, as, 0, 4*BlockSize, BIW(newCipherGo), bb(leaDec4Go), false)
 }
 func Benchmark_Decrypt_8Blocks(b *testing.B) {
-	BBDA(b, as, 0, bs, BIW(newCipherGo), bb(leaDec8Go), false)
+	BBDA(b, as, 0, 8*BlockSize, BIW(newCipherGo), bb(leaDec8Go), false)
 }
 
 func bb(f funcBlock) func(c interface{}, dst, src []byte) {
