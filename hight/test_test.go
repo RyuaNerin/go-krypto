@@ -3,7 +3,7 @@ package hight
 import (
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/testingutil"
+	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
 )
 
 func Test_Encrypt_Src(t *testing.T) { BTSC(t, KeySize*8, 0, BlockSize, BIW(NewCipher), CE, false) }

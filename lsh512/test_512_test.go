@@ -3,7 +3,7 @@ package lsh512
 import (
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/testingutil"
+	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
 )
 
 func Test_LSH512_512(t *testing.T) { HT(t, newContextGo(Size), testCases512, false) }

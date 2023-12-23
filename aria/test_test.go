@@ -3,7 +3,7 @@ package aria
 import (
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/testingutil"
+	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
 )
 
 var (

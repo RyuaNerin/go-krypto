@@ -3,7 +3,7 @@ package kcdsa
 import (
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/testingutil"
+	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
 )
 
 func Benchmark_GenerateParameters_GO(b *testing.B) {

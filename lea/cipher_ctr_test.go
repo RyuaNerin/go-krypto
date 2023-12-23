@@ -6,7 +6,7 @@ import (
 	"crypto/cipher"
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/testingutil"
+	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
 )
 
 func Test_BlockMode_CTR(t *testing.T) { TA(t, as, testCTR, false) }

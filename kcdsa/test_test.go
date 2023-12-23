@@ -8,7 +8,7 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/internal"
 
-	. "github.com/RyuaNerin/go-krypto/testingutil"
+	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
 )
 
 var (
