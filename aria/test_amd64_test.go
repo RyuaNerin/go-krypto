@@ -5,7 +5,7 @@ package aria
 import (
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
+	. "github.com/RyuaNerin/testingutil"
 )
 
 func Test_processFin_SSE2(t *testing.T) {

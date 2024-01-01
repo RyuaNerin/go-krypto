@@ -3,7 +3,7 @@ package lea
 import (
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
+	. "github.com/RyuaNerin/testingutil"
 )
 
 func Test_LEA256_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases256, false) }

@@ -3,7 +3,7 @@ package aria
 import (
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
+	. "github.com/RyuaNerin/testingutil"
 )
 
 func Test_ARIA128_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases128, false) }

@@ -3,7 +3,7 @@ package lsh256
 import (
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
+	. "github.com/RyuaNerin/testingutil"
 )
 
 func Test_LSH256_Go(t *testing.T) { HT(t, newContextGo(Size), testCases256, false) }

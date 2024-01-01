@@ -3,7 +3,7 @@ package has160
 import (
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
+	. "github.com/RyuaNerin/testingutil"
 )
 
 func Test_HAS160_ShortWrite(t *testing.T) { HTSW(t, New(), false) }

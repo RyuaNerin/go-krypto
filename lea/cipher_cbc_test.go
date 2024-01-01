@@ -6,7 +6,7 @@ import (
 	"crypto/cipher"
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
+	. "github.com/RyuaNerin/testingutil"
 )
 
 func Test_BlockMode_CBC_Decrypt(t *testing.T) { TA(t, as, testCBC(cipher.NewCBCDecrypter), false) }

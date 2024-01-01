@@ -6,7 +6,7 @@ import (
 	"hash"
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
+	. "github.com/RyuaNerin/testingutil"
 )
 
 func newSSE2(size int) hash.Hash  { return newContextAsm(size, simdSetSSE2) }

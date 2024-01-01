@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/RyuaNerin/go-krypto/internal/testingutil"
+	. "github.com/RyuaNerin/testingutil"
 )
 
 func Test_HAS160(t *testing.T) { HT(t, New(), testCases, false) }
