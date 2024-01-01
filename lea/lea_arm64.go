@@ -1,41 +1,14 @@
-//go:build arm64 && gc && !purego
+//go:build arm64 && !purego
 
 package lea
 
-import (
-	"unsafe"
-)
-
 func init() {
-	leaEnc4 = leaEnc4NEON
-	leaDec4 = leaDec4NEON
-
-	leaEnc8 = leaEnc8NEON
-	leaDec8 = leaDec8NEON
+	leaEnc4 = __lea_encrypt_4block
+	leaDec4 = __lea_decrypt_4block
 }
 
-func leaEnc4NEON(ctx *leaContext, dst, src []byte) {
-	lea_encrypt_4block(
-		unsafe.Pointer(&dst[0]),
-		unsafe.Pointer(&src[0]),
-		unsafe.Pointer(&ctx.rk[0]),
-		uint64(ctx.round),
-	)
-}
-func leaDec4NEON(ctx *leaContext, dst, src []byte) {
-	lea_decrypt_4block(
-		unsafe.Pointer(&dst[0]),
-		unsafe.Pointer(&src[0]),
-		unsafe.Pointer(&ctx.rk[0]),
-		uint64(ctx.round),
-	)
-}
+//go:noescape
+func __lea_encrypt_4block(ctx *leaContext, ct, pt []byte)
 
-func leaEnc8NEON(ctx *leaContext, dst, src []byte) {
-	leaEnc4NEON(ctx, dst[0x00:], src[0x00:])
-	leaEnc4NEON(ctx, dst[0x40:], src[0x40:])
-}
-func leaDec8NEON(ctx *leaContext, dst, src []byte) {
-	leaDec4NEON(ctx, dst[0x00:], src[0x00:])
-	leaDec4NEON(ctx, dst[0x40:], src[0x40:])
-}
+//go:noescape
+func __lea_decrypt_4block(ctx *leaContext, pt, ct []byte)

@@ -1,69 +1,33 @@
-//go:build amd64 && gc && !purego
+//go:build amd64 && !purego
 
 package lea
 
 import (
-	"unsafe"
-
 	"golang.org/x/sys/cpu"
 )
 
 var (
-	hasAVX2 = cpu.X86.HasAVX2 && cpu.X86.HasAVX
+	hasAVX2 = cpu.X86.HasAVX2 && cpu.X86.HasAVX && cpu.X86.HasSSSE3 && cpu.X86.HasSSE2
 )
 
 func init() {
-	leaEnc4 = leaEnc4SSE2
-	leaDec4 = leaDec4SSE2
-
-	leaEnc8 = leaEnc8SSE2
-	leaDec8 = leaDec8SSE2
+	leaEnc4 = __lea_encrypt_4block
+	leaDec4 = __lea_decrypt_4block
 
 	if hasAVX2 {
-		leaEnc8 = leaEnc8AVX2
-		leaDec8 = leaDec8AVX2
+		leaEnc8 = __lea_encrypt_8block
+		leaDec8 = __lea_decrypt_8block
 	}
 }
 
-func leaEnc4SSE2(ctx *leaContext, dst, src []byte) {
-	__lea_encrypt_4block(
-		unsafe.Pointer(&dst[0]),
-		unsafe.Pointer(&src[0]),
-		unsafe.Pointer(&ctx.rk[0]),
-		uint64(ctx.round),
-	)
-}
-func leaDec4SSE2(ctx *leaContext, dst, src []byte) {
-	__lea_decrypt_4block(
-		unsafe.Pointer(&dst[0]),
-		unsafe.Pointer(&src[0]),
-		unsafe.Pointer(&ctx.rk[0]),
-		uint64(ctx.round),
-	)
-}
+//go:noescape
+func __lea_encrypt_4block(ctx *leaContext, dst, src []byte)
 
-func leaEnc8AVX2(ctx *leaContext, dst, src []byte) {
-	__lea_encrypt_8block(
-		unsafe.Pointer(&dst[0]),
-		unsafe.Pointer(&src[0]),
-		unsafe.Pointer(&ctx.rk[0]),
-		uint64(ctx.round),
-	)
-}
-func leaDec8AVX2(ctx *leaContext, dst, src []byte) {
-	__lea_decrypt_8block(
-		unsafe.Pointer(&dst[0]),
-		unsafe.Pointer(&src[0]),
-		unsafe.Pointer(&ctx.rk[0]),
-		uint64(ctx.round),
-	)
-}
+//go:noescape
+func __lea_decrypt_4block(ctx *leaContext, dst, src []byte)
 
-func leaEnc8SSE2(ctx *leaContext, dst, src []byte) {
-	leaEnc4SSE2(ctx, dst[0x00:], src[0x00:])
-	leaEnc4SSE2(ctx, dst[0x40:], src[0x40:])
-}
-func leaDec8SSE2(ctx *leaContext, dst, src []byte) {
-	leaDec4SSE2(ctx, dst[0x00:], src[0x00:])
-	leaDec4SSE2(ctx, dst[0x40:], src[0x40:])
-}
+//go:noescape
+func __lea_encrypt_8block(ctx *leaContext, dst, src []byte)
+
+//go:noescape
+func __lea_decrypt_8block(ctx *leaContext, dst, src []byte)

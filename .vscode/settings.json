@@ -1,0 +1,12 @@
+{
+    /**
+    "go.toolsEnvVars": {
+        "GOARCH": "amd64",
+    },
+    */
+
+    /*
+    "go.testTags": "purego",
+    "go.buildTags": "purego",
+    */
+}

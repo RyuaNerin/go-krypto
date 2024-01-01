@@ -1,0 +1,24 @@
+[
+    {
+        "Name": "lsh256_neon_init",
+        "Parameters": [
+            "ctx",
+            "algtype"
+        ]
+    },
+    {
+        "Name": "lsh256_neon_update",
+        "Parameters": [
+            "ctx",
+            "data",
+            "databytelen"
+        ]
+    },
+    {
+        "Name": "lsh256_neon_final",
+        "Parameters": [
+            "ctx",
+            "hashval"
+        ]
+    }
+]

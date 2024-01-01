@@ -1,10 +1,8 @@
-//go:build amd64
+//go:build amd64 && !purego
 
 package lsh256
 
 import (
-	"hash"
-
 	"golang.org/x/sys/cpu"
 )
 
@@ -13,97 +11,59 @@ var (
 	hasAVX2  = cpu.X86.HasSSSE3 && cpu.X86.HasAVX && cpu.X86.HasAVX2
 )
 
-type simdSet struct {
-	init   func(ctx *lsh256ContextAsmData)
-	update func(ctx *lsh256ContextAsmData, data []byte)
-	final  func(ctx *lsh256ContextAsmData, hashval []byte)
-}
-
 var (
-	simdSetDefault simdSet
-
-	SimdSetSSE2 = simdSet{
-		init:   lsh256InitSSE2,
-		update: lsh256UpdateSSE2,
-		final:  lsh256FinalSSE2,
+	simdSetSSE2 = simdSet{
+		init:   __lsh256_sse2_init,
+		update: __lsh256_sse2_update,
+		final:  __lsh256_sse2_final,
 	}
-	SimdSetSSSE3 = simdSet{
-		init:   lsh256InitSSE2,
-		update: lsh256UpdateSSSE3,
-		final:  lsh256FinalSSSE3,
+	simdSetSSSE3 = simdSet{
+		init:   __lsh256_sse2_init,
+		update: __lsh256_ssse3_update,
+		final:  __lsh256_ssse3_final,
 	}
-	SimdSetAVX2 = simdSet{
-		init:   lsh256InitAVX2,
-		update: lsh256UpdateAVX2,
-		final:  lsh256FinalAVX2,
+	simdSetAVX2 = simdSet{
+		init:   __lsh256_avx2_init,
+		update: __lsh256_avx2_update,
+		final:  __lsh256_avx2_final,
 	}
 )
 
+var (
+	initContext = simdSetSSE2.InitContext
+)
+
 func init() {
-	simdSetDefault = SimdSetSSE2
-
-	if hasSSSE3 {
-		simdSetDefault = SimdSetSSSE3
-	}
-
 	if hasAVX2 {
-		simdSetDefault = SimdSetAVX2
+		initContext = simdSetAVX2.InitContext
+	} else if hasSSSE3 {
+		initContext = simdSetSSSE3.InitContext
 	}
 }
 
-func NewContextAsm(algType int, simd simdSet) hash.Hash {
-	ctx := new(lsh256ContextAsm)
-	initContextAsm(ctx, algType, simd)
-	return ctx
-}
+//go:noescape
+func __lsh256_sse2_init(ctx *lsh256Context, algtype uint64)
 
-type lsh256ContextAsm struct {
-	simd simdSet
+//go:noescape
+func __lsh256_sse2_update(ctx *lsh256Context, data []byte)
 
-	data lsh256ContextAsmData
-}
-type lsh256ContextAsmData struct {
-	// 16 aligned
-	algtype            uint32
-	_                  [4]byte
-	remain_databytelen uint64
+//go:noescape
+func __lsh256_sse2_final(ctx *lsh256Context, hashval []byte)
 
-	cv_l       [32]byte
-	cv_r       [32]byte
-	last_block [128]byte
-}
+//go:noescape
+//func __lsh256_ssse3_init(ctx *lsh256Context, algtype uint64)
 
-func initContextAsm(ctx *lsh256ContextAsm, algtype int, simd simdSet) {
-	ctx.simd = simd
-	ctx.data.algtype = uint32(algtype)
-	ctx.Reset()
-}
+//go:noescape
+func __lsh256_ssse3_update(ctx *lsh256Context, data []byte)
 
-func (ctx *lsh256ContextAsm) Size() int {
-	return int(ctx.data.algtype)
-}
+//go:noescape
+func __lsh256_ssse3_final(ctx *lsh256Context, hashval []byte)
 
-func (ctx *lsh256ContextAsm) BlockSize() int {
-	return BlockSize
-}
+//go:noescape
+func __lsh256_avx2_init(ctx *lsh256Context, algtype uint64)
 
-func (ctx *lsh256ContextAsm) Reset() {
-	ctx.data.remain_databytelen = 0
-	ctx.simd.init(&ctx.data)
-}
+//go:noescape
+func __lsh256_avx2_update(ctx *lsh256Context, data []byte)
 
-func (ctx *lsh256ContextAsm) Write(data []byte) (n int, err error) {
-	if len(data) == 0 {
-		return 0, nil
-	}
-	ctx.simd.update(&ctx.data, data)
-
-	return len(data), nil
-}
-
-func (ctx *lsh256ContextAsm) Sum(b []byte) []byte {
-	hash := make([]byte, Size)
-	ctx.simd.final(&ctx.data, hash)
-
-	return append(b, hash[:ctx.Size()]...)
-}
+//go:noescape
+func __lsh256_avx2_final(ctx *lsh256Context, hashval []byte)

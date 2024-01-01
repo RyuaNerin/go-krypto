@@ -1,0 +1,18 @@
+[
+    {
+        "Name": "lea_encrypt_4block",
+        "Parameters": [
+            "ctx",
+            "dst",
+            "src"
+        ]
+    },
+    {
+        "Name": "lea_decrypt_4block",
+        "Parameters": [
+            "ctx",
+            "dst",
+            "src"
+        ]
+    }
+]

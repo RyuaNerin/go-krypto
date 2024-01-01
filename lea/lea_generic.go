@@ -1,7 +1,6 @@
 package lea
 
 import (
-	"crypto/cipher"
 	"encoding/binary"
 	"fmt"
 	"math/bits"
@@ -9,23 +8,39 @@ import (
 	"kryptosimd/internal/kryptoutil"
 )
 
-func newCipherGo(key []byte) (cipher.Block, error) {
-	ctx := new(leaContext)
+type funcBlock func(ctx *leaContext, dst, src []byte)
 
-	if err := ctx.initContext(key); err != nil {
-		return nil, err
-	}
-	return ctx, nil
+var (
+	leaEnc1 funcBlock = leaEnc1Go
+	leaEnc4 funcBlock = leaEnc4Using1
+	leaEnc8 funcBlock = leaEnc8Using4
+
+	leaDec1 funcBlock = leaDec1Go
+	leaDec4 funcBlock = leaDec4Using1
+	leaDec8 funcBlock = leaDec8Using4
+)
+
+func leaEnc4Using1(ctx *leaContext, dst, src []byte) {
+	leaEnc1(ctx, dst[BlockSize*0:], src[BlockSize*0:])
+	leaEnc1(ctx, dst[BlockSize*1:], src[BlockSize*1:])
+	leaEnc1(ctx, dst[BlockSize*2:], src[BlockSize*2:])
+	leaEnc1(ctx, dst[BlockSize*3:], src[BlockSize*3:])
+}
+func leaDec4Using1(ctx *leaContext, dst, src []byte) {
+	leaDec1(ctx, dst[BlockSize*0:], src[BlockSize*0:])
+	leaDec1(ctx, dst[BlockSize*1:], src[BlockSize*1:])
+	leaDec1(ctx, dst[BlockSize*2:], src[BlockSize*2:])
+	leaDec1(ctx, dst[BlockSize*3:], src[BlockSize*3:])
 }
 
-func newCipherECBGo(key []byte) (cipher.Block, error) {
-	ctx := new(leaContext)
-	ctx.ecb = true
+func leaEnc8Using4(ctx *leaContext, dst, src []byte) {
+	leaDec4(ctx, dst[BlockSize*0:], src[BlockSize*0:])
+	leaDec4(ctx, dst[BlockSize*4:], src[BlockSize*4:])
 
-	if err := ctx.initContext(key); err != nil {
-		return nil, err
-	}
-	return ctx, nil
+}
+func leaDec8Using4(ctx *leaContext, dst, src []byte) {
+	leaDec4(ctx, dst[BlockSize*0:], src[BlockSize*0:])
+	leaDec4(ctx, dst[BlockSize*4:], src[BlockSize*4:])
 }
 
 func (ctx *leaContext) initContext(key []byte) error {
@@ -56,9 +71,6 @@ func (ctx *leaContext) Encrypt(dst, src []byte) {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
 	}
 
-	encrypt(ctx, dst, src, ctx.ecb)
-}
-func encrypt(ctx *leaContext, dst, src []byte, ecb bool) {
 	if !ctx.ecb {
 		leaEnc1Go(ctx, dst, src)
 	} else {
@@ -70,21 +82,21 @@ func encrypt(ctx *leaContext, dst, src []byte, ecb bool) {
 
 		for remainBlock >= 8 {
 			remainBlock -= 8
-			leaEnc8Go(ctx, dst, src)
+			leaEnc8(ctx, dst, src)
 
 			dst, src = dst[0x80:], src[0x80:]
 		}
 
 		for remainBlock >= 4 {
 			remainBlock -= 4
-			leaEnc4Go(ctx, dst, src)
+			leaEnc4(ctx, dst, src)
 
 			dst, src = dst[0x40:], src[0x40:]
 		}
 
 		for remainBlock > 0 {
 			remainBlock -= 1
-			leaEnc1Go(ctx, dst, src)
+			leaEnc1(ctx, dst, src)
 
 			dst, src = dst[0x10:], src[0x10:]
 		}
@@ -99,9 +111,6 @@ func (ctx *leaContext) Decrypt(dst, src []byte) {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
 	}
 
-	decrypt(ctx, dst, src, ctx.ecb)
-}
-func decrypt(ctx *leaContext, dst, src []byte, ecb bool) {
 	if !ctx.ecb {
 		leaDec1Go(ctx, dst, src)
 	} else {
@@ -113,21 +122,21 @@ func decrypt(ctx *leaContext, dst, src []byte, ecb bool) {
 
 		for remainBlock >= 8 {
 			remainBlock -= 8
-			leaDec8Go(ctx, dst, src)
+			leaDec8(ctx, dst, src)
 
 			dst, src = dst[0x80:], src[0x80:]
 		}
 
 		for remainBlock >= 4 {
 			remainBlock -= 4
-			leaDec4Go(ctx, dst, src)
+			leaDec4(ctx, dst, src)
 
 			dst, src = dst[0x40:], src[0x40:]
 		}
 
 		for remainBlock > 0 {
 			remainBlock -= 1
-			leaDec1Go(ctx, dst, src)
+			leaDec1(ctx, dst, src)
 
 			dst, src = dst[0x10:], src[0x10:]
 		}
@@ -646,10 +655,9 @@ func leaEnc1Go(ctx *leaContext, dst, src []byte) {
 
 	if ctx.round > 24 {
 		X0, X1, X2, X3 = leaEnc1GoRoundOver24(ctx, dst, src, X0, X1, X2, X3)
-	}
-
-	if ctx.round > 28 {
-		X0, X1, X2, X3 = leaEnc1GoRoundOver28(ctx, dst, src, X0, X1, X2, X3)
+		if ctx.round > 28 {
+			X0, X1, X2, X3 = leaEnc1GoRoundOver28(ctx, dst, src, X0, X1, X2, X3)
+		}
 	}
 
 	binary.LittleEndian.PutUint32(dst[4*0:], X0)
@@ -904,39 +912,4 @@ func leaDec1GoRoundUnder24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint
 	X3 = (bits.RotateLeft32(X3, 3) - (X2 ^ ctx.rk[4])) ^ ctx.rk[5]
 
 	return X0, X1, X2, X3
-}
-
-func leaEnc4Go(ctx *leaContext, dst, src []byte) {
-	leaEnc1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
-	leaEnc1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
-	leaEnc1Go(ctx, dst[BlockSize*2:], src[BlockSize*2:])
-	leaEnc1Go(ctx, dst[BlockSize*3:], src[BlockSize*3:])
-}
-func leaDec4Go(ctx *leaContext, dst, src []byte) {
-	leaDec1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
-	leaDec1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
-	leaDec1Go(ctx, dst[BlockSize*2:], src[BlockSize*2:])
-	leaDec1Go(ctx, dst[BlockSize*3:], src[BlockSize*3:])
-}
-
-func leaEnc8Go(ctx *leaContext, dst, src []byte) {
-	leaEnc1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
-	leaEnc1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
-	leaEnc1Go(ctx, dst[BlockSize*2:], src[BlockSize*2:])
-	leaEnc1Go(ctx, dst[BlockSize*3:], src[BlockSize*3:])
-	leaEnc1Go(ctx, dst[BlockSize*4:], src[BlockSize*4:])
-	leaEnc1Go(ctx, dst[BlockSize*5:], src[BlockSize*5:])
-	leaEnc1Go(ctx, dst[BlockSize*6:], src[BlockSize*6:])
-	leaEnc1Go(ctx, dst[BlockSize*7:], src[BlockSize*7:])
-
-}
-func leaDec8Go(ctx *leaContext, dst, src []byte) {
-	leaDec1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
-	leaDec1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
-	leaDec1Go(ctx, dst[BlockSize*2:], src[BlockSize*2:])
-	leaDec1Go(ctx, dst[BlockSize*3:], src[BlockSize*3:])
-	leaDec1Go(ctx, dst[BlockSize*4:], src[BlockSize*4:])
-	leaDec1Go(ctx, dst[BlockSize*5:], src[BlockSize*5:])
-	leaDec1Go(ctx, dst[BlockSize*6:], src[BlockSize*6:])
-	leaDec1Go(ctx, dst[BlockSize*7:], src[BlockSize*7:])
 }
