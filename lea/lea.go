@@ -7,7 +7,6 @@ import (
 )
 
 type funcNew func(key []byte) (cipher.Block, error)
-type funcBlock func(ctx *leaContext, dst, src []byte)
 
 type leaContext struct {
 	round uint8
@@ -16,14 +15,6 @@ type leaContext struct {
 }
 
 var (
-	leaEnc1 funcBlock = leaEnc1Go
-	leaEnc4 funcBlock = leaEnc4Go
-	leaEnc8 funcBlock = leaEnc8Go
-
-	leaDec1 funcBlock = leaDec1Go
-	leaDec4 funcBlock = leaDec4Go
-	leaDec8 funcBlock = leaDec8Go
-
 	leaNew    funcNew = newCipherGo
 	leaNewECB funcNew = newCipherECBGo
 )
