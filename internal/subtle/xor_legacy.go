@@ -15,7 +15,7 @@ import (
 
 // xorBytes xors the bytes in a and b. The destination should have enough
 // space, otherwise xorBytes will panic. Returns the number of bytes xor'd.
-func XORBytes(dst, a, b []byte, n int) int {
+func XORBytes(dst, a, b []byte) int {
 	n := len(a)
 	if len(b) < n {
 		n = len(b)
