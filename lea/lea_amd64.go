@@ -1,4 +1,5 @@
-//go:build amd64 && gc && !purego
+//go:build amd64 && !purego
+// +build amd64,!purego
 
 package lea
 
@@ -7,28 +8,27 @@ import (
 )
 
 var (
-	hasAVX2 = cpu.X86.HasAVX2 && cpu.X86.HasAVX
-	useAVX2 = false
+	hasAVX2 = cpu.X86.HasAVX2 && cpu.X86.HasAVX && cpu.X86.HasSSSE3 && cpu.X86.HasSSE2
 )
 
 func init() {
-	leaEnc4 = leaEnc4SSE2
-	leaDec4 = leaDec4SSE2
+	leaEnc4 = __lea_encrypt_4block
+	leaDec4 = __lea_decrypt_4block
 
-	leaEnc8 = leaEnc8SSE2
-	leaDec8 = leaDec8SSE2
-
-	if hasAVX2 && useAVX2 {
-		leaEnc8 = leaEnc8AVX2
-		leaDec8 = leaDec8AVX2
+	if hasAVX2 {
+		leaEnc8 = __lea_encrypt_8block
+		leaDec8 = __lea_decrypt_8block
 	}
 }
 
-func leaEnc8SSE2(ctx *leaContext, dst, src []byte) {
-	leaEnc4SSE2(ctx, dst[0x00:], src[0x00:])
-	leaEnc4SSE2(ctx, dst[0x40:], src[0x40:])
-}
-func leaDec8SSE2(ctx *leaContext, dst, src []byte) {
-	leaDec4SSE2(ctx, dst[0x00:], src[0x00:])
-	leaDec4SSE2(ctx, dst[0x40:], src[0x40:])
-}
+//go:noescape
+func __lea_encrypt_4block(ctx *leaContext, dst, src []byte)
+
+//go:noescape
+func __lea_decrypt_4block(ctx *leaContext, dst, src []byte)
+
+//go:noescape
+func __lea_encrypt_8block(ctx *leaContext, dst, src []byte)
+
+//go:noescape
+func __lea_decrypt_8block(ctx *leaContext, dst, src []byte)

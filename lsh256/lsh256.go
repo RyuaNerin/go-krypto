@@ -3,18 +3,6 @@ package lsh256
 
 import (
 	"hash"
-
-	"github.com/RyuaNerin/go-krypto"
-)
-
-func init() {
-	krypto.RegisterHash(krypto.LSH256, New)
-	krypto.RegisterHash(krypto.LSH256_224, New224)
-}
-
-var (
-	newContext func(size int) hash.Hash               = newContextGo
-	sum        func(size int, data []byte) [Size]byte = sumGo
 )
 
 const (
@@ -45,4 +33,20 @@ func Sum224(data []byte) (sum224 [Size224]byte) {
 	sum := sum(Size224, data)
 	copy(sum224[:], sum[:Size224])
 	return
+}
+
+func newContext(size int) hash.Hash {
+	ctx := new(lsh256Context)
+	initContext(ctx, size)
+
+	return ctx
+}
+
+func sum(size int, data []byte) [Size]byte {
+	var b lsh256Context
+	initContext(&b, size)
+	b.Reset()
+	b.Write(data)
+
+	return b.checkSum()
 }

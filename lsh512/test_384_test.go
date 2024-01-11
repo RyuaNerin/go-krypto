@@ -1,12 +1,8 @@
 package lsh512
 
 import (
-	"testing"
-
 	. "github.com/RyuaNerin/testingutil"
 )
-
-func Test_LSH512_384(t *testing.T) { HT(t, newContextGo(Size384), testCases384, false) }
 
 var testCases384 = []HashTestCase{
 	// 암호알고리즘 검증기준 V3.0

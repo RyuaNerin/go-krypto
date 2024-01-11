@@ -1,19 +1,25 @@
+// https://github.com/golang/go/blob/release-branch.go1.21/src/crypto/subtle/xor_amd64.s
+
 // Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build !purego
+
 #include "textflag.h"
 
-// func xorBytesSSE2(dst, a, b *byte, n int)
-TEXT ·xorBytesSSE2(SB), NOSPLIT, $0
+// func xorBytes(dst, a, b *byte, n int)
+TEXT ·xorBytes(SB), NOSPLIT, $0
 	MOVQ  dst+0(FP), BX
 	MOVQ  a+8(FP), SI
 	MOVQ  b+16(FP), CX
 	MOVQ  n+24(FP), DX
 	TESTQ $15, DX            // AND 15 & len, if not zero jump to not_aligned.
 	JNZ   not_aligned
+
 aligned:
 	MOVQ $0, AX // position in slices
+
 loop16b:
 	MOVOU (SI)(AX*1), X0   // XOR 16byte forwards.
 	MOVOU (CX)(AX*1), X1
@@ -23,6 +29,7 @@ loop16b:
 	CMPQ  DX, AX
 	JNE   loop16b
 	RET
+
 loop_1b:
 	SUBQ  $1, DX           // XOR 1byte backwards.
 	MOVB  (SI)(DX*1), DI
@@ -32,9 +39,10 @@ loop_1b:
 	TESTQ $7, DX           // AND 7 & len, if not zero jump to loop_1b.
 	JNZ   loop_1b
 	CMPQ  DX, $0           // if len is 0, ret.
-	JE    ret2
+	JE    ret
 	TESTQ $15, DX          // AND 15 & len, if zero jump to aligned.
 	JZ    aligned
+
 not_aligned:
 	TESTQ $7, DX           // AND $7 & len, if not zero jump to loop_1b.
 	JNE   loop_1b
@@ -45,5 +53,6 @@ not_aligned:
 	MOVQ  DI, (BX)(DX*1)
 	CMPQ  DX, $16          // if len is greater or equal 16 here, it must be aligned.
 	JGE   aligned
-ret2:
+
+ret:
 	RET

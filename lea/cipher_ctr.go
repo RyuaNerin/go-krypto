@@ -1,10 +1,13 @@
-//go:build amd64 && gc && !purego
+//go:build (amd64 || arm64) && !purego
+// +build amd64 arm64
+// +build !purego
 
 package lea
 
 import (
 	"crypto/cipher"
 
+	"github.com/RyuaNerin/go-krypto/internal/alias"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
@@ -64,7 +67,7 @@ func (ctr *ctrContext) XORKeyStream(dst, src []byte) {
 	if len(dst) < len(src) {
 		panic("krypto/lea: output smaller than input")
 	}
-	if subtle.InexactOverlap(dst[:len(src)], src) {
+	if alias.InexactOverlap(dst[:len(src)], src) {
 		panic("krypto/lea: invalid buffer overlap")
 	}
 
@@ -73,7 +76,7 @@ func (ctr *ctrContext) XORKeyStream(dst, src []byte) {
 			ctr.refill()
 		}
 
-		n := xorBytes(dst, src, ctr.out[ctr.outPos:])
+		n := subtle.XORBytes(dst, src, ctr.out[ctr.outPos:])
 		ctr.outPos += n
 		dst = dst[n:]
 		src = src[n:]

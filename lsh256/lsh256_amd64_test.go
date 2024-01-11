@@ -1,25 +1,23 @@
-//go:build amd64 && gc && !purego
+//go:build amd64 && !purego
+// +build amd64,!purego
 
 package lsh256
 
 import (
-	"hash"
 	"testing"
 
 	. "github.com/RyuaNerin/testingutil"
 )
 
-func newSSE2(size int) hash.Hash  { return newContextAsm(size, simdSetSSE2) }
-func newSSSE3(size int) hash.Hash { return newContextAsm(size, simdSetSSSE3) }
-func newAVX2(size int) hash.Hash  { return newContextAsm(size, simdSetAVX2) }
+var (
+	newSSE2  = simdSetSSE2.NewContext
+	newSSSE3 = simdSetSSSE3.NewContext
+	newAVX2  = simdSetAVX2.NewContext
+)
 
 func Test_ShortWrite_SSE2(t *testing.T)  { HTSWA(t, as, newSSE2, false) }
 func Test_ShortWrite_SSSE3(t *testing.T) { HTSWA(t, as, newSSSE3, !hasSSSE3) }
 func Test_ShortWrite_AVX2(t *testing.T)  { HTSWA(t, as, newAVX2, !hasAVX2) }
-
-func Test_WITH_GO_SSE2(t *testing.T)  { HTSA(t, as, newContextGo, newSSE2, false) }
-func Test_WITH_GO_SSSE3(t *testing.T) { HTSA(t, as, newContextGo, newSSE2, !hasSSSE3) }
-func Test_WITH_GO_AVX2(t *testing.T)  { HTSA(t, as, newContextGo, newSSE2, !hasAVX2) }
 
 func Test_LSH224_SSE2(t *testing.T) { HT(t, newSSE2(Size224), testCases224, false) }
 func Test_LSH256_SSE2(t *testing.T) { HT(t, newSSE2(Size), testCases256, false) }

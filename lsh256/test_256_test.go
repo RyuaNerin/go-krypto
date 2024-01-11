@@ -1,12 +1,8 @@
 package lsh256
 
 import (
-	"testing"
-
 	. "github.com/RyuaNerin/testingutil"
 )
-
-func Test_LSH256_Go(t *testing.T) { HT(t, newContextGo(Size), testCases256, false) }
 
 var testCases256 = []HashTestCase{
 	// 암호알고리즘 검증기준 V3.0

@@ -1,10 +1,13 @@
-//go:build amd64 && gc && !purego
+//go:build (amd64 || arm64) && !purego
+// +build amd64 arm64
+// +build !purego
 
 package lea
 
 import (
 	"crypto/cipher"
 
+	"github.com/RyuaNerin/go-krypto/internal/alias"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
@@ -42,7 +45,7 @@ func (b *cbcContext) CryptBlocks(dst, src []byte) {
 	if len(dst) < len(src) {
 		panic("krypto/lea: output smaller than input")
 	}
-	if subtle.InexactOverlap(dst[:len(src)], src) {
+	if alias.InexactOverlap(dst[:len(src)], src) {
 		panic("krypto/lea: invalid buffer overlap")
 	}
 
@@ -59,10 +62,10 @@ func (b *cbcContext) CryptBlocks(dst, src []byte) {
 		dstLocal := dst[dstIdx : dstIdx+BlockSize*8]
 		leaDec8(b.ctx, dstLocal, src[srcIdx:])
 		if remainBlock > 0 {
-			xorBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
+			subtle.XORBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
 		} else {
 			// Ignore the first block, must use iv.
-			xorBytes(dst[dstIdx+BlockSize:], dstLocal[BlockSize:], src[srcIdx:])
+			subtle.XORBytes(dst[dstIdx+BlockSize:], dstLocal[BlockSize:], src[srcIdx:])
 		}
 	}
 
@@ -74,10 +77,10 @@ func (b *cbcContext) CryptBlocks(dst, src []byte) {
 		dstLocal := dst[dstIdx : dstIdx+BlockSize*4]
 		leaDec4(b.ctx, dstLocal, src[srcIdx:])
 		if remainBlock > 0 {
-			xorBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
+			subtle.XORBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
 		} else {
 			// Ignore the first block, must use iv.
-			xorBytes(dst[dstIdx+BlockSize:], dstLocal[BlockSize:], src[srcIdx:])
+			subtle.XORBytes(dst[dstIdx+BlockSize:], dstLocal[BlockSize:], src[srcIdx:])
 		}
 	}
 
@@ -90,10 +93,10 @@ func (b *cbcContext) CryptBlocks(dst, src []byte) {
 		leaDec1(b.ctx, dstLocal, src[srcIdx:])
 
 		if remainBlock > 0 { // Ignore the first block, must use iv.
-			xorBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
+			subtle.XORBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
 		}
 	}
 
-	xorBytes(dst, dst[:BlockSize], b.iv)
+	subtle.XORBytes(dst, dst[:BlockSize], b.iv)
 	copy(b.iv, src[len(src)-BlockSize:])
 }

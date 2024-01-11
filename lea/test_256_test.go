@@ -1,13 +1,8 @@
 package lea
 
 import (
-	"testing"
-
 	. "github.com/RyuaNerin/testingutil"
 )
-
-func Test_LEA256_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases256, false) }
-func Test_LEA256_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases256, false) }
 
 // 암호알고리즘 검증기준 V3.0
 // 테스트 벡터
