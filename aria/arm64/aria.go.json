@@ -1,0 +1,27 @@
+[
+    {
+        "Name": "initEncKey_NEON",
+        "Parameters": [
+            "mk",
+            "rk",
+            "keyBits"
+        ]
+    },
+    {
+        "Name": "initDecKey_NEON",
+        "Parameters": [
+            "mk",
+            "rk",
+            "keyBits"
+        ]
+    },
+    {
+        "Name": "process_NEON",
+        "Parameters": [
+            "dst",
+            "src",
+            "rk",
+            "rounds"
+        ]
+    }
+]
