@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.18 || (amd64 && !purego) || (arm64 && !purego)
+// +build go1.18 amd64,!purego arm64,!purego
+
 package subtle
 
 // XORBytes sets dst[i] = x[i] ^ y[i] for all i < n = min(len(x), len(y)),
