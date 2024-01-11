@@ -3,18 +3,16 @@ name: Go Test
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
-  test:
+  test_amd64:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         go-version:
             - '1.15'
-            #- '1.16'
+            - '1.16'
             - '1.17'
             - '1.18'
             - '1.19'
@@ -38,11 +36,44 @@ jobs:
       - name: Build
         run: go build -v ./...
 
+      - name: Test (purego)
+        run: go test --tags=purego ./...
+
       - name: Test
-        run: go test ./... -json > TestResults-${{ matrix.go-version }}.json
-        
-      - name: Upload Go test results
-        uses: actions/upload-artifact@v3
+        run: go test ./...
+
+  test_arm64:
+    runs-on: [self-hosted, macOS, ARM64]
+
+    strategy:
+      matrix:
+        go-version:
+            - '1.16'
+            - '1.17'
+            - '1.18'
+            - '1.19'
+            - '1.20'
+            - '1.21'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
-          name: Go-results-${{ matrix.go-version }}
-          path: TestResults-${{ matrix.go-version }}.json
+          go-version: ${{ matrix.go-version }}
+          cache-dependency-path: go.sum
+
+      - name: Install dependencies
+        run: |
+          go get .
+          go get github.com/RyuaNerin/elliptic2@v1.0.0
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Test (purego)
+        run: go test --tags=purego ./...
+
+      - name: Test
+        run: go test ./...
