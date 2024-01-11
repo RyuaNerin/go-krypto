@@ -30,8 +30,8 @@ LSH256_INIT_RET:
 	FMOVQ	0x20(R8), F2
 	FMOVQ	0x30(R8), F3
 
-	FSTPQ	(F0, F1), 32(R0)
-	FSTPQ	(F2, F3), 64(R0)
+	WORD	$0xAD010400	// stp	q0, q1, [x0, #32]
+	WORD	$0xAD020C02	// stp	q2, q3, [x0, #64]
 
 	RET
 

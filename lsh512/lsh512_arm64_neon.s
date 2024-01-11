@@ -46,10 +46,10 @@ LSH512_INIT_RET:
 	FMOVQ	0x60(R8), F6
 	FMOVQ	0x70(R8), F7
 
-	FSTPQ	(F0, F1), 32(R0)
-	FSTPQ	(F2, F3), 64(R0)
-	FSTPQ	(F4, F5), 96(R0)
-	FSTPQ	(F6, F7), 128(R0)
+	WORD	$0xAD010400	// stp	q0, q1, [x0, #32]
+	WORD	$0xAD020C02	// stp	q2, q3, [x0, #64]
+	WORD	$0xAD031404	// stp	q4, q5, [x0, #96]
+	WORD	$0xAD041C06	// stp	q6, q7, [x0, #128]
 
 	RET
 
