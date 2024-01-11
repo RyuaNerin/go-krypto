@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build go1.18 && ((!amd64 && !arm64) || purego)
+//go:build go1.17 && go1.18 && ((!amd64 && !arm64) || purego)
+// +build go1.17
 // +build go1.18
 // +build !amd64,!arm64 purego
 
