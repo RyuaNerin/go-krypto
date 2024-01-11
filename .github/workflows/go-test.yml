@@ -7,14 +7,14 @@ on:
     branches: [ dev_asm ]
 
 jobs:
-  test_purego:
+  test_amd64:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         go-version:
             - '1.15'
-            #- '1.16'
+            - '1.16'
             - '1.17'
             - '1.18'
             - '1.19'
@@ -36,22 +36,22 @@ jobs:
           go get github.com/RyuaNerin/elliptic2@v1.0.0
 
       - name: Build
-        run: go build -v ./...
+        run: go build -v $(cat test.target)
 
       - name: Test (purego)
-        run: go test --tags=purego ./...
+        run: go test --tags=purego $(cat test.target)
 
       - name: Test
-        run: go test ./...
+        run: go test $(cat test.target)
 
-  test_amd64:
-    runs-on: [self-hosted, linux, ARM64]
+  test_arm64:
+    runs-on: [self-hosted, macOS, ARM64]
 
     strategy:
       matrix:
         go-version:
             - '1.15'
-            #- '1.16'
+            - '1.16'
             - '1.17'
             - '1.18'
             - '1.19'
@@ -73,10 +73,10 @@ jobs:
           go get github.com/RyuaNerin/elliptic2@v1.0.0
 
       - name: Build
-        run: go build -v ./...
+        run: go build -v $(cat test.target)
 
       - name: Test (purego)
-        run: go test --tags=purego ./...
+        run: go test --tags=purego $(cat test.target)
 
       - name: Test
-        run: go test ./...
+        run: go test $(cat test.target)

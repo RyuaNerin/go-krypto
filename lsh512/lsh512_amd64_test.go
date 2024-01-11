@@ -1,4 +1,5 @@
 //go:build amd64 && !purego
+// +build amd64,!purego
 
 package lsh512
 
