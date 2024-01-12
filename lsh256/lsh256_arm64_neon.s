@@ -62,8 +62,6 @@ TEXT ·__lsh256_neon_update(SB), NOSPLIT, $32
 	MOVD	data_len+16(FP), R2
 	//		data_len+24
 										// ; %bb.0:
-	WORD	$0xa9bf7bfd					//     stp	x29, x30, [sp, #-16]!           ; 16-byte Folded Spill
-	WORD	$0x910003fd					//     mov	x29, sp
 	WORD	$0xb940100e					//     ldr	w14, [x0, #16]
 	WORD	$0x8b0201c8					//     add	x8, x14, x2
 	WORD	$0xf101fd1f					//     cmp	x8, #127
@@ -431,7 +429,6 @@ LBB1_28:								// LBB1_28:                                ; =>This Inner Loop H
 LBB1_29:								// LBB1_29:
 	WORD	$0xb9001002					//     str	w2, [x0, #16]
 LBB1_30:								// LBB1_30:
-	WORD	$0xa8c17bfd					//     ldp	x29, x30, [sp], #16             ; 16-byte Folded Reload
 	RET									//     ret
 LBB1_31:								// LBB1_31:
 	WORD	$0xf101011f					//     cmp	x8, #64
@@ -570,8 +567,6 @@ TEXT ·__lsh256_neon_final(SB), NOSPLIT, $32
 	//hashval_cap+24
 
 										// ; %bb.0:
-	WORD	$0xa9bf7bfd					//     stp	x29, x30, [sp, #-16]!           ; 16-byte Folded Spill
-	WORD	$0x910003fd					//     mov	x29, sp
 	WORD	$0xb9401009					//     ldr	w9, [x0, #16]
 	WORD	$0x8b090008					//     add	x8, x0, x9
 	WORD	$0x5280100a					//     mov	w10, #128                       ; =0x80
@@ -774,5 +769,4 @@ LBB2_15:								// LBB2_15:                                ; =>This Inner Loop H
 	WORD	$0x3d800022					//     str	q2, [x1]
 	WORD	$0x3dc00c00					//     ldr	q0, [x0, #48]
 	WORD	$0x3d800420					//     str	q0, [x1, #16]
-	WORD	$0xa8c17bfd					//     ldp	x29, x30, [sp], #16             ; 16-byte Folded Reload
 	RET									//     ret
