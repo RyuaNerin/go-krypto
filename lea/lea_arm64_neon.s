@@ -16,8 +16,6 @@ TEXT ·__lea_encrypt_4block(SB), NOSPLIT, $56
 	// src_len+40
 	// src_cap+48
 
-	WORD $0xa9bf7bfd   // stp	x29, x30, [sp, #-16]!           ; 16-byte Folded Spill
-	WORD $0x910003fd   // mov	x29, sp
 	WORD $0x91004008   // add	x8, x0, #16
 	WORD $0x4d40c900   // ld1r.4s	{ v0 }, [x8]
 	WORD $0x4c400841   // ld4.4s	{ v1, v2, v3, v4 }, [x2]
@@ -888,8 +886,7 @@ TEXT ·__lea_encrypt_4block(SB), NOSPLIT, $56
 	WORD $0x6f290480   // ushr.4s	v0, v4, #23
 	WORD $0x6f295480   // sli.4s	v0, v4, #9
 	WORD $0x4c000820   // st4.4s	{ v0, v1, v2, v3 }, [x1]
-	WORD $0xa8c17bfd   // ldp	x29, x30, [sp], #16             ; 16-byte Folded Reload
-	WORD $0xd65f03c0   // ret
+	RET                // ret
 
 TEXT ·__lea_decrypt_4block(SB), NOSPLIT, $56
 	MOVD ctx+0(FP), R0
@@ -900,8 +897,6 @@ TEXT ·__lea_decrypt_4block(SB), NOSPLIT, $56
 	// src_len+40
 	// src_cap+48
 
-	WORD $0xa9bf7bfd   // stp	x29, x30, [sp, #-16]!           ; 16-byte Folded Spill
-	WORD $0x910003fd   // mov	x29, sp
 	WORD $0x4c400840   // ld4.4s	{ v0, v1, v2, v3 }, [x2]
 	WORD $0xb9430008   // ldr	w8, [x0, #768]
 	WORD $0x7100751f   // cmp	w8, #29
@@ -1773,5 +1768,4 @@ TEXT ·__lea_decrypt_4block(SB), NOSPLIT, $56
 	WORD $0x4d40c901   // ld1r.4s	{ v1 }, [x8]
 	WORD $0x6e211c13   // eor.16b	v19, v0, v1
 	WORD $0x4c000830   // st4.4s	{ v16, v17, v18, v19 }, [x1]
-	WORD $0xa8c17bfd   // ldp	x29, x30, [sp], #16             ; 16-byte Folded Reload
-	WORD $0xd65f03c0   // ret
+	RET                // ret
