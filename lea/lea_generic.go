@@ -34,8 +34,8 @@ func leaDec4Using1(ctx *leaContext, dst, src []byte) {
 }
 
 func leaEnc8Using4(ctx *leaContext, dst, src []byte) {
-	leaDec4(ctx, dst[BlockSize*0:], src[BlockSize*0:])
-	leaDec4(ctx, dst[BlockSize*4:], src[BlockSize*4:])
+	leaEnc4(ctx, dst[BlockSize*0:], src[BlockSize*0:])
+	leaEnc4(ctx, dst[BlockSize*4:], src[BlockSize*4:])
 
 }
 func leaDec8Using4(ctx *leaContext, dst, src []byte) {

@@ -886,7 +886,7 @@ TEXT ·__lea_encrypt_4block(SB), NOSPLIT, $56
 	WORD $0x6f290480   // ushr.4s	v0, v4, #23
 	WORD $0x6f295480   // sli.4s	v0, v4, #9
 	WORD $0x4c000820   // st4.4s	{ v0, v1, v2, v3 }, [x1]
-	WORD $0xd65f03c0   // ret
+	RET                // ret
 
 TEXT ·__lea_decrypt_4block(SB), NOSPLIT, $56
 	MOVD ctx+0(FP), R0
@@ -1768,4 +1768,4 @@ TEXT ·__lea_decrypt_4block(SB), NOSPLIT, $56
 	WORD $0x4d40c901   // ld1r.4s	{ v1 }, [x8]
 	WORD $0x6e211c13   // eor.16b	v19, v0, v1
 	WORD $0x4c000830   // st4.4s	{ v16, v17, v18, v19 }, [x1]
-	WORD $0xd65f03c0   // ret
+	RET                // ret
