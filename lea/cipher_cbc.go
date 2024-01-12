@@ -20,17 +20,14 @@ var _ cbcDecAble = (*leaContext)(nil)
 
 type cbcContext struct {
 	ctx *leaContext
-	iv  []byte
-	tmp []byte
+	iv  [BlockSize]byte
 }
 
 func (ctx *leaContext) NewCBCDecrypter(iv []byte) cipher.BlockMode {
 	cbc := &cbcContext{
 		ctx: ctx,
-		iv:  make([]byte, BlockSize),
-		tmp: make([]byte, BlockSize*8),
 	}
-	copy(cbc.iv, iv)
+	copy(cbc.iv[:], iv)
 	return cbc
 }
 
@@ -49,6 +46,16 @@ func (b *cbcContext) CryptBlocks(dst, src []byte) {
 		panic("krypto/lea: invalid buffer overlap")
 	}
 
+	const (
+		bs0 = 0 * BlockSize
+		bs1 = 1 * BlockSize
+		bs4 = 4 * BlockSize
+		bs8 = 8 * BlockSize
+	)
+
+	var tmp0 [bs8]byte
+	tmp := tmp0[:]
+
 	remainBlock := len(src) / BlockSize
 
 	dstIdx := remainBlock * BlockSize
@@ -56,31 +63,29 @@ func (b *cbcContext) CryptBlocks(dst, src []byte) {
 
 	for remainBlock >= 8 {
 		remainBlock -= 8
-		dstIdx -= BlockSize * 8
-		srcIdx -= BlockSize * 8
+		dstIdx -= bs8
+		srcIdx -= bs8
 
-		dstLocal := dst[dstIdx : dstIdx+BlockSize*8]
-		leaDec8(b.ctx, dstLocal, src[srcIdx:])
+		leaDec8(b.ctx, tmp, src[srcIdx:])
 		if remainBlock > 0 {
-			subtle.XORBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
+			subtle.XORBytes(dst[dstIdx+bs0:dstIdx+bs8], tmp[bs0:bs8], src[srcIdx-bs1:])
 		} else {
 			// Ignore the first block, must use iv.
-			subtle.XORBytes(dst[dstIdx+BlockSize:], dstLocal[BlockSize:], src[srcIdx:])
+			subtle.XORBytes(dst[dstIdx+bs1:dstIdx+bs8], tmp[bs1:bs8], src[srcIdx-bs0:])
 		}
 	}
 
 	for remainBlock >= 4 {
 		remainBlock -= 4
-		dstIdx -= BlockSize * 4
-		srcIdx -= BlockSize * 4
+		dstIdx -= bs4
+		srcIdx -= bs4
 
-		dstLocal := dst[dstIdx : dstIdx+BlockSize*4]
-		leaDec4(b.ctx, dstLocal, src[srcIdx:])
+		leaDec4(b.ctx, tmp, src[srcIdx:])
 		if remainBlock > 0 {
-			subtle.XORBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
+			subtle.XORBytes(dst[dstIdx+bs0:dstIdx+bs4], tmp[bs0:bs4], src[srcIdx-bs1:])
 		} else {
 			// Ignore the first block, must use iv.
-			subtle.XORBytes(dst[dstIdx+BlockSize:], dstLocal[BlockSize:], src[srcIdx:])
+			subtle.XORBytes(dst[dstIdx+bs1:dstIdx+bs4], tmp[bs1:bs4], src[srcIdx-bs0:])
 		}
 	}
 
@@ -89,14 +94,14 @@ func (b *cbcContext) CryptBlocks(dst, src []byte) {
 		dstIdx -= BlockSize
 		srcIdx -= BlockSize
 
-		dstLocal := dst[dstIdx : dstIdx+BlockSize]
-		leaDec1(b.ctx, dstLocal, src[srcIdx:])
+		leaDec1(b.ctx, tmp, src[srcIdx:])
 
-		if remainBlock > 0 { // Ignore the first block, must use iv.
-			subtle.XORBytes(dst[dstIdx:], dstLocal, src[srcIdx-BlockSize:])
+		// Ignore the first block, must use iv.
+		if remainBlock > 0 {
+			subtle.XORBytes(dst[dstIdx+bs0:dstIdx+bs1], tmp[bs0:bs1], src[srcIdx-bs1:])
 		}
 	}
 
-	subtle.XORBytes(dst, dst[:BlockSize], b.iv)
-	copy(b.iv, src[len(src)-BlockSize:])
+	subtle.XORBytes(dst[:bs1], tmp[:bs1], b.iv[:])
+	copy(b.iv[:], src[len(src)-BlockSize:])
 }
