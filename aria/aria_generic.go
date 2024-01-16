@@ -14,7 +14,7 @@ func newCipherGo(key []byte) (cipher.Block, error) {
 	encKeySetup(ctx.ek[:], key)
 
 	ctx.dk = ctx.ek
-	decKeySetup(ctx.dk[:], key, ctx.rounds)
+	decKeySetup(ctx.dk[:], ctx.rounds)
 	return ctx, nil
 }
 
@@ -30,7 +30,7 @@ func (s *ariaContext) Encrypt(dst, src []byte) {
 		panic(fmt.Sprintf("krypto/aria: invalid block size %d (dst)", len(dst)))
 	}
 
-	processGo(s.rounds, s.ek[:], dst, src)
+	processGo(dst, src, s.ek[:], s.rounds)
 }
 
 func (s *ariaContext) Decrypt(dst, src []byte) {
@@ -41,11 +41,11 @@ func (s *ariaContext) Decrypt(dst, src []byte) {
 		panic(fmt.Sprintf("krypto/aria: invalid block size %d (dst)", len(dst)))
 	}
 
-	processGo(s.rounds, s.dk[:], dst, src)
+	processGo(dst, src, s.dk[:], s.rounds)
 }
 
 func encKeySetup(rk []byte, key []byte) {
-	m := initMarcro{
+	m := cimpl{
 		rk:      rk,
 		mk:      key,
 		keyBits: len(key) * 8,
@@ -54,7 +54,7 @@ func encKeySetup(rk []byte, key []byte) {
 	m.encKeySetup()
 }
 
-func decKeySetup(dk []byte, rk []byte, rounds int) {
+func decKeySetup(dk []byte, rounds int) {
 	dl := func(i, o []byte) {
 		var T byte
 
@@ -96,8 +96,8 @@ func decKeySetup(dk []byte, rk []byte, rounds int) {
 	}
 }
 
-func processGo(round int, rk []byte, dst, src []byte) {
-	m := initMarcro{
+func processGo(dst, src, rk []byte, round int) {
+	m := cimpl{
 		rk: rk,
 	}
 
@@ -165,7 +165,7 @@ func processGo(round int, rk []byte, dst, src []byte) {
 	dst[0xF] = (byte)(s2[m.BRF(m.vars.t3, 0x00)]>>0) ^ rk[m.vars.rkIndex+0xC]
 }
 
-type initMarcro struct {
+type cimpl struct {
 	rk      []byte
 	mk      []byte // make key
 	keyBits int
@@ -178,7 +178,7 @@ type initMarcro struct {
 	}
 }
 
-func (m *initMarcro) encKeySetup() {
+func (m *cimpl) encKeySetup() {
 	m.vars.w0[0] = binary.BigEndian.Uint32(m.mk[0*4:]) // WordLoad(WO(mk, 0), w0[0])
 	m.vars.w0[1] = binary.BigEndian.Uint32(m.mk[1*4:]) // WordLoad(WO(mk, 1), w0[1])
 	m.vars.w0[2] = binary.BigEndian.Uint32(m.mk[2*4:]) // WordLoad(WO(mk, 2), w0[2])
@@ -264,23 +264,23 @@ func (m *initMarcro) encKeySetup() {
 	}
 }
 
-func (initMarcro) BRF(T uint32, R int) int {
+func (cimpl) BRF(T uint32, R int) int {
 	return int((T)>>R) & 0xFF
 }
 
-func (m *initMarcro) SBL1_M() {
+func (m *cimpl) SBL1_M() {
 	m.vars.t0 = s1[m.BRF(m.vars.t0, 24)] ^ s2[m.BRF(m.vars.t0, 16)] ^ x1[m.BRF(m.vars.t0, 8)] ^ x2[m.BRF(m.vars.t0, 0)]
 	m.vars.t1 = s1[m.BRF(m.vars.t1, 24)] ^ s2[m.BRF(m.vars.t1, 16)] ^ x1[m.BRF(m.vars.t1, 8)] ^ x2[m.BRF(m.vars.t1, 0)]
 	m.vars.t2 = s1[m.BRF(m.vars.t2, 24)] ^ s2[m.BRF(m.vars.t2, 16)] ^ x1[m.BRF(m.vars.t2, 8)] ^ x2[m.BRF(m.vars.t2, 0)]
 	m.vars.t3 = s1[m.BRF(m.vars.t3, 24)] ^ s2[m.BRF(m.vars.t3, 16)] ^ x1[m.BRF(m.vars.t3, 8)] ^ x2[m.BRF(m.vars.t3, 0)]
 }
-func (m *initMarcro) SBL2_M() {
+func (m *cimpl) SBL2_M() {
 	m.vars.t0 = x1[m.BRF(m.vars.t0, 24)] ^ x2[m.BRF(m.vars.t0, 16)] ^ s1[m.BRF(m.vars.t0, 8)] ^ s2[m.BRF(m.vars.t0, 0)]
 	m.vars.t1 = x1[m.BRF(m.vars.t1, 24)] ^ x2[m.BRF(m.vars.t1, 16)] ^ s1[m.BRF(m.vars.t1, 8)] ^ s2[m.BRF(m.vars.t1, 0)]
 	m.vars.t2 = x1[m.BRF(m.vars.t2, 24)] ^ x2[m.BRF(m.vars.t2, 16)] ^ s1[m.BRF(m.vars.t2, 8)] ^ s2[m.BRF(m.vars.t2, 0)]
 	m.vars.t3 = x1[m.BRF(m.vars.t3, 24)] ^ x2[m.BRF(m.vars.t3, 16)] ^ s1[m.BRF(m.vars.t3, 8)] ^ s2[m.BRF(m.vars.t3, 0)]
 }
-func (m *initMarcro) MM() {
+func (m *cimpl) MM() {
 	(m.vars.t1) ^= (m.vars.t2)
 	(m.vars.t2) ^= (m.vars.t3)
 	(m.vars.t0) ^= (m.vars.t1)
@@ -288,32 +288,32 @@ func (m *initMarcro) MM() {
 	(m.vars.t2) ^= (m.vars.t0)
 	(m.vars.t1) ^= (m.vars.t2)
 }
-func (m *initMarcro) P(T0, T1, T2, T3 *uint32) {
+func (m *cimpl) P(T0, T1, T2, T3 *uint32) {
 	*T1 = (((*T1) << 8) & uint32(0xff00ff00)) ^ (((*T1) >> 8) & uint32(0x00ff00ff))
 	*T2 = (((*T2) << 16) & uint32(0xffff0000)) ^ (((*T2) >> 16) & uint32(0x0000ffff))
 	*T3 = bits.ReverseBytes32(*T3)
 }
 
-func (m *initMarcro) KXL() {
+func (m *cimpl) KXL() {
 	m.vars.t0 ^= binary.LittleEndian.Uint32(m.rk[m.vars.rkIndex+0*4:])
 	m.vars.t1 ^= binary.LittleEndian.Uint32(m.rk[m.vars.rkIndex+1*4:])
 	m.vars.t2 ^= binary.LittleEndian.Uint32(m.rk[m.vars.rkIndex+2*4:])
 	m.vars.t3 ^= binary.LittleEndian.Uint32(m.rk[m.vars.rkIndex+3*4:])
 	m.vars.rkIndex += 16
 }
-func (m *initMarcro) FO() {
+func (m *cimpl) FO() {
 	m.SBL1_M()
 	m.MM()
 	m.P(&m.vars.t0, &m.vars.t1, &m.vars.t2, &m.vars.t3)
 	m.MM()
 }
-func (m *initMarcro) FE() {
+func (m *cimpl) FE() {
 	m.SBL2_M()
 	m.MM()
 	m.P(&m.vars.t2, &m.vars.t3, &m.vars.t0, &m.vars.t1)
 	m.MM()
 }
-func (m *initMarcro) GSRK(X [4]uint32, Y [4]uint32, n int) {
+func (m *cimpl) GSRK(X [4]uint32, Y [4]uint32, n int) {
 	m.vars.q = 4 - ((n) / 32)
 	r := (n) % 32
 	binary.LittleEndian.PutUint32(m.rk[m.vars.rkIndex+0*4:], (X[0])^((Y[(m.vars.q+0)%4])>>r)^((Y[(m.vars.q+3)%4])<<(32-r))) // WO(rk, 0) =
