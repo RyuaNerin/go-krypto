@@ -257,22 +257,23 @@ func encKeySetup(rk []byte, mk []byte) {
 			binary.LittleEndian.PutUint32(rk[0x0E8:], (w2[2])^((w3[3])>>1)^((w3[2])<<31))
 			binary.LittleEndian.PutUint32(rk[0x0EC:], (w2[3])^((w3[0])>>1)^((w3[3])<<31))
 		}
-	}
-	if keyBits > 192 {
-		//GSRK(rk, &rkIndex, w3, w0, 1, 2, 3, 0, 1, 31)
-		{
-			binary.LittleEndian.PutUint32(rk[0x0F0:], (w3[0])^((w0[1])>>1)^((w0[0])<<31))
-			binary.LittleEndian.PutUint32(rk[0x0F4:], (w3[1])^((w0[2])>>1)^((w0[1])<<31))
-			binary.LittleEndian.PutUint32(rk[0x0F8:], (w3[2])^((w0[3])>>1)^((w0[2])<<31))
-			binary.LittleEndian.PutUint32(rk[0x0FC:], (w3[3])^((w0[0])>>1)^((w0[3])<<31))
-		}
 
-		//GSRK(rk, &rkIndex, w0, w1, 1, 2, 3, 0, 13, 19)
-		{
-			binary.LittleEndian.PutUint32(rk[0x100:], (w0[0])^((w1[1])>>13)^((w1[0])<<19))
-			binary.LittleEndian.PutUint32(rk[0x104:], (w0[1])^((w1[2])>>13)^((w1[1])<<19))
-			binary.LittleEndian.PutUint32(rk[0x108:], (w0[2])^((w1[3])>>13)^((w1[2])<<19))
-			binary.LittleEndian.PutUint32(rk[0x10C:], (w0[3])^((w1[0])>>13)^((w1[3])<<19))
+		if keyBits > 192 {
+			//GSRK(rk, &rkIndex, w3, w0, 1, 2, 3, 0, 1, 31)
+			{
+				binary.LittleEndian.PutUint32(rk[0x0F0:], (w3[0])^((w0[1])>>1)^((w0[0])<<31))
+				binary.LittleEndian.PutUint32(rk[0x0F4:], (w3[1])^((w0[2])>>1)^((w0[1])<<31))
+				binary.LittleEndian.PutUint32(rk[0x0F8:], (w3[2])^((w0[3])>>1)^((w0[2])<<31))
+				binary.LittleEndian.PutUint32(rk[0x0FC:], (w3[3])^((w0[0])>>1)^((w0[3])<<31))
+			}
+
+			//GSRK(rk, &rkIndex, w0, w1, 1, 2, 3, 0, 13, 19)
+			{
+				binary.LittleEndian.PutUint32(rk[0x100:], (w0[0])^((w1[1])>>13)^((w1[0])<<19))
+				binary.LittleEndian.PutUint32(rk[0x104:], (w0[1])^((w1[2])>>13)^((w1[1])<<19))
+				binary.LittleEndian.PutUint32(rk[0x108:], (w0[2])^((w1[3])>>13)^((w1[2])<<19))
+				binary.LittleEndian.PutUint32(rk[0x10C:], (w0[3])^((w1[0])>>13)^((w1[3])<<19))
+			}
 		}
 	}
 }
@@ -404,49 +405,50 @@ func processGo(dst, src, rk []byte, round int) {
 			c_p(&t2, &t3, &t0, &t1)  // inlining
 			c_mm(&t0, &t1, &t2, &t3) // inlining
 		}
-	}
-	if round > 14 {
-		//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
-		{
-			t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-			t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-			t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-			t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-			rk = rk[16:]
-		}
-		//FO(&t0, &t1, &t2, &t3)
-		{
-			//SBL1_M(T0, T1, T2, T3)
+
+		if round > 14 {
+			//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 			{
-				t0 = s1[c_brf(t0, 24)] ^ s2[c_brf(t0, 16)] ^ x1[c_brf(t0, 8)] ^ x2[c_brf(t0, 0)]
-				t1 = s1[c_brf(t1, 24)] ^ s2[c_brf(t1, 16)] ^ x1[c_brf(t1, 8)] ^ x2[c_brf(t1, 0)]
-				t2 = s1[c_brf(t2, 24)] ^ s2[c_brf(t2, 16)] ^ x1[c_brf(t2, 8)] ^ x2[c_brf(t2, 0)]
-				t3 = s1[c_brf(t3, 24)] ^ s2[c_brf(t3, 16)] ^ x1[c_brf(t3, 8)] ^ x2[c_brf(t3, 0)]
+				t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
+				t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
+				t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
+				t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
+				rk = rk[16:]
 			}
-			c_mm(&t0, &t1, &t2, &t3) // inlining
-			c_p(&t0, &t1, &t2, &t3)  // inlining
-			c_mm(&t0, &t1, &t2, &t3) // inlining
-		}
-		//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
-		{
-			t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-			t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-			t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-			t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-			rk = rk[16:]
-		}
-		//FE(&t0, &t1, &t2, &t3)
-		{
-			//SBL2_M(T0, T1, T2, T3)
+			//FO(&t0, &t1, &t2, &t3)
 			{
-				t0 = x1[c_brf(t0, 24)] ^ x2[c_brf(t0, 16)] ^ s1[c_brf(t0, 8)] ^ s2[c_brf(t0, 0)]
-				t1 = x1[c_brf(t1, 24)] ^ x2[c_brf(t1, 16)] ^ s1[c_brf(t1, 8)] ^ s2[c_brf(t1, 0)]
-				t2 = x1[c_brf(t2, 24)] ^ x2[c_brf(t2, 16)] ^ s1[c_brf(t2, 8)] ^ s2[c_brf(t2, 0)]
-				t3 = x1[c_brf(t3, 24)] ^ x2[c_brf(t3, 16)] ^ s1[c_brf(t3, 8)] ^ s2[c_brf(t3, 0)]
+				//SBL1_M(T0, T1, T2, T3)
+				{
+					t0 = s1[c_brf(t0, 24)] ^ s2[c_brf(t0, 16)] ^ x1[c_brf(t0, 8)] ^ x2[c_brf(t0, 0)]
+					t1 = s1[c_brf(t1, 24)] ^ s2[c_brf(t1, 16)] ^ x1[c_brf(t1, 8)] ^ x2[c_brf(t1, 0)]
+					t2 = s1[c_brf(t2, 24)] ^ s2[c_brf(t2, 16)] ^ x1[c_brf(t2, 8)] ^ x2[c_brf(t2, 0)]
+					t3 = s1[c_brf(t3, 24)] ^ s2[c_brf(t3, 16)] ^ x1[c_brf(t3, 8)] ^ x2[c_brf(t3, 0)]
+				}
+				c_mm(&t0, &t1, &t2, &t3) // inlining
+				c_p(&t0, &t1, &t2, &t3)  // inlining
+				c_mm(&t0, &t1, &t2, &t3) // inlining
 			}
-			c_mm(&t0, &t1, &t2, &t3) // inlining
-			c_p(&t2, &t3, &t0, &t1)  // inlining
-			c_mm(&t0, &t1, &t2, &t3) // inlining
+			//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
+			{
+				t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
+				t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
+				t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
+				t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
+				rk = rk[16:]
+			}
+			//FE(&t0, &t1, &t2, &t3)
+			{
+				//SBL2_M(T0, T1, T2, T3)
+				{
+					t0 = x1[c_brf(t0, 24)] ^ x2[c_brf(t0, 16)] ^ s1[c_brf(t0, 8)] ^ s2[c_brf(t0, 0)]
+					t1 = x1[c_brf(t1, 24)] ^ x2[c_brf(t1, 16)] ^ s1[c_brf(t1, 8)] ^ s2[c_brf(t1, 0)]
+					t2 = x1[c_brf(t2, 24)] ^ x2[c_brf(t2, 16)] ^ s1[c_brf(t2, 8)] ^ s2[c_brf(t2, 0)]
+					t3 = x1[c_brf(t3, 24)] ^ x2[c_brf(t3, 16)] ^ s1[c_brf(t3, 8)] ^ s2[c_brf(t3, 0)]
+				}
+				c_mm(&t0, &t1, &t2, &t3) // inlining
+				c_p(&t2, &t3, &t0, &t1)  // inlining
+				c_mm(&t0, &t1, &t2, &t3) // inlining
+			}
 		}
 	}
 
