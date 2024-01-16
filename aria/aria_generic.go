@@ -365,11 +365,10 @@ func processGo(dst, src, rk []byte, round int) {
 	if round > 12 {
 		//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 		{
-			t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-			t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-			t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-			t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-			rk = rk[16:]
+			t0 ^= binary.LittleEndian.Uint32(rk[0x00:])
+			t1 ^= binary.LittleEndian.Uint32(rk[0x04:])
+			t2 ^= binary.LittleEndian.Uint32(rk[0x08:])
+			t3 ^= binary.LittleEndian.Uint32(rk[0x0C:])
 		}
 		//FO(&t0, &t1, &t2, &t3)
 		{
@@ -386,11 +385,10 @@ func processGo(dst, src, rk []byte, round int) {
 		}
 		//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 		{
-			t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-			t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-			t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-			t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-			rk = rk[16:]
+			t0 ^= binary.LittleEndian.Uint32(rk[0x10:])
+			t1 ^= binary.LittleEndian.Uint32(rk[0x14:])
+			t2 ^= binary.LittleEndian.Uint32(rk[0x18:])
+			t3 ^= binary.LittleEndian.Uint32(rk[0x1C:])
 		}
 		//FE(&t0, &t1, &t2, &t3)
 		{
@@ -406,14 +404,15 @@ func processGo(dst, src, rk []byte, round int) {
 			c_mm(&t0, &t1, &t2, &t3) // inlining
 		}
 
+		rk = rk[32:]
+
 		if round > 14 {
 			//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 			{
-				t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-				t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-				t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-				t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-				rk = rk[16:]
+				t0 ^= binary.LittleEndian.Uint32(rk[0x00:])
+				t1 ^= binary.LittleEndian.Uint32(rk[0x04:])
+				t2 ^= binary.LittleEndian.Uint32(rk[0x08:])
+				t3 ^= binary.LittleEndian.Uint32(rk[0x0C:])
 			}
 			//FO(&t0, &t1, &t2, &t3)
 			{
@@ -430,11 +429,10 @@ func processGo(dst, src, rk []byte, round int) {
 			}
 			//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 			{
-				t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-				t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-				t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-				t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-				rk = rk[16:]
+				t0 ^= binary.LittleEndian.Uint32(rk[0x10:])
+				t1 ^= binary.LittleEndian.Uint32(rk[0x14:])
+				t2 ^= binary.LittleEndian.Uint32(rk[0x18:])
+				t3 ^= binary.LittleEndian.Uint32(rk[0x1C:])
 			}
 			//FE(&t0, &t1, &t2, &t3)
 			{
@@ -449,16 +447,17 @@ func processGo(dst, src, rk []byte, round int) {
 				c_p(&t2, &t3, &t0, &t1)  // inlining
 				c_mm(&t0, &t1, &t2, &t3) // inlining
 			}
+
+			rk = rk[32:]
 		}
 	}
 
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0x00:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0x04:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0x08:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0x0C:])
 	}
 	//FO(&t0, &t1, &t2, &t3)
 	{
@@ -475,11 +474,10 @@ func processGo(dst, src, rk []byte, round int) {
 	}
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0x10:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0x14:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0x18:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0x1C:])
 	}
 	//FE(&t0, &t1, &t2, &t3)
 	{
@@ -496,11 +494,10 @@ func processGo(dst, src, rk []byte, round int) {
 	}
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0x20:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0x24:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0x28:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0x2C:])
 	}
 	//FO(&t0, &t1, &t2, &t3)
 	{
@@ -517,11 +514,10 @@ func processGo(dst, src, rk []byte, round int) {
 	}
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0x30:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0x34:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0x38:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0x3C:])
 	}
 	//FE(&t0, &t1, &t2, &t3)
 	{
@@ -538,11 +534,10 @@ func processGo(dst, src, rk []byte, round int) {
 	}
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0x40:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0x44:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0x48:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0x4C:])
 	}
 	//FO(&t0, &t1, &t2, &t3)
 	{
@@ -559,11 +554,10 @@ func processGo(dst, src, rk []byte, round int) {
 	}
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0x50:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0x54:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0x58:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0x5C:])
 	}
 	//FE(&t0, &t1, &t2, &t3)
 	{
@@ -581,11 +575,10 @@ func processGo(dst, src, rk []byte, round int) {
 
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0x60:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0x64:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0x68:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0x6C:])
 	}
 	//FO(&t0, &t1, &t2, &t3)
 	{
@@ -602,11 +595,10 @@ func processGo(dst, src, rk []byte, round int) {
 	}
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0x70:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0x74:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0x78:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0x7C:])
 	}
 	//FE(&t0, &t1, &t2, &t3)
 	{
@@ -623,11 +615,10 @@ func processGo(dst, src, rk []byte, round int) {
 	}
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0x80:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0x84:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0x88:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0x8C:])
 	}
 	//FO(&t0, &t1, &t2, &t3)
 	{
@@ -644,11 +635,10 @@ func processGo(dst, src, rk []byte, round int) {
 	}
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0x90:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0x94:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0x98:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0x9C:])
 	}
 	//FE(&t0, &t1, &t2, &t3)
 	{
@@ -665,11 +655,10 @@ func processGo(dst, src, rk []byte, round int) {
 	}
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0xA0:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0xA4:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0xA8:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0xAC:])
 	}
 	//FO(&t0, &t1, &t2, &t3)
 	{
@@ -686,32 +675,31 @@ func processGo(dst, src, rk []byte, round int) {
 	}
 	//KXL(rk, &rkIndex, &t0, &t1, &t2, &t3)
 	{
-		t0 ^= binary.LittleEndian.Uint32(rk[0*4:])
-		t1 ^= binary.LittleEndian.Uint32(rk[1*4:])
-		t2 ^= binary.LittleEndian.Uint32(rk[2*4:])
-		t3 ^= binary.LittleEndian.Uint32(rk[3*4:])
-		rk = rk[16:]
+		t0 ^= binary.LittleEndian.Uint32(rk[0xB0:])
+		t1 ^= binary.LittleEndian.Uint32(rk[0xB4:])
+		t2 ^= binary.LittleEndian.Uint32(rk[0xB8:])
+		t3 ^= binary.LittleEndian.Uint32(rk[0xBC:])
 	}
 
-	dst[0x0] = (byte)(x1[c_brf(t0, 0x18)]>>0) ^ rk[0x3]
-	dst[0x1] = (byte)(x2[c_brf(t0, 0x10)]>>8) ^ rk[0x2]
-	dst[0x2] = (byte)(s1[c_brf(t0, 0x08)]>>0) ^ rk[0x1]
-	dst[0x3] = (byte)(s2[c_brf(t0, 0x00)]>>0) ^ rk[0x0]
+	dst[0x0] = (byte)(x1[c_brf(t0, 0x18)]>>0) ^ rk[0xC3]
+	dst[0x1] = (byte)(x2[c_brf(t0, 0x10)]>>8) ^ rk[0xC2]
+	dst[0x2] = (byte)(s1[c_brf(t0, 0x08)]>>0) ^ rk[0xC1]
+	dst[0x3] = (byte)(s2[c_brf(t0, 0x00)]>>0) ^ rk[0xC0]
 
-	dst[0x4] = (byte)(x1[c_brf(t1, 0x18)]>>0) ^ rk[0x7]
-	dst[0x5] = (byte)(x2[c_brf(t1, 0x10)]>>8) ^ rk[0x6]
-	dst[0x6] = (byte)(s1[c_brf(t1, 0x08)]>>0) ^ rk[0x5]
-	dst[0x7] = (byte)(s2[c_brf(t1, 0x00)]>>0) ^ rk[0x4]
+	dst[0x4] = (byte)(x1[c_brf(t1, 0x18)]>>0) ^ rk[0xC7]
+	dst[0x5] = (byte)(x2[c_brf(t1, 0x10)]>>8) ^ rk[0xC6]
+	dst[0x6] = (byte)(s1[c_brf(t1, 0x08)]>>0) ^ rk[0xC5]
+	dst[0x7] = (byte)(s2[c_brf(t1, 0x00)]>>0) ^ rk[0xC4]
 
-	dst[0x8] = (byte)(x1[c_brf(t2, 0x18)]>>0) ^ rk[0xB]
-	dst[0x9] = (byte)(x2[c_brf(t2, 0x10)]>>8) ^ rk[0xA]
-	dst[0xA] = (byte)(s1[c_brf(t2, 0x08)]>>0) ^ rk[0x9]
-	dst[0xB] = (byte)(s2[c_brf(t2, 0x00)]>>0) ^ rk[0x8]
+	dst[0x8] = (byte)(x1[c_brf(t2, 0x18)]>>0) ^ rk[0xCB]
+	dst[0x9] = (byte)(x2[c_brf(t2, 0x10)]>>8) ^ rk[0xCA]
+	dst[0xA] = (byte)(s1[c_brf(t2, 0x08)]>>0) ^ rk[0xC9]
+	dst[0xB] = (byte)(s2[c_brf(t2, 0x00)]>>0) ^ rk[0xC8]
 
-	dst[0xC] = (byte)(x1[c_brf(t3, 0x18)]>>0) ^ rk[0xF]
-	dst[0xD] = (byte)(x2[c_brf(t3, 0x10)]>>8) ^ rk[0xE]
-	dst[0xE] = (byte)(s1[c_brf(t3, 0x08)]>>0) ^ rk[0xD]
-	dst[0xF] = (byte)(s2[c_brf(t3, 0x00)]>>0) ^ rk[0xC]
+	dst[0xC] = (byte)(x1[c_brf(t3, 0x18)]>>0) ^ rk[0xCF]
+	dst[0xD] = (byte)(x2[c_brf(t3, 0x10)]>>8) ^ rk[0xCE]
+	dst[0xE] = (byte)(s1[c_brf(t3, 0x08)]>>0) ^ rk[0xCD]
+	dst[0xF] = (byte)(s2[c_brf(t3, 0x00)]>>0) ^ rk[0xCC]
 }
 
 func c_brf(T uint32, R int) int { // inlinable
