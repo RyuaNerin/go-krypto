@@ -3,14 +3,7 @@ package lsh256
 
 import (
 	"hash"
-
-	"github.com/RyuaNerin/go-krypto"
 )
-
-func init() {
-	krypto.RegisterHash(krypto.LSH256, New)
-	krypto.RegisterHash(krypto.LSH256_224, New224)
-}
 
 const (
 	// The size of a LSH-256 checksum in bytes.

@@ -560,11 +560,9 @@ LBB1_56:								// LBB1_56:                                ; =>This Inner Loop H
 	CBNZ	R17, LBB1_13				//     cbnz	x17, LBB1_13
 	B		LBB1_15						//     b	LBB1_15
 
-TEXT ·__lsh256_neon_final(SB), NOSPLIT, $32
+TEXT ·__lsh256_neon_final(SB), NOSPLIT, $16
 	MOVD ctx+0(FP), R0
-	MOVD hashval_base+8(FP), R1
-	//hashval_len+16
-	//hashval_cap+24
+	MOVD hashval+8(FP), R1
 
 										// ; %bb.0:
 	WORD	$0xb9401009					//     ldr	w9, [x0, #16]

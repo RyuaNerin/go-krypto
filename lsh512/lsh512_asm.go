@@ -6,12 +6,14 @@ package lsh512
 
 import (
 	"hash"
+
+	"github.com/RyuaNerin/go-krypto/internal/ptr"
 )
 
 type simdSet struct {
 	init   func(ctx *lsh512Context, algtype uint64)
 	update func(ctx *lsh512Context, data []byte)
-	final  func(ctx *lsh512Context, hashval []byte)
+	final  func(ctx *lsh512Context, hashval *byte)
 }
 
 func (simd *simdSet) NewContext(size int) hash.Hash {
@@ -67,6 +69,6 @@ func (ctx *lsh512Context) Sum(p []byte) []byte {
 }
 
 func (ctx *lsh512Context) checkSum() (hash [Size]byte) {
-	ctx.simd.final(ctx, hash[:])
+	ctx.simd.final(ctx, ptr.BytePtr(hash[:]))
 	return
 }

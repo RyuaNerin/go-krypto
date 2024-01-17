@@ -1,0 +1,12 @@
+goos: windows
+goarch: amd64
+pkg: github.com/RyuaNerin/go-krypto/lsh256
+cpu: AMD Ryzen 7 5800X3D 8-Core Processor           
+Benchmark_Hash_8_Go/256-16 	 1522927	       822.1 ns/op	   9.73 MB/s	       0 B/op	       0 allocs/op
+Benchmark_Hash_8_Go/224-16 	 1331811	       820.1 ns/op	   9.75 MB/s	       0 B/op	       0 allocs/op
+Benchmark_Hash_1K_Go/256-16         	  210402	      5901 ns/op	 173.52 MB/s	       0 B/op	       0 allocs/op
+Benchmark_Hash_1K_Go/224-16         	  196186	      5819 ns/op	 175.97 MB/s	       0 B/op	       0 allocs/op
+Benchmark_Hash_8K_Go/256-16         	   29832	     40554 ns/op	 202.10 MB/s	       0 B/op	       0 allocs/op
+Benchmark_Hash_8K_Go/224-16         	   26622	     42099 ns/op	 194.69 MB/s	       0 B/op	       0 allocs/op
+PASS
+ok  	github.com/RyuaNerin/go-krypto/lsh256	10.016s

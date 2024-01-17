@@ -7,7 +7,7 @@ import (
 	"encoding/binary"
 	"math/bits"
 
-	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"kryptosimd/internal/kryptoutil"
 )
 
 const (

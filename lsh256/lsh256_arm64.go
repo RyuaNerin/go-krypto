@@ -22,4 +22,4 @@ func __lsh256_neon_init(ctx *lsh256Context, algtype uint64)
 func __lsh256_neon_update(ctx *lsh256Context, data []byte)
 
 //go:noescape
-func __lsh256_neon_final(ctx *lsh256Context, hashval []byte)
+func __lsh256_neon_final(ctx *lsh256Context, hashval *byte)

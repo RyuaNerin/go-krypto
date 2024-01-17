@@ -49,7 +49,7 @@ func __lsh256_sse2_init(ctx *lsh256Context, algtype uint64)
 func __lsh256_sse2_update(ctx *lsh256Context, data []byte)
 
 //go:noescape
-func __lsh256_sse2_final(ctx *lsh256Context, hashval []byte)
+func __lsh256_sse2_final(ctx *lsh256Context, hashval *byte)
 
 //go:noescape
 //func __lsh256_ssse3_init(ctx *lsh256Context, algtype uint64)
@@ -58,7 +58,7 @@ func __lsh256_sse2_final(ctx *lsh256Context, hashval []byte)
 func __lsh256_ssse3_update(ctx *lsh256Context, data []byte)
 
 //go:noescape
-func __lsh256_ssse3_final(ctx *lsh256Context, hashval []byte)
+func __lsh256_ssse3_final(ctx *lsh256Context, hashval *byte)
 
 //go:noescape
 func __lsh256_avx2_init(ctx *lsh256Context, algtype uint64)
@@ -67,4 +67,4 @@ func __lsh256_avx2_init(ctx *lsh256Context, algtype uint64)
 func __lsh256_avx2_update(ctx *lsh256Context, data []byte)
 
 //go:noescape
-func __lsh256_avx2_final(ctx *lsh256Context, hashval []byte)
+func __lsh256_avx2_final(ctx *lsh256Context, hashval *byte)
