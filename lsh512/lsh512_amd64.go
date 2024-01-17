@@ -49,7 +49,7 @@ func __lsh512_sse2_init(ctx *lsh512Context, algtype uint64)
 func __lsh512_sse2_update(ctx *lsh512Context, data []byte)
 
 //go:noescape
-func __lsh512_sse2_final(ctx *lsh512Context, hashval []byte)
+func __lsh512_sse2_final(ctx *lsh512Context, hashval *byte)
 
 //go:noescape
 //func __lsh512_ssse3_init(ctx *lsh512Context, algtype uint64)
@@ -58,7 +58,7 @@ func __lsh512_sse2_final(ctx *lsh512Context, hashval []byte)
 func __lsh512_ssse3_update(ctx *lsh512Context, data []byte)
 
 //go:noescape
-func __lsh512_ssse3_final(ctx *lsh512Context, hashval []byte)
+func __lsh512_ssse3_final(ctx *lsh512Context, hashval *byte)
 
 //go:noescape
 func __lsh512_avx2_init(ctx *lsh512Context, algtype uint64)
@@ -67,4 +67,4 @@ func __lsh512_avx2_init(ctx *lsh512Context, algtype uint64)
 func __lsh512_avx2_update(ctx *lsh512Context, data []byte)
 
 //go:noescape
-func __lsh512_avx2_final(ctx *lsh512Context, hashval []byte)
+func __lsh512_avx2_final(ctx *lsh512Context, hashval *byte)

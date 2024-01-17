@@ -706,11 +706,9 @@ LBB1_34:
 	JMP  LBB1_36
 
 
-TEXT ·__lsh256_ssse3_final(SB), NOSPLIT, $32
+TEXT ·__lsh256_ssse3_final(SB), NOSPLIT, $16
 	MOVQ ctx+0(FP), DI
 	MOVQ hashval_base+8(FP), SI
-	//hashval_len+16
-	//hashval_cap+24
 
 	LEAQ LCDATA2<>(SB), BP
 

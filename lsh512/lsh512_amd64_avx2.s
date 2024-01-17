@@ -82,7 +82,7 @@ DATA LCDATA2<>+0x0e0(SB)/8, $0x0605040302010007
 DATA LCDATA2<>+0x0e8(SB)/8, $0x080f0e0d0c0b0a09
 GLOBL LCDATA2<>(SB), RODATA|NOPTR, $240
 
-TEXT ·__lsh512_avx2_update(SB), NOSPLIT, $232-32
+TEXT ·__lsh512_avx2_update(SB), NOSPLIT, $224-32
 	MOVQ ctx+0(FP), DI
 	MOVQ data_base+8(FP), SI
 	MOVQ data_len+16(FP), DX
@@ -787,11 +787,9 @@ LBB1_34:
 	JE   LBB1_41
 	JMP  LBB1_36
 
-TEXT ·__lsh512_avx2_final(SB), NOSPLIT, $32
+TEXT ·__lsh512_avx2_final(SB), NOSPLIT, $16
 	MOVQ ctx+0(FP), DI
-	MOVQ hashval_base+8(FP), SI
-	//hashval_len+16
-	//hashval_cap+24
+	MOVQ hashval+8(FP), SI
 
 	LEAQ LCDATA2<>(SB), BP
 

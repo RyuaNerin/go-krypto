@@ -7,14 +7,10 @@
 
 #include "textflag.h"
 
-TEXT ·__lea_encrypt_4block(SB), NOSPLIT, $56
+TEXT ·__lea_encrypt_4block(SB), NOSPLIT, $24
 	MOVQ ctx+0(FP), DI
-	MOVQ dst_base+8(FP), SI
-	// dst_len+16
-	// dst_cap+24
-	MOVQ src_base+32(FP), DX
-	// src_len+40
-	// src_cap+48
+	MOVQ dst+8(FP), SI
+	MOVQ src+16(FP), DX
 
 	LONG $0x026f0ff3               // movdqu    xmm0, oword [rdx]
 	LONG $0x4a6f0ff3; BYTE $0x10   // movdqu    xmm1, oword [rdx + 16]
@@ -1113,14 +1109,10 @@ LBB0_3:
 	LONG $0x5e7f0ff3; BYTE $0x30 // movdqu    oword [rsi + 48], xmm3
 	RET
 
-TEXT ·__lea_decrypt_4block(SB), NOSPLIT, $56
+TEXT ·__lea_decrypt_4block(SB), NOSPLIT, $24
 	MOVQ ctx+0(FP), DI
-	MOVQ dst_base+8(FP), SI
-	// dst_len+16
-	// dst_cap+24
-	MOVQ src_base+32(FP), DX
-	// src_len+40
-	// src_cap+48
+	MOVQ dst+8(FP), SI
+	MOVQ src+16(FP), DX
 
 	LONG $0x026f0ff3               // movdqu    xmm0, oword [rdx]
 	LONG $0x4a6f0ff3; BYTE $0x10   // movdqu    xmm1, oword [rdx + 16]

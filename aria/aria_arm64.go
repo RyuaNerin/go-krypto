@@ -3,7 +3,11 @@
 
 package aria
 
-import "crypto/cipher"
+import (
+	"crypto/cipher"
+
+	"kryptosimd/internal/ptr"
+)
 
 //go:noescape
 func __encKeySetup_NEON(rk *byte, mk *byte, keyBytes uint64)
@@ -19,12 +23,12 @@ func newCipher(key []byte) (cipher.Block, error) {
 }
 
 func (ctx *ariaContextAsm) initRoundKey(key []byte) {
-	__encKeySetup_NEON(toBytePtr(ctx.ctx.ek[:]), toBytePtr(key), uint64(len(key)))
+	__encKeySetup_NEON(ptr.BytePtr(ctx.ctx.ek[:]), ptr.BytePtr(key), uint64(len(key)))
 
 	ctx.ctx.dk = ctx.ctx.ek
-	__decKeySetup_NEON(toBytePtr(ctx.ctx.dk[:]), uint64(ctx.ctx.rounds))
+	__decKeySetup_NEON(ptr.BytePtr(ctx.ctx.dk[:]), uint64(ctx.ctx.rounds))
 }
 
 func (ctx *ariaContextAsm) process(dst, src, rk []byte) {
-	__process_NEON(toBytePtr(dst), toBytePtr(src), toBytePtr(rk), uint64(ctx.ctx.rounds))
+	__process_NEON(ptr.BytePtr(dst), ptr.BytePtr(src), ptr.BytePtr(rk), uint64(ctx.ctx.rounds))
 }

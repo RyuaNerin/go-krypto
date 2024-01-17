@@ -541,11 +541,9 @@ LBB1_34:
 	JE   LBB1_41
 	JMP  LBB1_36
 
-TEXT ·__lsh256_avx2_final(SB), NOSPLIT, $32
+TEXT ·__lsh256_avx2_final(SB), NOSPLIT, $16
 	MOVQ ctx+0(FP), DI
-	MOVQ hashval_base+8(FP), SI
-	//hashval_len+16
-	//hashval_cap+24
+	MOVQ hashval+8(FP), SI
 
 	LEAQ LCDATA2<>(SB), BP
 

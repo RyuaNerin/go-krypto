@@ -8,6 +8,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math/bits"
+
+	"kryptosimd/internal/ptr"
 )
 
 func newCipherGo(key []byte) (cipher.Block, error) {
@@ -286,7 +288,7 @@ func encKeySetup(rk []byte, mk []byte) {
 }
 
 func decKeySetup(rk []byte, rValue int) {
-	a := toUint32Array(rk)
+	a := ptr.ByteToUint32Array(rk)
 	z := a
 
 	aIdx := 0

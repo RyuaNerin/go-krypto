@@ -7,14 +7,10 @@
 
 #include "textflag.h"
 
-TEXT ·__lea_encrypt_8block(SB), NOSPLIT, $56
+TEXT ·__lea_encrypt_8block(SB), NOSPLIT, $24
 	MOVQ ctx+0(FP), DI
-	MOVQ dst_base+8(FP), SI
-	// dst_len+16
-	// dst_cap+24
-	MOVQ src_base+32(FP), DX
-	// src_len+40
-	// src_cap+48
+	MOVQ dst+8(FP), SI
+	MOVQ src+16(FP), DX
 
 	LONG $0x426ef9c5; BYTE $0x40               // vmovd    xmm0, dword [rdx + 64]
 	LONG $0x2279e3c4; WORD $0x5042; BYTE $0x01 // vpinsrd    xmm0, xmm0, dword [rdx + 80], 1
@@ -878,14 +874,10 @@ LBB0_3:
 	VZEROUPPER
 	RET
 
-TEXT ·__lea_decrypt_8block(SB), NOSPLIT, $56
+TEXT ·__lea_decrypt_8block(SB), NOSPLIT, $24
 	MOVQ ctx+0(FP), DI
-	MOVQ dst_base+8(FP), SI
-	// dst_len+16
-	// dst_cap+24
-	MOVQ src_base+32(FP), DX
-	// src_len+40
-	// src_cap+48
+	MOVQ dst+8(FP), SI
+	MOVQ src+16(FP), DX
 
 	LONG $0x426ef9c5; BYTE $0x40               // vmovd    xmm0, dword [rdx + 64]
 	LONG $0x2279e3c4; WORD $0x5042; BYTE $0x01 // vpinsrd    xmm0, xmm0, dword [rdx + 80], 1

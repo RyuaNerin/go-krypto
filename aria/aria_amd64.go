@@ -4,6 +4,8 @@
 package aria
 
 import (
+	"kryptosimd/internal/ptr"
+
 	"golang.org/x/sys/cpu"
 )
 
@@ -27,5 +29,5 @@ func (ctx *ariaContextAsm) initRoundKey(key []byte) {
 }
 
 func (ctx *ariaContextAsm) process(dst, src, rk []byte) {
-	__process_SSSE3(toBytePtr(dst), toBytePtr(src), toBytePtr(rk), uint64(ctx.ctx.rounds))
+	__process_SSSE3(ptr.BytePtr(dst), ptr.BytePtr(src), ptr.BytePtr(rk), uint64(ctx.ctx.rounds))
 }

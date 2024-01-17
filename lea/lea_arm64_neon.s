@@ -7,14 +7,10 @@
 
 #include "textflag.h"
 
-TEXT ·__lea_encrypt_4block(SB), NOSPLIT, $56
+TEXT ·__lea_encrypt_4block(SB), NOSPLIT, $24
 	MOVD ctx+0(FP), R0
-	MOVD dst_base+8(FP), R1
-	// dst_len+16
-	// dst_cap+24
-	MOVD src_base+32(FP), R2
-	// src_len+40
-	// src_cap+48
+	MOVD dst+8(FP), R1
+	MOVD src+16(FP), R2
 
 	WORD $0x91004008   // add	x8, x0, #16
 	WORD $0x4d40c900   // ld1r.4s	{ v0 }, [x8]
@@ -888,14 +884,10 @@ TEXT ·__lea_encrypt_4block(SB), NOSPLIT, $56
 	WORD $0x4c000820   // st4.4s	{ v0, v1, v2, v3 }, [x1]
 	RET                // ret
 
-TEXT ·__lea_decrypt_4block(SB), NOSPLIT, $56
+TEXT ·__lea_decrypt_4block(SB), NOSPLIT, $24
 	MOVD ctx+0(FP), R0
-	MOVD dst_base+8(FP), R1
-	// dst_len+16
-	// dst_cap+24
-	MOVD src_base+32(FP), R2
-	// src_len+40
-	// src_cap+48
+	MOVD dst+8(FP), R1
+	MOVD src+16(FP), R2
 
 	WORD $0x4c400840   // ld4.4s	{ v0, v1, v2, v3 }, [x2]
 	WORD $0xb9430008   // ldr	w8, [x0, #768]

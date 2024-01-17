@@ -78,7 +78,7 @@ DATA ·lCPI1_0<>+0x070(SB)/8, $0xffffffffffffffe8
 DATA ·lCPI1_0<>+0x078(SB)/8, $0xfffffffffffffff8
 GLOBL ·lCPI1_0<>(SB), RODATA|NOPTR, $128
 
-TEXT ·__lsh512_neon_update(SB), NOSPLIT, $32
+TEXT ·__lsh512_neon_update(SB), NOSPLIT, $144-32
 	MOVD	ctx+0(FP), R0
 	MOVD	data_base+8(FP), R1
 	MOVD	data_len+16(FP), R2
@@ -809,11 +809,9 @@ LBB1_56:								// LBB1_56:                                ; =>This Inner Loop H
 	CBNZ	R6, LBB1_13					//     cbnz	x6, LBB1_13
 	B		LBB1_15						//     b	LBB1_15
 
-TEXT ·__lsh512_neon_final(SB), NOSPLIT, $32
+TEXT ·__lsh512_neon_final(SB), NOSPLIT, $96-16
 	MOVD ctx+0(FP), R0
-	MOVD hashval_base+8(FP), R1
-	//hashval_len+16
-	//hashval_cap+24
+	MOVD hashval+8(FP), R1
 
 										// ; %bb.0:
 	WORD	$0x6dbb3bef					//     stp	d15, d14, [sp, #-80]!           ; 16-byte Folded Spill

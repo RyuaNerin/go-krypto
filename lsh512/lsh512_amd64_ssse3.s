@@ -1264,11 +1264,9 @@ LBB1_36:
 	JE   LBB1_43
 	JMP  LBB1_38
 
-TEXT ·__lsh512_ssse3_final(SB), NOSPLIT, $304-32
+TEXT ·__lsh512_ssse3_final(SB), NOSPLIT, $288-16
 	MOVQ ctx+0(FP), DI
-	MOVQ hashval_base+8(FP), SI
-	//hashval_len+16
-	//hashval_cap+24
+	MOVQ hashval+8(FP), SI
 
 	// Stack size: 272
 	MOVQ SP, BP
