@@ -4,7 +4,7 @@
 package aria
 
 //go:noescape
-func __encKeySetup_NEON(rk *byte, mk *byte, keyBits uint64)
+func __encKeySetup_NEON(rk *byte, mk *byte, keyBytes uint64)
 
 //go:noescape
 func __decKeySetup_NEON(rk *byte, rounds uint64)
@@ -17,7 +17,7 @@ func init() {
 }
 
 func (ctx *ariaContextAsm) init(key []byte) {
-	__encKeySetup_NEON(toBytePtr(ctx.ctx.ek[:]), toBytePtr(key), uint64(len(key)*8))
+	__encKeySetup_NEON(toBytePtr(ctx.ctx.ek[:]), toBytePtr(key), uint64(len(key)))
 
 	ctx.ctx.dk = ctx.ctx.ek
 	__decKeySetup_NEON(toBytePtr(ctx.ctx.dk[:]), uint64(ctx.ctx.rounds))

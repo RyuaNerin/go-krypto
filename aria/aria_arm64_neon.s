@@ -7,21 +7,19 @@
 
 #include "textflag.h"
 
-// void EncKeySetup(uint8_t* rk, const uint8_t* mk, uint64_t keyBytes) {
-// func __encKeySetup_NEON(rk *byte, mk *byte, keyBits uint64)
-TEXT ·__encKeySetup_NEON(SB), NOSPLIT, $24
-	MOVD	rk+0(FP),		R0
-	MOVD	mk+8(FP),		R1
-	MOVD	keyBits+16(FP),	R2
+TEXT ·__encKeySetup_NEON(SB), NOSPLIT, $120-24
+	MOVD	rk+0(FP),			R0
+	MOVD	mk+8(FP),			R1
+	MOVD	keybytes+16(FP),	R2
 
 									// ; %bb.0:
-									//     stp	x28, x27, [sp, #-96]!           ; 16-byte Folded Spill
-									//     stp	x26, x25, [sp, #16]             ; 16-byte Folded Spill
-									//     stp	x24, x23, [sp, #32]             ; 16-byte Folded Spill
-									//     stp	x22, x21, [sp, #48]             ; 16-byte Folded Spill
-									//     stp	x20, x19, [sp, #64]             ; 16-byte Folded Spill
-									//     stp	x29, x30, [sp, #80]             ; 16-byte Folded Spill
-									//     add	x29, sp, #80
+	WORD	$0xa9ba6ffc				//     stp	x28, x27, [sp, #-96]!           ; 16-byte Folded Spill
+	WORD	$0xa90167fa				//     stp	x26, x25, [sp, #16]             ; 16-byte Folded Spill
+	WORD	$0xa9025ff8				//     stp	x24, x23, [sp, #32]             ; 16-byte Folded Spill
+	WORD	$0xa90357f6				//     stp	x22, x21, [sp, #48]             ; 16-byte Folded Spill
+	WORD	$0xa9044ff4				//     stp	x20, x19, [sp, #64]             ; 16-byte Folded Spill
+	WORD	$0xa9057bfd				//     stp	x29, x30, [sp, #80]             ; 16-byte Folded Spill
+	WORD	$0x910143fd				//     add	x29, sp, #80
 	WORD	$0x32089fe8				//     mov	w8, #-16711936                  ; =0xff00ff00
 	WORD	$0x29402829				//     ldp	w9, w10, [x1]
 	WORD	$0x5ac0092f				//     rev	w15, w9
@@ -414,12 +412,12 @@ LBB0_4:								// LBB0_4:
 	WORD	$0x6e201c40				//     eor.16b	v0, v2, v0
 	WORD	$0xad078001				//     stp	q1, q0, [x0, #240]
 LBB0_7:								// LBB0_7:
-									//     ldp	x29, x30, [sp, #80]             ; 16-byte Folded Reload
-									//     ldp	x20, x19, [sp, #64]             ; 16-byte Folded Reload
-									//     ldp	x22, x21, [sp, #48]             ; 16-byte Folded Reload
-									//     ldp	x24, x23, [sp, #32]             ; 16-byte Folded Reload
-									//     ldp	x26, x25, [sp, #16]             ; 16-byte Folded Reload
-									//     ldp	x28, x27, [sp], #96             ; 16-byte Folded Reload
+	WORD	$0xa9457bfd				//     ldp	x29, x30, [sp, #80]             ; 16-byte Folded Reload
+	WORD	$0xa9444ff4				//     ldp	x20, x19, [sp, #64]             ; 16-byte Folded Reload
+	WORD	$0xa94357f6				//     ldp	x22, x21, [sp, #48]             ; 16-byte Folded Reload
+	WORD	$0xa9425ff8				//     ldp	x24, x23, [sp, #32]             ; 16-byte Folded Reload
+	WORD	$0xa94167fa				//     ldp	x26, x25, [sp, #16]             ; 16-byte Folded Reload
+	WORD	$0xa8c66ffc				//     ldp	x28, x27, [sp], #96             ; 16-byte Folded Reload
 	RET								// ret
 
 TEXT ·__decKeySetup_NEON(SB), NOSPLIT, $16
@@ -546,8 +544,8 @@ LBB1_2:								// LBB1_2:                                 ; =>This Inner Loop He
 	WORD	$0x8b0a0000				//     add	x0, x0, x10
 LBB1_4:								// LBB1_4:
 	WORD	$0x9100400a				//     add	x10, x0, #16
-									//     stp	x29, x30, [sp, #-16]!           ; 16-byte Folded Spill
-									//     mov	x29, sp
+	//WORD	$0xa9bf7bfd				//     stp	x29, x30, [sp, #-16]!           ; 16-byte Folded Spill
+	//WORD	$0x910003fd				//     mov	x29, sp
 	WORD	$0x2942b80b				//     ldp	w11, w14, [x0, #20]
 	WORD	$0x53185d6f				//     lsl	w15, w11, #8
 	WORD	$0xb940014a				//     ldr	w10, [x10]
@@ -595,7 +593,7 @@ LBB1_4:								// LBB1_4:
 	WORD	$0x4a10014a				//     eor	w10, w10, w16
 	WORD	$0x293ea58a				//     stp	w10, w9, [x12, #-12]
 	WORD	$0xb81fc188				//     stur	w8, [x12, #-4]
-									//     ldp	x29, x30, [sp], #16             ; 16-byte Folded Reload
+	//WORD	$0xa8c17bfd				//     ldp	x29, x30, [sp], #16             ; 16-byte Folded Reload
 	RET								//     ret
 
 TEXT ·__process_NEON(SB), NOSPLIT, $32
@@ -605,8 +603,8 @@ TEXT ·__process_NEON(SB), NOSPLIT, $32
 	MOVD	rounds+24(FP),	R3
 
 									// ; %bb.0:
-									//     stp	x29, x30, [sp, #-16]!           ; 16-byte Folded Spill
-									//     mov	x29, sp
+	//WORD	$0xa9bf7bfd				//     stp	x29, x30, [sp, #-16]!           ; 16-byte Folded Spill
+	//WORD	$0x910003fd				//     mov	x29, sp
 	WORD	$0x32089fec				//     mov	w12, #-16711936                 ; =0xff00ff00
 	WORD	$0x32009fed				//     mov	w13, #16711935                  ; =0xff00ff
 	WORD	$0x29402428				//     ldp	w8, w9, [x1]
@@ -769,8 +767,7 @@ Lloh17:								// Lloh17:
 	WORD	$0x4a10022f				//     eor	w15, w17, w16
 	WORD	$0x4a010231				//     eor	w17, w17, w1
 	WORD	$0xf1003c7f				//     cmp	x3, #15
-	BLO		LBB2_3					//     blo	LBB2_3
-									// ; %bb.2:
+	BLO		LBB2_3					//     b.lo	LBB2_3
 	WORD	$0x29440c41				//     ldp	w1, w3, [x2, #32]
 	WORD	$0x4a100030				//     eor	w16, w1, w16
 	WORD	$0x4a110071				//     eor	w17, w3, w17
@@ -915,45 +912,45 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a110071				//     eor	w17, w3, w17
 	WORD	$0x29410c41				//     ldp	w1, w3, [x2, #8]
 	WORD	$0x4a0f002f				//     eor	w15, w1, w15
-	WORD	$0x4a0e006e				//     eor	w14, w3, w14
 	WORD	$0x53187e01				//     lsr	w1, w16, #24
 	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
-	WORD	$0x53105e03				//     ubfx	w3, w16, #16, #8
-	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x53105e04				//     ubfx	w4, w16, #16, #8
+	WORD	$0xb8645904				//     ldr	w4, [x8, w4, uxtw #2]
+	WORD	$0x4a0e006e				//     eor	w14, w3, w14
+	WORD	$0x4a010081				//     eor	w1, w4, w1
 	WORD	$0x53083e03				//     ubfx	w3, w16, #8, #8
 	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
 	WORD	$0x12001e10				//     and	w16, w16, #0xff
 	WORD	$0xb8705950				//     ldr	w16, [x10, w16, uxtw #2]
 	WORD	$0x4a100070				//     eor	w16, w3, w16
+	WORD	$0x53187e23				//     lsr	w3, w17, #24
+	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
 	WORD	$0x4a100030				//     eor	w16, w1, w16
-	WORD	$0x53187e21				//     lsr	w1, w17, #24
-	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
-	WORD	$0x53105e23				//     ubfx	w3, w17, #16, #8
-	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x53105e21				//     ubfx	w1, w17, #16, #8
+	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
+	WORD	$0x4a030021				//     eor	w1, w1, w3
 	WORD	$0x53083e23				//     ubfx	w3, w17, #8, #8
 	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
 	WORD	$0x12001e31				//     and	w17, w17, #0xff
 	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
 	WORD	$0x4a110071				//     eor	w17, w3, w17
+	WORD	$0x53187de3				//     lsr	w3, w15, #24
+	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
+	WORD	$0x53105de4				//     ubfx	w4, w15, #16, #8
+	WORD	$0xb8645904				//     ldr	w4, [x8, w4, uxtw #2]
 	WORD	$0x4a110031				//     eor	w17, w1, w17
-	WORD	$0x53187de1				//     lsr	w1, w15, #24
-	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
-	WORD	$0x53105de3				//     ubfx	w3, w15, #16, #8
-	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x4a030081				//     eor	w1, w4, w3
 	WORD	$0x53083de3				//     ubfx	w3, w15, #8, #8
 	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
 	WORD	$0x12001def				//     and	w15, w15, #0xff
 	WORD	$0xb86f594f				//     ldr	w15, [x10, w15, uxtw #2]
 	WORD	$0x4a0f006f				//     eor	w15, w3, w15
+	WORD	$0x53187dc3				//     lsr	w3, w14, #24
+	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
 	WORD	$0x4a0f002f				//     eor	w15, w1, w15
-	WORD	$0x53187dc1				//     lsr	w1, w14, #24
-	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
-	WORD	$0x53105dc3				//     ubfx	w3, w14, #16, #8
-	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x53105dc1				//     ubfx	w1, w14, #16, #8
+	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
+	WORD	$0x4a030021				//     eor	w1, w1, w3
 	WORD	$0x53083dc3				//     ubfx	w3, w14, #8, #8
 	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
 	WORD	$0x12001dce				//     and	w14, w14, #0xff
@@ -968,11 +965,11 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a1001ef				//     eor	w15, w15, w16
 	WORD	$0x0a0f2190				//     and	w16, w12, w15, lsl #8
 	WORD	$0x0a4f21af				//     and	w15, w13, w15, lsr #8
-	WORD	$0x13914231				//     ror	w17, w17, #16
 	WORD	$0x2a0f020f				//     orr	w15, w16, w15
+	WORD	$0x13914230				//     ror	w16, w17, #16
 	WORD	$0x5ac009ce				//     rev	w14, w14
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x4a0e0230				//     eor	w16, w17, w14
+	WORD	$0x4a1001ef				//     eor	w15, w15, w16
+	WORD	$0x4a0e0210				//     eor	w16, w16, w14
 	WORD	$0x4a0101f1				//     eor	w17, w15, w1
 	WORD	$0x29421043				//     ldp	w3, w4, [x2, #16]
 	WORD	$0x4a030223				//     eor	w3, w17, w3
@@ -982,50 +979,50 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a040210				//     eor	w16, w16, w4
 	WORD	$0x4a110210				//     eor	w16, w16, w17
 	WORD	$0x4a0e00ae				//     eor	w14, w5, w14
-	WORD	$0x53187c71				//     lsr	w17, w3, #24
-	WORD	$0xb8715971				//     ldr	w17, [x11, w17, uxtw #2]
 	WORD	$0x4a0f01ce				//     eor	w14, w14, w15
-	WORD	$0x53105c6f				//     ubfx	w15, w3, #16, #8
-	WORD	$0xb86f594f				//     ldr	w15, [x10, w15, uxtw #2]
+	WORD	$0x53187c6f				//     lsr	w15, w3, #24
+	WORD	$0xb86f596f				//     ldr	w15, [x11, w15, uxtw #2]
+	WORD	$0x53105c71				//     ubfx	w17, w3, #16, #8
+	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
+	WORD	$0x53083c64				//     ubfx	w4, w3, #8, #8
+	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
+	WORD	$0x4a0f022f				//     eor	w15, w17, w15
+	WORD	$0x12001c71				//     and	w17, w3, #0xff
+	WORD	$0xb8715911				//     ldr	w17, [x8, w17, uxtw #2]
+	WORD	$0x4a110091				//     eor	w17, w4, w17
 	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x53083c71				//     ubfx	w17, w3, #8, #8
-	WORD	$0xb8715931				//     ldr	w17, [x9, w17, uxtw #2]
-	WORD	$0x12001c63				//     and	w3, w3, #0xff
-	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
-	WORD	$0x4a030231				//     eor	w17, w17, w3
-	WORD	$0x53187c23				//     lsr	w3, w1, #24
-	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
-	WORD	$0x53105c24				//     ubfx	w4, w1, #16, #8
-	WORD	$0xb8645944				//     ldr	w4, [x10, w4, uxtw #2]
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x4a030091				//     eor	w17, w4, w3
-	WORD	$0x53083c23				//     ubfx	w3, w1, #8, #8
-	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
+	WORD	$0x53187c31				//     lsr	w17, w1, #24
+	WORD	$0xb8715971				//     ldr	w17, [x11, w17, uxtw #2]
+	WORD	$0x53105c23				//     ubfx	w3, w1, #16, #8
+	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
+	WORD	$0x53083c24				//     ubfx	w4, w1, #8, #8
+	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
 	WORD	$0x12001c21				//     and	w1, w1, #0xff
 	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
-	WORD	$0x53187e03				//     lsr	w3, w16, #24
-	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
+	WORD	$0x4a110071				//     eor	w17, w3, w17
+	WORD	$0x4a010081				//     eor	w1, w4, w1
 	WORD	$0x4a010231				//     eor	w17, w17, w1
-	WORD	$0x53105e01				//     ubfx	w1, w16, #16, #8
-	WORD	$0xb8615941				//     ldr	w1, [x10, w1, uxtw #2]
-	WORD	$0x4a030021				//     eor	w1, w1, w3
-	WORD	$0x53083e03				//     ubfx	w3, w16, #8, #8
-	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
+	WORD	$0x53187e01				//     lsr	w1, w16, #24
+	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
+	WORD	$0x53105e03				//     ubfx	w3, w16, #16, #8
+	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
+	WORD	$0x53083e04				//     ubfx	w4, w16, #8, #8
+	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
 	WORD	$0x12001e10				//     and	w16, w16, #0xff
 	WORD	$0xb8705910				//     ldr	w16, [x8, w16, uxtw #2]
-	WORD	$0x4a100070				//     eor	w16, w3, w16
-	WORD	$0x53187dc3				//     lsr	w3, w14, #24
-	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
-	WORD	$0x53105dc4				//     ubfx	w4, w14, #16, #8
-	WORD	$0xb8645944				//     ldr	w4, [x10, w4, uxtw #2]
+	WORD	$0x4a100090				//     eor	w16, w4, w16
 	WORD	$0x4a100030				//     eor	w16, w1, w16
-	WORD	$0x4a030081				//     eor	w1, w4, w3
-	WORD	$0x53083dc3				//     ubfx	w3, w14, #8, #8
-	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
+	WORD	$0x53187dc1				//     lsr	w1, w14, #24
+	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
+	WORD	$0x53105dc3				//     ubfx	w3, w14, #16, #8
+	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
+	WORD	$0x53083dc4				//     ubfx	w4, w14, #8, #8
+	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
 	WORD	$0x12001dce				//     and	w14, w14, #0xff
 	WORD	$0xb86e590e				//     ldr	w14, [x8, w14, uxtw #2]
-	WORD	$0x4a0e006e				//     eor	w14, w3, w14
+	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x4a0e008e				//     eor	w14, w4, w14
 	WORD	$0x4a0e002e				//     eor	w14, w1, w14
 	WORD	$0x4a100231				//     eor	w17, w17, w16
 	WORD	$0x4a1001d0				//     eor	w16, w14, w16
@@ -1046,274 +1043,6 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a100090				//     eor	w16, w4, w16
 	WORD	$0x4a110210				//     eor	w16, w16, w17
 	WORD	$0x29451444				//     ldp	w4, w5, [x2, #40]
-	WORD	$0x4a040021				//     eor	w1, w1, w4
-	WORD	$0x4a110031				//     eor	w17, w1, w17
-	WORD	$0x4a0501ef				//     eor	w15, w15, w5
-	WORD	$0x4a0e01ee				//     eor	w14, w15, w14
-	WORD	$0x53187c6f				//     lsr	w15, w3, #24
-	WORD	$0xb86f592f				//     ldr	w15, [x9, w15, uxtw #2]
-	WORD	$0x53105c61				//     ubfx	w1, w3, #16, #8
-	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
-	WORD	$0x53083c64				//     ubfx	w4, w3, #8, #8
-	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
-	WORD	$0x12001c63				//     and	w3, w3, #0xff
-	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
-	WORD	$0x4a0f002f				//     eor	w15, w1, w15
-	WORD	$0x4a030081				//     eor	w1, w4, w3
-	WORD	$0x4a0101ef				//     eor	w15, w15, w1
-	WORD	$0x53187e01				//     lsr	w1, w16, #24
-	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
-	WORD	$0x53105e03				//     ubfx	w3, w16, #16, #8
-	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
-	WORD	$0x53083e04				//     ubfx	w4, w16, #8, #8
-	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
-	WORD	$0x12001e10				//     and	w16, w16, #0xff
-	WORD	$0xb8705950				//     ldr	w16, [x10, w16, uxtw #2]
-	WORD	$0x4a100090				//     eor	w16, w4, w16
-	WORD	$0x4a100030				//     eor	w16, w1, w16
-	WORD	$0x53187e21				//     lsr	w1, w17, #24
-	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
-	WORD	$0x53105e23				//     ubfx	w3, w17, #16, #8
-	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
-	WORD	$0x53083e24				//     ubfx	w4, w17, #8, #8
-	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
-	WORD	$0x12001e31				//     and	w17, w17, #0xff
-	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
-	WORD	$0x4a110091				//     eor	w17, w4, w17
-	WORD	$0x4a110031				//     eor	w17, w1, w17
-	WORD	$0x53187dc1				//     lsr	w1, w14, #24
-	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
-	WORD	$0x53105dc3				//     ubfx	w3, w14, #16, #8
-	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
-	WORD	$0x53083dc4				//     ubfx	w4, w14, #8, #8
-	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
-	WORD	$0x12001dce				//     and	w14, w14, #0xff
-	WORD	$0xb86e594e				//     ldr	w14, [x10, w14, uxtw #2]
-	WORD	$0x4a0e008e				//     eor	w14, w4, w14
-	WORD	$0x4a0e002e				//     eor	w14, w1, w14
-	WORD	$0x4a110210				//     eor	w16, w16, w17
-	WORD	$0x4a1101d1				//     eor	w17, w14, w17
-	WORD	$0x4a0f0201				//     eor	w1, w16, w15
-	WORD	$0x4a1001ce				//     eor	w14, w14, w16
-	WORD	$0x4a010230				//     eor	w16, w17, w1
-	WORD	$0x4a0f022f				//     eor	w15, w17, w15
-	WORD	$0x0a0f2191				//     and	w17, w12, w15, lsl #8
-	WORD	$0x0a4f21af				//     and	w15, w13, w15, lsr #8
-	WORD	$0x2a0f022f				//     orr	w15, w17, w15
-	WORD	$0x13904210				//     ror	w16, w16, #16
-	WORD	$0x5ac009ce				//     rev	w14, w14
-	WORD	$0x4a1001ef				//     eor	w15, w15, w16
-	WORD	$0x4a0e0210				//     eor	w16, w16, w14
-	WORD	$0x4a0101f1				//     eor	w17, w15, w1
-	WORD	$0x29461043				//     ldp	w3, w4, [x2, #48]
-	WORD	$0x4a030223				//     eor	w3, w17, w3
-	WORD	$0x4a010081				//     eor	w1, w4, w1
-	WORD	$0x4a100021				//     eor	w1, w1, w16
-	WORD	$0x29471444				//     ldp	w4, w5, [x2, #56]
-	WORD	$0x4a040210				//     eor	w16, w16, w4
-	WORD	$0x4a110210				//     eor	w16, w16, w17
-	WORD	$0x4a0e00ae				//     eor	w14, w5, w14
-	WORD	$0x4a0f01ce				//     eor	w14, w14, w15
-	WORD	$0x53187c6f				//     lsr	w15, w3, #24
-	WORD	$0xb86f596f				//     ldr	w15, [x11, w15, uxtw #2]
-	WORD	$0x53105c71				//     ubfx	w17, w3, #16, #8
-	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
-	WORD	$0x4a0f022f				//     eor	w15, w17, w15
-	WORD	$0x53083c71				//     ubfx	w17, w3, #8, #8
-	WORD	$0xb8715931				//     ldr	w17, [x9, w17, uxtw #2]
-	WORD	$0x12001c63				//     and	w3, w3, #0xff
-	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
-	WORD	$0x4a030231				//     eor	w17, w17, w3
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x53187c31				//     lsr	w17, w1, #24
-	WORD	$0xb8715971				//     ldr	w17, [x11, w17, uxtw #2]
-	WORD	$0x53105c23				//     ubfx	w3, w1, #16, #8
-	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
-	WORD	$0x4a110071				//     eor	w17, w3, w17
-	WORD	$0x53083c23				//     ubfx	w3, w1, #8, #8
-	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
-	WORD	$0x12001c21				//     and	w1, w1, #0xff
-	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
-	WORD	$0x4a010231				//     eor	w17, w17, w1
-	WORD	$0x53187e01				//     lsr	w1, w16, #24
-	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
-	WORD	$0x53105e03				//     ubfx	w3, w16, #16, #8
-	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
-	WORD	$0x53083e03				//     ubfx	w3, w16, #8, #8
-	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
-	WORD	$0x12001e10				//     and	w16, w16, #0xff
-	WORD	$0xb8705910				//     ldr	w16, [x8, w16, uxtw #2]
-	WORD	$0x4a100070				//     eor	w16, w3, w16
-	WORD	$0x4a100030				//     eor	w16, w1, w16
-	WORD	$0x53187dc1				//     lsr	w1, w14, #24
-	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
-	WORD	$0x53105dc3				//     ubfx	w3, w14, #16, #8
-	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
-	WORD	$0x53083dc3				//     ubfx	w3, w14, #8, #8
-	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
-	WORD	$0x12001dce				//     and	w14, w14, #0xff
-	WORD	$0xb86e590e				//     ldr	w14, [x8, w14, uxtw #2]
-	WORD	$0x4a0e006e				//     eor	w14, w3, w14
-	WORD	$0x4a0e002e				//     eor	w14, w1, w14
-	WORD	$0x4a100231				//     eor	w17, w17, w16
-	WORD	$0x4a1001d0				//     eor	w16, w14, w16
-	WORD	$0x4a0f0221				//     eor	w1, w17, w15
-	WORD	$0x4a1101ce				//     eor	w14, w14, w17
-	WORD	$0x4a010211				//     eor	w17, w16, w1
-	WORD	$0x4a0f020f				//     eor	w15, w16, w15
-	WORD	$0x0a0e2190				//     and	w16, w12, w14, lsl #8
-	WORD	$0x0a4e21ae				//     and	w14, w13, w14, lsr #8
-	WORD	$0x13814021				//     ror	w1, w1, #16
-	WORD	$0x2a0e020e				//     orr	w14, w16, w14
-	WORD	$0x5ac009ef				//     rev	w15, w15
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x4a1101d0				//     eor	w16, w14, w17
-	WORD	$0x4a0101f1				//     eor	w17, w15, w1
-	WORD	$0x29481043				//     ldp	w3, w4, [x2, #64]
-	WORD	$0x4a030223				//     eor	w3, w17, w3
-	WORD	$0x4a010081				//     eor	w1, w4, w1
-	WORD	$0x4a100021				//     eor	w1, w1, w16
-	WORD	$0x29491444				//     ldp	w4, w5, [x2, #72]
-	WORD	$0x4a040231				//     eor	w17, w17, w4
-	WORD	$0x4a100230				//     eor	w16, w17, w16
-	WORD	$0x4a0501ef				//     eor	w15, w15, w5
-	WORD	$0x53187c71				//     lsr	w17, w3, #24
-	WORD	$0xb8715931				//     ldr	w17, [x9, w17, uxtw #2]
-	WORD	$0x4a0e01ee				//     eor	w14, w15, w14
-	WORD	$0x53105c6f				//     ubfx	w15, w3, #16, #8
-	WORD	$0xb86f590f				//     ldr	w15, [x8, w15, uxtw #2]
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x53083c71				//     ubfx	w17, w3, #8, #8
-	WORD	$0xb8715971				//     ldr	w17, [x11, w17, uxtw #2]
-	WORD	$0x12001c63				//     and	w3, w3, #0xff
-	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
-	WORD	$0x4a030231				//     eor	w17, w17, w3
-	WORD	$0x53187c23				//     lsr	w3, w1, #24
-	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
-	WORD	$0x53105c24				//     ubfx	w4, w1, #16, #8
-	WORD	$0xb8645904				//     ldr	w4, [x8, w4, uxtw #2]
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x4a030091				//     eor	w17, w4, w3
-	WORD	$0x53083c23				//     ubfx	w3, w1, #8, #8
-	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
-	WORD	$0x12001c21				//     and	w1, w1, #0xff
-	WORD	$0xb8615941				//     ldr	w1, [x10, w1, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
-	WORD	$0x53187e03				//     lsr	w3, w16, #24
-	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
-	WORD	$0x4a010231				//     eor	w17, w17, w1
-	WORD	$0x53105e01				//     ubfx	w1, w16, #16, #8
-	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
-	WORD	$0x4a030021				//     eor	w1, w1, w3
-	WORD	$0x53083e03				//     ubfx	w3, w16, #8, #8
-	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
-	WORD	$0x12001e10				//     and	w16, w16, #0xff
-	WORD	$0xb8705950				//     ldr	w16, [x10, w16, uxtw #2]
-	WORD	$0x4a100070				//     eor	w16, w3, w16
-	WORD	$0x53187dc3				//     lsr	w3, w14, #24
-	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
-	WORD	$0x53105dc4				//     ubfx	w4, w14, #16, #8
-	WORD	$0xb8645904				//     ldr	w4, [x8, w4, uxtw #2]
-	WORD	$0x4a100030				//     eor	w16, w1, w16
-	WORD	$0x4a030081				//     eor	w1, w4, w3
-	WORD	$0x53083dc3				//     ubfx	w3, w14, #8, #8
-	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
-	WORD	$0x12001dce				//     and	w14, w14, #0xff
-	WORD	$0xb86e594e				//     ldr	w14, [x10, w14, uxtw #2]
-	WORD	$0x4a0e006e				//     eor	w14, w3, w14
-	WORD	$0x4a0e002e				//     eor	w14, w1, w14
-	WORD	$0x4a100231				//     eor	w17, w17, w16
-	WORD	$0x4a1001d0				//     eor	w16, w14, w16
-	WORD	$0x4a0f0221				//     eor	w1, w17, w15
-	WORD	$0x4a1101ce				//     eor	w14, w14, w17
-	WORD	$0x4a010211				//     eor	w17, w16, w1
-	WORD	$0x4a0f020f				//     eor	w15, w16, w15
-	WORD	$0x0a0f2190				//     and	w16, w12, w15, lsl #8
-	WORD	$0x0a4f21af				//     and	w15, w13, w15, lsr #8
-	WORD	$0x2a0f020f				//     orr	w15, w16, w15
-	WORD	$0x13914230				//     ror	w16, w17, #16
-	WORD	$0x5ac009ce				//     rev	w14, w14
-	WORD	$0x4a1001ef				//     eor	w15, w15, w16
-	WORD	$0x4a0e0210				//     eor	w16, w16, w14
-	WORD	$0x4a0101f1				//     eor	w17, w15, w1
-	WORD	$0x294a1043				//     ldp	w3, w4, [x2, #80]
-	WORD	$0x4a030223				//     eor	w3, w17, w3
-	WORD	$0x4a010081				//     eor	w1, w4, w1
-	WORD	$0x4a100021				//     eor	w1, w1, w16
-	WORD	$0x294b1444				//     ldp	w4, w5, [x2, #88]
-	WORD	$0x4a040210				//     eor	w16, w16, w4
-	WORD	$0x4a110210				//     eor	w16, w16, w17
-	WORD	$0x4a0e00ae				//     eor	w14, w5, w14
-	WORD	$0x4a0f01ce				//     eor	w14, w14, w15
-	WORD	$0x53187c6f				//     lsr	w15, w3, #24
-	WORD	$0xb86f596f				//     ldr	w15, [x11, w15, uxtw #2]
-	WORD	$0x53105c71				//     ubfx	w17, w3, #16, #8
-	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
-	WORD	$0x53083c64				//     ubfx	w4, w3, #8, #8
-	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
-	WORD	$0x12001c63				//     and	w3, w3, #0xff
-	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
-	WORD	$0x4a0f022f				//     eor	w15, w17, w15
-	WORD	$0x4a030091				//     eor	w17, w4, w3
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x53187c31				//     lsr	w17, w1, #24
-	WORD	$0xb8715971				//     ldr	w17, [x11, w17, uxtw #2]
-	WORD	$0x53105c23				//     ubfx	w3, w1, #16, #8
-	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
-	WORD	$0x53083c24				//     ubfx	w4, w1, #8, #8
-	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
-	WORD	$0x4a110071				//     eor	w17, w3, w17
-	WORD	$0x12001c21				//     and	w1, w1, #0xff
-	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
-	WORD	$0x4a010081				//     eor	w1, w4, w1
-	WORD	$0x4a010231				//     eor	w17, w17, w1
-	WORD	$0x53187e01				//     lsr	w1, w16, #24
-	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
-	WORD	$0x53105e03				//     ubfx	w3, w16, #16, #8
-	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
-	WORD	$0x53083e04				//     ubfx	w4, w16, #8, #8
-	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
-	WORD	$0x12001e10				//     and	w16, w16, #0xff
-	WORD	$0xb8705910				//     ldr	w16, [x8, w16, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
-	WORD	$0x4a100090				//     eor	w16, w4, w16
-	WORD	$0x4a100030				//     eor	w16, w1, w16
-	WORD	$0x53187dc1				//     lsr	w1, w14, #24
-	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
-	WORD	$0x53105dc3				//     ubfx	w3, w14, #16, #8
-	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
-	WORD	$0x53083dc4				//     ubfx	w4, w14, #8, #8
-	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
-	WORD	$0x12001dce				//     and	w14, w14, #0xff
-	WORD	$0xb86e590e				//     ldr	w14, [x8, w14, uxtw #2]
-	WORD	$0x4a0e008e				//     eor	w14, w4, w14
-	WORD	$0x4a0e002e				//     eor	w14, w1, w14
-	WORD	$0x4a100231				//     eor	w17, w17, w16
-	WORD	$0x4a1001d0				//     eor	w16, w14, w16
-	WORD	$0x4a0f0221				//     eor	w1, w17, w15
-	WORD	$0x4a1101ce				//     eor	w14, w14, w17
-	WORD	$0x4a010211				//     eor	w17, w16, w1
-	WORD	$0x4a0f020f				//     eor	w15, w16, w15
-	WORD	$0x0a0e2190				//     and	w16, w12, w14, lsl #8
-	WORD	$0x0a4e21ae				//     and	w14, w13, w14, lsr #8
-	WORD	$0x2a0e020e				//     orr	w14, w16, w14
-	WORD	$0x13814030				//     ror	w16, w1, #16
-	WORD	$0x5ac009ef				//     rev	w15, w15
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x4a1101d1				//     eor	w17, w14, w17
-	WORD	$0x4a1001e1				//     eor	w1, w15, w16
-	WORD	$0x294c1043				//     ldp	w3, w4, [x2, #96]
-	WORD	$0x4a030023				//     eor	w3, w1, w3
-	WORD	$0x4a100090				//     eor	w16, w4, w16
-	WORD	$0x4a110210				//     eor	w16, w16, w17
-	WORD	$0x294d1444				//     ldp	w4, w5, [x2, #104]
 	WORD	$0x4a040021				//     eor	w1, w1, w4
 	WORD	$0x4a110031				//     eor	w17, w1, w17
 	WORD	$0x4a0501ef				//     eor	w15, w15, w5
@@ -1370,26 +1099,26 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a0f022f				//     eor	w15, w17, w15
 	WORD	$0x0a0f2191				//     and	w17, w12, w15, lsl #8
 	WORD	$0x0a4f21af				//     and	w15, w13, w15, lsr #8
-	WORD	$0x13904210				//     ror	w16, w16, #16
 	WORD	$0x2a0f022f				//     orr	w15, w17, w15
+	WORD	$0x13904210				//     ror	w16, w16, #16
 	WORD	$0x5ac009ce				//     rev	w14, w14
 	WORD	$0x4a1001ef				//     eor	w15, w15, w16
 	WORD	$0x4a0e0210				//     eor	w16, w16, w14
 	WORD	$0x4a0101f1				//     eor	w17, w15, w1
-	WORD	$0x294e1043				//     ldp	w3, w4, [x2, #112]
+	WORD	$0x29461043				//     ldp	w3, w4, [x2, #48]
 	WORD	$0x4a030223				//     eor	w3, w17, w3
 	WORD	$0x4a010081				//     eor	w1, w4, w1
 	WORD	$0x4a100021				//     eor	w1, w1, w16
-	WORD	$0x294f1444				//     ldp	w4, w5, [x2, #120]
+	WORD	$0x29471444				//     ldp	w4, w5, [x2, #56]
 	WORD	$0x4a040210				//     eor	w16, w16, w4
 	WORD	$0x4a110210				//     eor	w16, w16, w17
 	WORD	$0x4a0e00ae				//     eor	w14, w5, w14
 	WORD	$0x53187c71				//     lsr	w17, w3, #24
 	WORD	$0xb8715971				//     ldr	w17, [x11, w17, uxtw #2]
+	WORD	$0x53105c64				//     ubfx	w4, w3, #16, #8
+	WORD	$0xb8645944				//     ldr	w4, [x10, w4, uxtw #2]
 	WORD	$0x4a0f01ce				//     eor	w14, w14, w15
-	WORD	$0x53105c6f				//     ubfx	w15, w3, #16, #8
-	WORD	$0xb86f594f				//     ldr	w15, [x10, w15, uxtw #2]
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
+	WORD	$0x4a11008f				//     eor	w15, w4, w17
 	WORD	$0x53083c71				//     ubfx	w17, w3, #8, #8
 	WORD	$0xb8715931				//     ldr	w17, [x9, w17, uxtw #2]
 	WORD	$0x12001c63				//     and	w3, w3, #0xff
@@ -1397,10 +1126,10 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a030231				//     eor	w17, w17, w3
 	WORD	$0x53187c23				//     lsr	w3, w1, #24
 	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
-	WORD	$0x53105c24				//     ubfx	w4, w1, #16, #8
-	WORD	$0xb8645944				//     ldr	w4, [x10, w4, uxtw #2]
 	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x4a030091				//     eor	w17, w4, w3
+	WORD	$0x53105c31				//     ubfx	w17, w1, #16, #8
+	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
+	WORD	$0x4a030231				//     eor	w17, w17, w3
 	WORD	$0x53083c23				//     ubfx	w3, w1, #8, #8
 	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
 	WORD	$0x12001c21				//     and	w1, w1, #0xff
@@ -1408,10 +1137,10 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a010061				//     eor	w1, w3, w1
 	WORD	$0x53187e03				//     lsr	w3, w16, #24
 	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
+	WORD	$0x53105e04				//     ubfx	w4, w16, #16, #8
+	WORD	$0xb8645944				//     ldr	w4, [x10, w4, uxtw #2]
 	WORD	$0x4a010231				//     eor	w17, w17, w1
-	WORD	$0x53105e01				//     ubfx	w1, w16, #16, #8
-	WORD	$0xb8615941				//     ldr	w1, [x10, w1, uxtw #2]
-	WORD	$0x4a030021				//     eor	w1, w1, w3
+	WORD	$0x4a030081				//     eor	w1, w4, w3
 	WORD	$0x53083e03				//     ubfx	w3, w16, #8, #8
 	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
 	WORD	$0x12001e10				//     and	w16, w16, #0xff
@@ -1419,10 +1148,10 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a100070				//     eor	w16, w3, w16
 	WORD	$0x53187dc3				//     lsr	w3, w14, #24
 	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
-	WORD	$0x53105dc4				//     ubfx	w4, w14, #16, #8
-	WORD	$0xb8645944				//     ldr	w4, [x10, w4, uxtw #2]
 	WORD	$0x4a100030				//     eor	w16, w1, w16
-	WORD	$0x4a030081				//     eor	w1, w4, w3
+	WORD	$0x53105dc1				//     ubfx	w1, w14, #16, #8
+	WORD	$0xb8615941				//     ldr	w1, [x10, w1, uxtw #2]
+	WORD	$0x4a030021				//     eor	w1, w1, w3
 	WORD	$0x53083dc3				//     ubfx	w3, w14, #8, #8
 	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
 	WORD	$0x12001dce				//     and	w14, w14, #0xff
@@ -1443,11 +1172,11 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a1101ef				//     eor	w15, w15, w17
 	WORD	$0x4a1101d1				//     eor	w17, w14, w17
 	WORD	$0x4a1001e1				//     eor	w1, w15, w16
-	WORD	$0x29501043				//     ldp	w3, w4, [x2, #128]
+	WORD	$0x29481043				//     ldp	w3, w4, [x2, #64]
 	WORD	$0x4a030023				//     eor	w3, w1, w3
 	WORD	$0x4a100090				//     eor	w16, w4, w16
 	WORD	$0x4a110210				//     eor	w16, w16, w17
-	WORD	$0x29511444				//     ldp	w4, w5, [x2, #136]
+	WORD	$0x29491444				//     ldp	w4, w5, [x2, #72]
 	WORD	$0x4a040021				//     eor	w1, w1, w4
 	WORD	$0x4a110031				//     eor	w17, w1, w17
 	WORD	$0x4a0501ef				//     eor	w15, w15, w5
@@ -1458,10 +1187,10 @@ LBB2_4:								// LBB2_4:
 	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
 	WORD	$0x53083c64				//     ubfx	w4, w3, #8, #8
 	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
-	WORD	$0x12001c63				//     and	w3, w3, #0xff
-	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
 	WORD	$0x4a0f002f				//     eor	w15, w1, w15
-	WORD	$0x4a030081				//     eor	w1, w4, w3
+	WORD	$0x12001c61				//     and	w1, w3, #0xff
+	WORD	$0xb8615941				//     ldr	w1, [x10, w1, uxtw #2]
+	WORD	$0x4a010081				//     eor	w1, w4, w1
 	WORD	$0x4a0101ef				//     eor	w15, w15, w1
 	WORD	$0x53187e01				//     lsr	w1, w16, #24
 	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
@@ -1469,9 +1198,9 @@ LBB2_4:								// LBB2_4:
 	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
 	WORD	$0x53083e04				//     ubfx	w4, w16, #8, #8
 	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
 	WORD	$0x12001e10				//     and	w16, w16, #0xff
 	WORD	$0xb8705950				//     ldr	w16, [x10, w16, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
 	WORD	$0x4a100090				//     eor	w16, w4, w16
 	WORD	$0x4a100030				//     eor	w16, w1, w16
 	WORD	$0x53187e21				//     lsr	w1, w17, #24
@@ -1480,9 +1209,9 @@ LBB2_4:								// LBB2_4:
 	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
 	WORD	$0x53083e24				//     ubfx	w4, w17, #8, #8
 	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
 	WORD	$0x12001e31				//     and	w17, w17, #0xff
 	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
 	WORD	$0x4a110091				//     eor	w17, w4, w17
 	WORD	$0x4a110031				//     eor	w17, w1, w17
 	WORD	$0x53187dc1				//     lsr	w1, w14, #24
@@ -1491,9 +1220,9 @@ LBB2_4:								// LBB2_4:
 	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
 	WORD	$0x53083dc4				//     ubfx	w4, w14, #8, #8
 	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
 	WORD	$0x12001dce				//     and	w14, w14, #0xff
 	WORD	$0xb86e594e				//     ldr	w14, [x10, w14, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
 	WORD	$0x4a0e008e				//     eor	w14, w4, w14
 	WORD	$0x4a0e002e				//     eor	w14, w1, w14
 	WORD	$0x4a110210				//     eor	w16, w16, w17
@@ -1510,11 +1239,11 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a1001ef				//     eor	w15, w15, w16
 	WORD	$0x4a0e0210				//     eor	w16, w16, w14
 	WORD	$0x4a0101f1				//     eor	w17, w15, w1
-	WORD	$0x29521043				//     ldp	w3, w4, [x2, #144]
+	WORD	$0x294a1043				//     ldp	w3, w4, [x2, #80]
 	WORD	$0x4a030223				//     eor	w3, w17, w3
 	WORD	$0x4a010081				//     eor	w1, w4, w1
 	WORD	$0x4a100021				//     eor	w1, w1, w16
-	WORD	$0x29531444				//     ldp	w4, w5, [x2, #152]
+	WORD	$0x294b1444				//     ldp	w4, w5, [x2, #88]
 	WORD	$0x4a040210				//     eor	w16, w16, w4
 	WORD	$0x4a110210				//     eor	w16, w16, w17
 	WORD	$0x4a0e00ae				//     eor	w14, w5, w14
@@ -1571,45 +1300,34 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a0f020f				//     eor	w15, w16, w15
 	WORD	$0x0a0e2190				//     and	w16, w12, w14, lsl #8
 	WORD	$0x0a4e21ae				//     and	w14, w13, w14, lsr #8
-	WORD	$0x13814021				//     ror	w1, w1, #16
 	WORD	$0x2a0e020e				//     orr	w14, w16, w14
+	WORD	$0x13814030				//     ror	w16, w1, #16
 	WORD	$0x5ac009ef				//     rev	w15, w15
 	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x4a0101f0				//     eor	w16, w15, w1
-	WORD	$0x29541043				//     ldp	w3, w4, [x2, #160]
-	WORD	$0x4a030203				//     eor	w3, w16, w3
-	WORD	$0x4a010081				//     eor	w1, w4, w1
-	WORD	$0x29551444				//     ldp	w4, w5, [x2, #168]
-	WORD	$0x4a040210				//     eor	w16, w16, w4
 	WORD	$0x4a1101d1				//     eor	w17, w14, w17
-	WORD	$0x4a110021				//     eor	w1, w1, w17
+	WORD	$0x4a1001e1				//     eor	w1, w15, w16
+	WORD	$0x294c1043				//     ldp	w3, w4, [x2, #96]
+	WORD	$0x4a030023				//     eor	w3, w1, w3
+	WORD	$0x4a100090				//     eor	w16, w4, w16
 	WORD	$0x4a110210				//     eor	w16, w16, w17
+	WORD	$0x294d1444				//     ldp	w4, w5, [x2, #104]
+	WORD	$0x4a040021				//     eor	w1, w1, w4
+	WORD	$0x4a110031				//     eor	w17, w1, w17
 	WORD	$0x4a0501ef				//     eor	w15, w15, w5
-	WORD	$0x53187c71				//     lsr	w17, w3, #24
-	WORD	$0xb8715931				//     ldr	w17, [x9, w17, uxtw #2]
+	WORD	$0x53187c61				//     lsr	w1, w3, #24
+	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
+	WORD	$0x53105c64				//     ubfx	w4, w3, #16, #8
+	WORD	$0xb8645904				//     ldr	w4, [x8, w4, uxtw #2]
 	WORD	$0x4a0e01ee				//     eor	w14, w15, w14
-	WORD	$0x53105c6f				//     ubfx	w15, w3, #16, #8
-	WORD	$0xb86f590f				//     ldr	w15, [x8, w15, uxtw #2]
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x53083c71				//     ubfx	w17, w3, #8, #8
-	WORD	$0xb8715971				//     ldr	w17, [x11, w17, uxtw #2]
+	WORD	$0x4a01008f				//     eor	w15, w4, w1
+	WORD	$0x53083c61				//     ubfx	w1, w3, #8, #8
+	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
 	WORD	$0x12001c63				//     and	w3, w3, #0xff
 	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
-	WORD	$0x4a030231				//     eor	w17, w17, w3
-	WORD	$0x53187c23				//     lsr	w3, w1, #24
-	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
-	WORD	$0x53105c24				//     ubfx	w4, w1, #16, #8
-	WORD	$0xb8645904				//     ldr	w4, [x8, w4, uxtw #2]
-	WORD	$0x4a1101ef				//     eor	w15, w15, w17
-	WORD	$0x4a030091				//     eor	w17, w4, w3
-	WORD	$0x53083c23				//     ubfx	w3, w1, #8, #8
-	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
-	WORD	$0x12001c21				//     and	w1, w1, #0xff
-	WORD	$0xb8615941				//     ldr	w1, [x10, w1, uxtw #2]
-	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x4a030021				//     eor	w1, w1, w3
 	WORD	$0x53187e03				//     lsr	w3, w16, #24
 	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
-	WORD	$0x4a010231				//     eor	w17, w17, w1
+	WORD	$0x4a0101ef				//     eor	w15, w15, w1
 	WORD	$0x53105e01				//     ubfx	w1, w16, #16, #8
 	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
 	WORD	$0x4a030021				//     eor	w1, w1, w3
@@ -1618,16 +1336,228 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x12001e10				//     and	w16, w16, #0xff
 	WORD	$0xb8705950				//     ldr	w16, [x10, w16, uxtw #2]
 	WORD	$0x4a100070				//     eor	w16, w3, w16
-	WORD	$0x53187dc3				//     lsr	w3, w14, #24
+	WORD	$0x53187e23				//     lsr	w3, w17, #24
 	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
-	WORD	$0x53105dc4				//     ubfx	w4, w14, #16, #8
+	WORD	$0x53105e24				//     ubfx	w4, w17, #16, #8
 	WORD	$0xb8645904				//     ldr	w4, [x8, w4, uxtw #2]
 	WORD	$0x4a100030				//     eor	w16, w1, w16
 	WORD	$0x4a030081				//     eor	w1, w4, w3
+	WORD	$0x53083e23				//     ubfx	w3, w17, #8, #8
+	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
+	WORD	$0x12001e31				//     and	w17, w17, #0xff
+	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
+	WORD	$0x4a110071				//     eor	w17, w3, w17
+	WORD	$0x53187dc3				//     lsr	w3, w14, #24
+	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
+	WORD	$0x4a110031				//     eor	w17, w1, w17
+	WORD	$0x53105dc1				//     ubfx	w1, w14, #16, #8
+	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
+	WORD	$0x4a030021				//     eor	w1, w1, w3
 	WORD	$0x53083dc3				//     ubfx	w3, w14, #8, #8
 	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
 	WORD	$0x12001dce				//     and	w14, w14, #0xff
 	WORD	$0xb86e594e				//     ldr	w14, [x10, w14, uxtw #2]
+	WORD	$0x4a0e006e				//     eor	w14, w3, w14
+	WORD	$0x4a0e002e				//     eor	w14, w1, w14
+	WORD	$0x4a110210				//     eor	w16, w16, w17
+	WORD	$0x4a1101d1				//     eor	w17, w14, w17
+	WORD	$0x4a0f0201				//     eor	w1, w16, w15
+	WORD	$0x4a1001ce				//     eor	w14, w14, w16
+	WORD	$0x4a010230				//     eor	w16, w17, w1
+	WORD	$0x4a0f022f				//     eor	w15, w17, w15
+	WORD	$0x0a0f2191				//     and	w17, w12, w15, lsl #8
+	WORD	$0x0a4f21af				//     and	w15, w13, w15, lsr #8
+	WORD	$0x2a0f022f				//     orr	w15, w17, w15
+	WORD	$0x13904210				//     ror	w16, w16, #16
+	WORD	$0x5ac009ce				//     rev	w14, w14
+	WORD	$0x4a1001ef				//     eor	w15, w15, w16
+	WORD	$0x4a0e0210				//     eor	w16, w16, w14
+	WORD	$0x4a0101f1				//     eor	w17, w15, w1
+	WORD	$0x294e1043				//     ldp	w3, w4, [x2, #112]
+	WORD	$0x4a030223				//     eor	w3, w17, w3
+	WORD	$0x4a010081				//     eor	w1, w4, w1
+	WORD	$0x4a100021				//     eor	w1, w1, w16
+	WORD	$0x294f1444				//     ldp	w4, w5, [x2, #120]
+	WORD	$0x4a040210				//     eor	w16, w16, w4
+	WORD	$0x4a110210				//     eor	w16, w16, w17
+	WORD	$0x4a0e00ae				//     eor	w14, w5, w14
+	WORD	$0x4a0f01ce				//     eor	w14, w14, w15
+	WORD	$0x53187c6f				//     lsr	w15, w3, #24
+	WORD	$0xb86f596f				//     ldr	w15, [x11, w15, uxtw #2]
+	WORD	$0x53105c71				//     ubfx	w17, w3, #16, #8
+	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
+	WORD	$0x53083c64				//     ubfx	w4, w3, #8, #8
+	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
+	WORD	$0x4a0f022f				//     eor	w15, w17, w15
+	WORD	$0x12001c71				//     and	w17, w3, #0xff
+	WORD	$0xb8715911				//     ldr	w17, [x8, w17, uxtw #2]
+	WORD	$0x4a110091				//     eor	w17, w4, w17
+	WORD	$0x4a1101ef				//     eor	w15, w15, w17
+	WORD	$0x53187c31				//     lsr	w17, w1, #24
+	WORD	$0xb8715971				//     ldr	w17, [x11, w17, uxtw #2]
+	WORD	$0x53105c23				//     ubfx	w3, w1, #16, #8
+	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
+	WORD	$0x53083c24				//     ubfx	w4, w1, #8, #8
+	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
+	WORD	$0x12001c21				//     and	w1, w1, #0xff
+	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
+	WORD	$0x4a110071				//     eor	w17, w3, w17
+	WORD	$0x4a010081				//     eor	w1, w4, w1
+	WORD	$0x4a010231				//     eor	w17, w17, w1
+	WORD	$0x53187e01				//     lsr	w1, w16, #24
+	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
+	WORD	$0x53105e03				//     ubfx	w3, w16, #16, #8
+	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
+	WORD	$0x53083e04				//     ubfx	w4, w16, #8, #8
+	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x12001e10				//     and	w16, w16, #0xff
+	WORD	$0xb8705910				//     ldr	w16, [x8, w16, uxtw #2]
+	WORD	$0x4a100090				//     eor	w16, w4, w16
+	WORD	$0x4a100030				//     eor	w16, w1, w16
+	WORD	$0x53187dc1				//     lsr	w1, w14, #24
+	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
+	WORD	$0x53105dc3				//     ubfx	w3, w14, #16, #8
+	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
+	WORD	$0x53083dc4				//     ubfx	w4, w14, #8, #8
+	WORD	$0xb8645924				//     ldr	w4, [x9, w4, uxtw #2]
+	WORD	$0x12001dce				//     and	w14, w14, #0xff
+	WORD	$0xb86e590e				//     ldr	w14, [x8, w14, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x4a0e008e				//     eor	w14, w4, w14
+	WORD	$0x4a0e002e				//     eor	w14, w1, w14
+	WORD	$0x4a100231				//     eor	w17, w17, w16
+	WORD	$0x4a1001d0				//     eor	w16, w14, w16
+	WORD	$0x4a0f0221				//     eor	w1, w17, w15
+	WORD	$0x4a1101ce				//     eor	w14, w14, w17
+	WORD	$0x4a010211				//     eor	w17, w16, w1
+	WORD	$0x4a0f020f				//     eor	w15, w16, w15
+	WORD	$0x0a0e2190				//     and	w16, w12, w14, lsl #8
+	WORD	$0x0a4e21ae				//     and	w14, w13, w14, lsr #8
+	WORD	$0x2a0e020e				//     orr	w14, w16, w14
+	WORD	$0x13814030				//     ror	w16, w1, #16
+	WORD	$0x5ac009ef				//     rev	w15, w15
+	WORD	$0x4a1101ef				//     eor	w15, w15, w17
+	WORD	$0x4a1101d1				//     eor	w17, w14, w17
+	WORD	$0x4a1001e1				//     eor	w1, w15, w16
+	WORD	$0x29501043				//     ldp	w3, w4, [x2, #128]
+	WORD	$0x4a030023				//     eor	w3, w1, w3
+	WORD	$0x4a100090				//     eor	w16, w4, w16
+	WORD	$0x4a110210				//     eor	w16, w16, w17
+	WORD	$0x29511444				//     ldp	w4, w5, [x2, #136]
+	WORD	$0x4a040021				//     eor	w1, w1, w4
+	WORD	$0x4a110031				//     eor	w17, w1, w17
+	WORD	$0x4a0501ef				//     eor	w15, w15, w5
+	WORD	$0x4a0e01ee				//     eor	w14, w15, w14
+	WORD	$0x53187c6f				//     lsr	w15, w3, #24
+	WORD	$0xb86f592f				//     ldr	w15, [x9, w15, uxtw #2]
+	WORD	$0x53105c61				//     ubfx	w1, w3, #16, #8
+	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
+	WORD	$0x4a0f002f				//     eor	w15, w1, w15
+	WORD	$0x53083c61				//     ubfx	w1, w3, #8, #8
+	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
+	WORD	$0x12001c63				//     and	w3, w3, #0xff
+	WORD	$0xb8635943				//     ldr	w3, [x10, w3, uxtw #2]
+	WORD	$0x4a030021				//     eor	w1, w1, w3
+	WORD	$0x4a0101ef				//     eor	w15, w15, w1
+	WORD	$0x53187e01				//     lsr	w1, w16, #24
+	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
+	WORD	$0x53105e03				//     ubfx	w3, w16, #16, #8
+	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x53083e03				//     ubfx	w3, w16, #8, #8
+	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
+	WORD	$0x12001e10				//     and	w16, w16, #0xff
+	WORD	$0xb8705950				//     ldr	w16, [x10, w16, uxtw #2]
+	WORD	$0x4a100070				//     eor	w16, w3, w16
+	WORD	$0x4a100030				//     eor	w16, w1, w16
+	WORD	$0x53187e21				//     lsr	w1, w17, #24
+	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
+	WORD	$0x53105e23				//     ubfx	w3, w17, #16, #8
+	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x53083e23				//     ubfx	w3, w17, #8, #8
+	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
+	WORD	$0x12001e31				//     and	w17, w17, #0xff
+	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
+	WORD	$0x4a110071				//     eor	w17, w3, w17
+	WORD	$0x4a110031				//     eor	w17, w1, w17
+	WORD	$0x53187dc1				//     lsr	w1, w14, #24
+	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
+	WORD	$0x53105dc3				//     ubfx	w3, w14, #16, #8
+	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x53083dc3				//     ubfx	w3, w14, #8, #8
+	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
+	WORD	$0x12001dce				//     and	w14, w14, #0xff
+	WORD	$0xb86e594e				//     ldr	w14, [x10, w14, uxtw #2]
+	WORD	$0x4a0e006e				//     eor	w14, w3, w14
+	WORD	$0x4a0e002e				//     eor	w14, w1, w14
+	WORD	$0x4a110210				//     eor	w16, w16, w17
+	WORD	$0x4a1101d1				//     eor	w17, w14, w17
+	WORD	$0x4a0f0201				//     eor	w1, w16, w15
+	WORD	$0x4a1001ce				//     eor	w14, w14, w16
+	WORD	$0x4a010230				//     eor	w16, w17, w1
+	WORD	$0x4a0f022f				//     eor	w15, w17, w15
+	WORD	$0x0a0f2191				//     and	w17, w12, w15, lsl #8
+	WORD	$0x0a4f21af				//     and	w15, w13, w15, lsr #8
+	WORD	$0x2a0f022f				//     orr	w15, w17, w15
+	WORD	$0x13904210				//     ror	w16, w16, #16
+	WORD	$0x5ac009ce				//     rev	w14, w14
+	WORD	$0x4a1001ef				//     eor	w15, w15, w16
+	WORD	$0x4a0e0210				//     eor	w16, w16, w14
+	WORD	$0x4a0101f1				//     eor	w17, w15, w1
+	WORD	$0x29521043				//     ldp	w3, w4, [x2, #144]
+	WORD	$0x4a030223				//     eor	w3, w17, w3
+	WORD	$0x4a010081				//     eor	w1, w4, w1
+	WORD	$0x4a100021				//     eor	w1, w1, w16
+	WORD	$0x29531444				//     ldp	w4, w5, [x2, #152]
+	WORD	$0x4a040210				//     eor	w16, w16, w4
+	WORD	$0x4a110210				//     eor	w16, w16, w17
+	WORD	$0x4a0e00ae				//     eor	w14, w5, w14
+	WORD	$0x53187c71				//     lsr	w17, w3, #24
+	WORD	$0xb8715971				//     ldr	w17, [x11, w17, uxtw #2]
+	WORD	$0x53105c64				//     ubfx	w4, w3, #16, #8
+	WORD	$0xb8645944				//     ldr	w4, [x10, w4, uxtw #2]
+	WORD	$0x4a0f01ce				//     eor	w14, w14, w15
+	WORD	$0x4a11008f				//     eor	w15, w4, w17
+	WORD	$0x53083c71				//     ubfx	w17, w3, #8, #8
+	WORD	$0xb8715931				//     ldr	w17, [x9, w17, uxtw #2]
+	WORD	$0x12001c63				//     and	w3, w3, #0xff
+	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
+	WORD	$0x4a030231				//     eor	w17, w17, w3
+	WORD	$0x53187c23				//     lsr	w3, w1, #24
+	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
+	WORD	$0x4a1101ef				//     eor	w15, w15, w17
+	WORD	$0x53105c31				//     ubfx	w17, w1, #16, #8
+	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
+	WORD	$0x4a030231				//     eor	w17, w17, w3
+	WORD	$0x53083c23				//     ubfx	w3, w1, #8, #8
+	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
+	WORD	$0x12001c21				//     and	w1, w1, #0xff
+	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x53187e03				//     lsr	w3, w16, #24
+	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
+	WORD	$0x53105e04				//     ubfx	w4, w16, #16, #8
+	WORD	$0xb8645944				//     ldr	w4, [x10, w4, uxtw #2]
+	WORD	$0x4a010231				//     eor	w17, w17, w1
+	WORD	$0x4a030081				//     eor	w1, w4, w3
+	WORD	$0x53083e03				//     ubfx	w3, w16, #8, #8
+	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
+	WORD	$0x12001e10				//     and	w16, w16, #0xff
+	WORD	$0xb8705910				//     ldr	w16, [x8, w16, uxtw #2]
+	WORD	$0x4a100070				//     eor	w16, w3, w16
+	WORD	$0x53187dc3				//     lsr	w3, w14, #24
+	WORD	$0xb8635963				//     ldr	w3, [x11, w3, uxtw #2]
+	WORD	$0x4a100030				//     eor	w16, w1, w16
+	WORD	$0x53105dc1				//     ubfx	w1, w14, #16, #8
+	WORD	$0xb8615941				//     ldr	w1, [x10, w1, uxtw #2]
+	WORD	$0x4a030021				//     eor	w1, w1, w3
+	WORD	$0x53083dc3				//     ubfx	w3, w14, #8, #8
+	WORD	$0xb8635923				//     ldr	w3, [x9, w3, uxtw #2]
+	WORD	$0x12001dce				//     and	w14, w14, #0xff
+	WORD	$0xb86e590e				//     ldr	w14, [x8, w14, uxtw #2]
 	WORD	$0x4a0e006e				//     eor	w14, w3, w14
 	WORD	$0x4a0e002e				//     eor	w14, w1, w14
 	WORD	$0x4a100231				//     eor	w17, w17, w16
@@ -1636,10 +1566,77 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a1101ce				//     eor	w14, w14, w17
 	WORD	$0x4a010211				//     eor	w17, w16, w1
 	WORD	$0x4a0f020f				//     eor	w15, w16, w15
+	WORD	$0x0a0e2190				//     and	w16, w12, w14, lsl #8
+	WORD	$0x0a4e21ae				//     and	w14, w13, w14, lsr #8
+	WORD	$0x2a0e020e				//     orr	w14, w16, w14
+	WORD	$0x13814030				//     ror	w16, w1, #16
+	WORD	$0x5ac009ef				//     rev	w15, w15
+	WORD	$0x4a1101ef				//     eor	w15, w15, w17
+	WORD	$0x4a1001e1				//     eor	w1, w15, w16
+	WORD	$0x29541043				//     ldp	w3, w4, [x2, #160]
+	WORD	$0x4a030023				//     eor	w3, w1, w3
+	WORD	$0x4a100090				//     eor	w16, w4, w16
+	WORD	$0x29551444				//     ldp	w4, w5, [x2, #168]
+	WORD	$0x4a040021				//     eor	w1, w1, w4
+	WORD	$0x4a1101d1				//     eor	w17, w14, w17
+	WORD	$0x4a110210				//     eor	w16, w16, w17
+	WORD	$0x4a110031				//     eor	w17, w1, w17
+	WORD	$0x4a0501ef				//     eor	w15, w15, w5
+	WORD	$0x4a0e01ee				//     eor	w14, w15, w14
+	WORD	$0x53187c6f				//     lsr	w15, w3, #24
+	WORD	$0xb86f592f				//     ldr	w15, [x9, w15, uxtw #2]
+	WORD	$0x53105c61				//     ubfx	w1, w3, #16, #8
+	WORD	$0xb8615901				//     ldr	w1, [x8, w1, uxtw #2]
+	WORD	$0x53083c64				//     ubfx	w4, w3, #8, #8
+	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
+	WORD	$0x4a0f002f				//     eor	w15, w1, w15
+	WORD	$0x12001c61				//     and	w1, w3, #0xff
+	WORD	$0xb8615941				//     ldr	w1, [x10, w1, uxtw #2]
+	WORD	$0x4a010081				//     eor	w1, w4, w1
+	WORD	$0x4a0101ef				//     eor	w15, w15, w1
+	WORD	$0x53187e01				//     lsr	w1, w16, #24
+	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
+	WORD	$0x53105e03				//     ubfx	w3, w16, #16, #8
+	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
+	WORD	$0x53083e04				//     ubfx	w4, w16, #8, #8
+	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
+	WORD	$0x12001e10				//     and	w16, w16, #0xff
+	WORD	$0xb8705950				//     ldr	w16, [x10, w16, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x4a100090				//     eor	w16, w4, w16
+	WORD	$0x4a100030				//     eor	w16, w1, w16
+	WORD	$0x53187e21				//     lsr	w1, w17, #24
+	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
+	WORD	$0x53105e23				//     ubfx	w3, w17, #16, #8
+	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
+	WORD	$0x53083e24				//     ubfx	w4, w17, #8, #8
+	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x12001e31				//     and	w17, w17, #0xff
+	WORD	$0xb8715951				//     ldr	w17, [x10, w17, uxtw #2]
+	WORD	$0x4a110091				//     eor	w17, w4, w17
+	WORD	$0x4a110031				//     eor	w17, w1, w17
+	WORD	$0x53187dc1				//     lsr	w1, w14, #24
+	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
+	WORD	$0x53105dc3				//     ubfx	w3, w14, #16, #8
+	WORD	$0xb8635903				//     ldr	w3, [x8, w3, uxtw #2]
+	WORD	$0x53083dc4				//     ubfx	w4, w14, #8, #8
+	WORD	$0xb8645964				//     ldr	w4, [x11, w4, uxtw #2]
+	WORD	$0x12001dce				//     and	w14, w14, #0xff
+	WORD	$0xb86e594e				//     ldr	w14, [x10, w14, uxtw #2]
+	WORD	$0x4a010061				//     eor	w1, w3, w1
+	WORD	$0x4a0e008e				//     eor	w14, w4, w14
+	WORD	$0x4a0e002e				//     eor	w14, w1, w14
+	WORD	$0x4a110210				//     eor	w16, w16, w17
+	WORD	$0x4a1101d1				//     eor	w17, w14, w17
+	WORD	$0x4a0f0201				//     eor	w1, w16, w15
+	WORD	$0x4a1001ce				//     eor	w14, w14, w16
+	WORD	$0x4a010230				//     eor	w16, w17, w1
+	WORD	$0x4a0f022f				//     eor	w15, w17, w15
 	WORD	$0x0a0f218c				//     and	w12, w12, w15, lsl #8
 	WORD	$0x0a4f21ad				//     and	w13, w13, w15, lsr #8
 	WORD	$0x2a0d018c				//     orr	w12, w12, w13
-	WORD	$0x53107e2d				//     lsr	w13, w17, #16
+	WORD	$0x1390420d				//     ror	w13, w16, #16
 	WORD	$0x5ac009ce				//     rev	w14, w14
 	WORD	$0x4a0d018c				//     eor	w12, w12, w13
 	WORD	$0x4a0e01ad				//     eor	w13, w13, w14
@@ -1650,56 +1647,56 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x4a0d0231				//     eor	w17, w17, w13
 	WORD	$0x29570c41				//     ldp	w1, w3, [x2, #184]
 	WORD	$0x4a0101ad				//     eor	w13, w13, w1
-	WORD	$0x53032a01				//     ubfx	w1, w16, #3, #8
+	WORD	$0x53187e01				//     lsr	w1, w16, #24
 	WORD	$0xb8615961				//     ldr	w1, [x11, w1, uxtw #2]
 	WORD	$0x39000001				//     strb	w1, [x0]
-	WORD	$0x53022601				//     ubfx	w1, w16, #2, #8
+	WORD	$0x53105e01				//     ubfx	w1, w16, #16, #8
 	WORD	$0xb8615941				//     ldr	w1, [x10, w1, uxtw #2]
 	WORD	$0x53087c21				//     lsr	w1, w1, #8
 	WORD	$0x39000401				//     strb	w1, [x0, #1]
-	WORD	$0x53012201				//     ubfx	w1, w16, #1, #8
+	WORD	$0x53083e01				//     ubfx	w1, w16, #8, #8
 	WORD	$0xb8615921				//     ldr	w1, [x9, w1, uxtw #2]
 	WORD	$0x39000801				//     strb	w1, [x0, #2]
 	WORD	$0x12001e10				//     and	w16, w16, #0xff
 	WORD	$0xb8705910				//     ldr	w16, [x8, w16, uxtw #2]
 	WORD	$0x4a0f01ad				//     eor	w13, w13, w15
 	WORD	$0x39000c10				//     strb	w16, [x0, #3]
-	WORD	$0x53032a2f				//     ubfx	w15, w17, #3, #8
+	WORD	$0x53187e2f				//     lsr	w15, w17, #24
 	WORD	$0xb86f596f				//     ldr	w15, [x11, w15, uxtw #2]
 	WORD	$0x3900100f				//     strb	w15, [x0, #4]
-	WORD	$0x5302262f				//     ubfx	w15, w17, #2, #8
+	WORD	$0x53105e2f				//     ubfx	w15, w17, #16, #8
 	WORD	$0xb86f594f				//     ldr	w15, [x10, w15, uxtw #2]
 	WORD	$0x53087def				//     lsr	w15, w15, #8
 	WORD	$0x3900140f				//     strb	w15, [x0, #5]
-	WORD	$0x5301222f				//     ubfx	w15, w17, #1, #8
+	WORD	$0x53083e2f				//     ubfx	w15, w17, #8, #8
 	WORD	$0xb86f592f				//     ldr	w15, [x9, w15, uxtw #2]
 	WORD	$0x3900180f				//     strb	w15, [x0, #6]
 	WORD	$0x12001e2f				//     and	w15, w17, #0xff
 	WORD	$0xb86f590f				//     ldr	w15, [x8, w15, uxtw #2]
 	WORD	$0x4a0e006e				//     eor	w14, w3, w14
 	WORD	$0x39001c0f				//     strb	w15, [x0, #7]
-	WORD	$0x530329af				//     ubfx	w15, w13, #3, #8
+	WORD	$0x53187daf				//     lsr	w15, w13, #24
 	WORD	$0xb86f596f				//     ldr	w15, [x11, w15, uxtw #2]
 	WORD	$0x3900200f				//     strb	w15, [x0, #8]
-	WORD	$0x530225af				//     ubfx	w15, w13, #2, #8
+	WORD	$0x53105daf				//     ubfx	w15, w13, #16, #8
 	WORD	$0xb86f594f				//     ldr	w15, [x10, w15, uxtw #2]
 	WORD	$0x53087def				//     lsr	w15, w15, #8
 	WORD	$0x3900240f				//     strb	w15, [x0, #9]
-	WORD	$0x530121af				//     ubfx	w15, w13, #1, #8
+	WORD	$0x53083daf				//     ubfx	w15, w13, #8, #8
 	WORD	$0xb86f592f				//     ldr	w15, [x9, w15, uxtw #2]
 	WORD	$0x3900280f				//     strb	w15, [x0, #10]
 	WORD	$0x12001dad				//     and	w13, w13, #0xff
 	WORD	$0xb86d590d				//     ldr	w13, [x8, w13, uxtw #2]
 	WORD	$0x4a0c01cc				//     eor	w12, w14, w12
 	WORD	$0x39002c0d				//     strb	w13, [x0, #11]
-	WORD	$0x5303298d				//     ubfx	w13, w12, #3, #8
+	WORD	$0x53187d8d				//     lsr	w13, w12, #24
 	WORD	$0xb86d596b				//     ldr	w11, [x11, w13, uxtw #2]
 	WORD	$0x3900300b				//     strb	w11, [x0, #12]
-	WORD	$0x5302258b				//     ubfx	w11, w12, #2, #8
+	WORD	$0x53105d8b				//     ubfx	w11, w12, #16, #8
 	WORD	$0xb86b594a				//     ldr	w10, [x10, w11, uxtw #2]
 	WORD	$0x53087d4a				//     lsr	w10, w10, #8
 	WORD	$0x3900340a				//     strb	w10, [x0, #13]
-	WORD	$0x5301218a				//     ubfx	w10, w12, #1, #8
+	WORD	$0x53083d8a				//     ubfx	w10, w12, #8, #8
 	WORD	$0xb86a5929				//     ldr	w9, [x9, w10, uxtw #2]
 	WORD	$0x39003809				//     strb	w9, [x0, #14]
 	WORD	$0x12001d89				//     and	w9, w12, #0xff
@@ -1710,5 +1707,5 @@ LBB2_4:								// LBB2_4:
 	WORD	$0x6e200821				//     rev32.16b	v1, v1
 	WORD	$0x6e201c20				//     eor.16b	v0, v1, v0
 	WORD	$0x3d800000				//     str	q0, [x0]
-									//     ldp	x29, x30, [sp], #16             ; 16-byte Folded Reload
+	//WORD	$0xa8c17bfd				//     ldp	x29, x30, [sp], #16             ; 16-byte Folded Reload
 	RET								//     ret

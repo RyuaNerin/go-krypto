@@ -4,14 +4,14 @@
         "Parameters": [
             "mk",
             "rk",
-            "keyBits"
+            "keyBytes"
         ]
     },
     {
         "Name": "DecKeySetup",
         "Parameters": [
             "rk",
-            "keyBits"
+            "rounds"
         ]
     },
     {

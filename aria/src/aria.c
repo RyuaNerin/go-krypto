@@ -277,22 +277,22 @@ inline void ARIA_UncheckedSetKey_Schedule_NEON(uint8_t* rk, const uint32_t* ws, 
 // https://github.com/weidai11/cryptopp/blob/CRYPTOPP_8_8_0/aria_simd.cpp#L110-L146
 inline void ARIA_ProcessAndXorBlock_NEON(uint8_t* dst, const uint8_t *rk, const uint32_t *t)
 {
-    dst[ 0] = (uint8_t)(X1[BRF(t[0],3)]   );
-    dst[ 1] = (uint8_t)(X2[BRF(t[0],2)]>>8);
-    dst[ 2] = (uint8_t)(S1[BRF(t[0],1)]   );
-    dst[ 3] = (uint8_t)(S2[BRF(t[0],0)]   );
-    dst[ 4] = (uint8_t)(X1[BRF(t[1],3)]   );
-    dst[ 5] = (uint8_t)(X2[BRF(t[1],2)]>>8);
-    dst[ 6] = (uint8_t)(S1[BRF(t[1],1)]   );
-    dst[ 7] = (uint8_t)(S2[BRF(t[1],0)]   );
-    dst[ 8] = (uint8_t)(X1[BRF(t[2],3)]   );
-    dst[ 9] = (uint8_t)(X2[BRF(t[2],2)]>>8);
-    dst[10] = (uint8_t)(S1[BRF(t[2],1)]   );
-    dst[11] = (uint8_t)(S2[BRF(t[2],0)]   );
-    dst[12] = (uint8_t)(X1[BRF(t[3],3)]   );
-    dst[13] = (uint8_t)(X2[BRF(t[3],2)]>>8);
-    dst[14] = (uint8_t)(S1[BRF(t[3],1)]   );
-    dst[15] = (uint8_t)(S2[BRF(t[3],0)]   );
+    dst[ 0] = (uint8_t)(X1[BRF(t[0],24)]   );
+    dst[ 1] = (uint8_t)(X2[BRF(t[0],16)]>>8);
+    dst[ 2] = (uint8_t)(S1[BRF(t[0], 8)]   );
+    dst[ 3] = (uint8_t)(S2[BRF(t[0], 0)]   );
+    dst[ 4] = (uint8_t)(X1[BRF(t[1],24)]   );
+    dst[ 5] = (uint8_t)(X2[BRF(t[1],16)]>>8);
+    dst[ 6] = (uint8_t)(S1[BRF(t[1], 8)]   );
+    dst[ 7] = (uint8_t)(S2[BRF(t[1], 0)]   );
+    dst[ 8] = (uint8_t)(X1[BRF(t[2],24)]   );
+    dst[ 9] = (uint8_t)(X2[BRF(t[2],16)]>>8);
+    dst[10] = (uint8_t)(S1[BRF(t[2], 8)]   );
+    dst[11] = (uint8_t)(S2[BRF(t[2], 0)]   );
+    dst[12] = (uint8_t)(X1[BRF(t[3],24)]   );
+    dst[13] = (uint8_t)(X2[BRF(t[3],16)]>>8);
+    dst[14] = (uint8_t)(S1[BRF(t[3], 8)]   );
+    dst[15] = (uint8_t)(S2[BRF(t[3], 0)]   );
 
     vst1q_u8(dst,
         veorq_u8(

@@ -905,45 +905,45 @@ LBB2_4:
 	eor	w17, w3, w17
 	ldp	w1, w3, [x2, #8]
 	eor	w15, w1, w15
-	eor	w14, w3, w14
 	lsr	w1, w16, #24
 	ldr	w1, [x9, w1, uxtw #2]
-	ubfx	w3, w16, #16, #8
-	ldr	w3, [x8, w3, uxtw #2]
-	eor	w1, w3, w1
+	ubfx	w4, w16, #16, #8
+	ldr	w4, [x8, w4, uxtw #2]
+	eor	w14, w3, w14
+	eor	w1, w4, w1
 	ubfx	w3, w16, #8, #8
 	ldr	w3, [x11, w3, uxtw #2]
 	and	w16, w16, #0xff
 	ldr	w16, [x10, w16, uxtw #2]
 	eor	w16, w3, w16
+	lsr	w3, w17, #24
+	ldr	w3, [x9, w3, uxtw #2]
 	eor	w16, w1, w16
-	lsr	w1, w17, #24
-	ldr	w1, [x9, w1, uxtw #2]
-	ubfx	w3, w17, #16, #8
-	ldr	w3, [x8, w3, uxtw #2]
-	eor	w1, w3, w1
+	ubfx	w1, w17, #16, #8
+	ldr	w1, [x8, w1, uxtw #2]
+	eor	w1, w1, w3
 	ubfx	w3, w17, #8, #8
 	ldr	w3, [x11, w3, uxtw #2]
 	and	w17, w17, #0xff
 	ldr	w17, [x10, w17, uxtw #2]
 	eor	w17, w3, w17
+	lsr	w3, w15, #24
+	ldr	w3, [x9, w3, uxtw #2]
+	ubfx	w4, w15, #16, #8
+	ldr	w4, [x8, w4, uxtw #2]
 	eor	w17, w1, w17
-	lsr	w1, w15, #24
-	ldr	w1, [x9, w1, uxtw #2]
-	ubfx	w3, w15, #16, #8
-	ldr	w3, [x8, w3, uxtw #2]
-	eor	w1, w3, w1
+	eor	w1, w4, w3
 	ubfx	w3, w15, #8, #8
 	ldr	w3, [x11, w3, uxtw #2]
 	and	w15, w15, #0xff
 	ldr	w15, [x10, w15, uxtw #2]
 	eor	w15, w3, w15
+	lsr	w3, w14, #24
+	ldr	w3, [x9, w3, uxtw #2]
 	eor	w15, w1, w15
-	lsr	w1, w14, #24
-	ldr	w1, [x9, w1, uxtw #2]
-	ubfx	w3, w14, #16, #8
-	ldr	w3, [x8, w3, uxtw #2]
-	eor	w1, w3, w1
+	ubfx	w1, w14, #16, #8
+	ldr	w1, [x8, w1, uxtw #2]
+	eor	w1, w1, w3
 	ubfx	w3, w14, #8, #8
 	ldr	w3, [x11, w3, uxtw #2]
 	and	w14, w14, #0xff
@@ -958,11 +958,11 @@ LBB2_4:
 	eor	w15, w15, w16
 	and	w16, w12, w15, lsl #8
 	and	w15, w13, w15, lsr #8
-	ror	w17, w17, #16
 	orr	w15, w16, w15
+	ror	w16, w17, #16
 	rev	w14, w14
-	eor	w15, w15, w17
-	eor	w16, w17, w14
+	eor	w15, w15, w16
+	eor	w16, w16, w14
 	eor	w17, w15, w1
 	ldp	w3, w4, [x2, #16]
 	eor	w3, w17, w3
@@ -972,50 +972,50 @@ LBB2_4:
 	eor	w16, w16, w4
 	eor	w16, w16, w17
 	eor	w14, w5, w14
-	lsr	w17, w3, #24
-	ldr	w17, [x11, w17, uxtw #2]
 	eor	w14, w14, w15
-	ubfx	w15, w3, #16, #8
-	ldr	w15, [x10, w15, uxtw #2]
+	lsr	w15, w3, #24
+	ldr	w15, [x11, w15, uxtw #2]
+	ubfx	w17, w3, #16, #8
+	ldr	w17, [x10, w17, uxtw #2]
+	ubfx	w4, w3, #8, #8
+	ldr	w4, [x9, w4, uxtw #2]
+	eor	w15, w17, w15
+	and	w17, w3, #0xff
+	ldr	w17, [x8, w17, uxtw #2]
+	eor	w17, w4, w17
 	eor	w15, w15, w17
-	ubfx	w17, w3, #8, #8
-	ldr	w17, [x9, w17, uxtw #2]
-	and	w3, w3, #0xff
-	ldr	w3, [x8, w3, uxtw #2]
-	eor	w17, w17, w3
-	lsr	w3, w1, #24
-	ldr	w3, [x11, w3, uxtw #2]
-	ubfx	w4, w1, #16, #8
-	ldr	w4, [x10, w4, uxtw #2]
-	eor	w15, w15, w17
-	eor	w17, w4, w3
-	ubfx	w3, w1, #8, #8
-	ldr	w3, [x9, w3, uxtw #2]
+	lsr	w17, w1, #24
+	ldr	w17, [x11, w17, uxtw #2]
+	ubfx	w3, w1, #16, #8
+	ldr	w3, [x10, w3, uxtw #2]
+	ubfx	w4, w1, #8, #8
+	ldr	w4, [x9, w4, uxtw #2]
 	and	w1, w1, #0xff
 	ldr	w1, [x8, w1, uxtw #2]
-	eor	w1, w3, w1
-	lsr	w3, w16, #24
-	ldr	w3, [x11, w3, uxtw #2]
+	eor	w17, w3, w17
+	eor	w1, w4, w1
 	eor	w17, w17, w1
-	ubfx	w1, w16, #16, #8
-	ldr	w1, [x10, w1, uxtw #2]
-	eor	w1, w1, w3
-	ubfx	w3, w16, #8, #8
-	ldr	w3, [x9, w3, uxtw #2]
+	lsr	w1, w16, #24
+	ldr	w1, [x11, w1, uxtw #2]
+	ubfx	w3, w16, #16, #8
+	ldr	w3, [x10, w3, uxtw #2]
+	ubfx	w4, w16, #8, #8
+	ldr	w4, [x9, w4, uxtw #2]
+	eor	w1, w3, w1
 	and	w16, w16, #0xff
 	ldr	w16, [x8, w16, uxtw #2]
-	eor	w16, w3, w16
-	lsr	w3, w14, #24
-	ldr	w3, [x11, w3, uxtw #2]
-	ubfx	w4, w14, #16, #8
-	ldr	w4, [x10, w4, uxtw #2]
+	eor	w16, w4, w16
 	eor	w16, w1, w16
-	eor	w1, w4, w3
-	ubfx	w3, w14, #8, #8
-	ldr	w3, [x9, w3, uxtw #2]
+	lsr	w1, w14, #24
+	ldr	w1, [x11, w1, uxtw #2]
+	ubfx	w3, w14, #16, #8
+	ldr	w3, [x10, w3, uxtw #2]
+	ubfx	w4, w14, #8, #8
+	ldr	w4, [x9, w4, uxtw #2]
 	and	w14, w14, #0xff
 	ldr	w14, [x8, w14, uxtw #2]
-	eor	w14, w3, w14
+	eor	w1, w3, w1
+	eor	w14, w4, w14
 	eor	w14, w1, w14
 	eor	w17, w17, w16
 	eor	w16, w14, w16
@@ -1036,274 +1036,6 @@ LBB2_4:
 	eor	w16, w4, w16
 	eor	w16, w16, w17
 	ldp	w4, w5, [x2, #40]
-	eor	w1, w1, w4
-	eor	w17, w1, w17
-	eor	w15, w15, w5
-	eor	w14, w15, w14
-	lsr	w15, w3, #24
-	ldr	w15, [x9, w15, uxtw #2]
-	ubfx	w1, w3, #16, #8
-	ldr	w1, [x8, w1, uxtw #2]
-	ubfx	w4, w3, #8, #8
-	ldr	w4, [x11, w4, uxtw #2]
-	and	w3, w3, #0xff
-	ldr	w3, [x10, w3, uxtw #2]
-	eor	w15, w1, w15
-	eor	w1, w4, w3
-	eor	w15, w15, w1
-	lsr	w1, w16, #24
-	ldr	w1, [x9, w1, uxtw #2]
-	ubfx	w3, w16, #16, #8
-	ldr	w3, [x8, w3, uxtw #2]
-	ubfx	w4, w16, #8, #8
-	ldr	w4, [x11, w4, uxtw #2]
-	eor	w1, w3, w1
-	and	w16, w16, #0xff
-	ldr	w16, [x10, w16, uxtw #2]
-	eor	w16, w4, w16
-	eor	w16, w1, w16
-	lsr	w1, w17, #24
-	ldr	w1, [x9, w1, uxtw #2]
-	ubfx	w3, w17, #16, #8
-	ldr	w3, [x8, w3, uxtw #2]
-	ubfx	w4, w17, #8, #8
-	ldr	w4, [x11, w4, uxtw #2]
-	and	w17, w17, #0xff
-	ldr	w17, [x10, w17, uxtw #2]
-	eor	w1, w3, w1
-	eor	w17, w4, w17
-	eor	w17, w1, w17
-	lsr	w1, w14, #24
-	ldr	w1, [x9, w1, uxtw #2]
-	ubfx	w3, w14, #16, #8
-	ldr	w3, [x8, w3, uxtw #2]
-	ubfx	w4, w14, #8, #8
-	ldr	w4, [x11, w4, uxtw #2]
-	eor	w1, w3, w1
-	and	w14, w14, #0xff
-	ldr	w14, [x10, w14, uxtw #2]
-	eor	w14, w4, w14
-	eor	w14, w1, w14
-	eor	w16, w16, w17
-	eor	w17, w14, w17
-	eor	w1, w16, w15
-	eor	w14, w14, w16
-	eor	w16, w17, w1
-	eor	w15, w17, w15
-	and	w17, w12, w15, lsl #8
-	and	w15, w13, w15, lsr #8
-	orr	w15, w17, w15
-	ror	w16, w16, #16
-	rev	w14, w14
-	eor	w15, w15, w16
-	eor	w16, w16, w14
-	eor	w17, w15, w1
-	ldp	w3, w4, [x2, #48]
-	eor	w3, w17, w3
-	eor	w1, w4, w1
-	eor	w1, w1, w16
-	ldp	w4, w5, [x2, #56]
-	eor	w16, w16, w4
-	eor	w16, w16, w17
-	eor	w14, w5, w14
-	eor	w14, w14, w15
-	lsr	w15, w3, #24
-	ldr	w15, [x11, w15, uxtw #2]
-	ubfx	w17, w3, #16, #8
-	ldr	w17, [x10, w17, uxtw #2]
-	eor	w15, w17, w15
-	ubfx	w17, w3, #8, #8
-	ldr	w17, [x9, w17, uxtw #2]
-	and	w3, w3, #0xff
-	ldr	w3, [x8, w3, uxtw #2]
-	eor	w17, w17, w3
-	eor	w15, w15, w17
-	lsr	w17, w1, #24
-	ldr	w17, [x11, w17, uxtw #2]
-	ubfx	w3, w1, #16, #8
-	ldr	w3, [x10, w3, uxtw #2]
-	eor	w17, w3, w17
-	ubfx	w3, w1, #8, #8
-	ldr	w3, [x9, w3, uxtw #2]
-	and	w1, w1, #0xff
-	ldr	w1, [x8, w1, uxtw #2]
-	eor	w1, w3, w1
-	eor	w17, w17, w1
-	lsr	w1, w16, #24
-	ldr	w1, [x11, w1, uxtw #2]
-	ubfx	w3, w16, #16, #8
-	ldr	w3, [x10, w3, uxtw #2]
-	eor	w1, w3, w1
-	ubfx	w3, w16, #8, #8
-	ldr	w3, [x9, w3, uxtw #2]
-	and	w16, w16, #0xff
-	ldr	w16, [x8, w16, uxtw #2]
-	eor	w16, w3, w16
-	eor	w16, w1, w16
-	lsr	w1, w14, #24
-	ldr	w1, [x11, w1, uxtw #2]
-	ubfx	w3, w14, #16, #8
-	ldr	w3, [x10, w3, uxtw #2]
-	eor	w1, w3, w1
-	ubfx	w3, w14, #8, #8
-	ldr	w3, [x9, w3, uxtw #2]
-	and	w14, w14, #0xff
-	ldr	w14, [x8, w14, uxtw #2]
-	eor	w14, w3, w14
-	eor	w14, w1, w14
-	eor	w17, w17, w16
-	eor	w16, w14, w16
-	eor	w1, w17, w15
-	eor	w14, w14, w17
-	eor	w17, w16, w1
-	eor	w15, w16, w15
-	and	w16, w12, w14, lsl #8
-	and	w14, w13, w14, lsr #8
-	ror	w1, w1, #16
-	orr	w14, w16, w14
-	rev	w15, w15
-	eor	w15, w15, w17
-	eor	w16, w14, w17
-	eor	w17, w15, w1
-	ldp	w3, w4, [x2, #64]
-	eor	w3, w17, w3
-	eor	w1, w4, w1
-	eor	w1, w1, w16
-	ldp	w4, w5, [x2, #72]
-	eor	w17, w17, w4
-	eor	w16, w17, w16
-	eor	w15, w15, w5
-	lsr	w17, w3, #24
-	ldr	w17, [x9, w17, uxtw #2]
-	eor	w14, w15, w14
-	ubfx	w15, w3, #16, #8
-	ldr	w15, [x8, w15, uxtw #2]
-	eor	w15, w15, w17
-	ubfx	w17, w3, #8, #8
-	ldr	w17, [x11, w17, uxtw #2]
-	and	w3, w3, #0xff
-	ldr	w3, [x10, w3, uxtw #2]
-	eor	w17, w17, w3
-	lsr	w3, w1, #24
-	ldr	w3, [x9, w3, uxtw #2]
-	ubfx	w4, w1, #16, #8
-	ldr	w4, [x8, w4, uxtw #2]
-	eor	w15, w15, w17
-	eor	w17, w4, w3
-	ubfx	w3, w1, #8, #8
-	ldr	w3, [x11, w3, uxtw #2]
-	and	w1, w1, #0xff
-	ldr	w1, [x10, w1, uxtw #2]
-	eor	w1, w3, w1
-	lsr	w3, w16, #24
-	ldr	w3, [x9, w3, uxtw #2]
-	eor	w17, w17, w1
-	ubfx	w1, w16, #16, #8
-	ldr	w1, [x8, w1, uxtw #2]
-	eor	w1, w1, w3
-	ubfx	w3, w16, #8, #8
-	ldr	w3, [x11, w3, uxtw #2]
-	and	w16, w16, #0xff
-	ldr	w16, [x10, w16, uxtw #2]
-	eor	w16, w3, w16
-	lsr	w3, w14, #24
-	ldr	w3, [x9, w3, uxtw #2]
-	ubfx	w4, w14, #16, #8
-	ldr	w4, [x8, w4, uxtw #2]
-	eor	w16, w1, w16
-	eor	w1, w4, w3
-	ubfx	w3, w14, #8, #8
-	ldr	w3, [x11, w3, uxtw #2]
-	and	w14, w14, #0xff
-	ldr	w14, [x10, w14, uxtw #2]
-	eor	w14, w3, w14
-	eor	w14, w1, w14
-	eor	w17, w17, w16
-	eor	w16, w14, w16
-	eor	w1, w17, w15
-	eor	w14, w14, w17
-	eor	w17, w16, w1
-	eor	w15, w16, w15
-	and	w16, w12, w15, lsl #8
-	and	w15, w13, w15, lsr #8
-	orr	w15, w16, w15
-	ror	w16, w17, #16
-	rev	w14, w14
-	eor	w15, w15, w16
-	eor	w16, w16, w14
-	eor	w17, w15, w1
-	ldp	w3, w4, [x2, #80]
-	eor	w3, w17, w3
-	eor	w1, w4, w1
-	eor	w1, w1, w16
-	ldp	w4, w5, [x2, #88]
-	eor	w16, w16, w4
-	eor	w16, w16, w17
-	eor	w14, w5, w14
-	eor	w14, w14, w15
-	lsr	w15, w3, #24
-	ldr	w15, [x11, w15, uxtw #2]
-	ubfx	w17, w3, #16, #8
-	ldr	w17, [x10, w17, uxtw #2]
-	ubfx	w4, w3, #8, #8
-	ldr	w4, [x9, w4, uxtw #2]
-	and	w3, w3, #0xff
-	ldr	w3, [x8, w3, uxtw #2]
-	eor	w15, w17, w15
-	eor	w17, w4, w3
-	eor	w15, w15, w17
-	lsr	w17, w1, #24
-	ldr	w17, [x11, w17, uxtw #2]
-	ubfx	w3, w1, #16, #8
-	ldr	w3, [x10, w3, uxtw #2]
-	ubfx	w4, w1, #8, #8
-	ldr	w4, [x9, w4, uxtw #2]
-	eor	w17, w3, w17
-	and	w1, w1, #0xff
-	ldr	w1, [x8, w1, uxtw #2]
-	eor	w1, w4, w1
-	eor	w17, w17, w1
-	lsr	w1, w16, #24
-	ldr	w1, [x11, w1, uxtw #2]
-	ubfx	w3, w16, #16, #8
-	ldr	w3, [x10, w3, uxtw #2]
-	ubfx	w4, w16, #8, #8
-	ldr	w4, [x9, w4, uxtw #2]
-	and	w16, w16, #0xff
-	ldr	w16, [x8, w16, uxtw #2]
-	eor	w1, w3, w1
-	eor	w16, w4, w16
-	eor	w16, w1, w16
-	lsr	w1, w14, #24
-	ldr	w1, [x11, w1, uxtw #2]
-	ubfx	w3, w14, #16, #8
-	ldr	w3, [x10, w3, uxtw #2]
-	ubfx	w4, w14, #8, #8
-	ldr	w4, [x9, w4, uxtw #2]
-	eor	w1, w3, w1
-	and	w14, w14, #0xff
-	ldr	w14, [x8, w14, uxtw #2]
-	eor	w14, w4, w14
-	eor	w14, w1, w14
-	eor	w17, w17, w16
-	eor	w16, w14, w16
-	eor	w1, w17, w15
-	eor	w14, w14, w17
-	eor	w17, w16, w1
-	eor	w15, w16, w15
-	and	w16, w12, w14, lsl #8
-	and	w14, w13, w14, lsr #8
-	orr	w14, w16, w14
-	ror	w16, w1, #16
-	rev	w15, w15
-	eor	w15, w15, w17
-	eor	w17, w14, w17
-	eor	w1, w15, w16
-	ldp	w3, w4, [x2, #96]
-	eor	w3, w1, w3
-	eor	w16, w4, w16
-	eor	w16, w16, w17
-	ldp	w4, w5, [x2, #104]
 	eor	w1, w1, w4
 	eor	w17, w1, w17
 	eor	w15, w15, w5
@@ -1360,26 +1092,26 @@ LBB2_4:
 	eor	w15, w17, w15
 	and	w17, w12, w15, lsl #8
 	and	w15, w13, w15, lsr #8
-	ror	w16, w16, #16
 	orr	w15, w17, w15
+	ror	w16, w16, #16
 	rev	w14, w14
 	eor	w15, w15, w16
 	eor	w16, w16, w14
 	eor	w17, w15, w1
-	ldp	w3, w4, [x2, #112]
+	ldp	w3, w4, [x2, #48]
 	eor	w3, w17, w3
 	eor	w1, w4, w1
 	eor	w1, w1, w16
-	ldp	w4, w5, [x2, #120]
+	ldp	w4, w5, [x2, #56]
 	eor	w16, w16, w4
 	eor	w16, w16, w17
 	eor	w14, w5, w14
 	lsr	w17, w3, #24
 	ldr	w17, [x11, w17, uxtw #2]
+	ubfx	w4, w3, #16, #8
+	ldr	w4, [x10, w4, uxtw #2]
 	eor	w14, w14, w15
-	ubfx	w15, w3, #16, #8
-	ldr	w15, [x10, w15, uxtw #2]
-	eor	w15, w15, w17
+	eor	w15, w4, w17
 	ubfx	w17, w3, #8, #8
 	ldr	w17, [x9, w17, uxtw #2]
 	and	w3, w3, #0xff
@@ -1387,10 +1119,10 @@ LBB2_4:
 	eor	w17, w17, w3
 	lsr	w3, w1, #24
 	ldr	w3, [x11, w3, uxtw #2]
-	ubfx	w4, w1, #16, #8
-	ldr	w4, [x10, w4, uxtw #2]
 	eor	w15, w15, w17
-	eor	w17, w4, w3
+	ubfx	w17, w1, #16, #8
+	ldr	w17, [x10, w17, uxtw #2]
+	eor	w17, w17, w3
 	ubfx	w3, w1, #8, #8
 	ldr	w3, [x9, w3, uxtw #2]
 	and	w1, w1, #0xff
@@ -1398,10 +1130,10 @@ LBB2_4:
 	eor	w1, w3, w1
 	lsr	w3, w16, #24
 	ldr	w3, [x11, w3, uxtw #2]
+	ubfx	w4, w16, #16, #8
+	ldr	w4, [x10, w4, uxtw #2]
 	eor	w17, w17, w1
-	ubfx	w1, w16, #16, #8
-	ldr	w1, [x10, w1, uxtw #2]
-	eor	w1, w1, w3
+	eor	w1, w4, w3
 	ubfx	w3, w16, #8, #8
 	ldr	w3, [x9, w3, uxtw #2]
 	and	w16, w16, #0xff
@@ -1409,10 +1141,10 @@ LBB2_4:
 	eor	w16, w3, w16
 	lsr	w3, w14, #24
 	ldr	w3, [x11, w3, uxtw #2]
-	ubfx	w4, w14, #16, #8
-	ldr	w4, [x10, w4, uxtw #2]
 	eor	w16, w1, w16
-	eor	w1, w4, w3
+	ubfx	w1, w14, #16, #8
+	ldr	w1, [x10, w1, uxtw #2]
+	eor	w1, w1, w3
 	ubfx	w3, w14, #8, #8
 	ldr	w3, [x9, w3, uxtw #2]
 	and	w14, w14, #0xff
@@ -1433,11 +1165,11 @@ LBB2_4:
 	eor	w15, w15, w17
 	eor	w17, w14, w17
 	eor	w1, w15, w16
-	ldp	w3, w4, [x2, #128]
+	ldp	w3, w4, [x2, #64]
 	eor	w3, w1, w3
 	eor	w16, w4, w16
 	eor	w16, w16, w17
-	ldp	w4, w5, [x2, #136]
+	ldp	w4, w5, [x2, #72]
 	eor	w1, w1, w4
 	eor	w17, w1, w17
 	eor	w15, w15, w5
@@ -1448,10 +1180,10 @@ LBB2_4:
 	ldr	w1, [x8, w1, uxtw #2]
 	ubfx	w4, w3, #8, #8
 	ldr	w4, [x11, w4, uxtw #2]
-	and	w3, w3, #0xff
-	ldr	w3, [x10, w3, uxtw #2]
 	eor	w15, w1, w15
-	eor	w1, w4, w3
+	and	w1, w3, #0xff
+	ldr	w1, [x10, w1, uxtw #2]
+	eor	w1, w4, w1
 	eor	w15, w15, w1
 	lsr	w1, w16, #24
 	ldr	w1, [x9, w1, uxtw #2]
@@ -1459,9 +1191,9 @@ LBB2_4:
 	ldr	w3, [x8, w3, uxtw #2]
 	ubfx	w4, w16, #8, #8
 	ldr	w4, [x11, w4, uxtw #2]
-	eor	w1, w3, w1
 	and	w16, w16, #0xff
 	ldr	w16, [x10, w16, uxtw #2]
+	eor	w1, w3, w1
 	eor	w16, w4, w16
 	eor	w16, w1, w16
 	lsr	w1, w17, #24
@@ -1470,9 +1202,9 @@ LBB2_4:
 	ldr	w3, [x8, w3, uxtw #2]
 	ubfx	w4, w17, #8, #8
 	ldr	w4, [x11, w4, uxtw #2]
+	eor	w1, w3, w1
 	and	w17, w17, #0xff
 	ldr	w17, [x10, w17, uxtw #2]
-	eor	w1, w3, w1
 	eor	w17, w4, w17
 	eor	w17, w1, w17
 	lsr	w1, w14, #24
@@ -1481,9 +1213,9 @@ LBB2_4:
 	ldr	w3, [x8, w3, uxtw #2]
 	ubfx	w4, w14, #8, #8
 	ldr	w4, [x11, w4, uxtw #2]
-	eor	w1, w3, w1
 	and	w14, w14, #0xff
 	ldr	w14, [x10, w14, uxtw #2]
+	eor	w1, w3, w1
 	eor	w14, w4, w14
 	eor	w14, w1, w14
 	eor	w16, w16, w17
@@ -1500,11 +1232,11 @@ LBB2_4:
 	eor	w15, w15, w16
 	eor	w16, w16, w14
 	eor	w17, w15, w1
-	ldp	w3, w4, [x2, #144]
+	ldp	w3, w4, [x2, #80]
 	eor	w3, w17, w3
 	eor	w1, w4, w1
 	eor	w1, w1, w16
-	ldp	w4, w5, [x2, #152]
+	ldp	w4, w5, [x2, #88]
 	eor	w16, w16, w4
 	eor	w16, w16, w17
 	eor	w14, w5, w14
@@ -1561,45 +1293,34 @@ LBB2_4:
 	eor	w15, w16, w15
 	and	w16, w12, w14, lsl #8
 	and	w14, w13, w14, lsr #8
-	ror	w1, w1, #16
 	orr	w14, w16, w14
+	ror	w16, w1, #16
 	rev	w15, w15
 	eor	w15, w15, w17
-	eor	w16, w15, w1
-	ldp	w3, w4, [x2, #160]
-	eor	w3, w16, w3
-	eor	w1, w4, w1
-	ldp	w4, w5, [x2, #168]
-	eor	w16, w16, w4
 	eor	w17, w14, w17
-	eor	w1, w1, w17
+	eor	w1, w15, w16
+	ldp	w3, w4, [x2, #96]
+	eor	w3, w1, w3
+	eor	w16, w4, w16
 	eor	w16, w16, w17
+	ldp	w4, w5, [x2, #104]
+	eor	w1, w1, w4
+	eor	w17, w1, w17
 	eor	w15, w15, w5
-	lsr	w17, w3, #24
-	ldr	w17, [x9, w17, uxtw #2]
+	lsr	w1, w3, #24
+	ldr	w1, [x9, w1, uxtw #2]
+	ubfx	w4, w3, #16, #8
+	ldr	w4, [x8, w4, uxtw #2]
 	eor	w14, w15, w14
-	ubfx	w15, w3, #16, #8
-	ldr	w15, [x8, w15, uxtw #2]
-	eor	w15, w15, w17
-	ubfx	w17, w3, #8, #8
-	ldr	w17, [x11, w17, uxtw #2]
+	eor	w15, w4, w1
+	ubfx	w1, w3, #8, #8
+	ldr	w1, [x11, w1, uxtw #2]
 	and	w3, w3, #0xff
 	ldr	w3, [x10, w3, uxtw #2]
-	eor	w17, w17, w3
-	lsr	w3, w1, #24
-	ldr	w3, [x9, w3, uxtw #2]
-	ubfx	w4, w1, #16, #8
-	ldr	w4, [x8, w4, uxtw #2]
-	eor	w15, w15, w17
-	eor	w17, w4, w3
-	ubfx	w3, w1, #8, #8
-	ldr	w3, [x11, w3, uxtw #2]
-	and	w1, w1, #0xff
-	ldr	w1, [x10, w1, uxtw #2]
-	eor	w1, w3, w1
+	eor	w1, w1, w3
 	lsr	w3, w16, #24
 	ldr	w3, [x9, w3, uxtw #2]
-	eor	w17, w17, w1
+	eor	w15, w15, w1
 	ubfx	w1, w16, #16, #8
 	ldr	w1, [x8, w1, uxtw #2]
 	eor	w1, w1, w3
@@ -1608,16 +1329,228 @@ LBB2_4:
 	and	w16, w16, #0xff
 	ldr	w16, [x10, w16, uxtw #2]
 	eor	w16, w3, w16
-	lsr	w3, w14, #24
+	lsr	w3, w17, #24
 	ldr	w3, [x9, w3, uxtw #2]
-	ubfx	w4, w14, #16, #8
+	ubfx	w4, w17, #16, #8
 	ldr	w4, [x8, w4, uxtw #2]
 	eor	w16, w1, w16
 	eor	w1, w4, w3
+	ubfx	w3, w17, #8, #8
+	ldr	w3, [x11, w3, uxtw #2]
+	and	w17, w17, #0xff
+	ldr	w17, [x10, w17, uxtw #2]
+	eor	w17, w3, w17
+	lsr	w3, w14, #24
+	ldr	w3, [x9, w3, uxtw #2]
+	eor	w17, w1, w17
+	ubfx	w1, w14, #16, #8
+	ldr	w1, [x8, w1, uxtw #2]
+	eor	w1, w1, w3
 	ubfx	w3, w14, #8, #8
 	ldr	w3, [x11, w3, uxtw #2]
 	and	w14, w14, #0xff
 	ldr	w14, [x10, w14, uxtw #2]
+	eor	w14, w3, w14
+	eor	w14, w1, w14
+	eor	w16, w16, w17
+	eor	w17, w14, w17
+	eor	w1, w16, w15
+	eor	w14, w14, w16
+	eor	w16, w17, w1
+	eor	w15, w17, w15
+	and	w17, w12, w15, lsl #8
+	and	w15, w13, w15, lsr #8
+	orr	w15, w17, w15
+	ror	w16, w16, #16
+	rev	w14, w14
+	eor	w15, w15, w16
+	eor	w16, w16, w14
+	eor	w17, w15, w1
+	ldp	w3, w4, [x2, #112]
+	eor	w3, w17, w3
+	eor	w1, w4, w1
+	eor	w1, w1, w16
+	ldp	w4, w5, [x2, #120]
+	eor	w16, w16, w4
+	eor	w16, w16, w17
+	eor	w14, w5, w14
+	eor	w14, w14, w15
+	lsr	w15, w3, #24
+	ldr	w15, [x11, w15, uxtw #2]
+	ubfx	w17, w3, #16, #8
+	ldr	w17, [x10, w17, uxtw #2]
+	ubfx	w4, w3, #8, #8
+	ldr	w4, [x9, w4, uxtw #2]
+	eor	w15, w17, w15
+	and	w17, w3, #0xff
+	ldr	w17, [x8, w17, uxtw #2]
+	eor	w17, w4, w17
+	eor	w15, w15, w17
+	lsr	w17, w1, #24
+	ldr	w17, [x11, w17, uxtw #2]
+	ubfx	w3, w1, #16, #8
+	ldr	w3, [x10, w3, uxtw #2]
+	ubfx	w4, w1, #8, #8
+	ldr	w4, [x9, w4, uxtw #2]
+	and	w1, w1, #0xff
+	ldr	w1, [x8, w1, uxtw #2]
+	eor	w17, w3, w17
+	eor	w1, w4, w1
+	eor	w17, w17, w1
+	lsr	w1, w16, #24
+	ldr	w1, [x11, w1, uxtw #2]
+	ubfx	w3, w16, #16, #8
+	ldr	w3, [x10, w3, uxtw #2]
+	ubfx	w4, w16, #8, #8
+	ldr	w4, [x9, w4, uxtw #2]
+	eor	w1, w3, w1
+	and	w16, w16, #0xff
+	ldr	w16, [x8, w16, uxtw #2]
+	eor	w16, w4, w16
+	eor	w16, w1, w16
+	lsr	w1, w14, #24
+	ldr	w1, [x11, w1, uxtw #2]
+	ubfx	w3, w14, #16, #8
+	ldr	w3, [x10, w3, uxtw #2]
+	ubfx	w4, w14, #8, #8
+	ldr	w4, [x9, w4, uxtw #2]
+	and	w14, w14, #0xff
+	ldr	w14, [x8, w14, uxtw #2]
+	eor	w1, w3, w1
+	eor	w14, w4, w14
+	eor	w14, w1, w14
+	eor	w17, w17, w16
+	eor	w16, w14, w16
+	eor	w1, w17, w15
+	eor	w14, w14, w17
+	eor	w17, w16, w1
+	eor	w15, w16, w15
+	and	w16, w12, w14, lsl #8
+	and	w14, w13, w14, lsr #8
+	orr	w14, w16, w14
+	ror	w16, w1, #16
+	rev	w15, w15
+	eor	w15, w15, w17
+	eor	w17, w14, w17
+	eor	w1, w15, w16
+	ldp	w3, w4, [x2, #128]
+	eor	w3, w1, w3
+	eor	w16, w4, w16
+	eor	w16, w16, w17
+	ldp	w4, w5, [x2, #136]
+	eor	w1, w1, w4
+	eor	w17, w1, w17
+	eor	w15, w15, w5
+	eor	w14, w15, w14
+	lsr	w15, w3, #24
+	ldr	w15, [x9, w15, uxtw #2]
+	ubfx	w1, w3, #16, #8
+	ldr	w1, [x8, w1, uxtw #2]
+	eor	w15, w1, w15
+	ubfx	w1, w3, #8, #8
+	ldr	w1, [x11, w1, uxtw #2]
+	and	w3, w3, #0xff
+	ldr	w3, [x10, w3, uxtw #2]
+	eor	w1, w1, w3
+	eor	w15, w15, w1
+	lsr	w1, w16, #24
+	ldr	w1, [x9, w1, uxtw #2]
+	ubfx	w3, w16, #16, #8
+	ldr	w3, [x8, w3, uxtw #2]
+	eor	w1, w3, w1
+	ubfx	w3, w16, #8, #8
+	ldr	w3, [x11, w3, uxtw #2]
+	and	w16, w16, #0xff
+	ldr	w16, [x10, w16, uxtw #2]
+	eor	w16, w3, w16
+	eor	w16, w1, w16
+	lsr	w1, w17, #24
+	ldr	w1, [x9, w1, uxtw #2]
+	ubfx	w3, w17, #16, #8
+	ldr	w3, [x8, w3, uxtw #2]
+	eor	w1, w3, w1
+	ubfx	w3, w17, #8, #8
+	ldr	w3, [x11, w3, uxtw #2]
+	and	w17, w17, #0xff
+	ldr	w17, [x10, w17, uxtw #2]
+	eor	w17, w3, w17
+	eor	w17, w1, w17
+	lsr	w1, w14, #24
+	ldr	w1, [x9, w1, uxtw #2]
+	ubfx	w3, w14, #16, #8
+	ldr	w3, [x8, w3, uxtw #2]
+	eor	w1, w3, w1
+	ubfx	w3, w14, #8, #8
+	ldr	w3, [x11, w3, uxtw #2]
+	and	w14, w14, #0xff
+	ldr	w14, [x10, w14, uxtw #2]
+	eor	w14, w3, w14
+	eor	w14, w1, w14
+	eor	w16, w16, w17
+	eor	w17, w14, w17
+	eor	w1, w16, w15
+	eor	w14, w14, w16
+	eor	w16, w17, w1
+	eor	w15, w17, w15
+	and	w17, w12, w15, lsl #8
+	and	w15, w13, w15, lsr #8
+	orr	w15, w17, w15
+	ror	w16, w16, #16
+	rev	w14, w14
+	eor	w15, w15, w16
+	eor	w16, w16, w14
+	eor	w17, w15, w1
+	ldp	w3, w4, [x2, #144]
+	eor	w3, w17, w3
+	eor	w1, w4, w1
+	eor	w1, w1, w16
+	ldp	w4, w5, [x2, #152]
+	eor	w16, w16, w4
+	eor	w16, w16, w17
+	eor	w14, w5, w14
+	lsr	w17, w3, #24
+	ldr	w17, [x11, w17, uxtw #2]
+	ubfx	w4, w3, #16, #8
+	ldr	w4, [x10, w4, uxtw #2]
+	eor	w14, w14, w15
+	eor	w15, w4, w17
+	ubfx	w17, w3, #8, #8
+	ldr	w17, [x9, w17, uxtw #2]
+	and	w3, w3, #0xff
+	ldr	w3, [x8, w3, uxtw #2]
+	eor	w17, w17, w3
+	lsr	w3, w1, #24
+	ldr	w3, [x11, w3, uxtw #2]
+	eor	w15, w15, w17
+	ubfx	w17, w1, #16, #8
+	ldr	w17, [x10, w17, uxtw #2]
+	eor	w17, w17, w3
+	ubfx	w3, w1, #8, #8
+	ldr	w3, [x9, w3, uxtw #2]
+	and	w1, w1, #0xff
+	ldr	w1, [x8, w1, uxtw #2]
+	eor	w1, w3, w1
+	lsr	w3, w16, #24
+	ldr	w3, [x11, w3, uxtw #2]
+	ubfx	w4, w16, #16, #8
+	ldr	w4, [x10, w4, uxtw #2]
+	eor	w17, w17, w1
+	eor	w1, w4, w3
+	ubfx	w3, w16, #8, #8
+	ldr	w3, [x9, w3, uxtw #2]
+	and	w16, w16, #0xff
+	ldr	w16, [x8, w16, uxtw #2]
+	eor	w16, w3, w16
+	lsr	w3, w14, #24
+	ldr	w3, [x11, w3, uxtw #2]
+	eor	w16, w1, w16
+	ubfx	w1, w14, #16, #8
+	ldr	w1, [x10, w1, uxtw #2]
+	eor	w1, w1, w3
+	ubfx	w3, w14, #8, #8
+	ldr	w3, [x9, w3, uxtw #2]
+	and	w14, w14, #0xff
+	ldr	w14, [x8, w14, uxtw #2]
 	eor	w14, w3, w14
 	eor	w14, w1, w14
 	eor	w17, w17, w16
@@ -1626,10 +1559,77 @@ LBB2_4:
 	eor	w14, w14, w17
 	eor	w17, w16, w1
 	eor	w15, w16, w15
+	and	w16, w12, w14, lsl #8
+	and	w14, w13, w14, lsr #8
+	orr	w14, w16, w14
+	ror	w16, w1, #16
+	rev	w15, w15
+	eor	w15, w15, w17
+	eor	w1, w15, w16
+	ldp	w3, w4, [x2, #160]
+	eor	w3, w1, w3
+	eor	w16, w4, w16
+	ldp	w4, w5, [x2, #168]
+	eor	w1, w1, w4
+	eor	w17, w14, w17
+	eor	w16, w16, w17
+	eor	w17, w1, w17
+	eor	w15, w15, w5
+	eor	w14, w15, w14
+	lsr	w15, w3, #24
+	ldr	w15, [x9, w15, uxtw #2]
+	ubfx	w1, w3, #16, #8
+	ldr	w1, [x8, w1, uxtw #2]
+	ubfx	w4, w3, #8, #8
+	ldr	w4, [x11, w4, uxtw #2]
+	eor	w15, w1, w15
+	and	w1, w3, #0xff
+	ldr	w1, [x10, w1, uxtw #2]
+	eor	w1, w4, w1
+	eor	w15, w15, w1
+	lsr	w1, w16, #24
+	ldr	w1, [x9, w1, uxtw #2]
+	ubfx	w3, w16, #16, #8
+	ldr	w3, [x8, w3, uxtw #2]
+	ubfx	w4, w16, #8, #8
+	ldr	w4, [x11, w4, uxtw #2]
+	and	w16, w16, #0xff
+	ldr	w16, [x10, w16, uxtw #2]
+	eor	w1, w3, w1
+	eor	w16, w4, w16
+	eor	w16, w1, w16
+	lsr	w1, w17, #24
+	ldr	w1, [x9, w1, uxtw #2]
+	ubfx	w3, w17, #16, #8
+	ldr	w3, [x8, w3, uxtw #2]
+	ubfx	w4, w17, #8, #8
+	ldr	w4, [x11, w4, uxtw #2]
+	eor	w1, w3, w1
+	and	w17, w17, #0xff
+	ldr	w17, [x10, w17, uxtw #2]
+	eor	w17, w4, w17
+	eor	w17, w1, w17
+	lsr	w1, w14, #24
+	ldr	w1, [x9, w1, uxtw #2]
+	ubfx	w3, w14, #16, #8
+	ldr	w3, [x8, w3, uxtw #2]
+	ubfx	w4, w14, #8, #8
+	ldr	w4, [x11, w4, uxtw #2]
+	and	w14, w14, #0xff
+	ldr	w14, [x10, w14, uxtw #2]
+	eor	w1, w3, w1
+	eor	w14, w4, w14
+	eor	w14, w1, w14
+	eor	w16, w16, w17
+	eor	w17, w14, w17
+	eor	w1, w16, w15
+	eor	w14, w14, w16
+	eor	w16, w17, w1
+	eor	w15, w17, w15
 	and	w12, w12, w15, lsl #8
 	and	w13, w13, w15, lsr #8
 	orr	w12, w12, w13
-	lsr	w13, w17, #16
+	ror	w13, w16, #16
 	rev	w14, w14
 	eor	w12, w12, w13
 	eor	w13, w13, w14
@@ -1640,56 +1640,56 @@ LBB2_4:
 	eor	w17, w17, w13
 	ldp	w1, w3, [x2, #184]
 	eor	w13, w13, w1
-	ubfx	w1, w16, #3, #8
+	lsr	w1, w16, #24
 	ldr	w1, [x11, w1, uxtw #2]
 	strb	w1, [x0]
-	ubfx	w1, w16, #2, #8
+	ubfx	w1, w16, #16, #8
 	ldr	w1, [x10, w1, uxtw #2]
 	lsr	w1, w1, #8
 	strb	w1, [x0, #1]
-	ubfx	w1, w16, #1, #8
+	ubfx	w1, w16, #8, #8
 	ldr	w1, [x9, w1, uxtw #2]
 	strb	w1, [x0, #2]
 	and	w16, w16, #0xff
 	ldr	w16, [x8, w16, uxtw #2]
 	eor	w13, w13, w15
 	strb	w16, [x0, #3]
-	ubfx	w15, w17, #3, #8
+	lsr	w15, w17, #24
 	ldr	w15, [x11, w15, uxtw #2]
 	strb	w15, [x0, #4]
-	ubfx	w15, w17, #2, #8
+	ubfx	w15, w17, #16, #8
 	ldr	w15, [x10, w15, uxtw #2]
 	lsr	w15, w15, #8
 	strb	w15, [x0, #5]
-	ubfx	w15, w17, #1, #8
+	ubfx	w15, w17, #8, #8
 	ldr	w15, [x9, w15, uxtw #2]
 	strb	w15, [x0, #6]
 	and	w15, w17, #0xff
 	ldr	w15, [x8, w15, uxtw #2]
 	eor	w14, w3, w14
 	strb	w15, [x0, #7]
-	ubfx	w15, w13, #3, #8
+	lsr	w15, w13, #24
 	ldr	w15, [x11, w15, uxtw #2]
 	strb	w15, [x0, #8]
-	ubfx	w15, w13, #2, #8
+	ubfx	w15, w13, #16, #8
 	ldr	w15, [x10, w15, uxtw #2]
 	lsr	w15, w15, #8
 	strb	w15, [x0, #9]
-	ubfx	w15, w13, #1, #8
+	ubfx	w15, w13, #8, #8
 	ldr	w15, [x9, w15, uxtw #2]
 	strb	w15, [x0, #10]
 	and	w13, w13, #0xff
 	ldr	w13, [x8, w13, uxtw #2]
 	eor	w12, w14, w12
 	strb	w13, [x0, #11]
-	ubfx	w13, w12, #3, #8
+	lsr	w13, w12, #24
 	ldr	w11, [x11, w13, uxtw #2]
 	strb	w11, [x0, #12]
-	ubfx	w11, w12, #2, #8
+	ubfx	w11, w12, #16, #8
 	ldr	w10, [x10, w11, uxtw #2]
 	lsr	w10, w10, #8
 	strb	w10, [x0, #13]
-	ubfx	w10, w12, #1, #8
+	ubfx	w10, w12, #8, #8
 	ldr	w9, [x9, w10, uxtw #2]
 	strb	w9, [x0, #14]
 	and	w9, w12, #0xff
