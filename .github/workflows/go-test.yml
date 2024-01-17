@@ -5,7 +5,7 @@ on:
     branches: [ dev_asm ]
 
 jobs:
-  test_amd64:
+  ubuntu_amd64:
     runs-on: ubuntu-latest
 
     strategy:
@@ -42,7 +42,7 @@ jobs:
       - name: Test
         run: go test $(cat test.target)
 
-  test_arm64:
+  macos_arm64:
     runs-on: [self-hosted, macOS, ARM64]
 
     strategy:
