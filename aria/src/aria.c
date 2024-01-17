@@ -5,10 +5,6 @@
 
 #if defined(__x86_64__)
     #define ARIA_AMD64 1
-    #define WITH_SUFFIX(STR) STR ## _SSSE3
-
-    #define M128_CAST(x) ((__m128i *)(void *)(x))
-    #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
     #include "emmintrin.h"
     #include "xmmintrin.h"
@@ -16,7 +12,6 @@
     #include "x86intrin.h"
 #elif defined(__aarch64__)
     #define ARIA_ARM64 1
-    #define WITH_SUFFIX(STR) STR ## _NEON
 
     #include <arm_neon.h>
 #endif
@@ -204,24 +199,27 @@ const uint32_t X2[256]={
 // https://github.com/weidai11/cryptopp/blob/CRYPTOPP_8_8_0/aria_simd.cpp#L152-L190
 inline void ARIA_ProcessAndXorBlock_SSSE3(uint8_t* dst, const uint8_t *rk, const uint32_t *t)
 {
+    #define M128_CAST(x) ((__m128i *)(void *)(x))
+    #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+
     const __m128i MASK = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
 
-    dst[ 0] = (uint8_t)(X1[BRF(t[0],3)]   );
-    dst[ 1] = (uint8_t)(X2[BRF(t[0],2)]>>8);
-    dst[ 2] = (uint8_t)(S1[BRF(t[0],1)]   );
-    dst[ 3] = (uint8_t)(S2[BRF(t[0],0)]   );
-    dst[ 4] = (uint8_t)(X1[BRF(t[1],3)]   );
-    dst[ 5] = (uint8_t)(X2[BRF(t[1],2)]>>8);
-    dst[ 6] = (uint8_t)(S1[BRF(t[1],1)]   );
-    dst[ 7] = (uint8_t)(S2[BRF(t[1],0)]   );
-    dst[ 8] = (uint8_t)(X1[BRF(t[2],3)]   );
-    dst[ 9] = (uint8_t)(X2[BRF(t[2],2)]>>8);
-    dst[10] = (uint8_t)(S1[BRF(t[2],1)]   );
-    dst[11] = (uint8_t)(S2[BRF(t[2],0)]   );
-    dst[12] = (uint8_t)(X1[BRF(t[3],3)]   );
-    dst[13] = (uint8_t)(X2[BRF(t[3],2)]>>8);
-    dst[14] = (uint8_t)(S1[BRF(t[3],1)]   );
-    dst[15] = (uint8_t)(S2[BRF(t[3],0)]   );
+    dst[ 0] = (uint8_t)(X1[BRF(t[0],24)]   );
+    dst[ 1] = (uint8_t)(X2[BRF(t[0],16)]>>8);
+    dst[ 2] = (uint8_t)(S1[BRF(t[0], 8)]   );
+    dst[ 3] = (uint8_t)(S2[BRF(t[0], 0)]   );
+    dst[ 4] = (uint8_t)(X1[BRF(t[1],24)]   );
+    dst[ 5] = (uint8_t)(X2[BRF(t[1],16)]>>8);
+    dst[ 6] = (uint8_t)(S1[BRF(t[1], 8)]   );
+    dst[ 7] = (uint8_t)(S2[BRF(t[1], 0)]   );
+    dst[ 8] = (uint8_t)(X1[BRF(t[2],24)]   );
+    dst[ 9] = (uint8_t)(X2[BRF(t[2],16)]>>8);
+    dst[10] = (uint8_t)(S1[BRF(t[2], 8)]   );
+    dst[11] = (uint8_t)(S2[BRF(t[2], 0)]   );
+    dst[12] = (uint8_t)(X1[BRF(t[3],24)]   );
+    dst[13] = (uint8_t)(X2[BRF(t[3],16)]>>8);
+    dst[14] = (uint8_t)(S1[BRF(t[3], 8)]   );
+    dst[15] = (uint8_t)(S2[BRF(t[3], 0)]   );
 
     _mm_storeu_si128(M128_CAST(dst),
         _mm_xor_si128(_mm_loadu_si128(CONST_M128_CAST(dst)),
@@ -302,6 +300,7 @@ inline void ARIA_ProcessAndXorBlock_NEON(uint8_t* dst, const uint8_t *rk, const 
 
 #endif
 
+#if defined(ARIA_ARM64)
 void EncKeySetup(uint8_t* rk, const uint8_t* mk, uint64_t keyBytes) {
     uint8_t ws[5*4*4];
 
@@ -347,34 +346,11 @@ void EncKeySetup(uint8_t* rk, const uint8_t* mk, uint64_t keyBytes) {
     FO;
     w3[0]=t[0]^w1[0]; w3[1]=t[1]^w1[1]; w3[2]=t[2]^w1[2]; w3[3]=t[3]^w1[3];
 
-#if defined(ARIA_ARM64)
     ARIA_UncheckedSetKey_Schedule_NEON(rk, (uint32_t*)ws, keyBytes);
-#else
-    GSRK(w0, w1, 19);
-    GSRK(w1, w2, 19);
-    GSRK(w2, w3, 19);
-    GSRK(w3, w0, 19);
-    GSRK(w0, w1, 31);
-    GSRK(w1, w2, 31);
-    GSRK(w2, w3, 31);
-    GSRK(w3, w0, 31);
-    GSRK(w0, w1, 67);
-    GSRK(w1, w2, 67);
-    GSRK(w2, w3, 67);
-    GSRK(w3, w0, 67);
-    GSRK(w0, w1, 97);
-    if (keyBits > 16) {  
-        GSRK(w1, w2, 97);
-        GSRK(w2, w3, 97);
-    }
-    if (keyBits > 24) {
-        GSRK(w3, w0,  97);
-        GSRK(w0, w1, 109);
-    }
-#endif
 }
+#endif
 
-//void DecKeySetup(const uint8_t *mk, uint8_t *rk, const uint64_t keyBits) {
+#if defined(ARIA_ARM64)
 void DecKeySetup(uint8_t *rk, const uint64_t rounds) {
     uint32_t *a, *z;
     int rValue;
@@ -403,6 +379,7 @@ void DecKeySetup(uint8_t *rk, const uint64_t rounds) {
     MM(t0,t1,t2,t3) P(t0,t1,t2,t3) MM(t0,t1,t2,t3)
     z[0]=t0; z[1]=t1; z[2]=t2; z[3]=t3;
 }
+#endif
 
 void Crypt(uint8_t *dst, const uint8_t *src, const uint8_t *rk, const uint64_t rounds) {
     uint32_t t[4];

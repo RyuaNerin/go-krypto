@@ -14,7 +14,7 @@ type ariaContextAsm struct {
 }
 
 var _ interface {
-	init(key []byte)
+	initRoundKey(key []byte)
 	process(rk []byte, dst, src []byte)
 } = (*ariaContextAsm)(nil)
 
@@ -22,7 +22,7 @@ func newCipherAsm(key []byte) (cipher.Block, error) {
 	ctx := new(ariaContextAsm)
 	ctx.ctx.rounds = (len(key) + 32) / 4
 
-	ctx.init(key)
+	ctx.initRoundKey(key)
 	return ctx, nil
 }
 

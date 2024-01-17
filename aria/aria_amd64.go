@@ -4,8 +4,6 @@
 package aria
 
 import (
-	"unsafe"
-
 	"golang.org/x/sys/cpu"
 )
 
@@ -14,13 +12,9 @@ var (
 )
 
 //go:noescape
-func __initEncKey_SSSE3(rk, key unsafe.Pointer, keyBits uint64)
+func __process_SSSE3(dst, src, rk *byte, rounds uint64)
 
-//go:noescape
-func __initDecKey_SSSE3(rk, key unsafe.Pointer, keyBits uint64)
-
-//go:noescape
-func __process_SSSE3(dst, src, rk unsafe.Pointer, rounds uint64)
+var newCipher = newCipherGo
 
 func init() {
 	if hasSSSE3 {
@@ -28,17 +22,10 @@ func init() {
 	}
 }
 
-func (ctx *ariaContextAsm) init(key []byte) {
-	keyBits := uint64(len(key) * 8)
-	__initEncKey_SSSE3(unsafe.Pointer(&ctx.ctx.ek), unsafe.Pointer(&key[0]), keyBits)
-	__initDecKey_SSSE3(unsafe.Pointer(&ctx.ctx.dk), unsafe.Pointer(&key[0]), keyBits)
+func (ctx *ariaContextAsm) initRoundKey(key []byte) {
+	ctx.ctx.initRoundKey(key)
 }
 
-func (ctx *ariaContextAsm) process(rk *[rkSize]byte, dst, src []byte) {
-	__process_SSSE3(
-		unsafe.Pointer(&dst[0]),
-		unsafe.Pointer(&dst[0]),
-		unsafe.Pointer(rk),
-		uint64(ctx.ctx.rounds),
-	)
+func (ctx *ariaContextAsm) process(dst, src, rk []byte) {
+	__process_SSSE3(toBytePtr(dst), toBytePtr(src), toBytePtr(rk), uint64(ctx.ctx.rounds))
 }

@@ -1,3 +1,6 @@
+//go:build amd64 || (!amd64 && !arm64) || purego
+// +build amd64 !amd64,!arm64 purego
+
 package aria
 
 import (
@@ -11,10 +14,7 @@ func newCipherGo(key []byte) (cipher.Block, error) {
 	ctx := new(ariaContext)
 	ctx.rounds = (len(key) + 32) / 4
 
-	encKeySetup(ctx.ek[:], key)
-
-	ctx.dk = ctx.ek
-	decKeySetup(ctx.dk[:], ctx.rounds)
+	ctx.initRoundKey(key)
 	return ctx, nil
 }
 
@@ -42,6 +42,13 @@ func (s *ariaContext) Decrypt(dst, src []byte) {
 	}
 
 	processGo(dst, src, s.dk[:], s.rounds)
+}
+
+func (ctx *ariaContext) initRoundKey(key []byte) {
+	encKeySetup(ctx.ek[:], key)
+
+	ctx.dk = ctx.ek
+	decKeySetup(ctx.dk[:], ctx.rounds)
 }
 
 func encKeySetup(rk []byte, mk []byte) {

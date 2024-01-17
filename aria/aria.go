@@ -11,10 +11,6 @@ const (
 	BlockSize = 16
 )
 
-var (
-	newCipher = newCipherGo
-)
-
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
