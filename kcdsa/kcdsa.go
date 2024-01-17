@@ -13,23 +13,6 @@ import (
 	"github.com/RyuaNerin/go-krypto/kcdsa/kcdsattak"
 )
 
-type Parameters struct {
-	P, Q, G *big.Int
-	Sizes   ParameterSizes
-}
-
-// PublicKey represents a KCDSA public key.
-type PublicKey struct {
-	Parameters
-	Y *big.Int
-}
-
-// PrivateKey represents a KCDSA private key.
-type PrivateKey struct {
-	PublicKey
-	X *big.Int
-}
-
 var (
 	ErrInvalidPublicKey      = errors.New("krypto/kcdsa: invalid public key")
 	ErrInvalidParameterSizes = errors.New("krypto/kcdsa: invalid ParameterSizes")
@@ -414,5 +397,5 @@ func Verify(pub *PublicKey, data []byte, R, S *big.Int) bool {
 	//fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 
-	return R.Cmp(r) == 0
+	return bigIntEqual(R, r)
 }

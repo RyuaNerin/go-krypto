@@ -1,24 +1,26 @@
-package eckcdsa
+package kcdsa
 
 import (
 	"crypto"
-	"crypto/elliptic"
 	"crypto/subtle"
 	"math/big"
 )
 
-// PublicKey represents a EC-KCDSA public key.
-type PublicKey struct {
-	elliptic.Curve
+type Parameters struct {
+	P, Q, G *big.Int
+	Sizes   ParameterSizes
+}
 
-	X *big.Int
+// PublicKey represents a KCDSA public key.
+type PublicKey struct {
+	Parameters
 	Y *big.Int
 }
 
-// PrivateKey represents a EC-KCDSA private key.
+// PrivateKey represents a KCDSA private key.
 type PrivateKey struct {
 	PublicKey
-	D *big.Int
+	X *big.Int
 }
 
 // Public returns the public key corresponding to priv.
@@ -32,7 +34,7 @@ func (priv *PrivateKey) Equal(x crypto.PrivateKey) bool {
 	if !ok {
 		return false
 	}
-	return priv.PublicKey.Equal(&xx.PublicKey) && bigIntEqual(priv.D, xx.D)
+	return priv.PublicKey.Equal(&xx.PublicKey) && bigIntEqual(priv.X, xx.X)
 }
 
 // Equal reports whether pub and x have the same value.
@@ -41,8 +43,9 @@ func (pub *PublicKey) Equal(x crypto.PublicKey) bool {
 	if !ok {
 		return false
 	}
-	return bigIntEqual(pub.X, xx.X) && bigIntEqual(pub.Y, xx.Y) &&
-		pub.Curve == xx.Curve
+	return bigIntEqual(pub.Y, xx.Y) &&
+		bigIntEqual(pub.P, xx.P) && bigIntEqual(pub.Q, xx.Q) && bigIntEqual(pub.G, xx.G) &&
+		pub.Sizes == xx.Sizes
 }
 
 func bigIntEqual(a, b *big.Int) bool {

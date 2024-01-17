@@ -43,13 +43,20 @@ func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 		return nil, err
 	}
 
-	dInv := internal.FermatInverse(d, c.Params().N)
-
-	priv := new(PrivateKey)
-	priv.PublicKey.Curve = c
-	priv.D = d
-	priv.PublicKey.X, priv.PublicKey.Y = c.ScalarBaseMult(dInv.Bytes())
+	priv := &PrivateKey{
+		D:         d,
+		PublicKey: newPublicKeyFromD(c, d),
+	}
 	return priv, nil
+}
+
+func newPublicKeyFromD(c elliptic.Curve, D *big.Int) (pubKey PublicKey) {
+	dInv := internal.FermatInverse(D, c.Params().N)
+
+	pubKey.Curve = c
+	pubKey.X, pubKey.Y = c.ScalarBaseMult(dInv.Bytes())
+
+	return
 }
 
 // Sign data using K generated randomly like in crypto/ecdsa packages.
@@ -305,7 +312,7 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	//fmt.Println("r2 = 0x" + hex.EncodeToString(r2.Bytes()))
 	//fmt.Println("r  = 0x" + hex.EncodeToString(r.Bytes()))
 
-	return r.Cmp(r2) == 0
+	return bigIntEqual(r, r2)
 }
 
 func padLeft(arr []byte, l int) []byte {

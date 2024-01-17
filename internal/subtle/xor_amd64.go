@@ -4,8 +4,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !purego
-// +build !purego
+//go:build !go1.20 && !purego
+// +build !go1.20,!purego
 
 package subtle
 
