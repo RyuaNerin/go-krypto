@@ -9,7 +9,7 @@ import (
 
 func newCipherGo(key []byte) (cipher.Block, error) {
 	ctx := new(ariaContext)
-	ctx.rounds = (len(key)*8 + 256) / 32
+	ctx.rounds = (len(key) + 32) / 4
 
 	encKeySetup(ctx.ek[:], key)
 
@@ -45,7 +45,7 @@ func (s *ariaContext) Decrypt(dst, src []byte) {
 }
 
 func encKeySetup(rk []byte, mk []byte) {
-	keyBits := len(mk) * 8
+	keyBytes := len(mk)
 
 	var w0, w1, w2, w3 [4]uint32
 
@@ -54,7 +54,7 @@ func encKeySetup(rk []byte, mk []byte) {
 	w0[2] = binary.BigEndian.Uint32(mk[2*4:]) // WordLoad(WO(mk, 2), w0[2])
 	w0[3] = binary.BigEndian.Uint32(mk[3*4:]) // WordLoad(WO(mk, 3), w0[3])
 
-	q := (keyBits - 128) / 64
+	q := (keyBytes - 16) / 8
 	t0 := w0[0] ^ krk[q*4+0]
 	t1 := w0[1] ^ krk[q*4+1]
 	t2 := w0[2] ^ krk[q*4+2]
@@ -72,10 +72,10 @@ func encKeySetup(rk []byte, mk []byte) {
 		c_p(&t0, &t1, &t2, &t3)  // inlining
 		c_mm(&t0, &t1, &t2, &t3) // inlining
 	}
-	if keyBits > 128 {
+	if keyBytes > 16 {
 		w1[0] = binary.BigEndian.Uint32(mk[4*4:]) // WordLoad(WO(mk, 4), w1[0])
 		w1[1] = binary.BigEndian.Uint32(mk[5*4:]) // WordLoad(WO(mk, 5), w1[1])
-		if keyBits > 192 {
+		if keyBytes > 24 {
 			w1[2] = binary.BigEndian.Uint32(mk[6*4:]) // WordLoad(WO(mk,6), w1[2]);
 			w1[3] = binary.BigEndian.Uint32(mk[7*4:]) // WordLoad(WO(mk,7), w1[3]);
 		} else {
@@ -242,7 +242,7 @@ func encKeySetup(rk []byte, mk []byte) {
 		binary.LittleEndian.PutUint32(rk[0x0C8:], (w0[2])^((w1[3])>>1)^((w1[2])<<31))
 		binary.LittleEndian.PutUint32(rk[0x0CC:], (w0[3])^((w1[0])>>1)^((w1[3])<<31))
 	}
-	if keyBits > 128 {
+	if keyBytes > 16 {
 		//GSRK(rk, &rkIndex, w1, w2, 1, 2, 3, 0, 1, 31)
 		{
 			binary.LittleEndian.PutUint32(rk[0x0D0:], (w1[0])^((w2[1])>>1)^((w2[0])<<31))
@@ -258,7 +258,7 @@ func encKeySetup(rk []byte, mk []byte) {
 			binary.LittleEndian.PutUint32(rk[0x0EC:], (w2[3])^((w3[0])>>1)^((w3[3])<<31))
 		}
 
-		if keyBits > 192 {
+		if keyBytes > 24 {
 			//GSRK(rk, &rkIndex, w3, w0, 1, 2, 3, 0, 1, 31)
 			{
 				binary.LittleEndian.PutUint32(rk[0x0F0:], (w3[0])^((w0[1])>>1)^((w0[0])<<31))
