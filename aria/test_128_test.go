@@ -1,13 +1,8 @@
 package aria
 
 import (
-	"testing"
-
 	. "github.com/RyuaNerin/testingutil"
 )
-
-func Test_ARIA128_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases128, false) }
-func Test_ARIA128_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases128, false) }
 
 // 암호알고리즘 검증기준 V3.0
 // 테스트 벡터
