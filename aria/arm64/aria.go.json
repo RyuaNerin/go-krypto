@@ -1,6 +1,6 @@
 [
     {
-        "Name": "initEncKey_NEON",
+        "Name": "EncKeySetup",
         "Parameters": [
             "mk",
             "rk",
@@ -8,15 +8,14 @@
         ]
     },
     {
-        "Name": "initDecKey_NEON",
+        "Name": "DecKeySetup",
         "Parameters": [
-            "mk",
             "rk",
             "keyBits"
         ]
     },
     {
-        "Name": "process_NEON",
+        "Name": "Crypt",
         "Parameters": [
             "dst",
             "src",

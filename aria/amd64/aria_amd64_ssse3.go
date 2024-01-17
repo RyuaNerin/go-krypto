@@ -3,13 +3,11 @@
 
 package aria
 
-import "unsafe"
+//go:noescape
+func __EncKeySetup(rk *byte, mk *byte, keyBits uint64)
 
 //go:noescape
-func __initEncKey_SSSE3(mk, rk unsafe.Pointer, keyBits uint64)
+func __DecKeySetup(rk *byte, rounds uint64)
 
 //go:noescape
-func __initDecKey_SSSE3(mk, rk unsafe.Pointer, keyBits uint64)
-
-//go:noescape
-func __process_SSSE3(dst, src, rk unsafe.Pointer, rounds uint64)
+func __Crypt(dst, src, rk *byte, round uint64)

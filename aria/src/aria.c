@@ -201,6 +201,7 @@ const uint32_t X2[256]={
 
 #if defined(ARIA_AMD64)
 
+// https://github.com/weidai11/cryptopp/blob/CRYPTOPP_8_8_0/aria_simd.cpp#L152-L190
 inline void ARIA_ProcessAndXorBlock_SSSE3(uint8_t* dst, const uint8_t *rk, const uint32_t *t)
 {
     const __m128i MASK = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
@@ -229,48 +230,51 @@ inline void ARIA_ProcessAndXorBlock_SSSE3(uint8_t* dst, const uint8_t *rk, const
 
 #elif defined(ARIA_ARM64)
 
-#define ARIA_GSRK_NEON(X, Y, N, RK) \
-( \
+// https://github.com/weidai11/cryptopp/blob/CRYPTOPP_8_8_0/aria_simd.cpp#L62-L74
+#define ARIA_GSRK_NEON(N, X, Y, RK) \
+{ \
     vst1q_u8((RK), vreinterpretq_u8_u32( \
         veorq_u32((X), veorq_u32( \
             vshrq_n_u32(vextq_u32((Y), (Y), (4-((N)/32)) % 4), ((N)%32)), \
-            vshlq_n_u32(vextq_u32((Y), (Y), (3-((N)/32)) % 4), 32-((N)%32)))))) \
-)
+            vshlq_n_u32(vextq_u32((Y), (Y), (3-((N)/32)) % 4), 32-((N)%32)))))); \
+}
 
-inline void ARIA_UncheckedSetKey_Schedule_NEON(uint8_t* rk, const uint32_t* ws, unsigned int keylen)
+// https://github.com/weidai11/cryptopp/blob/CRYPTOPP_8_8_0/aria_simd.cpp#L76-L108
+inline void ARIA_UncheckedSetKey_Schedule_NEON(uint8_t* rk, const uint32_t* ws, uint64_t keyBytes)
 {
     const uint32x4_t w0 = vld1q_u32(ws+ 0);
-    const uint32x4_t w1 = vld1q_u32(ws+ 8);
-    const uint32x4_t w2 = vld1q_u32(ws+12);
-    const uint32x4_t w3 = vld1q_u32(ws+16);
+    const uint32x4_t w1 = vld1q_u32(ws+ 4);
+    const uint32x4_t w2 = vld1q_u32(ws+ 8);
+    const uint32x4_t w3 = vld1q_u32(ws+12);
 
-    ARIA_GSRK_NEON(w0, w1, 19, rk +   0);
-    ARIA_GSRK_NEON(w1, w2, 19, rk +  16);
-    ARIA_GSRK_NEON(w2, w3, 19, rk +  32);
-    ARIA_GSRK_NEON(w3, w0, 19, rk +  48);
-    ARIA_GSRK_NEON(w0, w1, 31, rk +  64);
-    ARIA_GSRK_NEON(w1, w2, 31, rk +  80);
-    ARIA_GSRK_NEON(w2, w3, 31, rk +  96);
-    ARIA_GSRK_NEON(w3, w0, 31, rk + 112);
-    ARIA_GSRK_NEON(w0, w1, 67, rk + 128);
-    ARIA_GSRK_NEON(w1, w2, 67, rk + 144);
-    ARIA_GSRK_NEON(w2, w3, 67, rk + 160);
-    ARIA_GSRK_NEON(w3, w0, 67, rk + 176);
-    ARIA_GSRK_NEON(w0, w1, 97, rk + 192);
+    ARIA_GSRK_NEON(19, w0, w1, rk +   0);
+    ARIA_GSRK_NEON(19, w1, w2, rk +  16);
+    ARIA_GSRK_NEON(19, w2, w3, rk +  32);
+    ARIA_GSRK_NEON(19, w3, w0, rk +  48);
+    ARIA_GSRK_NEON(31, w0, w1, rk +  64);
+    ARIA_GSRK_NEON(31, w1, w2, rk +  80);
+    ARIA_GSRK_NEON(31, w2, w3, rk +  96);
+    ARIA_GSRK_NEON(31, w3, w0, rk + 112);
+    ARIA_GSRK_NEON(67, w0, w1, rk + 128);
+    ARIA_GSRK_NEON(67, w1, w2, rk + 144);
+    ARIA_GSRK_NEON(67, w2, w3, rk + 160);
+    ARIA_GSRK_NEON(67, w3, w0, rk + 176);
+    ARIA_GSRK_NEON(97, w0, w1, rk + 192);
 
-    if (keylen > 16)
+    if (keyBytes > 16)
     {
-        ARIA_GSRK_NEON(w1, w2, 97, rk + 208);
-        ARIA_GSRK_NEON(w2, w3, 97, rk + 224);
+        ARIA_GSRK_NEON(97, w1, w2, rk + 208);
+        ARIA_GSRK_NEON(97, w2, w3, rk + 224);
 
-        if (keylen > 24)
+        if (keyBytes > 24)
         {
-            ARIA_GSRK_NEON(w3, w0,  97, rk + 240);
-            ARIA_GSRK_NEON(w0, w1, 109, rk + 256);
+            ARIA_GSRK_NEON( 97, w3, w0, rk + 240);
+            ARIA_GSRK_NEON(109, w0, w1, rk + 256);
         }
     }
 }
 
+// https://github.com/weidai11/cryptopp/blob/CRYPTOPP_8_8_0/aria_simd.cpp#L110-L146
 inline void ARIA_ProcessAndXorBlock_NEON(uint8_t* dst, const uint8_t *rk, const uint32_t *t)
 {
     dst[ 0] = (uint8_t)(X1[BRF(t[0],3)]   );
@@ -298,7 +302,7 @@ inline void ARIA_ProcessAndXorBlock_NEON(uint8_t* dst, const uint8_t *rk, const 
 
 #endif
 
-void WITH_SUFFIX(initEncKey)(uint8_t *rk, const uint8_t *key, const uint64_t keyBits) {
+void EncKeySetup(uint8_t* rk, const uint8_t* mk, uint64_t keyBytes) {
     uint8_t ws[5*4*4];
 
     uint32_t* w0 = (uint32_t*)(ws + 0 * 4 * 4);
@@ -306,21 +310,23 @@ void WITH_SUFFIX(initEncKey)(uint8_t *rk, const uint8_t *key, const uint64_t key
     uint32_t* w2 = (uint32_t*)(ws + 2 * 4 * 4);
     uint32_t* w3 = (uint32_t*)(ws + 3 * 4 * 4);
     uint32_t* t  = (uint32_t*)(ws + 4 * 4 * 4);
+    //register Word t0, t1, t2, t3;
+    //Word w0[4], w1[4], w2[4], w3[4];
     int q, r;
 
-    WordLoad(WO(key,0), w0[0]); WordLoad(WO(key,1), w0[1]);
-    WordLoad(WO(key,2), w0[2]); WordLoad(WO(key,3), w0[3]);
+    WordLoad(WO(mk,0), w0[0]); WordLoad(WO(mk,1), w0[1]);
+    WordLoad(WO(mk,2), w0[2]); WordLoad(WO(mk,3), w0[3]);
 
-    q = (keyBits - 128) / 64;
+    q = (keyBytes - 16) / 8;
     t[0]=w0[0]^KRK[q][0]; t[1]=w0[1]^KRK[q][1];
     t[2]=w0[2]^KRK[q][2]; t[3]=w0[3]^KRK[q][3];
     FO;
-    if (keyBits > 128) {
-        WordLoad(WO(key,4), w1[0]);
-        WordLoad(WO(key,5), w1[1]);
-        if (keyBits > 192) {
-            WordLoad(WO(key,6), w1[2]);
-            WordLoad(WO(key,7), w1[3]);
+    if (keyBytes > 16) {
+        WordLoad(WO(mk,4), w1[0]);
+        WordLoad(WO(mk,5), w1[1]);
+        if (keyBytes > 24) {
+            WordLoad(WO(mk,6), w1[2]);
+            WordLoad(WO(mk,7), w1[3]);
         } else {
             w1[2]=w1[3]=0;
         }
@@ -342,7 +348,7 @@ void WITH_SUFFIX(initEncKey)(uint8_t *rk, const uint8_t *key, const uint64_t key
     w3[0]=t[0]^w1[0]; w3[1]=t[1]^w1[1]; w3[2]=t[2]^w1[2]; w3[3]=t[3]^w1[3];
 
 #if defined(ARIA_ARM64)
-    ARIA_UncheckedSetKey_Schedule_NEON(rk, (uint32_t*)ws, keyBits);
+    ARIA_UncheckedSetKey_Schedule_NEON(rk, (uint32_t*)ws, keyBytes);
 #else
     GSRK(w0, w1, 19);
     GSRK(w1, w2, 19);
@@ -357,25 +363,27 @@ void WITH_SUFFIX(initEncKey)(uint8_t *rk, const uint8_t *key, const uint64_t key
     GSRK(w2, w3, 67);
     GSRK(w3, w0, 67);
     GSRK(w0, w1, 97);
-    if (keyBits > 128) {  
+    if (keyBits > 16) {  
         GSRK(w1, w2, 97);
         GSRK(w2, w3, 97);
     }
-    if (keyBits > 192) {
+    if (keyBits > 24) {
         GSRK(w3, w0,  97);
         GSRK(w0, w1, 109);
     }
 #endif
 }
 
-void WITH_SUFFIX(initDecKey)(uint8_t *rk, const uint8_t *key, const uint64_t keyBits) {
+//void DecKeySetup(const uint8_t *mk, uint8_t *rk, const uint64_t keyBits) {
+void DecKeySetup(uint8_t *rk, const uint64_t rounds) {
     uint32_t *a, *z;
     int rValue;
     uint8_t sum;
     uint32_t t0, t1, t2, t3;
     uint32_t s0, s1, s2, s3;
 
-    rValue = (keyBits+256)/32;
+    // rValue=EncKeySetup(mk, rk, keyBits);
+    rValue = rounds;
     a=(uint32_t *)(rk);  z=a+rValue*4;
     t0=a[0]; t1=a[1]; t2=a[2]; t3=a[3];
     a[0]=z[0]; a[1]=z[1]; a[2]=z[2]; a[3]=z[3];
@@ -396,14 +404,16 @@ void WITH_SUFFIX(initDecKey)(uint8_t *rk, const uint8_t *key, const uint64_t key
     z[0]=t0; z[1]=t1; z[2]=t2; z[3]=t3;
 }
 
-void WITH_SUFFIX(process)(uint8_t *dst, const uint8_t *src, const uint8_t *rk, const uint64_t rounds) {
+void Crypt(uint8_t *dst, const uint8_t *src, const uint8_t *rk, const uint64_t rounds) {
     uint32_t t[4];
 
     WordLoad(WO(src,0), t[0]); WordLoad(WO(src,1), t[1]);
     WordLoad(WO(src,2), t[2]); WordLoad(WO(src,3), t[3]);
 
-    if (rounds > 12) {KXL FO KXL FE}
-    if (rounds > 14) {KXL FO KXL FE}
+    if (rounds > 12) {
+        KXL FO KXL FE
+        if (rounds > 14) {KXL FO KXL FE}
+    }
     KXL FO KXL FE KXL FO KXL FE KXL FO KXL FE 
     KXL FO KXL FE KXL FO KXL FE KXL FO KXL
 
