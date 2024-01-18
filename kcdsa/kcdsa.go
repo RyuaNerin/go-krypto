@@ -31,14 +31,11 @@ const (
 type paramValues struct {
 	kcdsattak.Domain
 
-	Int2B *big.Int
 	Int2L *big.Int
 }
 
 var (
 	i2l_512 = new(big.Int).Exp(big.NewInt(2), big.NewInt(512), nil)
-	i2b_224 = new(big.Int).Exp(big.NewInt(2), big.NewInt(224), nil)
-	i2b_256 = new(big.Int).Exp(big.NewInt(2), big.NewInt(256), nil)
 
 	paramValuesMap = map[ParameterSizes]paramValues{
 		L2048N224SHA224: {
@@ -49,7 +46,6 @@ var (
 				NewHash: sha256.New224,
 				L:       512,
 			},
-			Int2B: i2b_224,
 			Int2L: i2l_512,
 		},
 		L2048N224SHA256: {
@@ -60,7 +56,6 @@ var (
 				NewHash: sha256.New,
 				L:       512,
 			},
-			Int2B: i2b_224,
 			Int2L: i2l_512,
 		},
 		L2048N256SHA256: {
@@ -71,7 +66,6 @@ var (
 				NewHash: sha256.New,
 				L:       512,
 			},
-			Int2B: i2b_256,
 			Int2L: i2l_512,
 		},
 		L3072N256SHA256: {
@@ -82,7 +76,6 @@ var (
 				NewHash: sha256.New,
 				L:       512,
 			},
-			Int2B: i2b_256,
 			Int2L: i2l_512,
 		},
 	}

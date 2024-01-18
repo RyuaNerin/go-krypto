@@ -28,11 +28,6 @@ type paramValues struct {
 	NewHash func() hash.Hash
 }
 
-var (
-	one = big.NewInt(1)
-	two = big.NewInt(2)
-)
-
 // Generate the paramters
 func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 	randutil.MaybeReadByte(randReader)
@@ -44,19 +39,15 @@ func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 	}
 
 	priv := &PrivateKey{
-		D:         d,
-		PublicKey: newPublicKeyFromD(c, d),
+		D: d,
+		PublicKey: PublicKey{
+			Curve: c,
+		},
 	}
+	dInv := internal.FermatInverse(d, c.Params().N)
+	priv.PublicKey.X, priv.PublicKey.Y = c.ScalarBaseMult(dInv.Bytes())
+
 	return priv, nil
-}
-
-func newPublicKeyFromD(c elliptic.Curve, D *big.Int) (pubKey PublicKey) {
-	dInv := internal.FermatInverse(D, c.Params().N)
-
-	pubKey.Curve = c
-	pubKey.X, pubKey.Y = c.ScalarBaseMult(dInv.Bytes())
-
-	return
 }
 
 // Sign data using K generated randomly like in crypto/ecdsa packages.
