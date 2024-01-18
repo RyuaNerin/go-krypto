@@ -37,15 +37,21 @@ func (priv *PrivateKey) Equal(x crypto.PrivateKey) bool {
 	return priv.PublicKey.Equal(&xx.PublicKey) && bigIntEqual(priv.X, xx.X)
 }
 
-// Equal reports whether pub and x have the same value.
+// Equal reports whether pub and y have the same value.
 func (pub *PublicKey) Equal(x crypto.PublicKey) bool {
 	xx, ok := x.(*PublicKey)
 	if !ok {
 		return false
 	}
-	return bigIntEqual(pub.Y, xx.Y) &&
-		bigIntEqual(pub.P, xx.P) && bigIntEqual(pub.Q, xx.Q) && bigIntEqual(pub.G, xx.G) &&
-		pub.Sizes == xx.Sizes
+	return pub.Parameters.Equal(xx.Parameters) && bigIntEqual(pub.Y, xx.Y)
+}
+
+// Equal reports whether p, q, g and sizes have the same value.
+func (params *Parameters) Equal(xx Parameters) bool {
+	return bigIntEqual(params.P, xx.P) &&
+		bigIntEqual(params.Q, xx.Q) &&
+		bigIntEqual(params.G, xx.G) &&
+		params.Sizes == xx.Sizes
 }
 
 func bigIntEqual(a, b *big.Int) bool {
