@@ -19,7 +19,10 @@ func FermatInverse(a, N *big.Int) *big.Int {
 const NumMRTests = 64
 
 func Bytes(bits int) int {
-	return int((uint(bits) + 7) & ^uint(0xFFFFFFF8) / 8)
+	// 32bit: 0xFFFF_FFF8 / 64bit: 0xFFFF FFFF FFFF FFF8
+	const MaxUint_m7 = ^uint(0) - 7
+
+	return int(((uint(bits) + 7) & MaxUint_m7) / 8)
 }
 
 func ReadBits(dst []byte, rand io.Reader, bits int) ([]byte, error) {
