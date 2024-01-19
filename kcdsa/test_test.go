@@ -50,15 +50,14 @@ func testVerify(t *testing.T, testCases []testCase) {
 	for _, tc := range testCases {
 		key := PublicKey{
 			Parameters: Parameters{
-				P:     tc.P,
-				Q:     tc.Q,
-				G:     tc.G,
-				Sizes: tc.Sizes,
+				P: tc.P,
+				Q: tc.Q,
+				G: tc.G,
 			},
 			Y: tc.Y,
 		}
 
-		ok := Verify(&key, tc.M, tc.R, tc.S)
+		ok := Verify(&key, tc.M, tc.R, tc.S, tc.Sizes.Hash())
 		if ok == tc.Fail {
 			t.Errorf("verify failed")
 			return
@@ -72,15 +71,14 @@ func Test_SignVerify_With_BadPublicKey(t *testing.T) {
 
 		key := PublicKey{
 			Parameters: Parameters{
-				P:     tc2.P,
-				Q:     tc2.Q,
-				G:     tc2.G,
-				Sizes: tc2.Sizes,
+				P: tc2.P,
+				Q: tc2.Q,
+				G: tc2.G,
 			},
 			Y: tc2.Y,
 		}
 
-		ok := Verify(&key, tc.M, tc.R, tc.S)
+		ok := Verify(&key, tc.M, tc.R, tc.S, tc.Sizes.Hash())
 		if ok {
 			t.Errorf("Verify unexpected success with non-existent mod inverse of Q")
 			return
@@ -96,7 +94,7 @@ func Test_KCDSA(t *testing.T) {
 	gp := func(params *Parameters, sizes ParameterSizes) error {
 		return GenerateParameters(params, rand.Reader, sizes)
 	}
-	gk := func(priv *PrivateKey) error {
+	gk := func(priv *PrivateKey, sizes ParameterSizes) error {
 		return GenerateKey(priv, rand.Reader)
 	}
 
@@ -130,13 +128,13 @@ func Test_Signing_With_DegenerateKeys(t *testing.T) {
 			X: internal.HI(test.x),
 		}
 
-		if _, _, err := Sign(rand.Reader, &priv, data); err == nil {
+		if _, _, err := Sign(rand.Reader, &priv, data, L2048N224SHA224.Hash()); err == nil {
 			t.Errorf("#%d: unexpected success", i)
 		}
 	}
 }
 
-func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int, gp func(params *Parameters, sizes ParameterSizes) error, gk func(priv *PrivateKey) error) {
+func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int, gp func(params *Parameters, sizes ParameterSizes) error, gk func(priv *PrivateKey, sizes ParameterSizes) error) {
 	var priv PrivateKey
 	params := &priv.Parameters
 
@@ -156,24 +154,24 @@ func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int, gp func(params *Par
 		return
 	}
 
-	err = gk(&priv)
+	err = gk(&priv, sizes)
 	if err != nil {
 		t.Errorf("error generating key: %s", err)
 		return
 	}
 
-	testSignAndVerify(t, int(sizes), &priv)
+	testSignAndVerify(t, int(sizes), &priv, sizes)
 }
 
-func testSignAndVerify(t *testing.T, i int, priv *PrivateKey) {
+func testSignAndVerify(t *testing.T, i int, priv *PrivateKey, sizes ParameterSizes) {
 	data := []byte("testing")
-	r, s, err := Sign(rand.Reader, priv, data)
+	r, s, err := Sign(rand.Reader, priv, data, sizes.Hash())
 	if err != nil {
 		t.Errorf("%d: error signing: %s", i, err)
 		return
 	}
 
-	ok := Verify(&priv.PublicKey, data, r, s)
+	ok := Verify(&priv.PublicKey, data, r, s, sizes.Hash())
 	if !ok {
 		t.Errorf("%d: Verify failed", i)
 		return

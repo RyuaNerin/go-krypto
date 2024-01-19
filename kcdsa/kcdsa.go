@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"errors"
+	"hash"
 	"io"
 	"math/big"
 
@@ -28,60 +29,50 @@ const (
 	L3072N256SHA256
 )
 
-type paramValues struct {
-	kcdsattak.Domain
-
-	Int2L *big.Int
+func (ps ParameterSizes) Hash() hash.Hash {
+	domain, err := ps.domain()
+	if err != nil {
+		panic(err.Error())
+	}
+	return domain.NewHash()
 }
 
 var (
-	i2l_512 = new(big.Int).Exp(big.NewInt(2), big.NewInt(512), nil)
+	one = big.NewInt(1)
 
-	paramValuesMap = map[ParameterSizes]paramValues{
+	paramValuesMap = map[ParameterSizes]kcdsattak.Domain{
 		L2048N224SHA224: {
-			Domain: kcdsattak.Domain{
-				A:       2048,
-				B:       224,
-				LH:      28,
-				NewHash: sha256.New224,
-				L:       512,
-			},
-			Int2L: i2l_512,
+			A:       2048,
+			B:       224,
+			LH:      28,
+			NewHash: sha256.New224,
+			L:       512,
 		},
 		L2048N224SHA256: {
-			Domain: kcdsattak.Domain{
-				A:       2048,
-				B:       224,
-				LH:      32,
-				NewHash: sha256.New,
-				L:       512,
-			},
-			Int2L: i2l_512,
+			A:       2048,
+			B:       224,
+			LH:      32,
+			NewHash: sha256.New,
+			L:       512,
 		},
 		L2048N256SHA256: {
-			Domain: kcdsattak.Domain{
-				A:       2048,
-				B:       256,
-				LH:      32,
-				NewHash: sha256.New,
-				L:       512,
-			},
-			Int2L: i2l_512,
+			A:       2048,
+			B:       256,
+			LH:      32,
+			NewHash: sha256.New,
+			L:       512,
 		},
 		L3072N256SHA256: {
-			Domain: kcdsattak.Domain{
-				A:       3072,
-				B:       256,
-				LH:      32,
-				NewHash: sha256.New,
-				L:       512,
-			},
-			Int2L: i2l_512,
+			A:       3072,
+			B:       256,
+			LH:      32,
+			NewHash: sha256.New,
+			L:       512,
 		},
 	}
 )
 
-func (ps ParameterSizes) domain() (paramValues, error) {
+func (ps ParameterSizes) domain() (kcdsattak.Domain, error) {
 	p, ok := paramValuesMap[ps]
 	if !ok {
 		return p, ErrInvalidParameterSizes
@@ -97,7 +88,6 @@ func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes
 	if err != nil {
 		return err
 	}
-	params.Sizes = sizes
 
 	qBytes := make([]byte, domain.B/8)
 	pBytes := make([]byte, domain.A/8)
@@ -105,8 +95,6 @@ func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes
 	q := new(big.Int)
 	p := new(big.Int)
 	rem := new(big.Int)
-	one := new(big.Int)
-	one.SetInt64(1)
 
 GeneratePrimes:
 	for {
@@ -203,17 +191,7 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 }
 
 // Sign data using K generated randomly like in crypto/dsa packages.
-func Sign(randReader io.Reader, priv *PrivateKey, data []byte) (r, s *big.Int, err error) {
-	switch priv.Sizes {
-	case L2048N224SHA224:
-	case L2048N224SHA256:
-	case L2048N256SHA256:
-	case L3072N256SHA256:
-	default:
-		err = ErrInvalidParameterSizes
-		return
-	}
-
+func Sign(randReader io.Reader, priv *PrivateKey, data []byte, h hash.Hash) (r, s *big.Int, err error) {
 	randutil.MaybeReadByte(randReader)
 
 	if priv.Q.Sign() <= 0 || priv.P.Sign() <= 0 || priv.G.Sign() <= 0 || priv.X.Sign() <= 0 || priv.Q.BitLen()%8 != 0 {
@@ -221,19 +199,17 @@ func Sign(randReader io.Reader, priv *PrivateKey, data []byte) (r, s *big.Int, e
 		return
 	}
 
-	one := new(big.Int)
-	one.SetInt64(1)
-
-	privQMinus1 := new(big.Int).Set(priv.Q)
-	privQMinus1.Sub(privQMinus1, one)
+	privQMinus1 := new(big.Int).Sub(priv.Q, one)
 
 	// step 1. 난수 k를 [1, Q-1]에서 임의로 선택한다.
 	var K *big.Int
 	for {
+		// K = [0 ~ q-2]
 		K, err = rand.Int(randReader, privQMinus1)
 		if err != nil {
 			return
 		}
+		// k =  K + 1 -> [1 ~ q-1]
 		K.Add(K, one)
 
 		if K.Sign() > 0 && K.Cmp(priv.Q) < 0 {
@@ -241,16 +217,15 @@ func Sign(randReader io.Reader, priv *PrivateKey, data []byte) (r, s *big.Int, e
 		}
 	}
 
-	return SignUsingK(K, priv, data)
+	return SignUsingK(K, priv, data, h)
 }
 
 // Sign data using K Specified
-func SignUsingK(K *big.Int, priv *PrivateKey, data []byte) (r, s *big.Int, err error) {
-	domain, err := priv.Sizes.domain()
-	if err != nil {
-		return nil, nil, err
-	}
-	h := domain.NewHash()
+func SignUsingK(K *big.Int, priv *PrivateKey, data []byte, h hash.Hash) (r, s *big.Int, err error) {
+	// Q 생성할 때, Q 사이즈를 doamin.B 사이즈랑 동일하게 생성한다.
+	B := priv.Q.BitLen()
+
+	buf := make([]byte, 0, h.Size())
 
 	// step 2. w = g^k mod p
 	//fmt.Println("--------------------------------------------------")
@@ -266,17 +241,17 @@ func SignUsingK(K *big.Int, priv *PrivateKey, data []byte) (r, s *big.Int, err e
 	//fmt.Println("step 3. R = h(W) mod 2^β")
 	h.Reset()
 	h.Write(W.Bytes())
-	RBytes := h.Sum(nil)
-	RBytes = RBytes[len(RBytes)-(domain.B/8):]
+	RBytes := internal.TruncateLeft(h.Sum(buf[:0]), B)
 	R := new(big.Int).SetBytes(RBytes)
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 
 	// step 4. Z = Y mod 2^l
+	i2l := new(big.Int).Lsh(one, uint(h.BlockSize())*8)
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("step 4. Z = Y mod 2^l")
 	//fmt.Println("Y = 0x" + hex.EncodeToString(priv.Y.Bytes()))
 	//fmt.Println("2l = 0x" + hex.EncodeToString(i2l.Bytes()))
-	Z := new(big.Int).Mod(priv.Y, domain.Int2L)
+	Z := new(big.Int).Mod(priv.Y, i2l)
 	ZBytes := Z.Bytes()
 	//fmt.Println("Z = 0x" + hex.EncodeToString(ZBytes))
 
@@ -286,8 +261,7 @@ func SignUsingK(K *big.Int, priv *PrivateKey, data []byte) (r, s *big.Int, err e
 	h.Reset()
 	h.Write(ZBytes)
 	h.Write(data)
-	HBytes := h.Sum(nil)
-	HBytes = HBytes[len(HBytes)-(domain.B/8):]
+	HBytes := internal.TruncateLeft(h.Sum(buf[:0]), B)
 	H := new(big.Int).SetBytes(HBytes)
 	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
 
@@ -319,12 +293,9 @@ func SignUsingK(K *big.Int, priv *PrivateKey, data []byte) (r, s *big.Int, err e
 	return
 }
 
-func Verify(pub *PublicKey, data []byte, R, S *big.Int) bool {
-	domain, err := pub.Sizes.domain()
-	if err != nil {
-		return false
-	}
-	h := domain.NewHash()
+func Verify(pub *PublicKey, data []byte, R, S *big.Int, h hash.Hash) bool {
+	// Q 생성할 때, Q 사이즈를 doamin.B 사이즈랑 동일하게 생성한다.
+	B := pub.Q.BitLen()
 
 	// step 1. 수신된 서명 {R', S'}에 대해 |R'|=LH, 0 < S' < Q 임을 확인한다.
 	if pub.P.Sign() == 0 {
@@ -335,12 +306,16 @@ func Verify(pub *PublicKey, data []byte, R, S *big.Int) bool {
 		return false
 	}
 
+	buf := make([]byte, h.Size())
+
 	// step 2. Z = Y mod 2^l
+	i2l := new(big.Int).Lsh(one, uint(h.BlockSize())*8)
+
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("step 2. Z = Y mod 2^l")
 	//fmt.Println("Y = 0x" + hex.EncodeToString(pub.Y.Bytes()))
 	//fmt.Println("2l = 0x" + hex.EncodeToString(i2l.Bytes()))
-	Z := new(big.Int).Mod(pub.Y, domain.Int2L)
+	Z := new(big.Int).Mod(pub.Y, i2l)
 	ZBytes := Z.Bytes()
 	//fmt.Println("Z = 0x" + hex.EncodeToString(ZBytes))
 
@@ -350,8 +325,7 @@ func Verify(pub *PublicKey, data []byte, R, S *big.Int) bool {
 	h.Reset()
 	h.Write(ZBytes)
 	h.Write(data)
-	HBytes := h.Sum(nil)
-	HBytes = HBytes[len(HBytes)-(domain.B/8):]
+	HBytes := internal.TruncateLeft(h.Sum(buf[:0]), B)
 	H := new(big.Int).SetBytes(HBytes)
 	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
 
@@ -384,8 +358,7 @@ func Verify(pub *PublicKey, data []byte, R, S *big.Int) bool {
 	//fmt.Println("step 6. trunc(Hash(W'), β) = R'")
 	h.Reset()
 	h.Write(W.Bytes())
-	rBytes := h.Sum(nil)
-	rBytes = rBytes[len(rBytes)-(domain.B/8):]
+	rBytes := internal.TruncateLeft(h.Sum(buf[:0]), B)
 	r := new(big.Int).SetBytes(rBytes)
 	//fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))

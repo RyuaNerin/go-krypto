@@ -64,7 +64,7 @@ func Benchmark_GenerateKey_TTAK(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			if err := GenerateKeyTTAK(&priv, rnd, UserProvidedRandomInput); err != nil {
+			if err := GenerateKeyTTAK(&priv, rnd, UserProvidedRandomInput, ParameterSizes(ps)); err != nil {
 				b.Error(err)
 				return
 			}
@@ -88,10 +88,13 @@ func Benchmark_Sign(b *testing.B) {
 
 		b.ReportAllocs()
 		b.ResetTimer()
+
+		h := ParameterSizes(ps).Hash()
 		for i := 0; i < b.N; i++ {
-			r, _, err := Sign(rnd, &priv, data)
+			r, _, err := Sign(rnd, &priv, data, h)
 			if err != nil {
 				b.Error(err)
+				return
 			}
 			data = r.Bytes()
 		}
@@ -110,17 +113,20 @@ func Benchmark_Verify(b *testing.B) {
 			b.Error(err)
 		}
 
-		r, s, err := Sign(rnd, &priv, data)
+		r, s, err := Sign(rnd, &priv, data, ParameterSizes(ps).Hash())
 		if err != nil {
 			b.Error(err)
 		}
 
+		h := ParameterSizes(ps).Hash()
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			ok := Verify(&priv.PublicKey, data, r, s)
+			ok := Verify(&priv.PublicKey, data, r, s, h)
 			if !ok {
 				b.Errorf("%d: Verify failed", i)
+				return
 			}
 		}
 	}, false)

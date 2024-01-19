@@ -15,7 +15,7 @@ func Test_TTAK_GenerateJ(t *testing.T) {
 
 	for _, tc := range testCase_TTAK {
 		domain, _ := tc.Sizes.domain()
-		J, err := kcdsattak.GenerateJ(tc.Seed_, domain.Domain)
+		J, err := kcdsattak.GenerateJ(tc.Seed_, domain)
 		if err != nil {
 			t.Error(err)
 			return
@@ -35,7 +35,7 @@ func Test_TTAK_GeneratePQ(t *testing.T) {
 
 	for _, tc := range testCase_TTAK {
 		domain, _ := tc.Sizes.domain()
-		P, Q, count, err := kcdsattak.GeneratePQ(tc.J, tc.Seed_, domain.Domain)
+		P, Q, count, err := kcdsattak.GeneratePQ(tc.J, tc.Seed_, domain)
 		if err != nil {
 			t.Error(err)
 			return
@@ -89,7 +89,7 @@ func Test_TTAK_GenerateXYZ(t *testing.T) {
 
 	for _, tc := range testCase_TTAK {
 		domain, _ := tc.Sizes.domain()
-		X, Y, Z, _, err := kcdsattak.GenerateXYZ(tc.P, tc.Q, tc.G, UserProvidedRandomInput, tc.XKEY, domain.Domain)
+		X, Y, Z, _, err := kcdsattak.GenerateXYZ(tc.P, tc.Q, tc.G, UserProvidedRandomInput, tc.XKEY, domain)
 		if err != nil {
 			t.Error(err)
 			return
@@ -111,8 +111,8 @@ func Test_kcdsa_GenerateParametersTTAK(t *testing.T) {
 		_, _, err := GenerateParametersTTAK(params, rand.Reader, sizes)
 		return err
 	}
-	gk := func(priv *PrivateKey) error {
-		return GenerateKeyTTAK(priv, rand.Reader, UserProvidedRandomInput)
+	gk := func(priv *PrivateKey, sizes ParameterSizes) error {
+		return GenerateKeyTTAK(priv, rand.Reader, UserProvidedRandomInput, sizes)
 	}
 
 	testKCDSA(t, L2048N224SHA224, 2048, 224, gp, gk)

@@ -8,7 +8,6 @@ import (
 
 type Parameters struct {
 	P, Q, G *big.Int
-	Sizes   ParameterSizes
 }
 
 // PublicKey represents a KCDSA public key.
@@ -50,8 +49,7 @@ func (pub *PublicKey) Equal(x crypto.PublicKey) bool {
 func (params *Parameters) Equal(xx Parameters) bool {
 	return bigIntEqual(params.P, xx.P) &&
 		bigIntEqual(params.Q, xx.Q) &&
-		bigIntEqual(params.G, xx.G) &&
-		params.Sizes == xx.Sizes
+		bigIntEqual(params.G, xx.G)
 }
 
 func bigIntEqual(a, b *big.Int) bool {
