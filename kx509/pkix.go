@@ -2,10 +2,11 @@ package kx509
 
 import (
 	"crypto/elliptic"
+	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	"errors"
-	"fmt"
+	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/kcdsa"
@@ -19,21 +20,23 @@ type pkixPublicKey struct {
 	BitString asn1.BitString
 }
 
-// ParsePKIXPublicKey parses a public key in PKIX, ASN.1 DER form. The encoded
-// public key is a SubjectPublicKeyInfo structure (see RFC 5280, Section 4.1).
+// ParsePKIXPublicKey parses a public key in PKIX, ASN.1 DER form.
 //
-// It returns a *eckcdsa.PublicKey, or *kcdsa.PublicKey.
+// It returns an *eckcdsa.PublicKey, an *kcdsa.PublicKey,
+// or the result of crypto/x509.ParsePKIXPublicKey
 //
 // This kind of key is commonly encoded in PEM blocks of type "PUBLIC KEY".
 func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error) {
-	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/x509.go#L71
+	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/x509.go#L71-L82
 	var pki publicKeyInfo
-	if rest, err := asn1.Unmarshal(derBytes, &pki); err != nil {
-		return nil, err
-	} else if len(rest) != 0 {
-		return nil, errors.New("kx509: trailing data after ASN.1 of public-key")
+	rest, err := asn1.Unmarshal(derBytes, &pki)
+	if err == nil && len(rest) == 0 {
+		pub, err = parsePublicKey(&pki)
+		if err != errTryStd {
+			return
+		}
 	}
-	return parsePublicKey(&pki)
+	return x509.ParsePKIXPublicKey(derBytes)
 }
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/x509.go#L84
@@ -77,7 +80,7 @@ func marshalPublicKey(pub interface{}) (publicKeyBytes []byte, publicKeyAlgorith
 		publicKeyAlgorithm.Parameters.FullBytes = paramBytes
 
 	default:
-		return nil, pkix.AlgorithmIdentifier{}, fmt.Errorf("kx509: unsupported public key type: %T", pub)
+		return nil, pkix.AlgorithmIdentifier{}, errTryStd
 	}
 
 	return publicKeyBytes, publicKeyAlgorithm, nil
@@ -100,11 +103,9 @@ func addASN1IntBytes(b *cryptobyte.Builder, bytes []byte) {
 }
 
 // MarshalPKIXPublicKey converts a public key to PKIX, ASN.1 DER form.
-// The encoded public key is a SubjectPublicKeyInfo structure
-// (see RFC 5280, Section 4.1).
 //
-// The following key types are currently supported: *eckcdsa.PublicKey,
-// *kcdsa.PublicKey.
+// supported key types : *eckcdsa.PublicKey and *kcdsa.PublicKey.
+// for unsupported types, returns the result of crypto/x509.MarshalPKIXPublicKey
 //
 // This kind of key is commonly encoded in PEM blocks of type "PUBLIC KEY".
 func MarshalPKIXPublicKey(pub interface{}) ([]byte, error) {
@@ -113,7 +114,11 @@ func MarshalPKIXPublicKey(pub interface{}) ([]byte, error) {
 	var publicKeyAlgorithm pkix.AlgorithmIdentifier
 	var err error
 
-	if publicKeyBytes, publicKeyAlgorithm, err = marshalPublicKey(pub); err != nil {
+	publicKeyBytes, publicKeyAlgorithm, err = marshalPublicKey(pub)
+	if err == errTryStd {
+		return x509.MarshalPKIXPublicKey(pub)
+	}
+	if err != nil {
 		return nil, err
 	}
 
@@ -134,4 +139,65 @@ type publicKeyInfo struct {
 	Raw       asn1.RawContent
 	Algorithm pkix.AlgorithmIdentifier
 	PublicKey asn1.BitString
+}
+
+func parsePublicKey(keyData *publicKeyInfo) (interface{}, error) {
+	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/parser.go#L217-L220
+	oid := keyData.Algorithm.Algorithm
+	params := keyData.Algorithm.Parameters
+	der := cryptobyte.String(keyData.PublicKey.RightAlign())
+
+	switch {
+	case oid.Equal(oidPublicKeyECKCDSA):
+		// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/parser.go#L252-L271
+		paramsDer := cryptobyte.String(params.FullBytes)
+		namedCurveOID := new(asn1.ObjectIdentifier)
+		if !paramsDer.ReadASN1ObjectIdentifier(namedCurveOID) {
+			return nil, errors.New("kx509: invalid ECDSA parameters")
+		}
+		namedCurve := namedCurveFromOID(*namedCurveOID)
+		if namedCurve == nil {
+			return nil, errors.New("kx509: unsupported elliptic curve")
+		}
+		x, y := elliptic.Unmarshal(namedCurve, der)
+		if x == nil {
+			return nil, errors.New("kx509: failed to unmarshal elliptic curve point")
+		}
+		pub := &eckcdsa.PublicKey{
+			Curve: namedCurve,
+			X:     x,
+			Y:     y,
+		}
+		return pub, nil
+
+	case oid.Equal(oidPublicKeyKCDSA):
+		y := new(big.Int)
+		if !der.ReadASN1Integer(y) {
+			return nil, errors.New("kx509: invalid KCDSA public key")
+		}
+		pub := &kcdsa.PublicKey{
+			Y: y,
+			Parameters: kcdsa.Parameters{
+				P: new(big.Int),
+				Q: new(big.Int),
+				G: new(big.Int),
+			},
+		}
+		paramsDer := cryptobyte.String(params.FullBytes)
+		// TODO: Read KCDSA Parameters J, Seed, Count
+		if !paramsDer.ReadASN1(&paramsDer, cryptobyte_asn1.SEQUENCE) ||
+			!paramsDer.ReadASN1Integer(pub.Parameters.P) ||
+			!paramsDer.ReadASN1Integer(pub.Parameters.Q) ||
+			!paramsDer.ReadASN1Integer(pub.Parameters.G) {
+			return nil, errors.New("kx509: invalid KCDSA parameters")
+		}
+		if pub.Y.Sign() <= 0 || pub.Parameters.P.Sign() <= 0 ||
+			pub.Parameters.Q.Sign() <= 0 || pub.Parameters.G.Sign() <= 0 {
+			return nil, errors.New("kx509: zero or negative KCDSA parameter")
+		}
+		return pub, nil
+
+	default:
+		return nil, errTryStd
+	}
 }
