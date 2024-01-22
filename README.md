@@ -48,7 +48,7 @@
 
     | Algorithm | SIMD Supports                         | Reference                                                   |
     |:---------:|---------------------------------------|:-----------------------------------------------------------:|
-    | ARIA      | arm64(NEON), amd64(SSSE3)             | [](https://github.com/weidai11/cryptopp/blob/CRYPTOPP_8_8_0/aria_simd.cpp) |
+    | ARIA      | arm64(NEON), amd64(SSSE3)             | [CRYPTOPP 8.8.0 - aria_simd.cpp](https://github.com/weidai11/cryptopp/blob/CRYPTOPP_8_8_0/aria_simd.cpp) |
     | LEA       | arm64(NEON), amd64(SSE2, AVX2)        | [KISA](https://seed.kisa.or.kr/kisa/Board/20/detailView.do) |
     | LSH-256   | arm64(NEON), amd64(SSE2, SSSE3, AVX2) | [KISA](https://seed.kisa.or.kr/kisa/Board/22/detailView.do) |
     | LSH-512   | arm64(NEON), amd64(SSE2, SSSE3, AVX2) | [KISA](https://seed.kisa.or.kr/kisa/Board/22/detailView.do) |
