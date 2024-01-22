@@ -217,11 +217,11 @@ func Sign(randReader io.Reader, priv *PrivateKey, data []byte, h hash.Hash) (r, 
 		}
 	}
 
-	return SignUsingK(K, priv, data, h)
+	return SignUsingK(K, priv, h, data)
 }
 
 // Sign data using K Specified
-func SignUsingK(K *big.Int, priv *PrivateKey, data []byte, h hash.Hash) (r, s *big.Int, err error) {
+func SignUsingK(K *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big.Int, err error) {
 	// Q 생성할 때, Q 사이즈를 doamin.B 사이즈랑 동일하게 생성한다.
 	B := priv.Q.BitLen()
 
@@ -293,7 +293,7 @@ func SignUsingK(K *big.Int, priv *PrivateKey, data []byte, h hash.Hash) (r, s *b
 	return
 }
 
-func Verify(pub *PublicKey, data []byte, R, S *big.Int, h hash.Hash) bool {
+func Verify(pub *PublicKey, h hash.Hash, data []byte, R, S *big.Int) bool {
 	// Q 생성할 때, Q 사이즈를 doamin.B 사이즈랑 동일하게 생성한다.
 	B := pub.Q.BitLen()
 

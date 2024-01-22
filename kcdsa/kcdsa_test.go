@@ -57,7 +57,7 @@ func testVerify(t *testing.T, testCases []testCase) {
 			Y: tc.Y,
 		}
 
-		ok := Verify(&key, tc.M, tc.R, tc.S, tc.Sizes.Hash())
+		ok := Verify(&key, tc.Sizes.Hash(), tc.M, tc.R, tc.S)
 		if ok == tc.Fail {
 			t.Errorf("verify failed")
 			return
@@ -78,7 +78,7 @@ func Test_SignVerify_With_BadPublicKey(t *testing.T) {
 			Y: tc2.Y,
 		}
 
-		ok := Verify(&key, tc.M, tc.R, tc.S, tc.Sizes.Hash())
+		ok := Verify(&key, tc.Sizes.Hash(), tc.M, tc.R, tc.S)
 		if ok {
 			t.Errorf("Verify unexpected success with non-existent mod inverse of Q")
 			return
@@ -171,7 +171,7 @@ func testSignAndVerify(t *testing.T, i int, priv *PrivateKey, sizes ParameterSiz
 		return
 	}
 
-	ok := Verify(&priv.PublicKey, data, r, s, sizes.Hash())
+	ok := Verify(&priv.PublicKey, sizes.Hash(), data, r, s)
 	if !ok {
 		t.Errorf("%d: Verify failed", i)
 		return

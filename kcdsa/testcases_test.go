@@ -24,7 +24,7 @@ func Test_Sign_Verify_TTAK(t *testing.T) {
 			X: tc.X,
 		}
 
-		R, S, err := SignUsingK(tc.KKEY, &key, tc.M, tc.Sizes.Hash())
+		R, S, err := SignUsingK(tc.KKEY, &key, tc.Sizes.Hash(), tc.M)
 		if err != nil {
 			t.Errorf("%d: error signing: %s", idx, err)
 		}
@@ -33,7 +33,7 @@ func Test_Sign_Verify_TTAK(t *testing.T) {
 			t.Errorf("%d: sign failed", idx)
 		}
 
-		ok := Verify(&key.PublicKey, tc.M, tc.R, tc.S, tc.Sizes.Hash())
+		ok := Verify(&key.PublicKey, tc.Sizes.Hash(), tc.M, tc.R, tc.S)
 		if ok == tc.Fail {
 			t.Errorf("%d: Verify failed, got:%v want:%v", idx, ok, !tc.Fail)
 		}

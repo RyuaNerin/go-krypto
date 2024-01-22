@@ -123,7 +123,7 @@ func Benchmark_Verify(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			ok := Verify(&priv.PublicKey, data, r, s, h)
+			ok := Verify(&priv.PublicKey, h, data, r, s)
 			if !ok {
 				b.Errorf("%d: Verify failed", i)
 				return
