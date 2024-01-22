@@ -1,18 +1,19 @@
-package kcdsa
+package kcdsattak
 
 import (
 	"testing"
 
+	"github.com/RyuaNerin/go-krypto/kcdsa"
 	. "github.com/RyuaNerin/testingutil"
 )
 
 func Benchmark_GenerateParameters(b *testing.B) {
-	BA(b, as, func(b *testing.B, sz int) {
+	BA(b, as, func(b *testing.B, ps int) {
 		var params Parameters
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			if err := GenerateParameters(&params, rnd, ParameterSizes(sz)); err != nil {
+			if _, _, err := GenerateParameters(&params, rnd, kcdsa.ParameterSizes(ps)); err != nil {
 				b.Error(err)
 				return
 			}
@@ -21,9 +22,9 @@ func Benchmark_GenerateParameters(b *testing.B) {
 }
 
 func Benchmark_GenerateKey(b *testing.B) {
-	BA(b, as, func(b *testing.B, sz int) {
+	BA(b, as, func(b *testing.B, ps int) {
 		var priv PrivateKey
-		if err := GenerateParameters(&priv.Parameters, rnd, ParameterSizes(sz)); err != nil {
+		if _, _, err := GenerateParameters(&priv.Parameters, rnd, kcdsa.ParameterSizes(ps)); err != nil {
 			b.Error(err)
 			return
 		}
@@ -31,7 +32,7 @@ func Benchmark_GenerateKey(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			if err := GenerateKey(&priv, rnd); err != nil {
+			if err := GenerateKey(&priv, rnd, UserProvidedRandomInput, kcdsa.ParameterSizes(ps)); err != nil {
 				b.Error(err)
 				return
 			}
@@ -44,11 +45,11 @@ func Benchmark_Sign(b *testing.B) {
 		data := []byte(`text`)
 
 		var priv PrivateKey
-		if err := GenerateParameters(&priv.Parameters, rnd, ParameterSizes(sz)); err != nil {
+		if _, _, err := GenerateParameters(&priv.Parameters, rnd, kcdsa.ParameterSizes(sz)); err != nil {
 			b.Error(err)
 			return
 		}
-		if err := GenerateKey(&priv, rnd); err != nil {
+		if err := GenerateKey(&priv, rnd, UserProvidedRandomInput, kcdsa.ParameterSizes(sz)); err != nil {
 			b.Error(err)
 			return
 		}
@@ -56,9 +57,8 @@ func Benchmark_Sign(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 
-		h := ParameterSizes(sz).Hash()
 		for i := 0; i < b.N; i++ {
-			r, _, err := Sign(rnd, &priv, h, data)
+			r, _, err := Sign(rnd, &priv, data, kcdsa.ParameterSizes(sz))
 			if err != nil {
 				b.Error(err)
 				return
@@ -73,19 +73,19 @@ func Benchmark_Verify(b *testing.B) {
 		data := []byte(`text`)
 
 		var priv PrivateKey
-		if err := GenerateParameters(&priv.Parameters, rnd, ParameterSizes(sz)); err != nil {
+		if _, _, err := GenerateParameters(&priv.Parameters, rnd, kcdsa.ParameterSizes(sz)); err != nil {
 			b.Error(err)
 		}
-		if err := GenerateKey(&priv, rnd); err != nil {
+		if err := GenerateKey(&priv, rnd, UserProvidedRandomInput, kcdsa.ParameterSizes(sz)); err != nil {
 			b.Error(err)
 		}
 
-		r, s, err := Sign(rnd, &priv, ParameterSizes(sz).Hash(), data)
+		r, s, err := Sign(rnd, &priv, data, kcdsa.ParameterSizes(sz))
 		if err != nil {
 			b.Error(err)
 		}
 
-		h := ParameterSizes(sz).Hash()
+		h := kcdsa.ParameterSizes(sz).Hash()
 
 		b.ReportAllocs()
 		b.ResetTimer()

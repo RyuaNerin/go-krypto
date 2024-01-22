@@ -3,13 +3,13 @@ package kcdsa
 import (
 	"bufio"
 	"crypto/rand"
-	"math/big"
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-
 	. "github.com/RyuaNerin/testingutil"
 )
+
+var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
 
 var (
 	as = []CipherSize{
@@ -20,72 +20,34 @@ var (
 	}
 )
 
-var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
+func Test_Signing_With_DegenerateKeys(t *testing.T) {
+	badKeys := []struct {
+		p, q, g, y, x string
+	}{
+		{"00", "01", "00", "00", "00"},
+		{"01", "ff", "00", "00", "00"},
+	}
 
-type testCase struct {
-	Sizes ParameterSizes
-
-	M []byte
-
-	Seed_ []byte
-	J     *big.Int
-	Count int
-	P, Q  *big.Int
-
-	H []byte
-	G *big.Int
-
-	XKEY []byte
-	X    *big.Int
-	Y, Z *big.Int
-
-	KKEY *big.Int
-	R    *big.Int
-	S    *big.Int
-
-	Fail bool
-}
-
-func testVerify(t *testing.T, testCases []testCase) {
-	for _, tc := range testCases {
-		key := PublicKey{
-			Parameters: Parameters{
-				P: tc.P,
-				Q: tc.Q,
-				G: tc.G,
+	msg := []byte("testing")
+	for i, test := range badKeys {
+		priv := PrivateKey{
+			PublicKey: PublicKey{
+				Parameters: Parameters{
+					P: internal.HI(test.p),
+					Q: internal.HI(test.q),
+					G: internal.HI(test.g),
+				},
+				Y: internal.HI(test.y),
 			},
-			Y: tc.Y,
+			X: internal.HI(test.x),
 		}
 
-		ok := Verify(&key, tc.Sizes.Hash(), tc.M, tc.R, tc.S)
-		if ok == tc.Fail {
-			t.Errorf("verify failed")
+		if _, _, err := Sign(rand.Reader, &priv, L2048N224SHA224.Hash(), msg); err == nil {
+			t.Errorf("#%d: unexpected success", i)
 			return
 		}
 	}
 }
-
-func Test_SignVerify_With_BadPublicKey(t *testing.T) {
-	for idx, tc := range testCase_TTAK {
-		tc2 := testCase_TTAK[(idx+1)%len(testCase_TTAK)]
-
-		key := PublicKey{
-			Parameters: Parameters{
-				P: tc2.P,
-				Q: tc2.Q,
-				G: tc2.G,
-			},
-			Y: tc2.Y,
-		}
-
-		ok := Verify(&key, tc.Sizes.Hash(), tc.M, tc.R, tc.S)
-		if ok {
-			t.Errorf("Verify unexpected success with non-existent mod inverse of Q")
-			return
-		}
-	}
-}
-
 func Test_KCDSA(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping parameter generation test in short mode")
@@ -102,36 +64,6 @@ func Test_KCDSA(t *testing.T) {
 	testKCDSA(t, L2048N224SHA256, 2048, 224, gp, gk)
 	testKCDSA(t, L2048N256SHA256, 2048, 256, gp, gk)
 	testKCDSA(t, L3072N256SHA256, 3072, 256, gp, gk)
-}
-
-func Test_Signing_With_DegenerateKeys(t *testing.T) {
-	// Signing with degenerate private keys should not cause an infinite
-	// loop.
-	badKeys := []struct {
-		p, q, g, y, x string
-	}{
-		{"00", "01", "00", "00", "00"},
-		{"01", "ff", "00", "00", "00"},
-	}
-	data := []byte("testing")
-
-	for i, test := range badKeys {
-		priv := PrivateKey{
-			PublicKey: PublicKey{
-				Parameters: Parameters{
-					P: internal.HI(test.p),
-					Q: internal.HI(test.q),
-					G: internal.HI(test.g),
-				},
-				Y: internal.HI(test.y),
-			},
-			X: internal.HI(test.x),
-		}
-
-		if _, _, err := Sign(rand.Reader, &priv, data, L2048N224SHA224.Hash()); err == nil {
-			t.Errorf("#%d: unexpected success", i)
-		}
-	}
 }
 
 func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int, gp func(params *Parameters, sizes ParameterSizes) error, gk func(priv *PrivateKey, sizes ParameterSizes) error) {
@@ -165,7 +97,7 @@ func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int, gp func(params *Par
 
 func testSignAndVerify(t *testing.T, i int, priv *PrivateKey, sizes ParameterSizes) {
 	data := []byte("testing")
-	r, s, err := Sign(rand.Reader, priv, data, sizes.Hash())
+	r, s, err := Sign(rand.Reader, priv, sizes.Hash(), data)
 	if err != nil {
 		t.Errorf("%d: error signing: %s", i, err)
 		return

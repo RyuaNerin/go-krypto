@@ -1,4 +1,4 @@
-package kcdsa
+package kcdsattak
 
 import (
 	"crypto"
@@ -9,6 +9,10 @@ import (
 
 type Parameters struct {
 	P, Q, G *big.Int
+
+	J     *big.Int
+	Seed  []byte
+	Count int
 }
 
 // PublicKey represents a KCDSA public key.

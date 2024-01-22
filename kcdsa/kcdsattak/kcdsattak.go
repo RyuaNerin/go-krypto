@@ -4,22 +4,19 @@ package kcdsattak
 import (
 	"encoding/binary"
 	"errors"
-	"hash"
 	"io"
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
+	"github.com/RyuaNerin/go-krypto/kcdsa"
+	kcdsainternal "github.com/RyuaNerin/go-krypto/kcdsa/internal"
 )
 
-type Domain struct {
-	A, B int // 소수 p와 q의 비트 길이를 각각 α와 β라 할 때, 두 값의 순서 쌍
-	LH   int // 해시 코드의 비트 길이
-	L    int // ℓ 해시 함수의 입력 블록 비트 길이
-
-	NewHash func() hash.Hash
-}
-
 var (
+	ErrInvalidPublicKey      = kcdsa.ErrInvalidPublicKey      // Same with kcdsa.ErrInvalidPublicKey
+	ErrInvalidParameterSizes = kcdsa.ErrInvalidParameterSizes // Same with kcdsa.ErrInvalidParameterSizes
+	ErrParametersNotSetUp    = kcdsa.ErrParametersNotSetUp    // Same with kcdsa.ErrParametersNotSetUp
+
 	ErrUseAnotherSeed = errors.New("krypto/kcdsa/kcdsattak: use another seed")
 	ErrUseAnotherH    = errors.New("krypto/kcdsa/kcdsattak: use another H")
 	ErrWrongSeed      = errors.New("krypto/kcdsa/kcdsattak: wrong seed length")
@@ -30,19 +27,31 @@ var (
 )
 
 // Pre-prime generating function
-func PPGF(seed []byte, nBits int, domain Domain) []byte {
+func PPGF(seed []byte, nBits int, sizes kcdsa.ParameterSizes) ([]byte, error) {
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	if !ok {
+		return nil, kcdsa.ErrInvalidParameterSizes
+	}
+
+	return ppgf(nil, seed, nBits, domain), nil
+}
+func ppgf(U []byte, seed []byte, nBits int, domain kcdsainternal.Domain) []byte {
 	// p.12
 	// from java
-	i := ((nBits + 7) & 0xFFFFFFF8) / 8
+	i := internal.Bytes(nBits)
 	iBuf := make([]byte, 1)
 
-	count := 0
-
-	U := make([]byte, i)
+	if len(U) < i {
+		U = U[:cap(U)]
+		for len(U) < i {
+			U = append(U, make([]byte, i)...)
+		}
+	}
 
 	h := domain.NewHash()
 
 	var hbuf []byte
+	count := 0
 	for {
 		iBuf[0] = byte(count)
 
@@ -79,7 +88,14 @@ func PPGF(seed []byte, nBits int, domain Domain) []byte {
 
 // Generate J, defined in TTAK.KO-12.0001/R4
 // bits of seed > domain.B
-func GenerateJ(seed []byte, domain Domain) (J *big.Int, err error) {
+func GenerateJ(seed []byte, sizes kcdsa.ParameterSizes) (J *big.Int, err error) {
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	if !ok {
+		return nil, kcdsa.ErrInvalidParameterSizes
+	}
+	return generateJ(seed, domain)
+}
+func generateJ(seed []byte, domain kcdsainternal.Domain) (J *big.Int, err error) {
 	// p.14
 	if len(seed) != internal.Bytes(domain.B) {
 		return nil, ErrWrongSeed
@@ -89,7 +105,7 @@ func GenerateJ(seed []byte, domain Domain) (J *big.Int, err error) {
 	// (U ← PPGF(Seed, n))
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("U ← PPGF(Seed, n)")
-	U := new(big.Int).SetBytes(PPGF(seed, domain.A-domain.B-4, domain))
+	U := new(big.Int).SetBytes(ppgf(nil, seed, domain.A-domain.B-4, domain))
 	//fmt.Println(U.BitLen())
 	//fmt.Println("U = 0x" + hex.EncodeToString(U.Bytes()))
 
@@ -111,7 +127,14 @@ func GenerateJ(seed []byte, domain Domain) (J *big.Int, err error) {
 }
 
 // Generate P, Q, defined in TTAK.KO-12.0001/R4
-func GeneratePQ(J *big.Int, seed []byte, domain Domain) (p, q *big.Int, count int, err error) {
+func GeneratePQ(J *big.Int, seed []byte, sizes kcdsa.ParameterSizes) (p, q *big.Int, count int, err error) {
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	if !ok {
+		return nil, nil, 0, kcdsa.ErrInvalidParameterSizes
+	}
+	return generatePQ(J, seed, domain)
+}
+func generatePQ(J *big.Int, seed []byte, domain kcdsainternal.Domain) (p, q *big.Int, count int, err error) {
 	// p.14
 	if len(seed) != internal.Bytes(domain.B) {
 		return nil, nil, 0, ErrWrongSeed
@@ -120,21 +143,23 @@ func GeneratePQ(J *big.Int, seed []byte, domain Domain) (p, q *big.Int, count in
 	// 5: Count를 0으로 둔다. (Count ← 0)
 	count = 0
 
-	ppgfBuf := make([]byte, len(seed)+4)
-	copy(ppgfBuf, seed)
+	seedCount := make([]byte, len(seed)+4)
+	copy(seedCount, seed)
 
 	q = new(big.Int)
 	p = new(big.Int)
+
+	uBuf := make([]byte, internal.Bytes(domain.B))
 
 	// 7: Count > 2^24이면 단계 1로 간다.
 	for count <= (1 << 24) {
 		// 6: Count를 1 증가시킨다. (Count ← (Count + 1))
 		count += 1
-		binary.BigEndian.PutUint32(ppgfBuf[len(ppgfBuf)-4:], uint32(count))
+		binary.BigEndian.PutUint32(seedCount[len(seedCount)-4:], uint32(count))
 
 		// 8: Seed에 Count를 연접한 것을 일방향 함수 PPGF의 입력으로 하여 비트 길이가
 		// β인 난수 U를 생성한다. (U ← PPGF(Seed ‖ Count, β))
-		U := PPGF(ppgfBuf, domain.B, domain)
+		U := ppgf(uBuf[:0], seedCount, domain.B, domain)
 
 		// 9: U의 최상위 및 최하위 비트를 1로 만들어 이를 q로 둔다.
 		// (q ← 2^(β-1) ∨ U ∨ 1)
@@ -194,7 +219,6 @@ func GenerateG(P, J *big.Int, H []byte) (G *big.Int, err error) {
 
 	return generateG(P, J, H, pm1)
 }
-
 func generateG(P, J *big.Int, H []byte, pm1 *big.Int) (G *big.Int, err error) {
 	h := new(big.Int).SetBytes(H)
 
@@ -219,7 +243,14 @@ func generateG(P, J *big.Int, H []byte, pm1 *big.Int) (G *big.Int, err error) {
 
 // Generate X, Y, Z, defined in TTAK.KO-12.0001/R4
 // bits of xkey > B
-func GenerateXYZ(P, Q, G *big.Int, userProvidedRandomInput []byte, xkey []byte, domain Domain) (X, Y, Z *big.Int, xkeyNext []byte, err error) {
+func GenerateXYZ(P, Q, G *big.Int, userProvidedRandomInput []byte, xkey []byte, sizes kcdsa.ParameterSizes) (X, Y, Z *big.Int, xkeyNext []byte, err error) {
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	if !ok {
+		return nil, nil, nil, nil, kcdsa.ErrInvalidParameterSizes
+	}
+	return generateXYZ(P, Q, G, userProvidedRandomInput, xkey, domain)
+}
+func generateXYZ(P, Q, G *big.Int, userProvidedRandomInput []byte, xkey []byte, domain kcdsainternal.Domain) (X, Y, Z *big.Int, xkeyNext []byte, err error) {
 	// p.16
 	if len(xkey) < internal.Bytes(domain.B) {
 		return nil, nil, nil, nil, ErrShortXKey
@@ -228,10 +259,12 @@ func GenerateXYZ(P, Q, G *big.Int, userProvidedRandomInput []byte, xkey []byte, 
 	i2b := new(big.Int).Lsh(one, uint(domain.B))
 	i2l := new(big.Int).Lsh(one, uint(domain.L))
 
+	ppgfBuf := make([]byte, 0, internal.Bytes(domain.B))
+
 	// 3: XSEEDj ← PPGF(user_provided_random_input, b)
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("3: XSEEDj ← PPGF(user_provided_random_input, b)")
-	xseed := new(big.Int).SetBytes(PPGF(userProvidedRandomInput, domain.B, domain))
+	xseed := new(big.Int).SetBytes(ppgf(ppgfBuf, userProvidedRandomInput, domain.B, domain))
 	//fmt.Println("xseed = 0x" + hex.EncodeToString(xseed.Bytes()))
 
 	// 4: XVAL ← (XKEY + XSEEDj) mod 2^b
@@ -245,7 +278,7 @@ func GenerateXYZ(P, Q, G *big.Int, userProvidedRandomInput []byte, xkey []byte, 
 	// 5: xj ← PPGF(XVAL, b) mod q
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("5: xj ← PPGF(XVAL, b) mod q")
-	X = new(big.Int).SetBytes(PPGF(xval.Bytes(), domain.B, domain))
+	X = new(big.Int).SetBytes(ppgf(ppgfBuf, xval.Bytes(), domain.B, domain))
 	X.Mod(X, Q)
 	//fmt.Println("X = 0x" + hex.EncodeToString(X.Bytes()))
 
@@ -255,7 +288,7 @@ func GenerateXYZ(P, Q, G *big.Int, userProvidedRandomInput []byte, xkey []byte, 
 	xkeyNextInt := new(big.Int).Set(X)
 	xkeyNextInt.Mod(xkeyNextInt.Add(xkeyNextInt, xseed), i2b)
 
-	xkeyNextInt.SetBytes(PPGF(xkeyNextInt.Bytes(), domain.B, domain))
+	xkeyNextInt.SetBytes(ppgf(ppgfBuf, xkeyNextInt.Bytes(), domain.B, domain))
 	xkeyNextInt.Mod(xkeyNextInt.Add(xkeyNextInt, new(big.Int).SetBytes(xkey)), i2b)
 	//fmt.Println("XKEY = 0x" + hex.EncodeToString(xkeyNext.Bytes()))
 	xkeyNext = xkeyNextInt.FillBytes(xkey)
@@ -277,6 +310,34 @@ func GenerateXYZ(P, Q, G *big.Int, userProvidedRandomInput []byte, xkey []byte, 
 	//fmt.Println("z = y mod 2^ℓ")
 	Z = new(big.Int).Mod(Y, i2l)
 	//fmt.Println("Z = 0x" + hex.EncodeToString(Z.Bytes()))
+
+	return
+}
+
+// Generate K defined in TTAK.KO-12.0001/R4
+func GenerateK(randReader io.Reader, Q *big.Int, machine_generated_random_input []byte, sizes kcdsa.ParameterSizes) (K *big.Int, err error) {
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	if !ok {
+		return nil, kcdsa.ErrInvalidParameterSizes
+	}
+	return generateK(randReader, Q, machine_generated_random_input, domain)
+}
+func generateK(randReader io.Reader, Q *big.Int, machine_generated_random_input []byte, domain kcdsainternal.Domain) (K *big.Int, err error) {
+	kkeyBytes := make([]byte, internal.Bytes(domain.B))
+	if _, err = randReader.Read(kkeyBytes); err != nil {
+		return nil, err
+	}
+	kkey := new(big.Int).SetBytes(kkeyBytes)
+
+	kseedBytes := ppgf(nil, machine_generated_random_input, domain.B, domain)
+	kseed := new(big.Int).SetBytes(kseedBytes)
+
+	kval := kkey.Add(kkey, kseed).Bytes()
+	kval = internal.TruncateLeft(kval, domain.B)
+
+	KBytes := ppgf(nil, kval, domain.B, domain)
+	K = new(big.Int).SetBytes(KBytes)
+	K.Mod(K, Q)
 
 	return
 }
