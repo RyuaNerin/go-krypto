@@ -23,8 +23,6 @@ func NewCipher(key []byte) (cipher.Block, error) {
 	switch l {
 	case 16:
 		return new128(key), nil
-	case 32:
-		return new256(key), nil
 	}
 
 	return nil, KeySizeError(l)

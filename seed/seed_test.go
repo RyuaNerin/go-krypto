@@ -9,12 +9,11 @@ import (
 var (
 	as = []CipherSize{
 		{Name: "128", Size: 128},
-		{Name: "256", Size: 256},
 	}
 )
 
-func Test_Encrypt_Src(t *testing.T) { BTSCA(t, as, 0, BlockSize, BIW(NewCipher), CE, false) }
-func Test_Decrypt_Src(t *testing.T) { BTSCA(t, as, 0, BlockSize, BIW(NewCipher), CD, false) }
+func Test_SEED_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases128, false) }
+func Test_SEED_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases128, false) }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
