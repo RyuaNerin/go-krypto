@@ -11,6 +11,8 @@ import (
 
 var newNEON = simdSetNEON.NewContext
 
+func Test_ShortWrite_NEON(t *testing.T) { HTSWA(t, as, newNEON, false) }
+
 func Test_LSH224_NEON(t *testing.T) { HT(t, newNEON(Size224), testCases224, false) }
 func Test_LSH256_NEON(t *testing.T) { HT(t, newNEON(Size), testCases256, false) }
 

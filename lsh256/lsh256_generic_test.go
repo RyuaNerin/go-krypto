@@ -9,7 +9,7 @@ import (
 	. "github.com/RyuaNerin/testingutil"
 )
 
-func Test_ShortWrite(t *testing.T) { HTSWA(t, as, newContext, false) }
+func Test_ShortWrite_Go(t *testing.T) { HTSWA(t, as, newContext, false) }
 
 func Test_LSH224_Go(t *testing.T) { HT(t, newContext(Size224), testCases224, false) }
 func Test_LSH256_Go(t *testing.T) { HT(t, newContext(Size), testCases256, false) }

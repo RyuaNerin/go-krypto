@@ -9,12 +9,12 @@ import (
 	. "github.com/RyuaNerin/testingutil"
 )
 
-func Test_ShortWrite(t *testing.T) { HTSWA(t, as, newContext, false) }
+func Test_ShortWrite_Go(t *testing.T) { HTSWA(t, as, newContext, false) }
 
-func Test_LSH512_224(t *testing.T) { HT(t, newContext(Size224), testCases224, false) }
-func Test_LSH512_256(t *testing.T) { HT(t, newContext(Size256), testCases256, false) }
-func Test_LSH512_384(t *testing.T) { HT(t, newContext(Size384), testCases384, false) }
-func Test_LSH512_512(t *testing.T) { HT(t, newContext(Size), testCases512, false) }
+func Test_LSH512_224_Go(t *testing.T) { HT(t, newContext(Size224), testCases224, false) }
+func Test_LSH512_256_Go(t *testing.T) { HT(t, newContext(Size256), testCases256, false) }
+func Test_LSH512_384_Go(t *testing.T) { HT(t, newContext(Size384), testCases384, false) }
+func Test_LSH512_512_Go(t *testing.T) { HT(t, newContext(Size), testCases512, false) }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

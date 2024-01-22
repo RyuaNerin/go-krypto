@@ -20,7 +20,7 @@ func Test_ARIA256_Decrypt_Go(t *testing.T) { BTD(t, BIW(newCipherGo), CD, testCa
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func Benchmark_New(b *testing.B) { BBNA(b, as, 0, BIW(newCipherGo), false) }
+func Benchmark_New_Go(b *testing.B) { BBNA(b, as, 0, BIW(newCipherGo), false) }
 
-func Benchmark_Encrypt(b *testing.B) { BBDA(b, as, 0, BlockSize, BIW(newCipherGo), CE, false) }
-func Benchmark_Decrypt(b *testing.B) { BBDA(b, as, 0, BlockSize, BIW(newCipherGo), CD, false) }
+func Benchmark_Encrypt_Go(b *testing.B) { BBDA(b, as, 0, BlockSize, BIW(newCipherGo), CE, false) }
+func Benchmark_Decrypt_Go(b *testing.B) { BBDA(b, as, 0, BlockSize, BIW(newCipherGo), CD, false) }
