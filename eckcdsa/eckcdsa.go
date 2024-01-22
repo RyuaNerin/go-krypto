@@ -54,6 +54,10 @@ func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 func Sign(randReader io.Reader, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.Int, err error) {
 	randutil.MaybeReadByte(randReader)
 
+	if priv == nil || priv.Curve == nil || priv.X == nil || priv.Y == nil || priv.D == nil || !priv.Curve.IsOnCurve(priv.X, priv.Y) {
+		return nil, nil, ErrParametersNotSetUp
+	}
+
 	var k *big.Int
 	for {
 		// https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=77-113
