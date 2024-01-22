@@ -78,9 +78,6 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 		}
 
 		xInv := internal.FermatInverse(priv.X, priv.Q)
-		if xInv == nil {
-			return nil, errors.New("kx509: invalid private key value")
-		}
 		priv.Y = new(big.Int).Exp(priv.G, xInv, priv.P)
 
 		return priv, nil

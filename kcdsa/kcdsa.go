@@ -165,23 +165,18 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 	xInv := new(big.Int)
 
 	for {
-		for {
-			_, err := io.ReadFull(rand, xBytes)
-			if err != nil {
-				return err
-			}
-			x.SetBytes(xBytes)
-			if x.Sign() != 0 && x.Cmp(priv.Q) < 0 {
-				break
-			}
+		_, err := io.ReadFull(rand, xBytes)
+		if err != nil {
+			return err
 		}
-
-		// x의 역원 생성
-		xInv = internal.FermatInverse(x, priv.Q)
-		if xInv != nil {
+		x.SetBytes(xBytes)
+		if x.Sign() != 0 && x.Cmp(priv.Q) < 0 {
 			break
 		}
 	}
+
+	// x의 역원 생성
+	xInv = internal.FermatInverse(x, priv.Q)
 
 	// 전자서명 검증키 y 생성(Y = G^{X^{-1} mod Q} mod P)
 	priv.Y = new(big.Int).Exp(priv.G, xInv, priv.P)

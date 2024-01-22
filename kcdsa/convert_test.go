@@ -21,10 +21,7 @@ func Test_DSA_TO_KCDSA(t *testing.T) {
 			dsa.GenerateParameters(&expect.Parameters, rand.Reader, sz)
 			dsa.GenerateKey(&expect, rand.Reader)
 
-			cvt, err := FromDSA(&expect)
-			if err != nil {
-				continue
-			}
+			cvt := FromDSA(&expect)
 
 			answer := cvt.ToDSA()
 
@@ -53,11 +50,7 @@ func Test_KCDSA_TO_DSA(t *testing.T) {
 
 		cvt := expect.ToDSA()
 
-		answer, err := FromDSA(cvt)
-		if err != nil {
-			t.Error(err)
-			return
-		}
+		answer := FromDSA(cvt)
 
 		if !expect.Equal(answer) {
 			t.Fail()

@@ -2,7 +2,6 @@ package kcdsa
 
 import (
 	"crypto/dsa"
-	"errors"
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
@@ -13,7 +12,7 @@ DSA		Y = { G^x } mod P
 KCDSA	Y = G^{X^{-1} mod Q} mod P
 */
 
-func FromDSA(dpk *dsa.PrivateKey) (*PrivateKey, error) {
+func FromDSA(dpk *dsa.PrivateKey) *PrivateKey {
 	kpk := &PrivateKey{
 		X: new(big.Int).Set(dpk.X),
 		PublicKey: PublicKey{
@@ -27,12 +26,9 @@ func FromDSA(dpk *dsa.PrivateKey) (*PrivateKey, error) {
 	}
 
 	xInv := internal.FermatInverse(kpk.X, kpk.Q)
-	if xInv == nil {
-		return nil, errors.New("kcdsa: Unsupported X")
-	}
 	kpk.PublicKey.Y.Exp(kpk.G, xInv, kpk.P)
 
-	return kpk, nil
+	return kpk
 }
 
 func (kpk *PrivateKey) ToDSA() *dsa.PrivateKey {

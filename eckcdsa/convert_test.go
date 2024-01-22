@@ -11,10 +11,7 @@ func Test_ECDSA_TO_ECKCDSA(t *testing.T) {
 		for {
 			expect, _ := ecdsa.GenerateKey(curve, rand.Reader)
 
-			cvt, err := FromECDSA(expect)
-			if err != nil {
-				continue
-			}
+			cvt := FromECDSA(expect)
 
 			answer := cvt.ToECDSA()
 
@@ -34,11 +31,7 @@ func Test_ECKCDSA_TO_ECDSA(t *testing.T) {
 
 		cvt := expect.ToECDSA()
 
-		answer, err := FromECDSA(cvt)
-		if err != nil {
-			t.Error(err)
-			return
-		}
+		answer := FromECDSA(cvt)
 
 		if !expect.Equal(answer) {
 			t.Fail()
