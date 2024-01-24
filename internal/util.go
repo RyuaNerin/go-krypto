@@ -35,7 +35,7 @@ func ReadBits(dst []byte, rand io.Reader, bits int) ([]byte, error) {
 		}
 	}
 
-	_, err := rand.Read(dst)
+	_, err := io.ReadFull(rand, dst)
 	if err != nil {
 		return nil, err
 	}

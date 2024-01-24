@@ -80,7 +80,7 @@ func Sign(rand io.Reader, priv *PrivateKey, data []byte, sizes kcdsa.ParameterSi
 	}
 
 	machineGeneratedRandomInput := make([]byte, internal.Bytes(domain.B))
-	_, err = rand.Read(machineGeneratedRandomInput)
+	_, err = io.ReadFull(rand, machineGeneratedRandomInput)
 	if err != nil {
 		return
 	}
