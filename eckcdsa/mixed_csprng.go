@@ -43,7 +43,7 @@ func mixedCSPRNG(rand io.Reader, priv *PrivateKey, hash []byte) (io.Reader, erro
 
 	// Create a CSPRNG that xors a stream of zeros with
 	// the output of the AES-CTR instance.
-	const aesIV = "IV for ECKCDSA CTR"
+	const aesIV = "IVforEC-KCDSACTR"
 	return &cipher.StreamReader{
 		R: zeroReader,
 		S: cipher.NewCTR(block, []byte(aesIV)),
