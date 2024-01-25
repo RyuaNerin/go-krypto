@@ -1,9 +1,48 @@
-package kcdsattak
+package kcdsa
 
 import (
+	"testing"
+
 	"github.com/RyuaNerin/go-krypto/internal"
-	"github.com/RyuaNerin/go-krypto/kcdsa"
 )
+
+func Test_Verify_TestVectors(t *testing.T) {
+	testVerify(t, testCase_TestVector)
+}
+func Test_Sign_Verify_TestVectors(t *testing.T) {
+	for idx, tc := range testCase_TestVector {
+		K := tc.KKEY
+
+		priv := PrivateKey{
+			PublicKey: PublicKey{
+				Parameters: Parameters{
+					P: tc.P,
+					Q: tc.Q,
+					G: tc.G,
+				},
+				Y: tc.Y,
+			},
+			X: tc.X,
+		}
+
+		R, S, err := sign(&priv, K, tc.Sizes.Hash(), tc.M)
+		if err != nil {
+			t.Errorf("%d: error signing: %s", idx, err)
+			return
+		}
+
+		if R.Cmp(tc.R) != 0 || S.Cmp(tc.S) != 0 {
+			t.Errorf("%d: sign failed", idx)
+			return
+		}
+
+		ok := Verify(&priv.PublicKey, tc.Sizes.Hash(), tc.M, tc.R, tc.S)
+		if ok == tc.Fail {
+			t.Errorf("%d: Verify failed, got:%v want:%v", idx, ok, !tc.Fail)
+			return
+		}
+	}
+}
 
 var (
 	UserProvidedRandomInput = internal.HB(`
@@ -24,7 +63,7 @@ var (
 		// p.30
 		// Ⅱ.1 소수 p, q의 길이 (α, β) = (2048, 224), SHA-224 적용 예
 		{
-			Sizes: kcdsa.L2048N224SHA224,
+			Sizes: L2048N224SHA224,
 			M:     M,
 
 			Seed_: internal.HB(`c0 52 a2 76 41 00 f0 f4 ec 90 6b 9c 5c 6b 10 6e 34 70 df c1 36 9f
@@ -87,7 +126,7 @@ var (
 		// p.36
 		// Ⅱ.2 소수 p, q의 길이 (α, β) = (2048, 224), SHA-256 적용 예
 		{
-			Sizes: kcdsa.L2048N224SHA256,
+			Sizes: L2048N224SHA256,
 			M:     M,
 
 			Seed_: internal.HB(`e1 75 ca d0 ea cb 74 dd b4 5f 15 f1 f2 57 22 bf 15 56 ef 86 0a 0f e0
@@ -150,7 +189,7 @@ var (
 		// p.42
 		// Ⅱ.3 소수 p, q의 길이 (α, β) = (2048, 256), SHA-256 적용 예
 		{
-			Sizes: kcdsa.L2048N256SHA256,
+			Sizes: L2048N256SHA256,
 			M:     M,
 
 			Seed_: internal.HB(`f7 5a bd a0 03 2c e2 18 ce 04 ba f0 a6 dc 92 c8 7e b4 6a a0 56 8c 42
@@ -212,7 +251,7 @@ var (
 		// p.48
 		// Ⅱ.4 소수 p, q의 길이 (α, β) = (3072, 256), SHA-256 적용 예
 		{
-			Sizes: kcdsa.L3072N256SHA256,
+			Sizes: L3072N256SHA256,
 			M:     M,
 
 			Seed_: internal.HB(`b8 56 20 16 38 55 a7 c0 05 76 13 dc d1 f2 ae 61 80 c4 34 d0 98 90 ea

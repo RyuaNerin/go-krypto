@@ -27,11 +27,14 @@ func Bytes(bits int) int {
 
 func ReadBits(dst []byte, rand io.Reader, bits int) ([]byte, error) {
 	i := Bytes(bits)
-	if cap(dst) < i {
-		dst = make([]byte, i)
-	} else {
-		for len(dst) < i {
-			dst = append(dst, 0)
+
+	if i < len(dst) {
+		dst = dst[:i]
+	} else if len(dst) < i {
+		if i <= cap(dst) {
+			dst = dst[:i]
+		} else {
+			dst = make([]byte, i)
 		}
 	}
 

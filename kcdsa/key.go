@@ -7,8 +7,17 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
+// only for GenerateParametersTTAK or GenerateParametersTTAKPQG
+type TTAKParameters struct {
+	J     *big.Int
+	Seed  []byte
+	Count int
+}
+
 type Parameters struct {
 	P, Q, G *big.Int
+
+	TTAKParams TTAKParameters
 }
 
 // PublicKey represents a KCDSA public key.

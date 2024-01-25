@@ -3,6 +3,7 @@ package kcdsa
 import (
 	"bufio"
 	"crypto/rand"
+	"math/big"
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
@@ -10,6 +11,30 @@ import (
 )
 
 var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
+
+type testCase struct {
+	Sizes ParameterSizes
+
+	M []byte
+
+	Seed_ []byte
+	J     *big.Int
+	Count int
+	P, Q  *big.Int
+
+	H []byte
+	G *big.Int
+
+	XKEY []byte
+	X    *big.Int
+	Y, Z *big.Int
+
+	KKEY *big.Int
+	R    *big.Int
+	S    *big.Int
+
+	Fail bool
+}
 
 var (
 	as = []CipherSize{
@@ -19,6 +44,27 @@ var (
 		{Name: "L3072 N256 SHA256", Size: int(L3072N256SHA256)},
 	}
 )
+
+func Test_SignVerify_With_BadPublicKey(t *testing.T) {
+	for idx, tc := range testCase_TestVector {
+		tc2 := testCase_TestVector[(idx+1)%len(testCase_TestVector)]
+
+		pub := PublicKey{
+			Parameters: Parameters{
+				P: tc2.P,
+				Q: tc2.Q,
+				G: tc2.G,
+			},
+			Y: tc2.Y,
+		}
+
+		ok := Verify(&pub, tc.Sizes.Hash(), tc.M, tc.R, tc.S)
+		if ok {
+			t.Errorf("Verify unexpected success with non-existent mod inverse of Q")
+			return
+		}
+	}
+}
 
 func Test_Signing_With_DegenerateKeys(t *testing.T) {
 	badKeys := []struct {
@@ -107,5 +153,26 @@ func testSignAndVerify(t *testing.T, i int, priv *PrivateKey, sizes ParameterSiz
 	if !ok {
 		t.Errorf("%d: Verify failed", i)
 		return
+	}
+}
+
+func testVerify(t *testing.T, testCases []testCase) {
+	for _, tc := range testCases {
+		pub := PublicKey{
+			Parameters: Parameters{
+				P: tc.P,
+				Q: tc.Q,
+				G: tc.G,
+			},
+			Y: tc.Y,
+		}
+
+		domain, _ := tc.Sizes.domain()
+
+		ok := Verify(&pub, domain.NewHash(), tc.M, tc.R, tc.S)
+		if ok == tc.Fail {
+			t.Errorf("verify failed")
+			return
+		}
 	}
 }
