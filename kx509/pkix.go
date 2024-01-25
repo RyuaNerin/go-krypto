@@ -71,6 +71,9 @@ func marshalPublicKey(pub interface{}) (publicKeyBytes []byte, publicKeyAlgorith
 			Q: pub.Q,
 			G: pub.G,
 			// TODO: Read KCDSA Parameters J, Seed, Count
+			J:     pub.TTAKParams.J,
+			Seed:  pub.TTAKParams.Seed,
+			Count: pub.TTAKParams.Count,
 		})
 		if err != nil {
 			return nil, pkix.AlgorithmIdentifier{}, errors.New("kx509: invalid paramerter")
@@ -195,6 +198,21 @@ func parsePublicKey(keyData *publicKeyInfo) (interface{}, error) {
 			pub.Parameters.Q.Sign() <= 0 || pub.Parameters.G.Sign() <= 0 {
 			return nil, errors.New("kx509: zero or negative KCDSA parameter")
 		}
+
+		// TODO: Read KCDSA Parameters J, Seed, Count
+		J := new(big.Int)
+		seed := make([]byte, 32)
+		var count int
+		if paramsDer.ReadASN1Integer(J) &&
+			paramsDer.ReadASN1Bytes(&seed, cryptobyte_asn1.OCTET_STRING) &&
+			paramsDer.ReadASN1Integer(&count) {
+			pub.Parameters.TTAKParams = kcdsa.TTAKParameters{
+				J:     J,
+				Seed:  seed,
+				Count: count,
+			}
+		}
+
 		return pub, nil
 
 	default:

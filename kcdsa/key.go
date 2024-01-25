@@ -2,6 +2,7 @@ package kcdsa
 
 import (
 	"crypto"
+	"crypto/subtle"
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
@@ -56,8 +57,15 @@ func (pub *PublicKey) Equal(x crypto.PublicKey) bool {
 }
 
 // Equal reports whether p, q, g and sizes have the same value.
-func (params *Parameters) Equal(xx Parameters) bool {
+func (params Parameters) Equal(xx Parameters) bool {
 	return internal.BigIntEqual(params.P, xx.P) &&
 		internal.BigIntEqual(params.Q, xx.Q) &&
 		internal.BigIntEqual(params.G, xx.G)
+}
+
+// Equal reports whether p, q, g and sizes have the same value.
+func (params *TTAKParameters) Equal(xx TTAKParameters) bool {
+	return internal.BigIntEqual(params.J, xx.J) &&
+		subtle.ConstantTimeEq(int32(params.Count), int32(xx.Count)) == 1 &&
+		subtle.ConstantTimeCompare(params.Seed, xx.Seed) == 1
 }

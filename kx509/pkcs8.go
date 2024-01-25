@@ -73,6 +73,11 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 					Q: params.Q,
 					G: params.G,
 					// TODO: Read KCDSA Parameters J, Seed, Count
+					TTAKParams: kcdsa.TTAKParameters{
+						J:     params.J,
+						Seed:  params.Seed,
+						Count: params.Count,
+					},
 				},
 			},
 		}
@@ -115,6 +120,9 @@ func marshalPKCS8PrivateKeyKCDSA(privKey *pkcs8, k *kcdsa.PrivateKey) error {
 		Q: k.Q,
 		G: k.G,
 		// TODO: Read KCDSA Parameters J, Seed, Count
+		J:     k.TTAKParams.J,
+		Seed:  k.TTAKParams.Seed,
+		Count: k.TTAKParams.Count,
 	})
 	if err != nil {
 		return errors.New("kx509: invalid paramerter")

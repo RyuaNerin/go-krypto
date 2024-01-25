@@ -57,4 +57,35 @@ func TestMarshalAndParsePKCS8PrivateKey(t *testing.T) {
 			}
 		}
 	})
+	t.Run("KCDSA-TTAK", func(t *testing.T) {
+		for _, size := range sizeList {
+			var p1 kcdsa.PrivateKey
+
+			_ = kcdsa.GenerateParametersTTAK(&p1.Parameters, rand.Reader, size)
+			_ = kcdsa.GenerateKey(&p1, rand.Reader)
+
+			der, err := MarshalPKCS8PrivateKey(&p1)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			p2r, err := ParsePKCS8PrivateKey(der)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			p2, ok := p2r.(*kcdsa.PrivateKey)
+			if !ok {
+				t.Error("type error")
+				return
+			}
+
+			if !p1.Equal(p2) || !p1.TTAKParams.Equal(p2.TTAKParams) {
+				t.Error("not equals!")
+				return
+			}
+		}
+	})
 }
