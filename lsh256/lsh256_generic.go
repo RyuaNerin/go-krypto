@@ -7,7 +7,7 @@ import (
 	"encoding/binary"
 	"math/bits"
 
-	"kryptosimd/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
 )
 
 // java to go
