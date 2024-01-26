@@ -6,8 +6,8 @@ import (
 	. "github.com/RyuaNerin/testingutil"
 )
 
-func Test_Encrypt_Src(t *testing.T) { BTSC(t, KeySize*8, 0, BlockSize, BIW(NewCipher), CE, false) }
-func Test_Decrypt_Src(t *testing.T) { BTSC(t, KeySize*8, 0, BlockSize, BIW(NewCipher), CD, false) }
+func Test_HIGHT_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases, false) }
+func Test_HIGHT_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases, false) }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

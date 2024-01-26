@@ -1,13 +1,8 @@
 package hight
 
 import (
-	"testing"
-
 	. "github.com/RyuaNerin/testingutil"
 )
-
-func Test_HIGHT_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases, false) }
-func Test_HIGHT_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases, false) }
 
 var testCases = []BlockTestCase{
 	// TTAK.KO-12.0040_R1
