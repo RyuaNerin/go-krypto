@@ -9,10 +9,12 @@ import (
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
+	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
 )
 
 var (
 	ErrTTAKParametersNotSetUp = errors.New("krypto/kcdsa: ttakparameters not set up before generating key")
+	ErrShortXKEY              = errors.New("krypto/kcdsa: XKEY is too small.")
 
 	two   = big.NewInt(2)
 	three = big.NewInt(3)
@@ -20,10 +22,10 @@ var (
 
 // Generate the paramters
 // using the prime number generator defined in TTAK.KO12.0001/R4
-func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
+func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterSizes) (H *big.Int, err error) {
 	domain, ok := sizes.domain()
 	if !ok {
-		return ErrInvalidParameterSizes
+		return nil, ErrInvalidParameterSizes
 	}
 
 	h := domain.NewHash()
@@ -34,7 +36,7 @@ func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterS
 	for {
 		seed, err = internal.ReadBits(seed, rand, domain.B)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		// 2 ~ 4
@@ -60,9 +62,9 @@ func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterS
 			continue
 		}
 
-		_, G, err := generateHG(rand, P, J)
+		H, G, err := generateHG(rand, P, J)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		params.TTAKParams = TTAKParameters{
@@ -75,7 +77,7 @@ func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterS
 		params.Q = Q
 		params.G = G
 
-		return nil
+		return H, nil
 	}
 }
 
@@ -143,26 +145,52 @@ func RegenerateParametersTTAK(params *Parameters, rand io.Reader, sizes Paramete
 	return nil
 }
 
-func ppgf(buf []byte, seed []byte, nBits int, h hash.Hash) []byte {
-	// p.12
-	// from java
-	i := internal.Bytes(nBits)
-	iBuf := make([]byte, 1)
+func GenerateKeyTTAK(priv *PrivateKey, rand io.Reader, xkey, upri []byte, sizes ParameterSizes) (xkeyOut, upriOut []byte, err error) {
+	domain, ok := sizes.domain()
+	if !ok {
+		return nil, nil, ErrInvalidParameterSizes
+	}
 
-	if i < len(buf) {
-		buf = buf[:i]
-	} else if len(buf) < i {
-		if i <= cap(buf) {
-			buf = buf[:i]
-		} else {
-			buf = make([]byte, i)
+	if priv.P == nil || priv.Q == nil || priv.G == nil {
+		return nil, nil, ErrParametersNotSetUp
+	}
+
+	if len(xkey) == 0 {
+		xkey = internal.Expand(xkey, internal.Bytes(domain.B))
+		xkey, err = internal.ReadBits(xkey, rand, domain.B)
+		if err != nil {
+			return nil, nil, err
+		}
+	} else if len(xkey) < internal.Bytes(domain.B) {
+		return nil, nil, ErrShortXKEY
+	}
+	if len(upri) == 0 {
+		upri = internal.Expand(upri, 64)
+		_, err = io.ReadFull(rand, upri)
+		if err != nil {
+			return nil, nil, err
 		}
 	}
 
+	h := domain.NewHash()
+
+	priv.X = generateX(priv.Q, upri, xkey, h, domain)
+	priv.Y = kcdsainternal.Y(priv.P, priv.Q, priv.G, priv.X)
+
+	return xkey, upri, nil
+}
+
+func ppgf(in []byte, seed []byte, nBits int, h hash.Hash) []byte {
+	// p.12
+	// from java
+	i := internal.Bytes(nBits)
+	in = internal.Expand(in, i)
+
 	LH := h.Size()
 
-	hbuf := make([]byte, 0, LH)
 	count := 0
+	iBuf := make([]byte, 1)
+	hbuf := make([]byte, 0, LH)
 
 	for {
 		iBuf[0] = byte(count)
@@ -174,19 +202,19 @@ func ppgf(buf []byte, seed []byte, nBits int, h hash.Hash) []byte {
 
 		if i >= LH {
 			i -= LH
-			copy(buf[i:], hbuf)
+			copy(in[i:], hbuf)
 			if i == 0 {
 				break
 			}
 		} else {
-			copy(buf, hbuf[len(hbuf)-i:])
+			copy(in, hbuf[len(hbuf)-i:])
 			break
 		}
 
 		count++
 	}
 
-	return internal.TruncateLeft(buf, nBits)
+	return internal.TruncateLeft(in, nBits)
 }
 
 // performance issue of ppgf...
@@ -331,4 +359,33 @@ func generateG(P, J *big.Int, H *big.Int) (G *big.Int, ok bool) {
 	}
 
 	return g, true
+}
+
+func generateX(Q *big.Int, upri, xkey []byte, h hash.Hash, d domain) (X *big.Int) {
+	var buf []byte
+
+	i2b := new(big.Int).Lsh(one, uint(d.B))
+
+	// 3: XSEEDj ← PPGF(user_provided_random_input, b)
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("3: XSEEDj ← PPGF(user_provided_random_input, b)")
+	xseed := new(big.Int).SetBytes(ppgf(buf[:0], upri, d.B, h))
+	//fmt.Println("xseed = 0x" + hex.EncodeToString(xseed.Bytes()))
+
+	// 4: XVAL ← (XKEY + XSEEDj) mod 2^b
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("4: XVAL ← (XKEY + XSEEDj) mod 2^b")
+	xval := new(big.Int).SetBytes(xkey)
+	xval.Add(xval, xseed)
+	xval.Mod(xval, i2b)
+	//fmt.Println("xval = 0x" + hex.EncodeToString(xval.Bytes()))
+
+	// 5: xj ← PPGF(XVAL, b) mod q
+	//fmt.Println("--------------------------------------------------")
+	//fmt.Println("5: xj ← PPGF(XVAL, b) mod q")
+	X = new(big.Int).SetBytes(ppgf(buf[:0], xval.Bytes(), d.B, h))
+	X.Mod(X, Q)
+	//fmt.Println("X = 0x" + hex.EncodeToString(X.Bytes()))
+
+	return X
 }

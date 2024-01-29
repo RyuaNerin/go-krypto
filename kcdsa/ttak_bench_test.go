@@ -14,7 +14,7 @@ func Benchmark_GenerateParametersTTAK(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			if err := GenerateParametersTTAK(&params, rnd, ParameterSizes(sz)); err != nil {
+			if _, err := GenerateParametersTTAK(&params, rnd, ParameterSizes(sz)); err != nil {
 				b.Error(err)
 				return
 			}
@@ -25,7 +25,7 @@ func Benchmark_GenerateParametersTTAK(b *testing.B) {
 func Benchmark_RegenerateParametersTTAK(b *testing.B) {
 	BA(b, as, func(b *testing.B, sz int) {
 		var params Parameters
-		if err := GenerateParametersTTAK(&params, rnd, ParameterSizes(sz)); err != nil {
+		if _, err := GenerateParametersTTAK(&params, rnd, ParameterSizes(sz)); err != nil {
 			b.Error(err)
 			return
 		}
@@ -34,6 +34,29 @@ func Benchmark_RegenerateParametersTTAK(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			if err := RegenerateParametersTTAK(&params, rnd, ParameterSizes(sz)); err != nil {
+				b.Error(err)
+				return
+			}
+		}
+	}, false)
+}
+
+func Benchmark_GenerateKeyTTAK(b *testing.B) {
+	BA(b, as, func(b *testing.B, sz int) {
+		var err error
+
+		var priv PrivateKey
+		if _, err = GenerateParametersTTAK(&priv.Parameters, rnd, ParameterSizes(sz)); err != nil {
+			b.Error(err)
+			return
+		}
+
+		var xkey, upri []byte
+
+		b.ReportAllocs()
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			if xkey, upri, err = GenerateKeyTTAK(&priv, rnd, xkey, upri, ParameterSizes(sz)); err != nil {
 				b.Error(err)
 				return
 			}

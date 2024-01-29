@@ -40,7 +40,7 @@ func Test_TTAK_GeneratePQ(t *testing.T) {
 			return
 		}
 		if P.Cmp(tc.P) != 0 || Q.Cmp(tc.Q) != 0 || count != tc.Count {
-			t.Errorf("GenerateTTAKPQ failed")
+			t.Fail()
 			return
 		}
 	}
@@ -74,7 +74,7 @@ func Test_TTAK_GenerateG(t *testing.T) {
 			return
 		}
 		if G.Cmp(tc.G) != 0 {
-			t.Errorf("GenerateTTAKG failed")
+			t.Fail()
 			return
 		}
 	}
@@ -101,7 +101,36 @@ func Test_RegenerateParametersTTAK(t *testing.T) {
 		}
 
 		if params.P.Cmp(tc.P) != 0 || params.Q.Cmp(tc.Q) != 0 {
-			t.Errorf("GenerateTTAKG failed")
+			t.Fail()
+			return
+		}
+	}
+}
+
+func Test_TTAK_GenerateKey(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping ttak parameter generation test in short mode")
+		return
+	}
+
+	for _, tc := range testCase_TestVector {
+		priv := PrivateKey{
+			PublicKey: PublicKey{
+				Parameters: Parameters{
+					P: tc.P,
+					Q: tc.Q,
+					G: tc.G,
+				},
+			},
+		}
+		_, _, err := GenerateKeyTTAK(&priv, rnd, tc.XKEY, UserProvidedRandomInput, tc.Sizes)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		if priv.X.Cmp(tc.X) != 0 || priv.Y.Cmp(tc.Y) != 0 {
+			t.Fail()
 			return
 		}
 	}
