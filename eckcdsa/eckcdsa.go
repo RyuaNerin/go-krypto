@@ -8,6 +8,7 @@ import (
 	"io"
 	"math/big"
 
+	"github.com/RyuaNerin/go-krypto/internal"
 	eckcdsainternal "github.com/RyuaNerin/go-krypto/internal/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
 )
@@ -88,8 +89,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	curveParams := curve.Params()
 	n := curveParams.N
 
-	w := (n.BitLen() + 7) / 8
-	K := (curveParams.BitSize + 7) / 8 // curve size
+	w := internal.Bytes(curveParams.BitSize)
 	Lh := h.Size()
 	L := h.BlockSize()
 	d := priv.D
@@ -98,19 +98,14 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 
 	Lh_is_bigger_than_w := Lh > w
 
-	var two_8w *big.Int
-	if Lh_is_bigger_than_w {
-		two_8w = big.NewInt(256)
-		two_8w.Exp(two_8w, big.NewInt(int64(w)), nil)
-	}
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// 2: kG = (x1, y1) 계산
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("2: kG   = (x1, y1) 계산")
 	x1, _ := curve.ScalarBaseMult(k.Bytes())
-	x1Bytes := padLeft(x1.Bytes(), K)
+	x1Bytes := make([]byte, w)
+	x1.FillBytes(x1Bytes)
 	//fmt.Println("kGx, x1 = 0x" + hex.EncodeToString(x1Bytes))
 
 	// 3: r ← Hash(x1)
@@ -121,11 +116,11 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	h.Reset()
 	h.Write(x1Bytes)
 	rBytes := h.Sum(nil)
-	r = new(big.Int).SetBytes(rBytes)
 	//fmt.Println("r       = 0x" + hex.EncodeToString(r.Bytes()))
 	if Lh_is_bigger_than_w {
-		r = r.Mod(r, two_8w)
+		rBytes = rBytes[len(rBytes)-w:]
 	}
+	r = new(big.Int).SetBytes(rBytes)
 	//fmt.Println("r       = 0x" + hex.EncodeToString(r.Bytes()))
 
 	// 4: cQ ← MSB(xQ ‖ yQ, L)
@@ -133,11 +128,9 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	//fmt.Println("4: cQ ← MSB(xQ ‖ yQ, L)")
 	//fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
 	//fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
-	cQ := append(
-		padLeft(xQ.Bytes(), K),
-		padLeft(yQ.Bytes(), K)...,
-	)
-	cQ = padRight(cQ, L)
+	cQ := make([]byte, L)
+	xQ.FillBytes(cQ[:w])
+	yQ.FillBytes(cQ[w : w*2])
 	//fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
 
 	// 5: v ← Hash(cQ ‖ M)
@@ -150,10 +143,10 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	h.Write(cQ)
 	h.Write(M)
 	vBytes := h.Sum(nil)
-	v := new(big.Int).SetBytes(vBytes)
 	if Lh_is_bigger_than_w {
-		v = v.Mod(v, two_8w)
+		vBytes = vBytes[len(vBytes)-w:]
 	}
+	v := new(big.Int).SetBytes(vBytes)
 	//fmt.Println("v  = 0x" + hex.EncodeToString(v.Bytes()))
 
 	// 6: e ← (r ⊕ v) mod n
@@ -204,8 +197,7 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	curveParams := pub.Curve.Params()
 	n := curveParams.N
 
-	w := (n.BitLen() + 7) / 8
-	K := (curveParams.BitSize + 7) / 8 // curve size
+	w := internal.Bytes(curveParams.BitSize) // curve size
 	Lh := h.Size()
 	L := h.BlockSize()
 	xQ := pub.X
@@ -220,23 +212,15 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	// 해시 코드의 바이트 길이 LH가 w( = log256n)보다 큰 경우 단계 1의 r′의 바이트 길이와 LH의 비교를 r′의 바이트 길이와 w의 비교
 	t := s
 
-	// 사전 계산
-	var two_8w *big.Int
-	if Lh_is_bigger_than_w {
-		two_8w = big.NewInt(256)
-		two_8w.Exp(two_8w, big.NewInt(int64(w)), nil)
-		//fmt.Println(hex.EncodeToString(two_8w.Bytes()))
-	}
-
 	if r.Sign() <= 0 {
 		return false
 	}
 	if Lh_is_bigger_than_w {
-		if (r.BitLen()+7)/8 > w {
+		if internal.Bytes(r.BitLen()) > w {
 			return false
 		}
 	} else {
-		if (r.BitLen()+7)/8 > Lh {
+		if internal.Bytes(r.BitLen()) > Lh {
 			return false
 		}
 	}
@@ -249,11 +233,9 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	//fmt.Println("2: cQ ← MSB(xQ ‖ yQ, L)")
 	//fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
 	//fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
-	cQ := append(
-		padLeft(xQ.Bytes(), K),
-		padLeft(yQ.Bytes(), K)...,
-	)
-	cQ = padRight(cQ, L)
+	cQ := make([]byte, L)
+	xQ.FillBytes(cQ[:w])
+	yQ.FillBytes(cQ[w : w*2])
 	//fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
 
 	// 3: v′ ← Hash(cQ ‖ M′)
@@ -266,11 +248,11 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	h.Write(cQ)
 	h.Write(M)
 	vBytes := h.Sum(nil)
-	v := new(big.Int).SetBytes(vBytes)
 	//fmt.Println("v  = 0x" + hex.EncodeToString(v.Bytes()))
 	if Lh_is_bigger_than_w {
-		v.Mod(v, two_8w)
+		vBytes = vBytes[len(vBytes)-w:]
 	}
+	v := new(big.Int).SetBytes(vBytes)
 	//fmt.Println("v% = 0x" + hex.EncodeToString(v.Bytes()))
 
 	// 4: e′ ← (r′ ⊕ v′) mod n
@@ -292,7 +274,9 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	x21, y21 := curve.ScalarMult(pub.X, pub.Y, t.Bytes())
 	x22, y22 := curve.ScalarBaseMult(e.Bytes())
 	x2, _ := curve.Add(x21, y21, x22, y22)
-	x2Bytes := padLeft(x2.Bytes(), K)
+	x2Bytes := make([]byte, w)
+	x2.FillBytes(x2Bytes)
+
 	//fmt.Println("x2  = 0x" + hex.EncodeToString(x2Bytes))
 
 	// 6: Hash(x2′) = r′ 여부 확인
@@ -303,36 +287,14 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	h.Reset()
 	h.Write(x2Bytes)
 	rBytes := h.Sum(nil)
-	r2 := new(big.Int).SetBytes(rBytes)
 	if Lh_is_bigger_than_w {
-		r2.Mod(r2, two_8w)
+		rBytes = rBytes[len(rBytes)-w:]
 	}
+	r2 := new(big.Int).SetBytes(rBytes)
 	//fmt.Println("r2 = 0x" + hex.EncodeToString(r2.Bytes()))
 	//fmt.Println("r  = 0x" + hex.EncodeToString(r.Bytes()))
 
 	return bigIntEqual(r, r2)
-}
-
-func padLeft(arr []byte, l int) []byte {
-	if len(arr) >= l {
-		return arr[:l]
-	}
-
-	n := make([]byte, l)
-	copy(n[l-len(arr):], arr)
-
-	return n
-}
-
-func padRight(arr []byte, l int) []byte {
-	if len(arr) >= l {
-		return arr[:l]
-	}
-
-	n := make([]byte, l)
-	copy(n, arr)
-
-	return n
 }
 
 // https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=168-188
