@@ -6,7 +6,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-func Y(Q, P, G, X *big.Int) *big.Int {
+func Y(P, Q, G, X *big.Int) *big.Int {
 	// x의 역원 생성
 	xInv := internal.FermatInverse(X, Q)
 
