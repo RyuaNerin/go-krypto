@@ -83,15 +83,6 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.In
 	}
 }
 
-// Sign data using K Specified
-func SignUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.Int, err error) {
-	if priv == nil || priv.Curve == nil || priv.X == nil || priv.Y == nil || priv.D == nil || !priv.Curve.IsOnCurve(priv.X, priv.Y) {
-		return nil, nil, ErrParametersNotSetUp
-	}
-
-	return signUsingK(k, priv, h, M)
-}
-
 func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.Int, err error) {
 	curve := priv.Curve
 	curveParams := curve.Params()
@@ -367,7 +358,7 @@ func randFieldElement(c elliptic.Curve, rand io.Reader) (k *big.Int, err error) 
 		//
 		// d > n-1 ===> d >= n
 		k = new(big.Int).SetBytes(b)
-		if k.Sign() != 0 && k.Cmp(N) < 0 {
+		if k.Sign() > 0 && k.Cmp(N) < 0 {
 			return
 		}
 	}

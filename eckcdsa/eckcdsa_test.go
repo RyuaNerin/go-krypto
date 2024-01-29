@@ -94,7 +94,7 @@ func testSignVerify(t *testing.T, testCases []testCase) {
 			D: tc.D,
 		}
 
-		R, S, err := SignUsingK(tc.K, &key, tc.hash, tc.M)
+		R, S, err := signUsingK(tc.K, &key, tc.hash, tc.M)
 		if err != nil {
 			t.Errorf("%d: error signing: %s", idx, err)
 			return
