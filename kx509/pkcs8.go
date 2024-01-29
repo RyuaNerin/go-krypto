@@ -8,7 +8,7 @@ import (
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
-	"github.com/RyuaNerin/go-krypto/internal"
+	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
 	"github.com/RyuaNerin/go-krypto/kcdsa"
 )
 
@@ -82,8 +82,7 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 			},
 		}
 
-		xInv := internal.FermatInverse(priv.X, priv.Q)
-		priv.Y = new(big.Int).Exp(priv.G, xInv, priv.P)
+		priv.Y = kcdsainternal.Y(priv.G, priv.P, priv.G, priv.X)
 
 		return priv, nil
 

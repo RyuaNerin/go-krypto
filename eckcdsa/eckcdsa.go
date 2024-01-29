@@ -8,7 +8,7 @@ import (
 	"io"
 	"math/big"
 
-	"github.com/RyuaNerin/go-krypto/internal"
+	eckcdsainternal "github.com/RyuaNerin/go-krypto/internal/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
 )
 
@@ -33,19 +33,18 @@ func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 	randutil.MaybeReadByte(randReader)
 
 	// https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=20-31
-	d, err := randFieldElement(c, randReader)
+	D, err := randFieldElement(c, randReader)
 	if err != nil {
 		return nil, err
 	}
 
 	priv := &PrivateKey{
-		D: d,
+		D: D,
 		PublicKey: PublicKey{
 			Curve: c,
 		},
 	}
-	dInv := internal.FermatInverse(d, c.Params().N)
-	priv.PublicKey.X, priv.PublicKey.Y = c.ScalarBaseMult(dInv.Bytes())
+	priv.PublicKey.X, priv.PublicKey.Y = eckcdsainternal.XY(D, c)
 
 	return priv, nil
 }

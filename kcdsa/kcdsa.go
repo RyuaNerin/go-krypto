@@ -10,6 +10,7 @@ import (
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
+	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
 )
 
@@ -169,7 +170,6 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 
 	x := new(big.Int)
 	xBytes := make([]byte, priv.Q.BitLen()/8)
-	xInv := new(big.Int)
 
 	for {
 		_, err := io.ReadFull(rand, xBytes)
@@ -182,12 +182,8 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 		}
 	}
 
-	// x의 역원 생성
-	xInv = internal.FermatInverse(x, priv.Q)
-
-	// 전자서명 검증키 y 생성(Y = G^{X^{-1} mod Q} mod P)
-	priv.Y = new(big.Int).Exp(priv.G, xInv, priv.P)
 	priv.X = x
+	priv.Y = kcdsainternal.Y(priv.P, priv.Q, priv.G, priv.X)
 
 	return nil
 }

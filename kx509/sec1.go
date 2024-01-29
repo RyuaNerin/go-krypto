@@ -8,7 +8,7 @@ import (
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
-	"github.com/RyuaNerin/go-krypto/internal"
+	eckcdsainternal "github.com/RyuaNerin/go-krypto/internal/eckcdsa"
 )
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L27-L32
@@ -106,8 +106,7 @@ func parseECPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key *e
 	copy(privateKey[len(privateKey)-len(privKey.PrivateKey):], privKey.PrivateKey)
 
 	d := new(big.Int).SetBytes(privateKey)
-	dInv := internal.FermatInverse(d, curve.Params().N)
-	priv.PublicKey.X, priv.PublicKey.Y = curve.ScalarBaseMult(dInv.Bytes())
+	priv.PublicKey.X, priv.PublicKey.Y = eckcdsainternal.XY(d, curve)
 
 	return priv, nil
 }

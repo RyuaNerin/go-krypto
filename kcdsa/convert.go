@@ -4,7 +4,7 @@ import (
 	"crypto/dsa"
 	"math/big"
 
-	"github.com/RyuaNerin/go-krypto/internal"
+	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
 )
 
 /**
@@ -16,7 +16,6 @@ func FromDSA(dpk *dsa.PrivateKey) *PrivateKey {
 	kpk := &PrivateKey{
 		X: new(big.Int).Set(dpk.X),
 		PublicKey: PublicKey{
-			Y: new(big.Int),
 			Parameters: Parameters{
 				P: new(big.Int).Set(dpk.P),
 				Q: new(big.Int).Set(dpk.Q),
@@ -25,8 +24,7 @@ func FromDSA(dpk *dsa.PrivateKey) *PrivateKey {
 		},
 	}
 
-	xInv := internal.FermatInverse(kpk.X, kpk.Q)
-	kpk.PublicKey.Y.Exp(kpk.G, xInv, kpk.P)
+	kpk.PublicKey.Y = kcdsainternal.Y(kpk.Q, kpk.P, kpk.G, kpk.X)
 
 	return kpk
 }

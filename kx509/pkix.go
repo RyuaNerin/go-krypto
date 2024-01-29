@@ -201,7 +201,7 @@ func parsePublicKey(keyData *publicKeyInfo) (interface{}, error) {
 
 		// TODO: Read KCDSA Parameters J, Seed, Count
 		J := new(big.Int)
-		seed := make([]byte, 32)
+		seed := make([]byte, 0, 32)
 		var count int
 		if paramsDer.ReadASN1Integer(J) &&
 			paramsDer.ReadASN1Bytes(&seed, cryptobyte_asn1.OCTET_STRING) &&

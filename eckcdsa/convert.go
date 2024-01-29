@@ -4,7 +4,7 @@ import (
 	"crypto/ecdsa"
 	"math/big"
 
-	"github.com/RyuaNerin/go-krypto/internal"
+	eckcdsainternal "github.com/RyuaNerin/go-krypto/internal/eckcdsa"
 )
 
 /**
@@ -20,9 +20,7 @@ func FromECDSA(dpk *ecdsa.PrivateKey) *PrivateKey {
 		},
 	}
 
-	dInv := internal.FermatInverse(kpk.D, kpk.Curve.Params().N)
-	kpk.X, kpk.Y = kpk.Curve.ScalarBaseMult(dInv.Bytes())
-
+	kpk.X, kpk.Y = eckcdsainternal.XY(kpk.D, kpk.Curve)
 	return kpk
 }
 
