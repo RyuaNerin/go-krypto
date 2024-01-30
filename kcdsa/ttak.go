@@ -23,7 +23,7 @@ var (
 // Generate the paramters
 // using the prime number generator defined in TTAK.KO12.0001/R4
 func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterSizes) (H *big.Int, err error) {
-	domain, ok := sizes.domain()
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
 		return nil, ErrInvalidParameterSizes
 	}
@@ -83,7 +83,7 @@ func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterS
 
 // TTAKParameters -> P, Q, G(randomly)
 func RegenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterSizes) error {
-	domain, ok := sizes.domain()
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
 		return ErrInvalidParameterSizes
 	}
@@ -146,7 +146,7 @@ func RegenerateParametersTTAK(params *Parameters, rand io.Reader, sizes Paramete
 }
 
 func GenerateKeyTTAK(priv *PrivateKey, rand io.Reader, xkey, upri []byte, sizes ParameterSizes) (xkeyOut, upriOut []byte, err error) {
-	domain, ok := sizes.domain()
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
 		return nil, nil, ErrInvalidParameterSizes
 	}
@@ -218,7 +218,7 @@ func ppgf(in []byte, seed []byte, nBits int, h hash.Hash) []byte {
 }
 
 // performance issue of ppgf...
-func generateJAlt(rand io.Reader, seed []byte, ubuf []byte, d domain) (J *big.Int, UBytes []byte, ok bool, err error) {
+func generateJAlt(rand io.Reader, seed []byte, ubuf []byte, d kcdsainternal.Domain) (J *big.Int, UBytes []byte, ok bool, err error) {
 	UBytes, err = internal.ReadBits(ubuf[:0], rand, d.A-d.B-4)
 	if err != nil {
 		return
@@ -245,7 +245,7 @@ func generateJAlt(rand io.Reader, seed []byte, ubuf []byte, d domain) (J *big.In
 	return
 }
 
-func generateJ(seed, UBytes []byte, h hash.Hash, d domain) (J *big.Int, UBytes2 []byte, ok bool) {
+func generateJ(seed, UBytes []byte, h hash.Hash, d kcdsainternal.Domain) (J *big.Int, UBytes2 []byte, ok bool) {
 	// 2: Seed를 일방향 함수 PPGF의 입력으로 하여 비트 길이가 n = (α - β - 4)인 난수 U를 생성한다.
 	// (U ← PPGF(Seed, n))
 	//fmt.Println("--------------------------------------------------")
@@ -273,7 +273,7 @@ func generateJ(seed, UBytes []byte, h hash.Hash, d domain) (J *big.Int, UBytes2 
 	return
 }
 
-func generatePQ(J *big.Int, seed []byte, h hash.Hash, d domain) (p, q *big.Int, count int, ok bool) {
+func generatePQ(J *big.Int, seed []byte, h hash.Hash, d kcdsainternal.Domain) (p, q *big.Int, count int, ok bool) {
 	// 5: Count를 0으로 둔다. (Count ← 0)
 	count = 0
 
@@ -361,7 +361,7 @@ func generateG(P, J *big.Int, H *big.Int) (G *big.Int, ok bool) {
 	return g, true
 }
 
-func generateX(Q *big.Int, upri, xkey []byte, h hash.Hash, d domain) (X *big.Int) {
+func generateX(Q *big.Int, upri, xkey []byte, h hash.Hash, d kcdsainternal.Domain) (X *big.Int) {
 	var buf []byte
 
 	i2b := new(big.Int).Lsh(one, uint(d.B))

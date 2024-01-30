@@ -2,8 +2,6 @@
 package kcdsa
 
 import (
-	"crypto/rand"
-	"crypto/sha256"
 	"errors"
 	"hash"
 	"io"
@@ -24,60 +22,14 @@ var (
 type ParameterSizes int
 
 const (
-	L2048N224SHA224 ParameterSizes = iota
-	L2048N224SHA256
-	L2048N256SHA256
-	L3072N256SHA256
+	L2048N224SHA224 ParameterSizes = kcdsainternal.L2048N224SHA224
+	L2048N224SHA256 ParameterSizes = kcdsainternal.L2048N224SHA256
+	L2048N256SHA256 ParameterSizes = kcdsainternal.L2048N256SHA256
+	L3072N256SHA256 ParameterSizes = kcdsainternal.L3072N256SHA256
 )
-
-type domain struct {
-	A, B int // 소수 p와 q의 비트 길이를 각각 α와 β라 할 때, 두 값의 순서 쌍
-	LH   int // 해시 코드의 비트 길이
-	L    int // ℓ 해시 함수의 입력 블록 비트 길이
-
-	NewHash func() hash.Hash
-}
-
-var (
-	paramValuesMap = map[ParameterSizes]domain{
-		L2048N224SHA224: {
-			A:       2048,
-			B:       224,
-			LH:      28,
-			NewHash: sha256.New224,
-			L:       512,
-		},
-		L2048N224SHA256: {
-			A:       2048,
-			B:       224,
-			LH:      32,
-			NewHash: sha256.New,
-			L:       512,
-		},
-		L2048N256SHA256: {
-			A:       2048,
-			B:       256,
-			LH:      32,
-			NewHash: sha256.New,
-			L:       512,
-		},
-		L3072N256SHA256: {
-			A:       3072,
-			B:       256,
-			LH:      32,
-			NewHash: sha256.New,
-			L:       512,
-		},
-	}
-)
-
-func (sizes ParameterSizes) domain() (domain, bool) {
-	p, ok := paramValuesMap[ParameterSizes(sizes)]
-	return p, ok
-}
 
 func (ps ParameterSizes) Hash() hash.Hash {
-	domain, ok := ps.domain()
+	domain, ok := kcdsainternal.GetDomain(int(ps))
 	if !ok {
 		panic(ErrInvalidParameterSizes.Error())
 	}
@@ -92,7 +44,7 @@ var (
 // using the prime number generator used in crypto/dsa package.
 func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
 	// https://cs.opensource.google/go/go/+/refs/tags/go1.18:src/crypto/dsa/dsa.go;l=65-155
-	domain, ok := sizes.domain()
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
 		return ErrInvalidParameterSizes
 	}
@@ -196,19 +148,22 @@ func Sign(randReader io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, 
 		return
 	}
 
-	privQMinus1 := new(big.Int).Sub(priv.Q, one)
+	qblen := priv.Q.BitLen()
 
+	var K *big.Int
 	var attempts int
 	for attempts = 10; attempts > 0; attempts-- {
 		// step 1. 난수 k를 [1, Q-1]에서 임의로 선택한다.
-		var K *big.Int
+
 		for {
-			// K = [0 ~ q-2]
-			K, err = rand.Int(randReader, privQMinus1)
-			if err != nil {
-				return nil, nil, err
+			b := make([]byte, internal.Bytes(qblen))
+			if _, err = io.ReadFull(randReader, b); err != nil {
+				return
 			}
-			// k =  K + 1 -> [1 ~ q-1]
+			if excess := len(b)*8 - qblen; excess > 0 {
+				b[0] >>= excess
+			}
+			K = new(big.Int).SetBytes(b)
 			K.Add(K, one)
 
 			if K.Sign() > 0 && K.Cmp(priv.Q) < 0 {

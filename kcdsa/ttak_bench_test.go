@@ -5,6 +5,7 @@ import (
 	"io"
 	"testing"
 
+	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
 	. "github.com/RyuaNerin/testingutil"
 )
 
@@ -75,7 +76,7 @@ func Benchmark_ppgf(b *testing.B) {
 			return
 		}
 
-		d, _ := ParameterSizes(sz).domain()
+		d, _ := kcdsainternal.GetDomain(sz)
 		h := d.NewHash()
 
 		b.ReportAllocs()

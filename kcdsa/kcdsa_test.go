@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
+	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
+
 	. "github.com/RyuaNerin/testingutil"
 )
 
@@ -167,7 +169,7 @@ func testVerify(t *testing.T, testCases []testCase) {
 			Y: tc.Y,
 		}
 
-		domain, _ := tc.Sizes.domain()
+		domain, _ := kcdsainternal.GetDomain(int(tc.Sizes))
 
 		ok := Verify(&pub, domain.NewHash(), tc.M, tc.R, tc.S)
 		if ok == tc.Fail {

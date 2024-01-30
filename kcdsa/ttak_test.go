@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"math/big"
 	"testing"
+
+	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
 )
 
 func Test_TTAK_GenerateJ(t *testing.T) {
@@ -13,7 +15,7 @@ func Test_TTAK_GenerateJ(t *testing.T) {
 	}
 
 	for _, tc := range testCase_TestVector {
-		d, _ := tc.Sizes.domain()
+		d, _ := kcdsainternal.GetDomain(int(tc.Sizes))
 		J, _, ok := generateJ(tc.Seed_, nil, d.NewHash(), d)
 		if !ok {
 			t.Fail()
@@ -33,7 +35,7 @@ func Test_TTAK_GeneratePQ(t *testing.T) {
 	}
 
 	for _, tc := range testCase_TestVector {
-		d, _ := tc.Sizes.domain()
+		d, _ := kcdsainternal.GetDomain(int(tc.Sizes))
 		P, Q, count, ok := generatePQ(tc.J, tc.Seed_, d.NewHash(), d)
 		if !ok {
 			t.Fail()
