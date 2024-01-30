@@ -97,6 +97,10 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	yQ := priv.Y
 
 	Lh_is_bigger_than_w := Lh > w
+	cQLen := L
+	if cQLen < 2*w {
+		cQLen = 2 * w
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -128,9 +132,10 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	//fmt.Println("4: cQ ← MSB(xQ ‖ yQ, L)")
 	//fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
 	//fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
-	cQ := make([]byte, L)
+	cQ := make([]byte, cQLen)
 	xQ.FillBytes(cQ[:w])
 	yQ.FillBytes(cQ[w : w*2])
+	cQ = cQ[:L]
 	//fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
 
 	// 5: v ← Hash(cQ ‖ M)
@@ -204,6 +209,10 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	yQ := pub.Y
 
 	Lh_is_bigger_than_w := Lh > w
+	cQLen := L
+	if cQLen < 2*w {
+		cQLen = 2 * w
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -233,9 +242,10 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	//fmt.Println("2: cQ ← MSB(xQ ‖ yQ, L)")
 	//fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
 	//fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
-	cQ := make([]byte, L)
+	cQ := make([]byte, cQLen)
 	xQ.FillBytes(cQ[:w])
 	yQ.FillBytes(cQ[w : w*2])
+	cQ = cQ[:L]
 	//fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
 
 	// 3: v′ ← Hash(cQ ‖ M′)
