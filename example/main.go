@@ -40,7 +40,6 @@ func printBlocks() {
 		{"LEA-256", 196, lea.NewCipher},
 		{"LEA-256", 256, lea.NewCipher},
 		{"SEED-128", 128, seed.NewCipher},
-		{"SEED-256", 256, seed.NewCipher},
 	}
 
 	dst := make([]byte, 100)
