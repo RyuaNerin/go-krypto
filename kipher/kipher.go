@@ -2,16 +2,6 @@ package kipher
 
 import "crypto/cipher"
 
-type Stream interface {
-	cipher.Stream
-	IV() []byte
-}
-
-type BlockMode interface {
-	cipher.BlockMode
-	IV() []byte
-}
-
 type kryptoBlock interface {
 	cipher.Block
 

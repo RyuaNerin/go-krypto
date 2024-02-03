@@ -1,7 +1,5 @@
 package kipher
 
-// Based on https://github.com/golang/go/blob/go1.21.6/src/krypto/kipher/ctr.go
-
 import (
 	"bytes"
 	"crypto/cipher"
@@ -10,65 +8,83 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/alias"
 )
 
-type ctr struct {
-	b       cipher.Block
-	ctr     []byte
-	out     []byte
-	outUsed int
-}
-
 // NewCTR returns a Stream which encrypts/decrypts using the given Block in
 // counter mode. The length of iv must be the same as the Block's block size.
-func NewCTR(block cipher.Block, iv []byte, bufferBlocks int) Stream {
-	if len(iv) != block.BlockSize() {
-		panic("cipher.NewCTR: IV length must equal block size")
+func NewCTR(b cipher.Block, iv []byte) cipher.Stream {
+	if kb, ok := b.(kryptoBlock); ok {
+		ctr := &ctr{
+			b:   kb,
+			ctr: bytes.Clone(iv),
+			out: make([]byte, 8*kb.BlockSize()),
+		}
+		ctr.refill()
+
+		return ctr
 	}
-	if kb, ok := block.(kryptoBlock); ok {
-		return newCTR2(kb, iv, bufferBlocks)
-	}
-	return newCTR(block, iv, bufferBlocks)
+	return cipher.NewCTR(b, iv)
 }
 
-func newCTR(block cipher.Block, iv []byte, bufferBlocks int) Stream {
-	bufSize := block.BlockSize() * bufferBlocks
-	return &ctr{
-		b:       block,
-		ctr:     bytes.Clone(iv),
-		out:     make([]byte, 0, bufSize),
-		outUsed: 0,
+type ctr struct {
+	b            kryptoBlock
+	ctr          []byte
+	out          []byte
+	outUsed      int
+	bufferBlocks int
+}
+
+func (x *ctr) fillCtr(outIdx int) {
+	copy(x.out[outIdx:], x.ctr)
+
+	for i := x.b.BlockSize() - 1; i >= 0; i-- {
+		c := x.ctr[i]
+		c++
+		x.ctr[i] = c
+		if c > 0 {
+			return
+		}
 	}
 }
 
 func (x *ctr) refill() {
-	remain := len(x.out) - x.outUsed
-	copy(x.out, x.out[x.outUsed:])
-	x.out = x.out[:cap(x.out)]
-	bs := x.b.BlockSize()
-	for remain <= len(x.out)-bs {
-		x.b.Encrypt(x.out[remain:], x.ctr)
-		remain += bs
+	blockSize := x.b.BlockSize()
 
-		// Increment counter
-		for i := len(x.ctr) - 1; i >= 0; i-- {
-			x.ctr[i]++
-			if x.ctr[i] != 0 {
-				break
-			}
-		}
+	for i := 0; i < x.bufferBlocks; i++ {
+		x.fillCtr(blockSize * i)
 	}
-	x.out = x.out[:remain]
+
+	var (
+		bs8 = blockSize * 8
+		bs4 = blockSize * 4
+		bs1 = blockSize * 1
+	)
+
+	out := x.out
+	for len(out) >= bs8 {
+		x.b.Encrypt8(out[:bs8], out[:bs8])
+		out = out[bs8:]
+	}
+	for len(out) >= bs4 {
+		x.b.Encrypt4(out[:bs4], out[:bs4])
+		out = out[bs4:]
+	}
+	for len(out) > 0 {
+		x.b.Encrypt(out[:bs1], out[:bs1])
+		out = out[bs1:]
+	}
+
 	x.outUsed = 0
 }
 
 func (x *ctr) XORKeyStream(dst, src []byte) {
 	if len(dst) < len(src) {
-		panic("krypto/kipher: output smaller than input")
+		panic("krypto/lea: output smaller than input")
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("krypto/kipher: invalid buffer overlap")
+		panic("krypto/lea: invalid buffer overlap")
 	}
+
 	for len(src) > 0 {
-		if x.outUsed >= len(x.out)-x.b.BlockSize() {
+		if len(x.out) == x.outUsed {
 			x.refill()
 		}
 		n := subtle.XORBytes(dst, src, x.out[x.outUsed:])
@@ -77,5 +93,3 @@ func (x *ctr) XORKeyStream(dst, src []byte) {
 		x.outUsed += n
 	}
 }
-
-func (x *ctr) IV() []byte { return bytes.Clone(x.out) }

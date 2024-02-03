@@ -1,61 +1,48 @@
 package kipher
 
-// Based on https://github.com/golang/go/blob/go1.21.6/src/krypto/kipher/cbc.go
-
 import (
 	"bytes"
 	"crypto/cipher"
-	"crypto/subtle"
 
 	"github.com/RyuaNerin/go-krypto/internal/alias"
+	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
-type cbc struct {
-	b         cipher.Block
+// NewCBCEncrypter returns a BlockMode which encrypts in cipher block chaining
+// mode, using the given Block. The length of iv must be the same as the
+// Block's block size.
+func NewCBCEncrypter(b cipher.Block, iv []byte) cipher.BlockMode {
+	return cipher.NewCBCEncrypter(b, iv)
+}
+
+// NewCBCDecrypter returns a BlockMode which decrypts in cipher block chaining
+// mode, using the given Block. The length of iv must be the same as the
+// Block's block size and must match the iv used to encrypt the data.
+func NewCBCDecrypter(b cipher.Block, iv []byte) cipher.BlockMode {
+	if kb, ok := b.(kryptoBlock); ok {
+		return &cbc2{
+			b:         kb,
+			blockSize: b.BlockSize(),
+			iv:        bytes.Clone(iv),
+			tmp:       make([]byte, 8*b.BlockSize()),
+		}
+	}
+	return cipher.NewCBCDecrypter(b, iv)
+}
+
+type cbc2 struct {
+	b         kryptoBlock
 	blockSize int
 	iv        []byte
 	tmp       []byte
 }
 
-func newCBC(b cipher.Block, iv []byte) *cbc {
-	return &cbc{
-		b:         b,
-		blockSize: b.BlockSize(),
-		iv:        bytes.Clone(iv),
-		tmp:       make([]byte, b.BlockSize()),
-	}
+func (b *cbc2) BlockSize() int {
+	return b.BlockSize()
 }
 
-type cbcEncrypter cbc
-
-// NewCBCEncrypter returns a BlockMode which encrypts in cipher block chaining
-// mode, using the given Block. The length of iv must be the same as the
-// Block's block size.
-func NewCBCEncrypter(b cipher.Block, iv []byte) BlockMode {
-	if len(iv) != b.BlockSize() {
-		panic("cipher.NewCBCEncrypter: IV length must equal block size")
-	}
-	if kb, ok := b.(kryptoBlock); ok {
-		return newCBCDecrypter2(kb, iv)
-	}
-	return (*cbcEncrypter)(newCBC(b, iv))
-}
-
-// newCBCGenericEncrypter returns a BlockMode which encrypts in cipher block chaining
-// mode, using the given Block. The length of iv must be the same as the
-// Block's block size. This always returns the generic non-asm encrypter for use
-// in fuzz testing.
-func newCBCGenericEncrypter(b cipher.Block, iv []byte) BlockMode {
-	if len(iv) != b.BlockSize() {
-		panic("cipher.NewCBCEncrypter: IV length must equal block size")
-	}
-	return (*cbcEncrypter)(newCBC(b, iv))
-}
-
-func (x *cbcEncrypter) BlockSize() int { return x.blockSize }
-
-func (x *cbcEncrypter) CryptBlocks(dst, src []byte) {
-	if len(src)%x.blockSize != 0 {
+func (b *cbc2) CryptBlocks(dst, src []byte) {
+	if len(src)%b.blockSize != 0 {
 		panic("krypto/kipher: input not full blocks")
 	}
 	if len(dst) < len(src) {
@@ -65,102 +52,59 @@ func (x *cbcEncrypter) CryptBlocks(dst, src []byte) {
 		panic("krypto/kipher: invalid buffer overlap")
 	}
 
-	iv := x.iv
+	var (
+		bs0 = 0 * b.blockSize
+		bs1 = 1 * b.blockSize
+		bs4 = 4 * b.blockSize
+		bs8 = 8 * b.blockSize
+	)
 
-	for len(src) > 0 {
-		// Write the xor to dst, then encrypt in place.
-		subtle.XORBytes(dst[:x.blockSize], src[:x.blockSize], iv)
-		x.b.Encrypt(dst[:x.blockSize], dst[:x.blockSize])
+	remainBlock := len(src) / b.blockSize
 
-		// Move to the next block with this block as the next iv.
-		iv = dst[:x.blockSize]
-		src = src[x.blockSize:]
-		dst = dst[x.blockSize:]
+	dstIdx := remainBlock * b.blockSize
+	srcIdx := remainBlock * b.blockSize
+
+	for remainBlock >= 8 {
+		remainBlock -= 8
+		dstIdx -= bs8
+		srcIdx -= bs8
+
+		b.b.Decrypt8(b.tmp[:bs8], src[srcIdx:])
+		if remainBlock > 0 {
+			subtle.XORBytes(dst[dstIdx+bs0:dstIdx+bs8], b.tmp[bs0:bs8], src[srcIdx-bs1:])
+		} else {
+			// Ignore the first block, must use iv.
+			subtle.XORBytes(dst[dstIdx+bs1:dstIdx+bs8], b.tmp[bs1:bs8], src[srcIdx-bs0:])
+		}
 	}
 
-	// Save the iv for the next CryptBlocks call.
-	copy(x.iv, iv)
+	for remainBlock >= 4 {
+		remainBlock -= 4
+		dstIdx -= bs4
+		srcIdx -= bs4
+
+		b.b.Decrypt4(b.tmp[:bs4], src[srcIdx:])
+		if remainBlock > 0 {
+			subtle.XORBytes(dst[dstIdx+bs0:dstIdx+bs4], b.tmp[bs0:bs4], src[srcIdx-bs1:])
+		} else {
+			// Ignore the first block, must use iv.
+			subtle.XORBytes(dst[dstIdx+bs1:dstIdx+bs4], b.tmp[bs1:bs4], src[srcIdx-bs0:])
+		}
+	}
+
+	for remainBlock >= 1 {
+		remainBlock -= 1
+		dstIdx -= bs1
+		srcIdx -= bs1
+
+		b.b.Decrypt(b.tmp[:bs1], src[srcIdx:])
+
+		// Ignore the first block, must use iv.
+		if remainBlock > 0 {
+			subtle.XORBytes(dst[dstIdx+bs0:dstIdx+bs1], b.tmp[bs0:bs1], src[srcIdx-bs1:])
+		}
+	}
+
+	subtle.XORBytes(dst[:bs1], b.tmp[:bs1], b.iv)
+	copy(b.iv, src[len(src)-bs1:])
 }
-
-func (x *cbcEncrypter) SetIV(iv []byte) {
-	if len(iv) != len(x.iv) {
-		panic("cipher: incorrect length IV")
-	}
-	copy(x.iv, iv)
-}
-
-type cbcDecrypter cbc
-
-// NewCBCDecrypter returns a BlockMode which decrypts in cipher block chaining
-// mode, using the given Block. The length of iv must be the same as the
-// Block's block size and must match the iv used to encrypt the data.
-func NewCBCDecrypter(b cipher.Block, iv []byte) BlockMode {
-	if len(iv) != b.BlockSize() {
-		panic("cipher.NewCBCDecrypter: IV length must equal block size")
-	}
-	return (*cbcDecrypter)(newCBC(b, iv))
-}
-
-// newCBCGenericDecrypter returns a BlockMode which encrypts in cipher block chaining
-// mode, using the given Block. The length of iv must be the same as the
-// Block's block size. This always returns the generic non-asm decrypter for use in
-// fuzz testing.
-func newCBCGenericDecrypter(b cipher.Block, iv []byte) BlockMode {
-	if len(iv) != b.BlockSize() {
-		panic("cipher.NewCBCDecrypter: IV length must equal block size")
-	}
-	return (*cbcDecrypter)(newCBC(b, iv))
-}
-
-func (x *cbcDecrypter) BlockSize() int { return x.blockSize }
-
-func (x *cbcDecrypter) CryptBlocks(dst, src []byte) {
-	if len(src)%x.blockSize != 0 {
-		panic("krypto/kipher: input not full blocks")
-	}
-	if len(dst) < len(src) {
-		panic("krypto/kipher: output smaller than input")
-	}
-	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("krypto/kipher: invalid buffer overlap")
-	}
-	if len(src) == 0 {
-		return
-	}
-
-	// For each block, we need to xor the decrypted data with the previous block's ciphertext (the iv).
-	// To avoid making a copy each time, we loop over the blocks BACKWARDS.
-	end := len(src)
-	start := end - x.blockSize
-	prev := start - x.blockSize
-
-	// Copy the last block of ciphertext in preparation as the new iv.
-	copy(x.tmp, src[start:end])
-
-	// Loop over all but the first block.
-	for start > 0 {
-		x.b.Decrypt(dst[start:end], src[start:end])
-		subtle.XORBytes(dst[start:end], dst[start:end], src[prev:start])
-
-		end = start
-		start = prev
-		prev -= x.blockSize
-	}
-
-	// The first block is special because it uses the saved iv.
-	x.b.Decrypt(dst[start:end], src[start:end])
-	subtle.XORBytes(dst[start:end], dst[start:end], x.iv)
-
-	// Set the new iv to the first block we copied earlier.
-	x.iv, x.tmp = x.tmp, x.iv
-}
-
-func (x *cbcDecrypter) SetIV(iv []byte) {
-	if len(iv) != len(x.iv) {
-		panic("cipher: incorrect length IV")
-	}
-	copy(x.iv, iv)
-}
-
-func (x *cbcEncrypter) IV() []byte { return bytes.Clone(x.iv) }
-func (x *cbcDecrypter) IV() []byte { return bytes.Clone(x.iv) }

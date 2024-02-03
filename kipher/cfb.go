@@ -3,12 +3,44 @@ package kipher
 // Based on https://github.com/golang/go/blob/go1.21.6/src/krypto/kipher/cfb.go
 
 import (
-	"bytes"
 	"crypto/cipher"
 
 	"github.com/RyuaNerin/go-krypto/internal/alias"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
+
+// NewCFBEncrypter returns a Stream which encrypts with cipher feedback mode,
+// using the given Block. The iv must be the same length as the Block's block
+// size.
+func NewCFBEncrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
+	return newCFB(block, iv, false, cfbBlockByteSize)
+}
+
+// NewCFB8Decrypter returns a Stream which decrypts with cipher feedback mode,
+// using the given Block. The iv must be the same length as the Block's block
+// size.
+func NewCFBDecrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
+	return newCFB(block, iv, true, cfbBlockByteSize)
+}
+
+func newCFB(block cipher.Block, iv []byte, decrypt bool, cfbBlockByteSize int) cipher.Stream {
+	blockSize := block.BlockSize()
+	if len(iv) != blockSize {
+		// stack trace will indicate whether it was de or encryption
+		panic("kipher.newCFB: IV length must equal block size")
+	}
+	x := &cfb{
+		b:                block,
+		out:              make([]byte, blockSize),
+		next:             make([]byte, blockSize),
+		outUsed:          cfbBlockByteSize,
+		cfbBlockByteSize: cfbBlockByteSize,
+		decrypt:          decrypt,
+	}
+	copy(x.next, iv)
+
+	return x
+}
 
 type cfb struct {
 	b            cipher.Block
@@ -52,38 +84,3 @@ func (x *cfb) XORKeyStream(dst, src []byte) {
 		x.outUsed += n
 	}
 }
-
-// NewCFBEncrypter returns a Stream which encrypts with cipher feedback mode,
-// using the given Block. The iv must be the same length as the Block's block
-// size.
-func NewCFBEncrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) Stream {
-	return newCFB(block, iv, false, cfbBlockByteSize)
-}
-
-// NewCFB8Decrypter returns a Stream which decrypts with cipher feedback mode,
-// using the given Block. The iv must be the same length as the Block's block
-// size.
-func NewCFBDecrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) Stream {
-	return newCFB(block, iv, true, cfbBlockByteSize)
-}
-
-func newCFB(block cipher.Block, iv []byte, decrypt bool, cfbBlockByteSize int) Stream {
-	blockSize := block.BlockSize()
-	if len(iv) != blockSize {
-		// stack trace will indicate whether it was de or encryption
-		panic("kipher.newCFB: IV length must equal block size")
-	}
-	x := &cfb{
-		b:                block,
-		out:              make([]byte, blockSize),
-		next:             make([]byte, blockSize),
-		outUsed:          cfbBlockByteSize,
-		cfbBlockByteSize: cfbBlockByteSize,
-		decrypt:          decrypt,
-	}
-	copy(x.next, iv)
-
-	return x
-}
-
-func (x *cfb) IV() []byte { return bytes.Clone(x.out) }

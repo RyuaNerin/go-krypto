@@ -2,6 +2,7 @@ package kipher
 
 import (
 	"crypto/aes"
+	"crypto/cipher"
 	"testing"
 
 	. "github.com/RyuaNerin/testingutil"
@@ -11,7 +12,7 @@ func Test_BlockMode_CBC(t *testing.T) { TA(t, as, testCBC, false) }
 
 func testCBC(t *testing.T, inputBlocks int) {
 	type ctr struct {
-		cbc, cbc2 BlockMode
+		c, k cipher.BlockMode
 	}
 
 	BTTC(
@@ -28,13 +29,13 @@ func testCBC(t *testing.T, inputBlocks int) {
 			bk := blockWrap{bc}
 
 			data := &ctr{
-				cbc:  (*cbcDecrypter)(newCBC(bc, iv)),
-				cbc2: newCBCDecrypter2(bk, iv),
+				c: cipher.NewCBCDecrypter(bc, iv),
+				k: NewCBCDecrypter(bk, iv),
 			}
 			return data, nil
 		},
-		func(data interface{}, dst, src []byte) { data.(*ctr).cbc.CryptBlocks(dst, src) },
-		func(data interface{}, dst, src []byte) { data.(*ctr).cbc2.CryptBlocks(dst, src) },
+		func(data interface{}, dst, src []byte) { data.(*ctr).c.CryptBlocks(dst, src) },
+		func(data interface{}, dst, src []byte) { data.(*ctr).k.CryptBlocks(dst, src) },
 		false,
 	)
 }

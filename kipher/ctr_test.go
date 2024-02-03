@@ -2,6 +2,7 @@ package kipher
 
 import (
 	"crypto/aes"
+	"crypto/cipher"
 	"testing"
 
 	. "github.com/RyuaNerin/testingutil"
@@ -11,7 +12,7 @@ func Test_BlockMode_CTR(t *testing.T) { TA(t, as, testCTR, false) }
 
 func testCTR(t *testing.T, bufferBlocks int) {
 	type ctr struct {
-		std, asm Stream
+		c, k cipher.Stream
 	}
 
 	BTTC(
@@ -28,13 +29,13 @@ func testCTR(t *testing.T, bufferBlocks int) {
 			bk := blockWrap{bc}
 
 			data := &ctr{
-				std: newCTR(bc, iv, bufferBlocks),
-				asm: newCTR2(bk, iv, bufferBlocks),
+				c: cipher.NewCTR(bc, iv),
+				k: NewCTR(bk, iv),
 			}
 			return data, nil
 		},
-		func(data interface{}, dst, src []byte) { data.(*ctr).std.XORKeyStream(dst, src) },
-		func(data interface{}, dst, src []byte) { data.(*ctr).asm.XORKeyStream(dst, src) },
+		func(data interface{}, dst, src []byte) { data.(*ctr).c.XORKeyStream(dst, src) },
+		func(data interface{}, dst, src []byte) { data.(*ctr).k.XORKeyStream(dst, src) },
 		false,
 	)
 }
