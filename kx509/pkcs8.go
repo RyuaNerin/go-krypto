@@ -82,7 +82,7 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 			},
 		}
 
-		priv.Y = kcdsainternal.Y(priv.G, priv.P, priv.G, priv.X)
+		priv.Y = kcdsainternal.Y(priv.P, priv.Q, priv.G, priv.X)
 
 		return priv, nil
 

@@ -56,9 +56,8 @@ func Benchmark_Sign(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 
-		h := ParameterSizes(sz).Hash()
 		for i := 0; i < b.N; i++ {
-			r, _, err := Sign(rnd, &priv, h, data)
+			r, _, err := Sign(rnd, &priv, ParameterSizes(sz), data)
 			if err != nil {
 				b.Error(err)
 				return
@@ -80,17 +79,15 @@ func Benchmark_Verify(b *testing.B) {
 			b.Error(err)
 		}
 
-		r, s, err := Sign(rnd, &priv, ParameterSizes(sz).Hash(), data)
+		r, s, err := Sign(rnd, &priv, ParameterSizes(sz), data)
 		if err != nil {
 			b.Error(err)
 		}
 
-		h := ParameterSizes(sz).Hash()
-
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			ok := Verify(&priv.PublicKey, h, data, r, s)
+			ok := Verify(&priv.PublicKey, ParameterSizes(sz), data, r, s)
 			if !ok {
 				b.Errorf("%d: Verify failed", i)
 				return

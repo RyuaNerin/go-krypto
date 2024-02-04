@@ -62,7 +62,7 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.In
 	h.Write(M)
 	digest := h.Sum(nil)
 
-	csprng, err := mixedCSPRNG(rand, priv, digest)
+	csprng, err := randutil.MixedCSPRNG(rand, priv.D.Bytes(), digest)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -89,7 +89,8 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	curveParams := curve.Params()
 	n := curveParams.N
 
-	w := internal.Bytes(curveParams.BitSize)
+	curveSize := internal.Bytes(curveParams.BitSize)
+	w := internal.Bytes(curveParams.N.BitLen())
 	Lh := h.Size()
 	L := h.BlockSize()
 	d := priv.D
@@ -98,9 +99,11 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 
 	Lh_is_bigger_than_w := Lh > w
 	cQLen := L
-	if cQLen < 2*w {
-		cQLen = 2 * w
+	if cQLen < 2*curveSize {
+		cQLen = 2 * curveSize
 	}
+
+	tmp := make([]byte, cQLen)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -108,7 +111,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("2: kG   = (x1, y1) 계산")
 	x1, _ := curve.ScalarBaseMult(k.Bytes())
-	x1Bytes := make([]byte, w)
+	x1Bytes := tmp[:curveSize]
 	x1.FillBytes(x1Bytes)
 	//fmt.Println("kGx, x1 = 0x" + hex.EncodeToString(x1Bytes))
 
@@ -119,8 +122,8 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	//fmt.Println("kGx, x1 = 0x" + hex.EncodeToString(x1Bytes))
 	h.Reset()
 	h.Write(x1Bytes)
-	rBytes := h.Sum(nil)
-	//fmt.Println("r       = 0x" + hex.EncodeToString(r.Bytes()))
+	rBytes := h.Sum(tmp[:0])
+	//fmt.Println("r       = 0x" + hex.EncodeToString(rBytes))
 	if Lh_is_bigger_than_w {
 		rBytes = rBytes[len(rBytes)-w:]
 	}
@@ -132,9 +135,9 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	//fmt.Println("4: cQ ← MSB(xQ ‖ yQ, L)")
 	//fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
 	//fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
-	cQ := make([]byte, cQLen)
-	xQ.FillBytes(cQ[:w])
-	yQ.FillBytes(cQ[w : w*2])
+	cQ := tmp[:cQLen]
+	xQ.FillBytes(cQ[:curveSize])
+	yQ.FillBytes(cQ[curveSize : curveSize*2])
 	cQ = cQ[:L]
 	//fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
 
@@ -147,7 +150,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	h.Reset()
 	h.Write(cQ)
 	h.Write(M)
-	vBytes := h.Sum(nil)
+	vBytes := h.Sum(tmp[:0])
 	if Lh_is_bigger_than_w {
 		vBytes = vBytes[len(vBytes)-w:]
 	}
@@ -202,7 +205,8 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	curveParams := pub.Curve.Params()
 	n := curveParams.N
 
-	w := internal.Bytes(curveParams.BitSize) // curve size
+	curveSize := internal.Bytes(curveParams.BitSize)
+	w := internal.Bytes(curveParams.N.BitLen())
 	Lh := h.Size()
 	L := h.BlockSize()
 	xQ := pub.X
@@ -210,9 +214,11 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 
 	Lh_is_bigger_than_w := Lh > w
 	cQLen := L
-	if cQLen < 2*w {
-		cQLen = 2 * w
+	if cQLen < 2*curveSize {
+		cQLen = 2 * curveSize
 	}
+
+	tmp := make([]byte, cQLen)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -225,7 +231,7 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 		return false
 	}
 	if Lh_is_bigger_than_w {
-		if internal.Bytes(r.BitLen()) > w {
+		if internal.Bytes(r.BitLen()) > curveSize {
 			return false
 		}
 	} else {
@@ -242,9 +248,9 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	//fmt.Println("2: cQ ← MSB(xQ ‖ yQ, L)")
 	//fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
 	//fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
-	cQ := make([]byte, cQLen)
-	xQ.FillBytes(cQ[:w])
-	yQ.FillBytes(cQ[w : w*2])
+	cQ := tmp[:cQLen]
+	xQ.FillBytes(cQ[:curveSize])
+	yQ.FillBytes(cQ[curveSize : curveSize*2])
 	cQ = cQ[:L]
 	//fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
 
@@ -257,13 +263,13 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	h.Reset()
 	h.Write(cQ)
 	h.Write(M)
-	vBytes := h.Sum(nil)
-	//fmt.Println("v  = 0x" + hex.EncodeToString(v.Bytes()))
+	vBytes := h.Sum(tmp[:0])
+	//fmt.Println("v  = 0x" + hex.EncodeToString(vBytes))
 	if Lh_is_bigger_than_w {
 		vBytes = vBytes[len(vBytes)-w:]
 	}
+	//fmt.Println("v  = 0x" + hex.EncodeToString(vBytes))
 	v := new(big.Int).SetBytes(vBytes)
-	//fmt.Println("v% = 0x" + hex.EncodeToString(v.Bytes()))
 
 	// 4: e′ ← (r′ ⊕ v′) mod n
 	//fmt.Println("--------------------------------------------------")
@@ -281,13 +287,17 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	//		G : EC-KCDSA 도메인 변수의 하나로, EC-KCDSA는 기본점 G에 의해 생성되는 타원 곡선 부분군에서 정의
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("5: (x2, y2) ← t′Q + e′G")
-	x21, y21 := curve.ScalarMult(pub.X, pub.Y, t.Bytes())
-	x22, y22 := curve.ScalarBaseMult(e.Bytes())
-	x2, _ := curve.Add(x21, y21, x22, y22)
-	x2Bytes := make([]byte, w)
+	tQx, tQy := curve.ScalarMult(pub.X, pub.Y, t.Bytes())
+	eGx, eGy := curve.ScalarBaseMult(e.Bytes())
+	x2, _ := curve.Add(tQx, tQy, eGx, eGy)
+	x2Bytes := tmp[:curveSize]
 	x2.FillBytes(x2Bytes)
 
-	//fmt.Println("x2  = 0x" + hex.EncodeToString(x2Bytes))
+	//fmt.Println("tQ.x  = 0x" + hex.EncodeToString(tQx.Bytes()))
+	//fmt.Println("tQ.y  = 0x" + hex.EncodeToString(tQy.Bytes()))
+	//fmt.Println("eG.x  = 0x" + hex.EncodeToString(eGx.Bytes()))
+	//fmt.Println("eG.y  = 0x" + hex.EncodeToString(eGy.Bytes()))
+	//fmt.Println("x2    = 0x" + hex.EncodeToString(x2Bytes))
 
 	// 6: Hash(x2′) = r′ 여부 확인
 	// 해시 코드의 바이트 길이 LH가 w( = log256n)보다 큰 경우 단계 6의 Hash(x2′) = r′ 연산을 Hash(x2′) mod 2^(8w) = r′로 대체한다.
@@ -296,7 +306,7 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	//fmt.Println("x2 = 0x" + hex.EncodeToString(x2Bytes))
 	h.Reset()
 	h.Write(x2Bytes)
-	rBytes := h.Sum(nil)
+	rBytes := h.Sum(tmp[:0])
 	if Lh_is_bigger_than_w {
 		rBytes = rBytes[len(rBytes)-w:]
 	}
@@ -318,6 +328,7 @@ func randFieldElement(c elliptic.Curve, rand io.Reader) (k *big.Int, err error) 
 	N := c.Params().N                   // 1. N = len(n)
 	b := make([]byte, (N.BitLen()+7)/8) // 2. If N is invalid, then return an ERROR indication, Invalid_d, and Invalid_Q.
 
+	k = new(big.Int)
 	for {
 		if _, err = io.ReadFull(rand, b); err != nil { // 3
 			return
@@ -329,7 +340,7 @@ func randFieldElement(c elliptic.Curve, rand io.Reader) (k *big.Int, err error) 
 		// 7. d = c + 1.
 		//
 		// d > n-1 ===> d >= n
-		k = new(big.Int).SetBytes(b)
+		k.SetBytes(b)
 		if k.Sign() > 0 && k.Cmp(N) < 0 {
 			return
 		}

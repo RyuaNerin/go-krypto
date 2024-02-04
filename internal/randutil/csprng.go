@@ -1,4 +1,4 @@
-package eckcdsa
+package randutil
 
 import (
 	"crypto/aes"
@@ -9,7 +9,7 @@ import (
 
 // https://github.com/golang/go/blob/master/src/crypto/ecdsa/ecdsa.go#L409-L464
 
-func mixedCSPRNG(rand io.Reader, priv *PrivateKey, hash []byte) (io.Reader, error) {
+func MixedCSPRNG(rand io.Reader, D []byte, hash []byte) (io.Reader, error) {
 	// This implementation derives the nonce from an AES-CTR CSPRNG keyed by:
 	//
 	//    SHA2-512(priv.D || entropy || hash)[:32]
@@ -29,10 +29,10 @@ func mixedCSPRNG(rand io.Reader, priv *PrivateKey, hash []byte) (io.Reader, erro
 
 	// Initialize an SHA-512 hash context; digest...
 	md := sha512.New()
-	md.Write(priv.D.Bytes()) // the private key,
-	md.Write(entropy)        // the entropy,
-	md.Write(hash)           // and the input hash;
-	key := md.Sum(nil)[:32]  // and compute ChopMD-256(SHA-512),
+	md.Write(D)             // the private key,
+	md.Write(entropy)       // the entropy,
+	md.Write(hash)          // and the input hash;
+	key := md.Sum(nil)[:32] // and compute ChopMD-256(SHA-512),
 	// which is an indifferentiable MAC.
 
 	// Create an AES-CTR instance to use as a CSPRNG.
@@ -43,7 +43,7 @@ func mixedCSPRNG(rand io.Reader, priv *PrivateKey, hash []byte) (io.Reader, erro
 
 	// Create a CSPRNG that xors a stream of zeros with
 	// the output of the AES-CTR instance.
-	const aesIV = "IVforEC-KCDSACTR"
+	const aesIV = "IV for go-krypto"
 	return &cipher.StreamReader{
 		R: zeroReader,
 		S: cipher.NewCTR(block, []byte(aesIV)),

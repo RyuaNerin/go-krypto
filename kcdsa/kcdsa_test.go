@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
 
 	. "github.com/RyuaNerin/testingutil"
 )
@@ -60,7 +59,7 @@ func Test_SignVerify_With_BadPublicKey(t *testing.T) {
 			Y: tc2.Y,
 		}
 
-		ok := Verify(&pub, tc.Sizes.Hash(), tc.M, tc.R, tc.S)
+		ok := Verify(&pub, tc.Sizes, tc.M, tc.R, tc.S)
 		if ok {
 			t.Errorf("Verify unexpected success with non-existent mod inverse of Q")
 			return
@@ -90,7 +89,7 @@ func Test_Signing_With_DegenerateKeys(t *testing.T) {
 			X: internal.HI(test.x),
 		}
 
-		if _, _, err := Sign(rand.Reader, &priv, L2048N224SHA224.Hash(), msg); err == nil {
+		if _, _, err := Sign(rand.Reader, &priv, L2048N224SHA224, msg); err == nil {
 			t.Errorf("#%d: unexpected success", i)
 			return
 		}
@@ -145,13 +144,13 @@ func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int, gp func(params *Par
 
 func testSignAndVerify(t *testing.T, i int, priv *PrivateKey, sizes ParameterSizes) {
 	data := []byte("testing")
-	r, s, err := Sign(rand.Reader, priv, sizes.Hash(), data)
+	r, s, err := Sign(rand.Reader, priv, sizes, data)
 	if err != nil {
 		t.Errorf("%d: error signing: %s", i, err)
 		return
 	}
 
-	ok := Verify(&priv.PublicKey, sizes.Hash(), data, r, s)
+	ok := Verify(&priv.PublicKey, sizes, data, r, s)
 	if !ok {
 		t.Errorf("%d: Verify failed", i)
 		return
@@ -169,9 +168,7 @@ func testVerify(t *testing.T, testCases []testCase) {
 			Y: tc.Y,
 		}
 
-		domain, _ := kcdsainternal.GetDomain(int(tc.Sizes))
-
-		ok := Verify(&pub, domain.NewHash(), tc.M, tc.R, tc.S)
+		ok := Verify(&pub, tc.Sizes, tc.M, tc.R, tc.S)
 		if ok == tc.Fail {
 			t.Errorf("verify failed")
 			return

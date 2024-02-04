@@ -49,70 +49,75 @@ func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes
 		return ErrInvalidParameterSizes
 	}
 
-	qBytes := make([]byte, domain.B/8)
-	pBytes := make([]byte, domain.A/8)
+	tmp := make([]byte, internal.Bytes(domain.A))
 
-	q := new(big.Int)
-	p := new(big.Int)
-	rem := new(big.Int)
+	J := new(big.Int)
+
+	P := new(big.Int)
+	Q := new(big.Int)
 
 GeneratePrimes:
 	for {
-		if _, err := io.ReadFull(rand, qBytes); err != nil {
+		// 2: Seed를 일방향 함수 PPGF의 입력으로 하여 비트 길이가 n = (α - β - 4)인 난수 U를 생성한다.
+		// (U ← PPGF(Seed, n))
+		U, err := internal.ReadBits(tmp[:0], rand, domain.A-domain.B)
+		if err != nil {
 			return err
 		}
 
-		qBytes[len(qBytes)-1] |= 1
-		qBytes[0] |= 0x80
-		q.SetBytes(qBytes)
+		// 3: U의 상위에 4 비트 '1000'을 붙이고 최하위 비트는 1로 만들어 이를 J로 둔다.
+		// (J ← 2^(α-β-1) ∨ U ∨ 1)
+		U[0] = (U[0] & 0b0000_1111) | 0b1000_0000
+		U[len(U)-1] |= 1
+		J.SetBytes(U)
 
-		if !q.ProbablyPrime(internal.NumMRTests) {
+		// 4: 강한 소수 판정 알고리즘으로 J를 판정하여 소수가 아니면 단계 1로 간다.
+		if !J.ProbablyPrime(internal.NumMRTests) {
 			continue
 		}
 
 		for i := 0; i < 4*domain.A; i++ {
-			if _, err := io.ReadFull(rand, pBytes); err != nil {
+			// 8: Seed에 Count를 연접한 것을 일방향 함수 PPGF의 입력으로 하여 비트 길이가
+			// β인 난수 U를 생성한다. (U ← PPGF(Seed ‖ Count, β))
+			U, err := internal.ReadBits(tmp[:0], rand, domain.B)
+			if err != nil {
 				return err
 			}
 
-			pBytes[len(pBytes)-1] |= 1
-			pBytes[0] |= 0x80
+			// 9: U의 최상위 및 최하위 비트를 1로 만들어 이를 q로 둔다.
+			// (q ← 2^(β-1) ∨ U ∨ 1)
+			U[0] |= 0b1000_0000
+			U[len(U)-1] |= 1
+			Q.SetBytes(U)
 
-			p.SetBytes(pBytes)
-			rem.Mod(p, q)
-			rem.Sub(rem, one)
-			p.Sub(p, rem)
-			if p.BitLen() < domain.A {
+			// 10: p ← (2Jq + 1)의 비트 길이가 α보다 길면 단계 6으로 간다.
+			P.Add(P.Lsh(P.Mul(J, Q), 1), one)
+			if P.BitLen() > domain.A {
 				continue
 			}
 
-			if !p.ProbablyPrime(internal.NumMRTests) {
+			// 11: 강한 소수 판정 알고리즘으로 q를 판정하여 소수가 아니면 단계 6으로 간다.
+			if !Q.ProbablyPrime(internal.NumMRTests) {
 				continue
 			}
 
-			params.P = p
-			params.Q = q
+			// 12: 강한 소수 판정 알고리즘으로 p를 판정하여 소수가 아니면 단계 6으로 간다
+			if !P.ProbablyPrime(internal.NumMRTests) {
+				continue
+			}
+
+			params.P = P
+			params.Q = Q
 			break GeneratePrimes
 		}
 	}
 
-	h := new(big.Int)
-	h.SetInt64(2)
-	g := new(big.Int)
-
-	pm1 := new(big.Int).Sub(p, one)
-	e := new(big.Int).Div(pm1, q)
-
-	for {
-		g.Exp(h, e, p)
-		if g.Cmp(one) == 0 {
-			h.Add(h, one)
-			continue
-		}
-
-		params.G = g
-		return nil
+	_, G, err := generateHG(rand, P, J)
+	if err != nil {
+		return err
 	}
+	params.G = G
+	return nil
 }
 
 func GenerateKey(priv *PrivateKey, rand io.Reader) error {
@@ -140,7 +145,12 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 	return nil
 }
 
-func Sign(randReader io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big.Int, err error) {
+func Sign(randReader io.Reader, priv *PrivateKey, sizes ParameterSizes, data []byte) (r, s *big.Int, err error) {
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	if !ok {
+		return nil, nil, ErrInvalidParameterSizes
+	}
+
 	randutil.MaybeReadByte(randReader)
 
 	if priv.Q.Sign() <= 0 || priv.P.Sign() <= 0 || priv.G.Sign() <= 0 || priv.X.Sign() <= 0 || priv.Q.BitLen()%8 != 0 {
@@ -171,7 +181,7 @@ func Sign(randReader io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, 
 			}
 		}
 
-		r, s, err = sign(priv, K, h, data)
+		r, s, err = sign(priv, domain, K, data)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -193,7 +203,12 @@ func Sign(randReader io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, 
 	return
 }
 
-func Verify(pub *PublicKey, h hash.Hash, data []byte, R, S *big.Int) bool {
+func Verify(pub *PublicKey, sizes ParameterSizes, data []byte, R, S *big.Int) bool {
+	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	if !ok {
+		return false
+	}
+
 	// step 1. 수신된 서명 {R', S'}에 대해 |R'|=LH, 0 < S' < Q 임을 확인한다.
 	if pub.P.Sign() <= 0 {
 		return false
@@ -206,41 +221,51 @@ func Verify(pub *PublicKey, h hash.Hash, data []byte, R, S *big.Int) bool {
 		return false
 	}
 
-	return verify(pub, h, data, R, S)
+	return verify(pub, domain, data, R, S)
 }
 
-func sign(priv *PrivateKey, K *big.Int, h hash.Hash, data []byte) (r, s *big.Int, err error) {
-	// Q 생성할 때, Q 사이즈를 doamin.B 사이즈랑 동일하게 생성한다.
-	B := priv.Q.BitLen()
+func sign(priv *PrivateKey, domain kcdsainternal.Domain, K *big.Int, data []byte) (r, s *big.Int, err error) {
+	h := domain.NewHash()
 
-	buf := make([]byte, 0, h.Size())
+	B := domain.B
+	l := h.BlockSize()
+
+	tmp := make([]byte, internal.Bytes(domain.A))
 
 	// step 2. w = g^k mod p
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("step 2. w = g^k mod p")
-	//fmt.Println("G = 0x" + hex.EncodeToString(G.Bytes()))
+	//fmt.Println("G = 0x" + hex.EncodeToString(priv.G.Bytes()))
 	//fmt.Println("K = 0x" + hex.EncodeToString(K.Bytes()))
-	//fmt.Println("P = 0x" + hex.EncodeToString(P.Bytes()))
+	//fmt.Println("P = 0x" + hex.EncodeToString(priv.P.Bytes()))
+
 	W := new(big.Int).Exp(priv.G, K, priv.P)
+	WBytes := tmp[:internal.Bytes(domain.A)]
+	W.FillBytes(WBytes)
+
+	//fmt.Println("W = 0x" + hex.EncodeToString(WBytes))
 	//fmt.Println("W = 0x" + hex.EncodeToString(W.Bytes()))
 
 	//	step 3. R = h(W) mod 2^β (w를 바이트 열로 변환 후 해시한 결과의 바이트 열에서 	β 비트만큼 절삭):
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("step 3. R = h(W) mod 2^β")
 	h.Reset()
-	h.Write(W.Bytes())
-	RBytes := internal.TruncateLeft(h.Sum(buf[:0]), B)
+	h.Write(WBytes)
+	RBytes := internal.TruncateLeft(h.Sum(tmp[:0]), B)
 	R := new(big.Int).SetBytes(RBytes)
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 
 	// step 4. Z = Y mod 2^l
-	i2l := new(big.Int).Lsh(one, uint(h.BlockSize())*8)
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("step 4. Z = Y mod 2^l")
-	//fmt.Println("Y = 0x" + hex.EncodeToString(Y.Bytes()))
-	//fmt.Println("2l = 0x" + hex.EncodeToString(i2l.Bytes()))
-	Z := new(big.Int).Mod(priv.Y, i2l)
-	ZBytes := Z.Bytes()
+	//fmt.Println("Y = 0x" + hex.EncodeToString(priv.Y.Bytes()))
+	ZBytesLen := internal.Bytes(priv.Y.BitLen())
+	if ZBytesLen < l {
+		ZBytesLen = l
+	}
+	ZBytes := tmp[:ZBytesLen]
+	priv.Y.FillBytes(ZBytes)
+	ZBytes = internal.TruncateLeft(ZBytes, l*8)
 	//fmt.Println("Z = 0x" + hex.EncodeToString(ZBytes))
 
 	// step 5. h = trunc(Hash(Z||M), β)
@@ -249,7 +274,7 @@ func sign(priv *PrivateKey, K *big.Int, h hash.Hash, data []byte) (r, s *big.Int
 	h.Reset()
 	h.Write(ZBytes)
 	h.Write(data)
-	HBytes := internal.TruncateLeft(h.Sum(buf[:0]), B)
+	HBytes := internal.TruncateLeft(h.Sum(tmp[:0]), B)
 	H := new(big.Int).SetBytes(HBytes)
 	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
 
@@ -258,7 +283,7 @@ func sign(priv *PrivateKey, K *big.Int, h hash.Hash, data []byte) (r, s *big.Int
 	//fmt.Println("step 6. E = (R xor H) mod Q")
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
-	//fmt.Println("Q = 0x" + hex.EncodeToString(Q.Bytes()))
+	//fmt.Println("Q = 0x" + hex.EncodeToString(priv.Q.Bytes()))
 	E := new(big.Int).Xor(R, H)
 	E.Mod(E, priv.Q)
 	//fmt.Println("E = 0x" + hex.EncodeToString(E.Bytes()))
@@ -266,10 +291,10 @@ func sign(priv *PrivateKey, K *big.Int, h hash.Hash, data []byte) (r, s *big.Int
 	//step 7. S = X(K-E) mod Q
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("step 7. S = X(K-E) mod Q")
-	//fmt.Println("X = 0x" + hex.EncodeToString(X.Bytes()))
+	//fmt.Println("X = 0x" + hex.EncodeToString(priv.X.Bytes()))
 	//fmt.Println("K = 0x" + hex.EncodeToString(K.Bytes()))
 	//fmt.Println("E = 0x" + hex.EncodeToString(E.Bytes()))
-	//fmt.Println("Q = 0x" + hex.EncodeToString(Q.Bytes()))
+	//fmt.Println("Q = 0x" + hex.EncodeToString(priv.Q.Bytes()))
 	K.Mod(K.Sub(K, E), priv.Q)
 	S := new(big.Int).Mul(priv.X, K)
 	S.Mod(S, priv.Q)
@@ -281,21 +306,34 @@ func sign(priv *PrivateKey, K *big.Int, h hash.Hash, data []byte) (r, s *big.Int
 	return
 }
 
-func verify(pub *PublicKey, h hash.Hash, data []byte, R, S *big.Int) bool {
-	// Q 생성할 때, Q 사이즈를 doamin.B 사이즈랑 동일하게 생성한다.
-	B := pub.Q.BitLen()
+func verify(pub *PublicKey, domain kcdsainternal.Domain, data []byte, R, S *big.Int) bool {
+	h := domain.NewHash()
 
-	buf := make([]byte, h.Size())
+	B := domain.B
+	l := h.BlockSize()
+
+	tmpSize := l
+	YBytesLen := internal.Bytes(pub.Y.BitLen())
+	PBytesLen := internal.Bytes(pub.P.BitLen())
+	if tmpSize < YBytesLen {
+		tmpSize = YBytesLen
+	}
+	if tmpSize < PBytesLen {
+		tmpSize = PBytesLen
+	}
+
+	tmp := make([]byte, tmpSize)
 
 	// step 2. Z = Y mod 2^l
-	i2l := new(big.Int).Lsh(one, uint(h.BlockSize())*8)
-
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("step 2. Z = Y mod 2^l")
-	//fmt.Println("Y = 0x" + hex.EncodeToString(Y.Bytes()))
-	//fmt.Println("2l = 0x" + hex.EncodeToString(i2l.Bytes()))
-	Z := new(big.Int).Mod(pub.Y, i2l)
-	ZBytes := Z.Bytes()
+	//fmt.Println("Y = 0x" + hex.EncodeToString(pub.Y.Bytes()))
+	if YBytesLen < l {
+		YBytesLen = l
+	}
+	ZBytes := tmp[:YBytesLen]
+	pub.Y.FillBytes(ZBytes)
+	ZBytes = internal.TruncateLeft(ZBytes, l*8)
 	//fmt.Println("Z = 0x" + hex.EncodeToString(ZBytes))
 
 	// step 3. h = trunc(Hash(Z||M), β)
@@ -304,7 +342,7 @@ func verify(pub *PublicKey, h hash.Hash, data []byte, R, S *big.Int) bool {
 	h.Reset()
 	h.Write(ZBytes)
 	h.Write(data)
-	HBytes := internal.TruncateLeft(h.Sum(buf[:0]), B)
+	HBytes := internal.TruncateLeft(h.Sum(tmp[:0]), B)
 	H := new(big.Int).SetBytes(HBytes)
 	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
 
@@ -313,7 +351,7 @@ func verify(pub *PublicKey, h hash.Hash, data []byte, R, S *big.Int) bool {
 	//fmt.Println("step 4. E' = (R' xor H') mod Q")
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
-	//fmt.Println("Q = 0x" + hex.EncodeToString(Q.Bytes()))
+	//fmt.Println("Q = 0x" + hex.EncodeToString(pub.Q.Bytes()))
 	E := new(big.Int).Xor(R, H)
 	E.Mod(E, pub.Q)
 	//fmt.Println("E = 0x" + hex.EncodeToString(E.Bytes()))
@@ -321,23 +359,26 @@ func verify(pub *PublicKey, h hash.Hash, data []byte, R, S *big.Int) bool {
 	// step 5. W' = Y ^ {S'} G ^ {E'} mod P
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("step 5. W' = Y ^ {S'} G ^ {E'} mod P")
-	//fmt.Println("Y = 0x" + hex.EncodeToString(Y.Bytes()))
-	//fmt.Println("G = 0x" + hex.EncodeToString(G.Bytes()))
+	//fmt.Println("Y = 0x" + hex.EncodeToString(pub.Y.Bytes()))
+	//fmt.Println("G = 0x" + hex.EncodeToString(pub.G.Bytes()))
 	//fmt.Println("S = 0x" + hex.EncodeToString(S.Bytes()))
 	//fmt.Println("E = 0x" + hex.EncodeToString(E.Bytes()))
-	//fmt.Println("P = 0x" + hex.EncodeToString(P.Bytes()))
+	//fmt.Println("P = 0x" + hex.EncodeToString(pub.P.Bytes()))
 	W := new(big.Int).Exp(pub.Y, S, pub.P)
 	E.Exp(pub.G, E, pub.P)
 	W.Mul(W, E)
 	W.Mod(W, pub.P)
+
+	WBytes := tmp[:PBytesLen]
+	W.FillBytes(WBytes)
 	//fmt.Println("W = 0x" + hex.EncodeToString(W.Bytes()))
 
 	// step 6. trunc(Hash(W'), β) = R'이 성립하는지 확인한다.
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("step 6. trunc(Hash(W'), β) = R'")
 	h.Reset()
-	h.Write(W.Bytes())
-	rBytes := internal.TruncateLeft(h.Sum(buf[:0]), B)
+	h.Write(WBytes)
+	rBytes := internal.TruncateLeft(h.Sum(tmp[:0]), B)
 	r := new(big.Int).SetBytes(rBytes)
 	//fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))

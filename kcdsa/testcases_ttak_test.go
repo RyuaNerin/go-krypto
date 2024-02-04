@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
+	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
 )
 
 func Test_Verify_TestVectors(t *testing.T) {
@@ -25,7 +26,9 @@ func Test_Sign_Verify_TestVectors(t *testing.T) {
 			X: tc.X,
 		}
 
-		R, S, err := sign(&priv, K, tc.Sizes.Hash(), tc.M)
+		domain, _ := kcdsainternal.GetDomain(int(tc.Sizes))
+
+		R, S, err := sign(&priv, domain, K, tc.M)
 		if err != nil {
 			t.Errorf("%d: error signing: %s", idx, err)
 			return
@@ -36,7 +39,7 @@ func Test_Sign_Verify_TestVectors(t *testing.T) {
 			return
 		}
 
-		ok := Verify(&priv.PublicKey, tc.Sizes.Hash(), tc.M, tc.R, tc.S)
+		ok := Verify(&priv.PublicKey, tc.Sizes, tc.M, tc.R, tc.S)
 		if ok == tc.Fail {
 			t.Errorf("%d: Verify failed, got:%v want:%v", idx, ok, !tc.Fail)
 			return

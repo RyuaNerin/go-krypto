@@ -362,28 +362,36 @@ func generateG(P, J *big.Int, H *big.Int) (G *big.Int, ok bool) {
 }
 
 func generateX(Q *big.Int, upri, xkey []byte, h hash.Hash, d kcdsainternal.Domain) (X *big.Int) {
-	var buf []byte
-
-	i2b := new(big.Int).Lsh(one, uint(d.B))
-
 	// 3: XSEEDj ← PPGF(user_provided_random_input, b)
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("3: XSEEDj ← PPGF(user_provided_random_input, b)")
-	xseed := new(big.Int).SetBytes(ppgf(buf[:0], upri, d.B, h))
-	//fmt.Println("xseed = 0x" + hex.EncodeToString(xseed.Bytes()))
+	xseed := ppgf(nil, upri, d.B, h)
+	//fmt.Println("xseed = 0x" + hex.EncodeToString(xseed))
 
 	// 4: XVAL ← (XKEY + XSEEDj) mod 2^b
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("4: XVAL ← (XKEY + XSEEDj) mod 2^b")
-	xval := new(big.Int).SetBytes(xkey)
-	xval.Add(xval, xseed)
-	xval.Mod(xval, i2b)
+	var carry int
+	xval := make([]byte, internal.Bytes(d.B))
+	for i := 0; i < len(xseed); i++ {
+		idx := len(xseed) - i - 1
+		sum := int(xseed[idx]) + carry
+
+		if i < len(xkey) {
+			sum += int(xkey[len(xkey)-i-1])
+		}
+
+		xval[idx] = byte(sum)
+		carry = sum >> 8
+	}
+	xval = internal.TruncateLeft(xval, d.B)
 	//fmt.Println("xval = 0x" + hex.EncodeToString(xval.Bytes()))
 
 	// 5: xj ← PPGF(XVAL, b) mod q
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("5: xj ← PPGF(XVAL, b) mod q")
-	X = new(big.Int).SetBytes(ppgf(buf[:0], xval.Bytes(), d.B, h))
+	tmp := xseed
+	X = new(big.Int).SetBytes(ppgf(tmp, xval, d.B, h))
 	X.Mod(X, Q)
 	//fmt.Println("X = 0x" + hex.EncodeToString(X.Bytes()))
 
