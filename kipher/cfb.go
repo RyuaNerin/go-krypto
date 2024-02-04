@@ -30,12 +30,12 @@ func newCFB(block cipher.Block, iv []byte, decrypt bool, cfbBlockByteSize int) c
 		panic("kipher.newCFB: IV length must equal block size")
 	}
 	x := &cfb{
-		b:                block,
-		out:              make([]byte, blockSize),
-		next:             make([]byte, blockSize),
-		outUsed:          cfbBlockByteSize,
-		cfbBlockByteSize: cfbBlockByteSize,
-		decrypt:          decrypt,
+		b:       block,
+		out:     make([]byte, blockSize),
+		next:    make([]byte, blockSize),
+		outUsed: cfbBlockByteSize,
+		bytes:   cfbBlockByteSize,
+		decrypt: decrypt,
 	}
 	copy(x.next, iv)
 
@@ -43,15 +43,13 @@ func newCFB(block cipher.Block, iv []byte, decrypt bool, cfbBlockByteSize int) c
 }
 
 type cfb struct {
-	b            cipher.Block
-	next         []byte
-	out          []byte
-	outUsed      int
-	outUsedReset int
-
-	cfbBlockByteSize int
-
+	b       cipher.Block
+	next    []byte
+	out     []byte
+	outUsed int
 	decrypt bool
+
+	bytes int
 }
 
 func (x *cfb) XORKeyStream(dst, src []byte) {
@@ -62,9 +60,9 @@ func (x *cfb) XORKeyStream(dst, src []byte) {
 		panic("krypto/kipher: invalid buffer overlap")
 	}
 	for len(src) > 0 {
-		if x.outUsed == x.cfbBlockByteSize {
+		if x.outUsed == x.bytes {
 			x.b.Encrypt(x.out, x.next)
-			copy(x.next, x.next[x.cfbBlockByteSize:])
+			copy(x.next, x.next[x.bytes:])
 			x.outUsed = 0
 		}
 
@@ -73,11 +71,11 @@ func (x *cfb) XORKeyStream(dst, src []byte) {
 			// keystream on decryption. This will allow
 			// larger batches for xor, and we should be
 			// able to match CTR/OFB performance.
-			copy(x.next[len(x.next)-x.cfbBlockByteSize+x.outUsed:], src)
+			copy(x.next[len(x.next)-x.bytes+x.outUsed:], src)
 		}
-		n := subtle.XORBytes(dst, src, x.out[x.outUsed:x.cfbBlockByteSize])
+		n := subtle.XORBytes(dst, src, x.out[x.outUsed:x.bytes])
 		if !x.decrypt {
-			copy(x.next[len(x.next)-x.cfbBlockByteSize+x.outUsed:], dst)
+			copy(x.next[len(x.next)-x.bytes+x.outUsed:], dst)
 		}
 		dst = dst[n:]
 		src = src[n:]

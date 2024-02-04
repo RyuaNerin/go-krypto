@@ -25,53 +25,29 @@ func NewCTR(b cipher.Block, iv []byte) cipher.Stream {
 }
 
 type ctr struct {
-	b            kryptoBlock
-	ctr          []byte
-	out          []byte
-	outUsed      int
-	bufferBlocks int
-}
-
-func (x *ctr) fillCtr(outIdx int) {
-	copy(x.out[outIdx:], x.ctr)
-
-	for i := x.b.BlockSize() - 1; i >= 0; i-- {
-		c := x.ctr[i]
-		c++
-		x.ctr[i] = c
-		if c > 0 {
-			return
-		}
-	}
+	b       kryptoBlock
+	ctr     []byte
+	out     []byte
+	outUsed int
 }
 
 func (x *ctr) refill() {
 	blockSize := x.b.BlockSize()
 
-	for i := 0; i < x.bufferBlocks; i++ {
-		x.fillCtr(blockSize * i)
+	for i := 0; i < 8; i++ {
+		copy(x.out[blockSize*i:], x.ctr)
+
+		for i := x.b.BlockSize() - 1; i >= 0; i-- {
+			c := x.ctr[i]
+			c++
+			x.ctr[i] = c
+			if c > 0 {
+				break
+			}
+		}
 	}
 
-	var (
-		bs8 = blockSize * 8
-		bs4 = blockSize * 4
-		bs1 = blockSize * 1
-	)
-
-	out := x.out
-	for len(out) >= bs8 {
-		x.b.Encrypt8(out[:bs8], out[:bs8])
-		out = out[bs8:]
-	}
-	for len(out) >= bs4 {
-		x.b.Encrypt4(out[:bs4], out[:bs4])
-		out = out[bs4:]
-	}
-	for len(out) > 0 {
-		x.b.Encrypt(out[:bs1], out[:bs1])
-		out = out[bs1:]
-	}
-
+	x.b.Encrypt8(x.out, x.out)
 	x.outUsed = 0
 }
 
