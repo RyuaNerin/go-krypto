@@ -13,6 +13,9 @@ import (
 // using the given Block. The iv must be the same length as the Block's block
 // size.
 func NewCFBEncrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
+	if block.BlockSize() == cfbBlockByteSize {
+		return cipher.NewCFBEncrypter(block, iv)
+	}
 	return newCFB(block, iv, false, cfbBlockByteSize)
 }
 
@@ -20,6 +23,9 @@ func NewCFBEncrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher
 // using the given Block. The iv must be the same length as the Block's block
 // size.
 func NewCFBDecrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
+	if block.BlockSize() == cfbBlockByteSize {
+		return cipher.NewCFBDecrypter(block, iv)
+	}
 	return newCFB(block, iv, true, cfbBlockByteSize)
 }
 

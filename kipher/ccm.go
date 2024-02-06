@@ -2,9 +2,11 @@ package kipher
 
 import (
 	"crypto/cipher"
+	"crypto/subtle"
 	"errors"
 
 	"github.com/RyuaNerin/go-krypto/internal/alias"
+	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
 )
 
 const ccmBlockSize = 16
@@ -55,9 +57,7 @@ func (g *ccm) tag(ptLen int, N, A []byte) (tag, ctr, S0 [ccmBlockSize]byte) {
 	}
 	tag[0] |= byte(g.tagSize-2) << 2
 	tag[0] |= byte(14 - Nlen)
-	for i := 0; i < Nlen; i++ {
-		tag[i+1] = N[i] /* Set N */
-	}
+	copy(tag[1:14], N)
 	tag[14] = byte(ptLen >> 8)
 	tag[15] = byte(ptLen)
 	if Nlen < 13 {
@@ -70,47 +70,43 @@ func (g *ccm) tag(ptLen int, N, A []byte) (tag, ctr, S0 [ccmBlockSize]byte) {
 
 	/* Formatting of the Associated Data */
 	var i int
+	var x [6]byte
 	if Alen < 0xff00 {
-		tag[0] ^= byte(Alen >> 8)
-		tag[1] ^= byte(Alen)
+		x[0] = byte(Alen >> 8)
+		x[1] = byte(Alen)
+
+		subtle.XORBytes(tag[:], tag[:], x[:2])
 
 		i = 2
 	} else {
-		tag[0] ^= 0xff
-		tag[1] ^= 0xfe
-		tag[2] ^= byte(Alen >> 24)
-		tag[3] ^= byte(Alen >> 16)
-		tag[4] ^= byte(Alen >> 8)
-		tag[5] ^= byte(Alen)
+		x[0] = 0xff
+		x[1] = 0xfe
+		x[2] = byte(Alen >> 24)
+		x[3] = byte(Alen >> 16)
+		x[4] = byte(Alen >> 8)
+		x[5] = byte(Alen)
+
+		subtle.XORBytes(tag[:], tag[:], x[:])
 		i = 6
 	}
 
-	for j := 0; j < Alen; i = 0 {
-		for i < 16 && j < Alen {
-			tag[i] ^= A[j]
-
-			i++
-			j++
-		}
-
+	for idx := 0; idx < Alen; i = 0 {
+		idx += subtle.XORBytes(tag[i:], tag[i:], A[idx:])
 		g.cipher.Encrypt(tag[:], tag[:])
 	}
 
 	/* Formatting of the counter blocks */
 	ctr[0] = byte(14 - Nlen)
-
-	for i = 0; i < Nlen; i++ {
-		ctr[i+1] = N[i]
-	}
+	copy(ctr[1:], N)
 
 	/* Calculate S0 */
 	g.cipher.Encrypt(S0[:], ctr[:])
 	{
 		//ctr64_inc
-		for i := 7; i >= 0; i-- {
-			c := ctr[8+i]
+		for idx := len(ctr) - 1; idx >= 0; idx-- {
+			c := ctr[idx]
 			c++
-			ctr[8+i] = c
+			ctr[idx] = c
 			if c > 0 {
 				break
 			}
@@ -132,33 +128,16 @@ func (g *ccm) Seal(dst, N, pt, A []byte) []byte {
 	if alias.InexactOverlap(out, pt) {
 		panic("krypto/kipher: invalid buffer overlap")
 	}
-	ct := out[:len(pt)]
-	T := out[len(out)-g.tagSize:]
+	ct, T := out[:len(pt)], out[len(pt):]
 
-	pt_len := len(pt)
-	Tlen := g.tagSize
-	//Nlen := g.nonceSize
-	//Alen := len(A)
-
-	tag, ctr, S0 := g.tag(pt_len, N, A)
+	tag, ctr, S0 := g.tag(len(pt), N, A)
 
 	/* Calculate Yr */
-	for i := 0; i < pt_len; {
-		j := pt_len - i
-		if j > 0x10 {
-			j = 0x10
-		}
-
-		for h := 0; h < j; {
-			tag[h] ^= pt[i]
-			h++
-			i++
-		}
+	for idx := 0; idx < len(pt); {
+		idx += subtle.XORBytes(tag[:], tag[:], pt[idx:])
 		g.cipher.Encrypt(tag[:], tag[:])
 	}
-	for i := 0; i < Tlen; i++ {
-		T[i] = tag[i] ^ S0[i]
-	}
+	subtle.XORBytes(T, tag[:g.tagSize], S0[:])
 
 	ctrMode := NewCTR(g.cipher, ctr[:])
 	ctrMode.XORKeyStream(ct, pt)
@@ -174,45 +153,29 @@ func (g *ccm) Open(dst, N, ctT, A []byte) ([]byte, error) {
 		panic("krypto/kipher: message too large for CCM")
 	}
 
-	ret, pt := sliceForAppend(dst, len(ctT)-g.tagSize)
-	if alias.InexactOverlap(pt, ctT) {
+	ct, T := ctT[:len(ctT)-g.tagSize], ctT[len(ctT)-g.tagSize:]
+
+	ret, pt := sliceForAppend(dst, len(ct))
+	if alias.InexactOverlap(pt, ct) {
 		panic("krypto/kipher: invalid buffer overlap")
 	}
 
-	ct := ctT[:len(ctT)-g.tagSize]
-	ct_len := len(ct)
-	T := ctT[len(ctT)-g.tagSize:]
-	Tlen := g.tagSize
-
-	tag, ctr, S0 := g.tag(ct_len, N, A)
+	tag, ctr, S0 := g.tag(len(ct), N, A)
 
 	ctrMode := NewCTR(g.cipher, ctr[:])
 	ctrMode.XORKeyStream(pt, ct)
 
 	/* Calculate Yr */
-	i := 0
-	for i < ct_len {
-		j := ct_len - i
-		if j > 0x10 {
-			j = 0x10
-		}
-
-		for h := 0; h < j; {
-			tag[h] ^= pt[i]
-			h++
-			i++
-		}
+	for idx := 0; idx < len(ct); {
+		idx += subtle.XORBytes(tag[:], tag[:], pt[idx:])
 		g.cipher.Encrypt(tag[:], tag[:])
 	}
 
-	for i := 0; i < Tlen; i++ {
-		tag[i] = tag[i] ^ S0[i]
-	}
+	subtle.XORBytes(tag[:], tag[:g.tagSize], S0[:])
 
-	for i := 0; i < Tlen; i++ {
-		if T[i] != tag[i] {
-			return nil, errOpen
-		}
+	if subtle.ConstantTimeCompare(T[:g.tagSize], tag[:g.tagSize]) != 1 {
+		kryptoutil.MemsetByte(pt, 0)
+		return nil, errOpen
 	}
 
 	return ret, nil
