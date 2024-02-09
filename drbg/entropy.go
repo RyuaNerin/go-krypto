@@ -41,6 +41,10 @@ func (e *entropy) Get() (p []byte, err error) {
 
 // [min, max]
 func uintN(rand io.Reader, min, max int) (int, error) {
+	if min == max {
+		return min, nil
+	}
+
 	var buf [8]byte
 
 	rangeSize := uint64(max - min + 1)
