@@ -8,30 +8,31 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
 )
 
-func NewCMAC(block cipher.Block, macBytes int) hash.Hash {
-	blockSize := block.BlockSize()
+func NewCMAC(b cipher.Block) hash.Hash {
+	blockSize := b.BlockSize()
 
 	arr := make([]byte, 4*blockSize)
-	k1 := arr[0*blockSize : 1*blockSize]
-	k2 := arr[1*blockSize : 2*blockSize]
-	ciph := arr[2*blockSize : 3*blockSize]
-	m := arr[3*blockSize : 4*blockSize]
+	var (
+		k1   = arr[0*blockSize : 1*blockSize]
+		k2   = arr[1*blockSize : 2*blockSize]
+		ciph = arr[2*blockSize : 3*blockSize]
+		m    = arr[3*blockSize : 4*blockSize]
+	)
 
 	// k1
-	block.Encrypt(k1, k1)
-	makeCMACSubkey(block, k1)
+	b.Encrypt(k1, k1)
+	makeCMACSubkey(b, k1)
 
 	// k2
 	copy(k2, k1)
-	makeCMACSubkey(block, k2)
+	makeCMACSubkey(b, k2)
 
 	return &cmac{
-		block:    block,
-		macBytes: macBytes,
-		k1:       k1,
-		k2:       k2,
-		ciph:     ciph,
-		m:        m,
+		block: b,
+		k1:    k1,
+		k2:    k2,
+		ciph:  ciph,
+		m:     m,
 	}
 }
 
@@ -67,14 +68,12 @@ func makeCMACSubkey(b cipher.Block, k []byte) {
 }
 
 type cmac struct {
-	block    cipher.Block
-	macBytes int
+	block cipher.Block
 
 	k1, k2 []byte
 	ciph   []byte
-
-	m    []byte
-	mIdx int
+	m      []byte
+	mIdx   int
 }
 
 func (c *cmac) Size() int { return c.block.BlockSize() }
@@ -126,11 +125,11 @@ func (c *cmac) Sum(b []byte) []byte {
 		subtle.XORBytes(mac, c.ciph, c.k1) // CIPH ^ K1
 		subtle.XORBytes(mac, mac, c.m)     // CIPH ^ K1 ^ M
 	} else {
-		c.m[c.mIdx] |= 0x80
-		subtle.XORBytes(mac, c.ciph, c.k2)        // CIPH ^ K2
-		subtle.XORBytes(mac, mac, c.m[:c.mIdx+1]) // CIPH ^ K2 ^ M
+		subtle.XORBytes(mac, c.ciph, c.k2)      // CIPH ^ K2
+		subtle.XORBytes(mac, mac, c.m[:c.mIdx]) // CIPH ^ K2 ^ M
+		mac[c.mIdx] ^= 0x80
 	}
 	c.block.Encrypt(mac, mac)
 
-	return append(b, mac[:c.macBytes]...)
+	return append(b, mac...)
 }

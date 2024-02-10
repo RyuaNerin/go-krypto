@@ -1,6 +1,6 @@
 package kipher
 
-// Based on https://github.com/golang/go/blob/go1.21.6/src/krypto/kipher/cfb.go
+// Based on https://github.com/golang/go/blob/go1.21.6/src/crypto/cipher/cfb.go
 
 import (
 	"crypto/cipher"

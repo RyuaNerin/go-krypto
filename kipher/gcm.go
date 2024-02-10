@@ -4,6 +4,8 @@
 
 package kipher
 
+// Based on https://github.com/golang/go/blob/go1.21.6/src/crypto/cipher/gcm.go
+
 import (
 	"crypto/cipher"
 	"crypto/subtle"

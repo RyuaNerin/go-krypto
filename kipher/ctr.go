@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/subtle"
 
+	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
 )
 
@@ -36,15 +37,7 @@ func (x *ctr) refill() {
 
 	for i := 0; i < 8; i++ {
 		copy(x.out[blockSize*i:], x.ctr)
-
-		for i := x.b.BlockSize() - 1; i >= 0; i-- {
-			c := x.ctr[i]
-			c++
-			x.ctr[i] = c
-			if c > 0 {
-				break
-			}
-		}
+		internal.IncCtr(x.ctr)
 	}
 
 	x.b.Encrypt8(x.out, x.out)

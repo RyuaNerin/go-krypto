@@ -19,13 +19,13 @@ type ccm struct {
 
 func NewCCM(b cipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
 	if nonceSize <= 0 {
-		return nil, errors.New("krypto/kiphe: the nonce can't have zero length, or the security of the key will be immediately compromised")
+		return nil, errors.New("krypto/kipher: the nonce can't have zero length, or the security of the key will be immediately compromised")
 	}
 	if nonceSize < 7 || nonceSize > 13 {
-		return nil, errors.New("krypto/kiphe: invalid nonce size")
+		return nil, errors.New("krypto/kipher: invalid nonce size")
 	}
 	if tagSize < 4 || 16 < tagSize || tagSize%2 != 0 {
-		return nil, errors.New("krypto/kiphe: tagSize must be 4, 6, 8, 10, 12, 14 or 16")
+		return nil, errors.New("krypto/kipher: tagSize must be 4, 6, 8, 10, 12, 14 or 16")
 	}
 
 	if b.BlockSize() != ccmBlockSize {
