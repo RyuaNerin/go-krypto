@@ -95,9 +95,9 @@ func (state *State) HMAC_DRBG_Update(provided_data func(w io.Writer)) {
 func Instantiate_HMAC_DRBG(
 	h func() hash.Hash,
 	requested_strength int,
-	prediction_resistance_flag bool,
 	entropy_input []byte,
 	nonce, personalization_string []byte,
+	prediction_resistance_flag bool,
 ) *State {
 	outlen := h().Size()
 
@@ -214,10 +214,11 @@ func (state *State) Reseed_HMAC_DRBG(
 // Key 와 V 를 갱신한다.
 func (state *State) Generate_HMAC_DRBG(
 	dst []byte,
-	requested_no_of_bits int,
 	entropy_input func() ([]byte, error),
 	additional_input []byte,
-) ([]byte, error) {
+) error {
+	requested_no_of_bits := len(dst) * 8
+
 	//  1: if (a state(state_handle ) is not available) then
 	//  2:     return (ERROR_FLAG, Null )
 	//  3: end if
@@ -259,7 +260,7 @@ func (state *State) Generate_HMAC_DRBG(
 		// 28: end if
 		entropy_input, err := entropy_input()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		state.Reseed_HMAC_DRBG(entropy_input, additional_input)
 
@@ -279,7 +280,6 @@ func (state *State) Generate_HMAC_DRBG(
 	// 36: end if
 
 	// 37: temp ← Null
-	dst = internal.Expand(dst[:0], internal.Bytes(requested_no_of_bits))
 	countMax := internal.CeilDiv(requested_no_of_bits, state.outlen*8)
 	// 38: While (len(temp) < requested_no_of_bits ) do
 	for count := 0; count < countMax; count++ {
@@ -294,7 +294,6 @@ func (state *State) Generate_HMAC_DRBG(
 	// 41: end while
 
 	// 42: pseudorandom_bits ← leftmost(temp, requested_no_of_bits )
-	dst = internal.TruncateRight(dst, requested_no_of_bits)
 
 	// 43: (Key, V ) ← HMAC_DRBG_Update(additional_input, Key, V )
 	state.HMAC_DRBG_Update(drbg.WriteBytes(additional_input))
@@ -305,7 +304,7 @@ func (state *State) Generate_HMAC_DRBG(
 	state.reseed_counter++
 
 	// 47: return (SUCCESS, pseudorandom_bits)
-	return dst, nil
+	return nil
 }
 
 // 6.6 인스턴스 소멸 함수(uninstantiate function)

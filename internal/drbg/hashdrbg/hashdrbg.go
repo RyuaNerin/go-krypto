@@ -85,9 +85,9 @@ func Hash_df(h hash.Hash, out []byte, write func(w io.Writer), no_of_bits int) [
 func Instantiate_Hash_DRBG(
 	h hash.Hash,
 	requested_strength int,
-	prediction_resistance_flag bool,
 	entropy_input []byte,
 	nonce, personalization_string []byte,
+	prediction_resistance_flag bool,
 ) *State {
 	seedLen := 440
 	if h.Size() > 256/8 {
@@ -200,10 +200,9 @@ func (state *State) Reseed_Hash_DRBG(
 // 동작 상태의 C 와 reseed_counter 를 이용하여 V 를 갱신한다.
 func (state *State) Generate_Hash_DRBG(
 	dst []byte,
-	requested_no_of_bits int,
 	entropy_input func() ([]byte, error),
 	additional_input []byte,
-) ([]byte, error) {
+) error {
 	//  1: if (a state(state_handle ) is not available) then
 	//  2:     return (ERROR_FLAG, Null )
 	//  3: end if
@@ -243,7 +242,7 @@ func (state *State) Generate_Hash_DRBG(
 		// 28: end if
 		entropy_input, err := entropy_input()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		state.Reseed_Hash_DRBG(entropy_input, additional_input)
 
@@ -271,7 +270,7 @@ func (state *State) Generate_Hash_DRBG(
 	// 37: end if
 
 	// 38: pseudorandom_bits ← Hashgen(requested_no_of_bits, V )
-	dst = hashgen(state.h, dst[:0], requested_no_of_bits, state.v, state.seedlen)
+	hashgen(state.h, dst, state.v, state.seedlen)
 
 	// 39: H ← Hash(0x03 ‖ V )
 	state.h.Reset()
@@ -288,11 +287,13 @@ func (state *State) Generate_Hash_DRBG(
 	state.reseed_counter++
 
 	// 43: return (SUCCESS, pseudorandom_bits)
-	return internal.TruncateRight(dst, requested_no_of_bits), nil
+	return nil
 }
 
 // 알고리즘 4의 출력값 생성 과정(단계 39)에서 사용되는 함수 Hashgen의 구체적인 동작 방식은 알고리즘 5와 같다.
-func hashgen(h hash.Hash, dst []byte, requested_no_of_bits int, V []byte, seedlen int) []byte {
+func hashgen(h hash.Hash, dst []byte, V []byte, seedlen int) {
+	requested_no_of_bits := len(dst) * 8
+
 	outlen := h.Size()
 	m := internal.CeilDiv(requested_no_of_bits, outlen*8)
 
@@ -311,8 +312,6 @@ func hashgen(h hash.Hash, dst []byte, requested_no_of_bits int, V []byte, seedle
 		// data ← (data + 1) mod 2 ** seedlen
 		internal.IncCtr(data)
 	}
-
-	return internal.TruncateRight(W, requested_no_of_bits)
 }
 
 // 6.6 인스턴스 소멸 함수(uninstantiate function)
