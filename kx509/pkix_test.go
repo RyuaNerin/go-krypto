@@ -63,7 +63,7 @@ func TestMarshalAndParsePKIXPublicKey(t *testing.T) {
 		for _, size := range sizeList {
 			var p1p kcdsa.PrivateKey
 
-			kcdsa.GenerateParametersTTAK(&p1p.Parameters, rand.Reader, size)
+			kcdsa.GenerateParameters(&p1p.Parameters, rand.Reader, size)
 			kcdsa.GenerateKey(&p1p, rand.Reader)
 
 			p1 := &p1p.PublicKey

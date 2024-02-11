@@ -61,7 +61,7 @@ func TestMarshalAndParsePKCS8PrivateKey(t *testing.T) {
 		for _, size := range sizeList {
 			var p1 kcdsa.PrivateKey
 
-			kcdsa.GenerateParametersTTAK(&p1.Parameters, rand.Reader, size)
+			kcdsa.GenerateParameters(&p1.Parameters, rand.Reader, size)
 			kcdsa.GenerateKey(&p1, rand.Reader)
 
 			der, err := MarshalPKCS8PrivateKey(&p1)

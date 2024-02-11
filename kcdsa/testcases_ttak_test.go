@@ -1,6 +1,8 @@
 package kcdsa
 
 import (
+	"crypto/rand"
+	"math/big"
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
@@ -28,9 +30,12 @@ func Test_Sign_Verify_TestVectors(t *testing.T) {
 
 		domain, _ := kcdsainternal.GetDomain(int(tc.Sizes))
 
-		R, S, err := sign(&priv, domain, K, tc.M)
-		if err != nil {
-			t.Errorf("%d: error signing: %s", idx, err)
+		R, S, ok := kcdsainternal.Sign(
+			priv.P, priv.Q, priv.G, priv.Y, priv.X,
+			domain, K, tc.M,
+		)
+		if !ok {
+			t.Errorf("%d: error signing", idx)
 			return
 		}
 
@@ -39,9 +44,157 @@ func Test_Sign_Verify_TestVectors(t *testing.T) {
 			return
 		}
 
-		ok := Verify(&priv.PublicKey, tc.Sizes, tc.M, tc.R, tc.S)
+		ok = Verify(&priv.PublicKey, tc.Sizes, tc.M, tc.R, tc.S)
 		if ok == tc.Fail {
 			t.Errorf("%d: Verify failed, got:%v want:%v", idx, ok, !tc.Fail)
+			return
+		}
+	}
+}
+
+func Test_TTAK_GenerateJ(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping ttak parameter generation test in short mode")
+		return
+	}
+
+	var buf []byte
+	var ok bool
+
+	J := new(big.Int)
+	for _, tc := range testCase_TestVector {
+		d, _ := kcdsainternal.GetDomain(int(tc.Sizes))
+		buf, ok = kcdsainternal.GenerateJ(J, buf[:0], tc.Seed_, d.NewHash(), d)
+		if !ok {
+			t.Fail()
+			return
+		}
+		if J.Cmp(tc.J) != 0 {
+			t.Errorf("GenerateTTAKJ failed")
+			return
+		}
+	}
+}
+
+func Test_TTAK_GeneratePQ(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping ttak parameter generation test in short mode")
+		return
+	}
+
+	var buf []byte
+	var count int
+	var ok bool
+
+	P := new(big.Int)
+	Q := new(big.Int)
+
+	for _, tc := range testCase_TestVector {
+		d, _ := kcdsainternal.GetDomain(int(tc.Sizes))
+		buf, count, ok = kcdsainternal.GeneratePQ(P, Q, buf[:0], tc.J, tc.Seed_, d.NewHash(), d)
+		if !ok {
+			t.Fail()
+			return
+		}
+		if P.Cmp(tc.P) != 0 || Q.Cmp(tc.Q) != 0 || count != tc.Count {
+			t.Fail()
+			return
+		}
+	}
+}
+
+func Test_TTAK_GenerateHG(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping ttak parameter generation test in short mode")
+		return
+	}
+
+	var buf []byte
+	var err error
+
+	H := new(big.Int)
+	G := new(big.Int)
+
+	for _, tc := range testCase_TestVector {
+		buf, err = kcdsainternal.GenerateHG(H, G, buf[:0], rand.Reader, tc.P, tc.J)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	}
+}
+
+func Test_TTAK_GenerateG(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping ttak parameter generation test in short mode")
+		return
+	}
+
+	G := new(big.Int)
+	for _, tc := range testCase_TestVector {
+		ok := kcdsainternal.GenerateG(G, tc.P, tc.J, new(big.Int).SetBytes(tc.H))
+		if !ok {
+			t.Fail()
+			return
+		}
+		if G.Cmp(tc.G) != 0 {
+			t.Fail()
+			return
+		}
+	}
+}
+
+func Test_RegenerateParametersTTAK(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping ttak parameter generation test in short mode")
+		return
+	}
+
+	for _, tc := range testCase_TestVector {
+		params := Parameters{
+			TTAKParams: TTAKParameters{
+				J:     tc.J,
+				Seed:  tc.Seed_,
+				Count: tc.Count,
+			},
+		}
+		err := RegenerateParameters(&params, rnd, tc.Sizes)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		if params.P.Cmp(tc.P) != 0 || params.Q.Cmp(tc.Q) != 0 {
+			t.Fail()
+			return
+		}
+	}
+}
+
+func Test_TTAK_GenerateKey(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping ttak parameter generation test in short mode")
+		return
+	}
+
+	for _, tc := range testCase_TestVector {
+		priv := PrivateKey{
+			PublicKey: PublicKey{
+				Parameters: Parameters{
+					P: tc.P,
+					Q: tc.Q,
+					G: tc.G,
+				},
+			},
+		}
+		_, _, err := GenerateKeyWithSeed(&priv, rnd, tc.XKEY, UserProvidedRandomInput, tc.Sizes)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		if priv.X.Cmp(tc.X) != 0 || priv.Y.Cmp(tc.Y) != 0 {
+			t.Fail()
 			return
 		}
 	}

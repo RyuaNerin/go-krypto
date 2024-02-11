@@ -24,7 +24,7 @@ func FromDSA(dpk *dsa.PrivateKey) *PrivateKey {
 		},
 	}
 
-	kpk.PublicKey.Y = kcdsainternal.Y(kpk.P, kpk.Q, kpk.G, kpk.X)
+	kpk.PublicKey.Y = kcdsainternal.GenerateY(kpk.P, kpk.Q, kpk.G, kpk.X)
 
 	return kpk
 }

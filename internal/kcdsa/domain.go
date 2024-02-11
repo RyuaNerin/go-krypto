@@ -1,4 +1,4 @@
-package internal
+package kcdsa
 
 import (
 	"crypto/sha256"
