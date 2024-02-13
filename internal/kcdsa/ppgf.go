@@ -7,13 +7,13 @@ import (
 )
 
 func ppgf(
-	in []byte,
-	nBits int, h hash.Hash, seed ...[]byte,
+	dst []byte,
+	nBits int, h hash.Hash, src ...[]byte,
 ) []byte {
 	// p.12
 	// from java
 	i := internal.Bytes(nBits)
-	in = internal.Expand(in, i)
+	dst = internal.ResizeBuffer(dst, i)
 
 	LH := h.Size()
 
@@ -25,7 +25,7 @@ func ppgf(
 		iBuf[0] = byte(count)
 
 		h.Reset()
-		for _, v := range seed {
+		for _, v := range src {
 			h.Write(v)
 		}
 		h.Write(iBuf[:])
@@ -33,17 +33,17 @@ func ppgf(
 
 		if i >= LH {
 			i -= LH
-			copy(in[i:], hbuf)
+			copy(dst[i:], hbuf)
 			if i == 0 {
 				break
 			}
 		} else {
-			copy(in, hbuf[len(hbuf)-i:])
+			copy(dst, hbuf[len(hbuf)-i:])
 			break
 		}
 
 		count++
 	}
 
-	return internal.TruncateLeft(in, nBits)
+	return internal.RightMost(dst, nBits)
 }

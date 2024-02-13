@@ -29,5 +29,5 @@ func (ctx *ariaContextAsm) initRoundKey(key []byte) {
 }
 
 func (ctx *ariaContextAsm) process(dst, src, rk []byte) {
-	__process_SSSE3(ptr.BytePtr(dst), ptr.BytePtr(src), ptr.BytePtr(rk), uint64(ctx.ctx.rounds))
+	__process_SSSE3(ptr.PByte(dst), ptr.PByte(src), ptr.PByte(rk), uint64(ctx.ctx.rounds))
 }

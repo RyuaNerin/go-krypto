@@ -7,12 +7,12 @@ import (
 	"unsafe"
 )
 
-func ByteToUint32Array(b []byte) []uint32 {
+func PUint32(b []byte) []uint32 {
 	sd := unsafe.SliceData(b)
 	return unsafe.Slice((*uint32)(unsafe.Pointer(sd)), len(b)/4)
 }
 
-func BytePtr(b []byte) *byte {
+func PByte(b []byte) *byte {
 	sd := unsafe.SliceData(b)
 	return sd
 }

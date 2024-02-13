@@ -64,7 +64,7 @@ func Test_TTAK_GenerateJ(t *testing.T) {
 	J := new(big.Int)
 	for _, tc := range testCase_TestVector {
 		d, _ := kcdsainternal.GetDomain(int(tc.Sizes))
-		buf, ok = kcdsainternal.GenerateJ(J, buf[:0], tc.Seed_, d.NewHash(), d)
+		buf, ok = kcdsainternal.GenerateJ(J, buf, tc.Seed_, d.NewHash(), d)
 		if !ok {
 			t.Fail()
 			return
@@ -91,7 +91,7 @@ func Test_TTAK_GeneratePQ(t *testing.T) {
 
 	for _, tc := range testCase_TestVector {
 		d, _ := kcdsainternal.GetDomain(int(tc.Sizes))
-		buf, count, ok = kcdsainternal.GeneratePQ(P, Q, buf[:0], tc.J, tc.Seed_, d.NewHash(), d)
+		buf, count, ok = kcdsainternal.GeneratePQ(P, Q, buf, tc.J, tc.Seed_, d.NewHash(), d)
 		if !ok {
 			t.Fail()
 			return
@@ -116,7 +116,7 @@ func Test_TTAK_GenerateHG(t *testing.T) {
 	G := new(big.Int)
 
 	for _, tc := range testCase_TestVector {
-		buf, err = kcdsainternal.GenerateHG(H, G, buf[:0], rand.Reader, tc.P, tc.J)
+		buf, err = kcdsainternal.GenerateHG(H, G, buf, rand.Reader, tc.P, tc.J)
 		if err != nil {
 			t.Error(err)
 			return

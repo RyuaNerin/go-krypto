@@ -5,6 +5,7 @@ import (
 	"crypto/subtle"
 	"errors"
 
+	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
 	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
 )
@@ -124,7 +125,7 @@ func (g *ccm) Seal(dst, N, pt, A []byte) []byte {
 		panic("krypto/kipher: message too large for CCM")
 	}
 
-	ret, out := sliceForAppend(dst, len(pt)+g.tagSize)
+	ret, out := internal.SliceForAppend(dst, len(pt)+g.tagSize)
 	if alias.InexactOverlap(out, pt) {
 		panic("krypto/kipher: invalid buffer overlap")
 	}
@@ -155,7 +156,7 @@ func (g *ccm) Open(dst, N, ctT, A []byte) ([]byte, error) {
 
 	ct, T := ctT[:len(ctT)-g.tagSize], ctT[len(ctT)-g.tagSize:]
 
-	ret, pt := sliceForAppend(dst, len(ct))
+	ret, pt := internal.SliceForAppend(dst, len(ct))
 	if alias.InexactOverlap(pt, ct) {
 		panic("krypto/kipher: invalid buffer overlap")
 	}

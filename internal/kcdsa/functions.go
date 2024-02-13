@@ -20,7 +20,7 @@ func GenerateJ(
 	// (U ← PPGF(Seed, n))
 	//fmt.Println("--------------------------------------------------")
 	//fmt.Println("U ← PPGF(Seed, n)")
-	UBytes = ppgf(buf[:0], d.A-d.B-4, h, seed)
+	UBytes = ppgf(buf, d.A-d.B-4, h, seed)
 	//fmt.Println("U = 0x" + hex.EncodeToString(UBytes2))
 
 	// 3: U의 상위에 4 비트 '1000'을 붙이고 최하위 비트는 1로 만들어 이를 J로 둔다.
@@ -54,7 +54,7 @@ func GeneratePQ(
 
 	var countB [4]byte
 
-	UBytes = internal.Expand(buf[:0], internal.Bytes(d.B))
+	UBytes = internal.ResizeBuffer(buf, internal.Bytes(d.B))
 
 	// 7: Count > 2^24이면 단계 1로 간다.
 	for count <= (1 << 24) {
@@ -64,7 +64,7 @@ func GeneratePQ(
 
 		// 8: Seed에 Count를 연접한 것을 일방향 함수 PPGF의 입력으로 하여 비트 길이가
 		// β인 난수 UBytes를 생성한다. (UBytes ← PPGF(Seed ‖ Count, β))
-		UBytes = ppgf(UBytes[:0], d.B, h, seed, countB[:])
+		UBytes = ppgf(UBytes, d.B, h, seed, countB[:])
 
 		// 9: U의 최상위 및 최하위 비트를 1로 만들어 이를 q로 둔다.
 		// (q ← 2^(β-1) ∨ U ∨ 1)
@@ -73,7 +73,7 @@ func GeneratePQ(
 		Q.SetBit(Q, d.B-1, 1)
 
 		// 10: p ← (2Jq + 1)의 비트 길이가 α보다 길면 단계 6으로 간다.
-		P.Add(P.Lsh(P.Mul(J, Q), 1), one)
+		P.Add(P.Lsh(P.Mul(J, Q), 1), internal.One)
 		if P.BitLen() > d.A {
 			continue
 		}
@@ -108,11 +108,11 @@ func GenerateHG(
 		//
 		//     0 < h < p 로 생성 한 다음에
 		//
-		bufOut, err = internal.Int(H, rand, buf[:0], P)
+		bufOut, err = internal.Int(H, rand, buf, P)
 		if err != nil {
 			return
 		}
-		H.Add(H, two)
+		H.Add(H, internal.Two)
 
 		ok := GenerateG(G, P, J, H)
 		if !ok {
@@ -133,7 +133,7 @@ func GenerateG(
 	G.Exp(H, G, P)
 
 	// 3: g = 1이면 단계 1로 간다.
-	if G.Cmp(one) == 0 {
+	if G.Cmp(internal.One) == 0 {
 		return false
 	}
 
@@ -163,7 +163,7 @@ func GenerateX(Q *big.Int, upri, xkey []byte, h hash.Hash, d Domain) (X *big.Int
 		xval[idx] = byte(sum)
 		carry = sum >> 8
 	}
-	xval = internal.TruncateLeft(xval, d.B)
+	xval = internal.RightMost(xval, d.B)
 	//fmt.Println("xval = 0x" + hex.EncodeToString(xval.Bytes()))
 
 	// 5: xj ← PPGF(XVAL, b) mod q

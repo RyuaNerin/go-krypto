@@ -40,14 +40,14 @@ func generate(bits int, prefix string, rand io.Reader) {
 
 	hw := hex.NewEncoder(w)
 
-	var b []byte
+	var buf []byte
 	for i := 0; i < 25_0000; i++ {
-		b, err := internal.ReadBits(b[:0], rand, bits)
+		buf, err = internal.ReadBits(rand, buf, bits)
 		if err != nil {
 			panic(err)
 		}
 
-		hw.Write(b)
+		hw.Write(buf)
 	}
 }
 

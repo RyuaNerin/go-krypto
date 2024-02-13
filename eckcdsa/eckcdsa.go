@@ -314,7 +314,7 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	//fmt.Println("r2 = 0x" + hex.EncodeToString(r2.Bytes()))
 	//fmt.Println("r  = 0x" + hex.EncodeToString(r.Bytes()))
 
-	return bigIntEqual(r, r2)
+	return internal.BigIntEqual(r, r2)
 }
 
 // https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=168-188

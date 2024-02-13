@@ -3,9 +3,20 @@ package internal
 import (
 	"io"
 	"math/big"
-
-	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
 )
+
+var (
+	One   = big.NewInt(1)
+	Two   = big.NewInt(2)
+	Three = big.NewInt(3)
+)
+
+func Bytes(bits int) int {
+	// 32bit: 0xFFFF_FFF8 / 64bit: 0xFFFF FFFF FFFF FFF8
+	const MaxUint_m7 = ^uint(0) - 7
+
+	return int(((uint(bits) + 7) & MaxUint_m7) / 8)
+}
 
 // same with `int(math.Ceil(float64(a) / float64(b)))`
 func CeilDiv(a, b int) int {
@@ -26,25 +37,8 @@ func IncCtr(b []byte) {
 	}
 }
 
-func Add(dst []byte, src ...[]byte) {
-	n := len(dst)
-
-	var value uint64
-	for idx := 0; idx < n; idx++ {
-		for _, v := range src {
-			if idx < len(v) {
-				value += uint64(v[len(v)-idx-1])
-			}
-		}
-
-		dst[len(dst)-idx-1] = byte(value & 0xFF)
-		value = value >> 8
-	}
-	kryptoutil.MemsetByte(dst[:len(dst)-n], 0)
-}
-
 // Int returns a uniform random value in [0, max). It panics if max <= 0.
-func Int(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bytes []byte, err error) {
+func Int(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bufNew []byte, err error) {
 	if max.Sign() <= 0 {
 		panic("crypto/rand: argument to Int is <= 0")
 	}
@@ -63,19 +57,21 @@ func Int(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bytes []byte, 
 		b = 8
 	}
 
-	bytes = Expand(buf[:0], k)
+	bufNew = ResizeBuffer(buf, k)
+
+	mask := uint8(int(1<<b) - 1)
 
 	for {
-		_, err = io.ReadFull(rand, bytes)
+		_, err = io.ReadFull(rand, bufNew)
 		if err != nil {
-			return bytes, err
+			return bufNew, err
 		}
 
 		// Clear bits in the first byte to increase the probability
 		// that the candidate is < max.
-		bytes[0] &= uint8(int(1<<b) - 1)
+		bufNew[0] &= mask
 
-		dst.SetBytes(bytes)
+		dst.SetBytes(bufNew)
 		if dst.Cmp(max) < 0 {
 			return
 		}

@@ -36,7 +36,7 @@ func Sign(
 	//fmt.Println("step 3. R = h(W) mod 2^β")
 	h.Reset()
 	h.Write(WBytes)
-	RBytes := internal.TruncateLeft(h.Sum(tmp[:0]), B)
+	RBytes := internal.RightMost(h.Sum(tmp[:0]), B)
 	R := new(big.Int).SetBytes(RBytes)
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 
@@ -50,7 +50,7 @@ func Sign(
 	}
 	ZBytes := tmp[:ZBytesLen]
 	Y.FillBytes(ZBytes)
-	ZBytes = internal.TruncateLeft(ZBytes, l*8)
+	ZBytes = internal.RightMost(ZBytes, l*8)
 	//fmt.Println("Z = 0x" + hex.EncodeToString(ZBytes))
 
 	// step 5. h = trunc(Hash(Z||M), β)
@@ -59,7 +59,7 @@ func Sign(
 	h.Reset()
 	h.Write(ZBytes)
 	h.Write(data)
-	HBytes := internal.TruncateLeft(h.Sum(tmp[:0]), B)
+	HBytes := internal.RightMost(h.Sum(tmp[:0]), B)
 	H := new(big.Int).SetBytes(HBytes)
 	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
 
@@ -124,7 +124,7 @@ func Verify(
 	}
 	ZBytes := tmp[:YBytesLen]
 	Y.FillBytes(ZBytes)
-	ZBytes = internal.TruncateLeft(ZBytes, l*8)
+	ZBytes = internal.RightMost(ZBytes, l*8)
 	//fmt.Println("Z = 0x" + hex.EncodeToString(ZBytes))
 
 	// step 3. h = trunc(Hash(Z||M), β)
@@ -133,7 +133,7 @@ func Verify(
 	h.Reset()
 	h.Write(ZBytes)
 	h.Write(data)
-	HBytes := internal.TruncateLeft(h.Sum(tmp[:0]), B)
+	HBytes := internal.RightMost(h.Sum(tmp[:0]), B)
 	H := new(big.Int).SetBytes(HBytes)
 	//fmt.Println("H = 0x" + hex.EncodeToString(H.Bytes()))
 
@@ -169,7 +169,7 @@ func Verify(
 	//fmt.Println("step 6. trunc(Hash(W'), β) = R'")
 	h.Reset()
 	h.Write(WBytes)
-	rBytes := internal.TruncateLeft(h.Sum(tmp[:0]), B)
+	rBytes := internal.RightMost(h.Sum(tmp[:0]), B)
 	r := new(big.Int).SetBytes(rBytes)
 	//fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
 	//fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))

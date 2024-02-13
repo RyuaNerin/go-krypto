@@ -63,6 +63,6 @@ func (ctx *lsh256Context) Sum(p []byte) []byte {
 }
 
 func (ctx *lsh256Context) checkSum() (hash [Size]byte) {
-	ctx.simd.final(ctx, ptr.BytePtr(hash[:]))
+	ctx.simd.final(ctx, ptr.PByte(hash[:]))
 	return
 }

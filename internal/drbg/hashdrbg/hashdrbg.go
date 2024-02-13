@@ -47,33 +47,31 @@ func GetSecurityStrength(requested_strength int) int {
 // 6.2 유도 함수(derivation function)
 //
 // Hash_DRBG의 유도 함수 Hash_df는 내부 상태 구성 요소를 생성하거나 입력이 가진 엔트로피를 출력에 고르게 분포되도록 한다
-func Hash_df(h hash.Hash, out []byte, write func(w io.Writer), no_of_bits int) []byte {
-	outlen := h.Size()
-	sum := make([]byte, outlen)
+func Hash_df(dst []byte, h hash.Hash, write func(w io.Writer), no_of_bits int) []byte {
+	var sum []byte
 
 	// 1: temp ← Null
 	// 2: len ← no_of_bits /outlen 
-	len := internal.CeilDiv(no_of_bits, outlen*8)
 
-	out = internal.Expand(out, len*outlen)
+	dst = internal.ResizeBuffer(dst, internal.Bytes(no_of_bits))
 
 	var hashInput [5]byte
 	binary.BigEndian.PutUint32(hashInput[1:], uint32(no_of_bits))
 	// 3: for i = 1 to len do
-	for idx := 0; idx < len; idx++ {
-		hashInput[0] = byte(1 + idx)
+	for idx := 0; idx < len(dst); {
+		hashInput[0]++
 
 		// 4: temp ← temp ‖ Hash(i ‖ no_of_bits ‖ input_string )
 		h.Reset()
 		h.Write(hashInput[:])
 		write(h)
 		sum = h.Sum(sum[:0])
-		copy(out[outlen*idx:], sum)
+		idx += copy(dst[idx:], sum)
 	}
 	// 5: end do
 
 	// 6: requested_bits ← leftmost(temp, no_of_bits )
-	return internal.TruncateRight(out, no_of_bits)
+	return internal.LeftMost(dst, no_of_bits)
 
 	// 7: return requested_bits
 }
@@ -133,7 +131,7 @@ func Instantiate_Hash_DRBG(
 	vc := make([]byte, vcLen*2)
 
 	// 25: seed ← Hash_df(seed_material, seedlen )
-	seed := Hash_df(h, vc[:vcLen], seed_material, seedLen)
+	seed := Hash_df(vc[:vcLen], h, seed_material, seedLen)
 
 	// 26: (status, state_handle) ← Find_state_space()
 	// 27: if (status ≠ SUCCESS) then
@@ -151,7 +149,7 @@ func Instantiate_Hash_DRBG(
 		seedlen: seedLen,
 
 		v: seed,
-		c: Hash_df(h, vc[vcLen:], drbg.WriteBytes([]byte{0}, seed), seedLen),
+		c: Hash_df(vc[vcLen:], h, drbg.WriteBytes([]byte{0}, seed), seedLen),
 
 		reseed_counter:             1,
 		security_strength:          security_strength,
@@ -185,9 +183,9 @@ func (state *State) Reseed_Hash_DRBG(
 	seed_material := drbg.WriteBytes([]byte{1}, state.v, entropy_input, additional_input)
 	// 11: seed ← Hash_df(seed_material, seedlen )
 	// 12: state(state_handle ).V ← seed
-	state.v = Hash_df(state.h, state.v[:0], seed_material, state.seedlen)
+	state.v = Hash_df(state.v, state.h, seed_material, state.seedlen)
 	// 13: state(state_handle ).C ← Hash_df((0x00 ‖ V ), seedlen )
-	state.c = Hash_df(state.h, state.c[:0], drbg.WriteBytes([]byte{0}, state.v), state.seedlen)
+	state.c = Hash_df(state.c, state.h, drbg.WriteBytes([]byte{0}, state.v), state.seedlen)
 	// 14: state(state_handle ).reseed_counter ← 1
 	state.reseed_counter = 1
 	// 15: return (SUCCESS)
@@ -297,7 +295,7 @@ func hashgen(h hash.Hash, dst []byte, V []byte, seedlen int) {
 	outlen := h.Size()
 	m := internal.CeilDiv(requested_no_of_bits, outlen*8)
 
-	W := internal.Expand(dst[:0], outlen*m)
+	W := internal.ResizeBuffer(dst, outlen*m)
 
 	data := make([]byte, len(V))
 	copy(data, V)

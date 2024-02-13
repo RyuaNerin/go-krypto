@@ -100,24 +100,17 @@ func Test_KCDSA(t *testing.T) {
 		t.Skip("skipping parameter generation test in short mode")
 	}
 
-	gp := func(params *Parameters, sizes ParameterSizes) error {
-		return GenerateParameters(params, rand.Reader, sizes)
-	}
-	gk := func(priv *PrivateKey, sizes ParameterSizes) error {
-		return GenerateKey(priv, rand.Reader)
-	}
-
-	testKCDSA(t, L2048N224SHA224, 2048, 224, gp, gk)
-	testKCDSA(t, L2048N224SHA256, 2048, 224, gp, gk)
-	testKCDSA(t, L2048N256SHA256, 2048, 256, gp, gk)
-	testKCDSA(t, L3072N256SHA256, 3072, 256, gp, gk)
+	testKCDSA(t, L2048N224SHA224, 2048, 224)
+	testKCDSA(t, L2048N224SHA256, 2048, 224)
+	testKCDSA(t, L2048N256SHA256, 2048, 256)
+	testKCDSA(t, L3072N256SHA256, 3072, 256)
 }
 
-func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int, gp func(params *Parameters, sizes ParameterSizes) error, gk func(priv *PrivateKey, sizes ParameterSizes) error) {
+func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int) {
 	var priv PrivateKey
 	params := &priv.Parameters
 
-	err := gp(params, sizes)
+	err := GenerateParameters(params, rand.Reader, sizes)
 	if err != nil {
 		t.Errorf("%d: %s", int(sizes), err)
 		return
@@ -133,7 +126,7 @@ func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int, gp func(params *Par
 		return
 	}
 
-	err = gk(&priv, sizes)
+	err = GenerateKey(&priv, rand.Reader)
 	if err != nil {
 		t.Errorf("error generating key: %s", err)
 		return

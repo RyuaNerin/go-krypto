@@ -12,6 +12,7 @@ import (
 	"encoding/binary"
 	"errors"
 
+	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
 )
 
@@ -142,7 +143,7 @@ func (g *gcm) Seal(dst, nonce, plaintext, data []byte) []byte {
 		panic("krypto/kipher: message too large for GCM")
 	}
 
-	ret, out := sliceForAppend(dst, len(plaintext)+g.tagSize)
+	ret, out := internal.SliceForAppend(dst, len(plaintext)+g.tagSize)
 	if alias.InexactOverlap(out, plaintext) {
 		panic("krypto/kipher: invalid buffer overlap")
 	}
@@ -188,7 +189,7 @@ func (g *gcm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 	var expectedTag [gcmTagSize]byte
 	g.auth(expectedTag[:], ciphertext, data, &tagMask)
 
-	ret, out := sliceForAppend(dst, len(ciphertext))
+	ret, out := internal.SliceForAppend(dst, len(ciphertext))
 	if alias.InexactOverlap(out, ciphertext) {
 		panic("krypto/kipher: invalid buffer overlap")
 	}
@@ -312,21 +313,6 @@ func (g *gcm) update(y *gcmFieldElement, data []byte) {
 func gcmInc32(counterBlock *[16]byte) {
 	ctr := counterBlock[len(counterBlock)-4:]
 	binary.BigEndian.PutUint32(ctr, binary.BigEndian.Uint32(ctr)+1)
-}
-
-// sliceForAppend takes a slice and a requested number of bytes. It returns a
-// slice with the contents of the given slice followed by that many bytes and a
-// second slice that aliases into it and contains only the extra bytes. If the
-// original slice has sufficient capacity then no allocation is performed.
-func sliceForAppend(in []byte, n int) (head, tail []byte) {
-	if total := len(in) + n; cap(in) >= total {
-		head = in[:total]
-	} else {
-		head = make([]byte, total)
-		copy(head, in)
-	}
-	tail = head[len(in):]
-	return
 }
 
 // counterCrypt crypts in to out using g.cipher in counter mode.

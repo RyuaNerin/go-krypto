@@ -38,12 +38,6 @@ func (ps ParameterSizes) Hash() hash.Hash {
 	return domain.NewHash()
 }
 
-var (
-	one   = big.NewInt(1)
-	two   = big.NewInt(2)
-	three = big.NewInt(3)
-)
-
 // Generate the paramters
 func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
 	domain, ok := kcdsainternal.GetDomain(int(sizes))
@@ -137,8 +131,7 @@ func GenerateKeyWithSeed(priv *PrivateKey, rand io.Reader, xkey, upri []byte, si
 	}
 
 	if len(xkey) == 0 {
-		xkey = internal.Expand(xkey, internal.Bytes(domain.B))
-		xkey, err = internal.ReadBits(xkey, rand, domain.B)
+		xkey, err = internal.ReadBits(rand, xkey, domain.B)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -146,8 +139,7 @@ func GenerateKeyWithSeed(priv *PrivateKey, rand io.Reader, xkey, upri []byte, si
 		return nil, nil, ErrShortXKEY
 	}
 	if len(upri) == 0 {
-		upri = internal.Expand(upri, 64)
-		_, err = io.ReadFull(rand, upri)
+		upri, err = internal.ReadBytes(rand, upri, 64)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -184,12 +176,12 @@ func Sign(rand io.Reader, priv *PrivateKey, sizes ParameterSizes, data []byte) (
 		// step 1. 난수 k를 [1, Q-1]에서 임의로 선택한다.
 
 		for {
-			buf, err = internal.ReadBits(buf[:0], rand, qblen)
+			buf, err = internal.ReadBits(rand, buf, qblen)
 			if err != nil {
 				return
 			}
 			K.SetBytes(buf)
-			K.Add(K, one)
+			K.Add(K, internal.One)
 
 			if K.Sign() > 0 && K.Cmp(priv.Q) < 0 {
 				break

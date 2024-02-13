@@ -47,18 +47,18 @@ func GenerateParameters(rand io.Reader, domain Domain) (
 		}
 
 		// 2 ~ 4
-		buf, ok = GenerateJ(generated.J, buf[:0], generated.Seed, h, domain)
+		buf, ok = GenerateJ(generated.J, buf, generated.Seed, h, domain)
 		if !ok {
 			continue
 		}
 
 		// 5 ~ 12
-		buf, generated.Count, ok = GeneratePQ(generated.P, generated.Q, buf[:0], generated.J, generated.Seed, h, domain)
+		buf, generated.Count, ok = GeneratePQ(generated.P, generated.Q, buf, generated.J, generated.Seed, h, domain)
 		if !ok {
 			continue
 		}
 
-		buf, err = GenerateHG(generated.H, generated.G, buf[:0], rand, generated.P, generated.J)
+		_, err = GenerateHG(generated.H, generated.G, buf, rand, generated.P, generated.J)
 		if err != nil {
 			return
 		}
@@ -89,7 +89,7 @@ func RegenerateParameters(
 
 	// 8: Seed에 Count를 연접한 것을 일방향 함수 PPGF의 입력으로 하여 비트 길이가
 	// β인 난수 U를 생성한다. (U ← PPGF(Seed ‖ Count, β))
-	U := ppgf(buf[:0], domain.B, domain.NewHash(), Seed, CountB[:])
+	U := ppgf(buf, domain.B, domain.NewHash(), Seed, CountB[:])
 
 	// 9: U의 최상위 및 최하위 비트를 1로 만들어 이를 q로 둔다.
 	// (q ← 2^(β-1) ∨ U ∨ 1)
@@ -98,7 +98,7 @@ func RegenerateParameters(
 	Q.SetBit(Q, domain.B-1, 1)
 
 	// 10: p ← (2Jq + 1)의 비트 길이가 α보다 길면 단계 6으로 간다.
-	P.Add(P.Lsh(P.Mul(J, Q), 1), one)
+	P.Add(P.Lsh(P.Mul(J, Q), 1), internal.One)
 	if P.BitLen() > domain.A {
 		err = ErrInvalidTTAKParameters
 		return
@@ -117,7 +117,7 @@ func RegenerateParameters(
 	}
 
 	H := new(big.Int)
-	_, err = GenerateHG(H, G, buf[:0], rand, P, J)
+	_, err = GenerateHG(H, G, buf, rand, P, J)
 	if err != nil {
 		return
 	}
