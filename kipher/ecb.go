@@ -2,7 +2,8 @@ package kipher
 
 import (
 	"crypto/cipher"
-	"fmt"
+
+	"github.com/RyuaNerin/go-krypto/internal/alias"
 )
 
 func NewECBEncryptor(b cipher.Block) cipher.BlockMode {
@@ -43,39 +44,38 @@ func (ecb *ecbEnc) BlockSize() int {
 	return ecb.b.BlockSize()
 }
 func (ecb *ecbEnc) CryptBlocks(dst, src []byte) {
-	BlockSize := ecb.BlockSize()
+	blockSize := ecb.BlockSize()
 
-	if len(src) < BlockSize {
-		panic(fmt.Sprintf("krypto/kipher: invalid block size %d (src)", len(src)))
-	}
-	if len(dst) < len(src) {
-		panic(fmt.Sprintf("krypto/kipher: invalid block size %d (dst)", len(dst)))
-	}
-
-	if len(src)%BlockSize != 0 {
+	if len(src)%blockSize != 0 {
 		panic("krypto/kipher: input not full blocks")
 	}
+	if len(dst) < len(src) {
+		panic("krypto/kipher: output smaller than input")
+	}
+	if alias.InexactOverlap(dst[:len(src)], src) {
+		panic("krypto/kipher: invalid buffer overlap")
+	}
 
-	remainBlock := len(src) / BlockSize
+	var (
+		blockSize4 = 4 * blockSize
+		blockSize8 = 8 * blockSize
+	)
 
-	for remainBlock >= 8 {
-		remainBlock -= 8
+	for len(src) >= blockSize8 {
 		ecb.process8(dst, src)
 
-		dst, src = dst[0x80:], src[0x80:]
+		dst, src = dst[blockSize8:], src[blockSize8:]
 	}
 
-	for remainBlock >= 4 {
-		remainBlock -= 4
+	for len(src) >= blockSize4 {
 		ecb.process4(dst, src)
 
-		dst, src = dst[0x40:], src[0x40:]
+		dst, src = dst[blockSize4:], src[blockSize4:]
 	}
 
-	for remainBlock > 0 {
-		remainBlock -= 1
+	for len(src) > 0 {
 		ecb.process1(dst, src)
 
-		dst, src = dst[0x10:], src[0x10:]
+		dst, src = dst[blockSize:], src[blockSize:]
 	}
 }

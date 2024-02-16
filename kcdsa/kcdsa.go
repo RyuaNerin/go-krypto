@@ -131,7 +131,7 @@ func GenerateKeyWithSeed(priv *PrivateKey, rand io.Reader, xkey, upri []byte, si
 	}
 
 	if len(xkey) == 0 {
-		xkey, err = internal.ReadBits(rand, xkey, domain.B)
+		xkey, err = internal.ReadBits(xkey, rand, domain.B)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -139,7 +139,7 @@ func GenerateKeyWithSeed(priv *PrivateKey, rand io.Reader, xkey, upri []byte, si
 		return nil, nil, ErrShortXKEY
 	}
 	if len(upri) == 0 {
-		upri, err = internal.ReadBytes(rand, upri, 64)
+		upri, err = internal.ReadBytes(upri, rand, 64)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -176,7 +176,7 @@ func Sign(rand io.Reader, priv *PrivateKey, sizes ParameterSizes, data []byte) (
 		// step 1. 난수 k를 [1, Q-1]에서 임의로 선택한다.
 
 		for {
-			buf, err = internal.ReadBits(rand, buf, qblen)
+			buf, err = internal.ReadBits(buf, rand, qblen)
 			if err != nil {
 				return
 			}

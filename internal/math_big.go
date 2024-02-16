@@ -23,7 +23,7 @@ func BigIntEqual(a, b *big.Int) bool {
 }
 
 // resize dst, ReadFull, cut from right
-func ReadBits(rand io.Reader, dst []byte, bits int) ([]byte, error) {
+func ReadBits(dst []byte, rand io.Reader, bits int) ([]byte, error) {
 	bytes := Bytes(bits)
 
 	dst = ResizeBuffer(dst, bytes)
@@ -42,7 +42,7 @@ func ReadBits(rand io.Reader, dst []byte, bits int) ([]byte, error) {
 }
 
 // resize dst, ReadFull, cut from right
-func ReadBytes(rand io.Reader, dst []byte, bytes int) ([]byte, error) {
+func ReadBytes(dst []byte, rand io.Reader, bytes int) ([]byte, error) {
 	dst = ResizeBuffer(dst, bytes)
 
 	_, err := io.ReadFull(rand, dst)

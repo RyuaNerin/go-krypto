@@ -65,7 +65,22 @@ func NewHMACDRGB(
 }
 
 func (h *hmacDRGB) Read(dst []byte) (n int, err error) {
-	return h.Generate(dst, nil)
+	remain := len(dst)
+	for remain > 0 {
+		toRead := remain
+		if toRead > hmacdrbg.MaxNoOfBitsPerRequest/8 {
+			toRead = hmacdrbg.MaxNoOfBitsPerRequest / 8
+		}
+
+		_, err = h.Generate(dst[:toRead], nil)
+		if err != nil {
+			return 0, err
+		}
+
+		remain -= toRead
+	}
+
+	return len(dst), nil
 }
 
 func (h *hmacDRGB) Generate(dst []byte, additionalInput []byte) (n int, err error) {

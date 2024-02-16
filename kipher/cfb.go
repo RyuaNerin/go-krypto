@@ -9,6 +9,8 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
+var ()
+
 // NewCFBEncrypter returns a Stream which encrypts with cipher feedback mode,
 // using the given Block. The iv must be the same length as the Block's block
 // size.

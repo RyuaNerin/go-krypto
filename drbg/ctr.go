@@ -17,7 +17,7 @@ func WithCTRLength(ctrLen int) CTRDRBGOption {
 		args.ctrLen = ctrLen
 	}
 }
-func WithReseedInterval(reseedInterval int) CTRDRBGOption {
+func WithCTRReseedInterval(reseedInterval int) CTRDRBGOption {
 	return func(args *args) {
 		args.reseedInterval = reseedInterval
 	}
@@ -105,7 +105,22 @@ func New(
 }
 
 func (h *ctrDRGB) Read(dst []byte) (n int, err error) {
-	return h.Generate(dst, nil)
+	remain := len(dst)
+	for remain > 0 {
+		toRead := remain
+		if toRead > h.state.MaxNoOfBitsPerRequest {
+			toRead = h.state.MaxNoOfBitsPerRequest
+		}
+
+		_, err = h.Generate(dst[:toRead], nil)
+		if err != nil {
+			return 0, err
+		}
+
+		remain -= toRead
+	}
+
+	return len(dst), nil
 }
 
 func (h *ctrDRGB) Generate(dst []byte, additionalInput []byte) (n int, err error) {

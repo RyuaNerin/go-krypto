@@ -34,7 +34,7 @@ func ResizeSlice(arr []byte, bytes int) []byte {
 
 	case bytes <= arrCap:
 		arr = arr[:bytes]
-		kryptoutil.MemsetByte(arr[bytes:], 0)
+		kryptoutil.MemsetByte(arr[arrLen:], 0)
 
 	default:
 		arr2 := make([]byte, bytes)
