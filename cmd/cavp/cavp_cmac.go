@@ -33,12 +33,12 @@ func processCMAC_Gen(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 	buf := make([]byte, 0, 64)
 
 	for cavp.Next() {
-		cvl := cavp.ReadValues()
+		cs := cavp.ReadValues()
 
-		if cvl.ContainsKey("K") {
-			K := cvl.Hex("K")
-			M := cvl.Hex("M")
-			TLen := cvl.Int("Tlen")
+		if cs.ContainsKey("K") {
+			K := cs.Hex("K")
+			M := cs.Hex("M")
+			TLen := cs.Int("Tlen")
 
 			b, err := newCipher(K)
 			if err != nil {
@@ -49,10 +49,10 @@ func processCMAC_Gen(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 			cmac.Write(M)
 			buf = cmac.Sum(buf[:0])[:TLen/8]
 
-			cvl = append(cvl, cavpRow{"T", hexStr(buf), false})
+			cs = append(cs, cavpRow{"T", hexStr(buf), false})
 		}
 
-		cavp.WriteValues(cvl)
+		cavp.WriteValues(cs)
 	}
 }
 
@@ -60,13 +60,13 @@ func processCMAC_Ver(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 	buf := make([]byte, 0, 64)
 
 	for cavp.Next() {
-		cvl := cavp.ReadValues()
+		cs := cavp.ReadValues()
 
-		if cvl.ContainsKey("K") {
-			K := cvl.Hex("K")
-			M := cvl.Hex("M")
-			TLen := cvl.Int("Tlen")
-			T := cvl.Hex("T")
+		if cs.ContainsKey("K") {
+			K := cs.Hex("K")
+			M := cs.Hex("M")
+			TLen := cs.Int("Tlen")
+			T := cs.Hex("T")
 
 			b, err := newCipher(K)
 			if err != nil {
@@ -78,12 +78,12 @@ func processCMAC_Ver(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 			buf = cmac.Sum(buf[:0])[:TLen/8]
 
 			if kipher.Equal(buf, T) {
-				cvl = append(cvl, cavpRow{"", "VALID", false})
+				cs = append(cs, cavpRow{"", "VALID", false})
 			} else {
-				cvl = append(cvl, cavpRow{"", "INVALID", false})
+				cs = append(cs, cavpRow{"", "INVALID", false})
 			}
 		}
 
-		cavp.WriteValues(cvl)
+		cavp.WriteValues(cs)
 	}
 }

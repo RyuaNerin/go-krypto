@@ -30,8 +30,12 @@ func generate(bits int, prefix string, rand io.Reader) {
 	}
 	defer fs.Close()
 
-	fs.Truncate(0)
-	fs.Seek(0, io.SeekStart)
+	if err = fs.Truncate(0); err != nil {
+		panic(err)
+	}
+	if _, err = fs.Seek(0, io.SeekStart); err != nil {
+		panic(err)
+	}
 
 	w := bufio.NewWriter(fs)
 	defer w.Flush()
@@ -47,13 +51,17 @@ func generate(bits int, prefix string, rand io.Reader) {
 			panic(err)
 		}
 
-		hw.Write(buf)
+		if _, err = hw.Write(buf); err != nil {
+			panic(err)
+		}
 	}
 }
 
 func newCSPRNG(r io.Reader) io.Reader {
 	v := make([]byte, 1)
-	r.Read(v)
+	if _, err := r.Read(v); err != nil {
+		panic(err)
+	}
 
 	d := make([]byte, v[0])
 	if _, err := io.ReadFull(r, d); err != nil {
@@ -72,5 +80,4 @@ func newCSPRNG(r io.Reader) io.Reader {
 	}
 
 	return csprng
-
 }
