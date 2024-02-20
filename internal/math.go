@@ -5,12 +5,6 @@ import (
 	"math/big"
 )
 
-var (
-	One   = big.NewInt(1)
-	Two   = big.NewInt(2)
-	Three = big.NewInt(3)
-)
-
 func Bytes(bits int) int {
 	// 32bit: 0xFFFF_FFF8 / 64bit: 0xFFFF FFFF FFFF FFF8
 	const MaxUint_m7 = ^uint(0) - 7

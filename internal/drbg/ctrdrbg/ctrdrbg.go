@@ -13,6 +13,9 @@ const (
 	MaxLength                      = 1 << 35 // 엔트로피 입력 최대 길이
 	MaxPersonalizationStringLength = 1 << 35 // 개별화 문자열 최대 허용 길이
 	MaxAdditionalInputLength       = 1 << 35 // 추가 입력 최대 허용 길이
+
+	reseedInterval16Blocks = 1 << 48
+	reseedIntervalEtc      = 1 << 32
 )
 
 const (
@@ -39,11 +42,11 @@ type State struct {
 
 	cbc cipher.Block
 
-	reseedInterval          int
+	reseedInterval          uint64
 	useDerivationFunction   bool
 	usePredictionResistance bool
 
-	reseed_counter int
+	reseed_counter uint64
 
 	Key  []byte
 	V    []byte
@@ -195,7 +198,7 @@ func (state *State) CTR_DRBG_Update(provided_data []byte) {
 func Instantiate_CTR_DRBG(
 	newCipher func(key []byte) (cipher.Block, error),
 	keySizeByte int,
-	reseedInterval int,
+	reseedInterval uint64,
 	ctr_len int,
 	entropy_input, nonce, personalization_string []byte,
 	useDerivationFunction, usePredictionResistance bool,
@@ -204,9 +207,9 @@ func Instantiate_CTR_DRBG(
 
 	if reseedInterval <= 0 {
 		if cbc.BlockSize() == 16 {
-			reseedInterval = 1 << 48
+			reseedInterval = reseedInterval16Blocks
 		} else {
-			reseedInterval = 1 << 32
+			reseedInterval = reseedIntervalEtc
 		}
 	}
 	if ctr_len <= 0 {

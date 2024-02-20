@@ -6,6 +6,12 @@ import (
 	"math/big"
 )
 
+var (
+	One   = big.NewInt(1)
+	Two   = big.NewInt(2)
+	Three = big.NewInt(3)
+)
+
 const NumMRTests = 64
 
 // https://cs.opensource.google/go/go/+/refs/tags/go1.18:src/crypto/dsa/dsa.go;l=188-192

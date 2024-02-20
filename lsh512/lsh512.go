@@ -56,19 +56,3 @@ func Sum224(data []byte) (sum224 [Size224]byte) {
 	copy(sum224[:], sum[:Size224])
 	return
 }
-
-func newContext(size int) hash.Hash {
-	ctx := new(lsh512Context)
-	initContext(ctx, size)
-
-	return ctx
-}
-
-func sum(size int, data []byte) [Size]byte {
-	var b lsh512Context
-	initContext(&b, size)
-	b.Reset()
-	b.Write(data)
-
-	return b.checkSum()
-}

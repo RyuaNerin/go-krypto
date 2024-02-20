@@ -42,7 +42,7 @@ func generate(bits int, prefix string, rand io.Reader) {
 
 	var buf []byte
 	for i := 0; i < 25_0000; i++ {
-		buf, err = internal.ReadBits(rand, buf, bits)
+		buf, err = internal.ReadBits(buf, rand, bits)
 		if err != nil {
 			panic(err)
 		}

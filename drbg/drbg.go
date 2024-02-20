@@ -27,7 +27,7 @@ type args struct {
 
 	// ctr
 	ctrLen         int
-	reseedInterval int
+	reseedInterval uint64
 }
 
 func WithNonce(nonce []byte) DRBGOption {

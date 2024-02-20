@@ -4,13 +4,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build !purego
+
 // Package alias implements memory aliasing tests.
-// This code also exists as golang.org/x/crypto/internal/alias.
 package alias
 
 import "unsafe"
 
-// AnyOverlap reports whether x and y share memory at any (naliasaliasot necessarily
+// AnyOverlap reports whether x and y share memory at any (not necessarily
 // corresponding) index. The memory beyond the slice length is ignored.
 func AnyOverlap(x, y []byte) bool {
 	return len(x) > 0 && len(y) > 0 &&

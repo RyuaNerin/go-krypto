@@ -34,7 +34,7 @@ func NewHMACDRGB(
 	if strengthBits > outlen*8 {
 		return nil, errors.New("krypto/drbg: invalid strength")
 	}
-	if len(args.personalizationString) > hmacdrbg.MaxPersonalizationStringLength {
+	if uint64(len(args.personalizationString)) > hmacdrbg.MaxPersonalizationStringLength {
 		return nil, errors.New("krypto/drbg: personalization_string too long")
 	}
 
@@ -92,7 +92,7 @@ func (h *hmacDRGB) Generate(dst []byte, additionalInput []byte) (n int, err erro
 		return 0, errors.New("krypto/drbg: too many bits requested")
 	}
 
-	if len(additionalInput) > hmacdrbg.MaxAdditionalInputLength {
+	if uint64(len(additionalInput)) > hmacdrbg.MaxAdditionalInputLength {
 		return 0, errors.New("krypto/drbg: additional_input too long")
 	}
 

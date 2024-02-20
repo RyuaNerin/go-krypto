@@ -27,7 +27,7 @@ func CounterMode(prf PRF, key, label, context []byte, counterSize, length int) [
 	dst := make([]byte, length)
 
 	var Lr [8]byte
-	L := fillL(Lr[:], length*8)
+	L := fillL(Lr[:], uint64(length*8))
 	I := make([]byte, counterSize)
 
 	var K []byte
@@ -65,7 +65,7 @@ func FeedbackMode(prf PRF, key, label, context, iv []byte, counterSize, length i
 	dst := make([]byte, length)
 
 	var Lr [8]byte
-	L := fillL(Lr[:], length*8)
+	L := fillL(Lr[:], uint64(length*8))
 	I := make([]byte, counterSize)
 
 	K := bytes.Clone(iv)
@@ -103,7 +103,7 @@ func DoublePipeMode(prf PRF, key, label, context []byte, counterSize, length int
 	dst := make([]byte, length)
 
 	var Lr [8]byte
-	L := fillL(Lr[:], length*8)
+	L := fillL(Lr[:], uint64(length*8))
 	I := make([]byte, counterSize)
 
 	// off = 0
@@ -125,7 +125,7 @@ func DoublePipeMode(prf PRF, key, label, context []byte, counterSize, length int
 	return dst
 }
 
-func fillL(dst []byte, v int) []byte {
+func fillL(dst []byte, v uint64) []byte {
 	sz := 0
 
 	switch {
@@ -133,25 +133,25 @@ func fillL(dst []byte, v int) []byte {
 		sz = 1
 		dst[0] = byte(v)
 
-	case sz < 1<<16:
+	case v < 1<<16:
 		sz = 2
 		dst[0] = byte(v >> 8)
 		dst[1] = byte(v)
 
-	case sz < 1<<24:
+	case v < 1<<24:
 		sz = 3
 		dst[0] = byte(v >> 16)
 		dst[1] = byte(v >> 8)
 		dst[2] = byte(v)
 
-	case sz < 1<<32:
+	case v < 1<<32:
 		sz = 4
 		dst[0] = byte(v >> 24)
 		dst[1] = byte(v >> 16)
 		dst[2] = byte(v >> 8)
 		dst[3] = byte(v)
 
-	case sz < 1<<40:
+	case v < 1<<40:
 		sz = 5
 		dst[0] = byte(v >> 32)
 		dst[1] = byte(v >> 24)
@@ -159,7 +159,7 @@ func fillL(dst []byte, v int) []byte {
 		dst[3] = byte(v >> 8)
 		dst[4] = byte(v)
 
-	case sz < 1<<48:
+	case v < 1<<48:
 		sz = 6
 		dst[0] = byte(v >> 40)
 		dst[1] = byte(v >> 32)
@@ -168,7 +168,7 @@ func fillL(dst []byte, v int) []byte {
 		dst[4] = byte(v >> 8)
 		dst[5] = byte(v)
 
-	case sz < 1<<56:
+	case v < 1<<56:
 		sz = 7
 		dst[0] = byte(v >> 48)
 		dst[1] = byte(v >> 40)

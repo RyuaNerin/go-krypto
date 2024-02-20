@@ -10,6 +10,7 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/kcdsa"
+
 	"golang.org/x/crypto/cryptobyte"
 	cryptobyte_asn1 "golang.org/x/crypto/cryptobyte/asn1"
 )

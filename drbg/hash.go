@@ -32,7 +32,7 @@ func NewHashDRGB(
 	if strengthBits > h.BlockSize()*8 {
 		return nil, errors.New("krypto/drbg: invalid strength")
 	}
-	if len(args.personalizationString) > hashdrbg.MaxPersonalizationStringLength {
+	if uint64(len(args.personalizationString)) > hashdrbg.MaxPersonalizationStringLength {
 		return nil, errors.New("krypto/drbg: personalization_string too long")
 	}
 
@@ -90,7 +90,7 @@ func (h *hashDRGB) Generate(dst []byte, additionalInput []byte) (n int, err erro
 		return 0, errors.New("krypto/drbg: too many bits requested")
 	}
 
-	if len(additionalInput) > hashdrbg.MaxAdditionalInputLength {
+	if uint64(len(additionalInput)) > hashdrbg.MaxAdditionalInputLength {
 		return 0, errors.New("krypto/drbg: additional_input too long")
 	}
 

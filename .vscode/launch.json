@@ -14,11 +14,12 @@
             "args": []
         },
         {
-            "name": "Launch Package",
+            "name": "CAVP Package",
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${fileDirname}",
+            "program": "${workspaceFolder}/cmd/cavp",
+            "cwd": "${workspaceFolder}/cmd/cavp"
         }
     ]
 }

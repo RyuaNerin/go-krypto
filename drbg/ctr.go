@@ -17,7 +17,7 @@ func WithCTRLength(ctrLen int) CTRDRBGOption {
 		args.ctrLen = ctrLen
 	}
 }
-func WithCTRReseedInterval(reseedInterval int) CTRDRBGOption {
+func WithCTRReseedInterval(reseedInterval uint64) CTRDRBGOption {
 	return func(args *args) {
 		args.reseedInterval = reseedInterval
 	}
@@ -61,7 +61,7 @@ func New(
 			return nil, errors.New("krypto/drbg: additionalInput too long")
 		}
 	} else {
-		if len(args.personalizationString) > ctrdrbg.MaxAdditionalInputLength {
+		if uint64(len(args.personalizationString)) > ctrdrbg.MaxAdditionalInputLength {
 			return nil, errors.New("krypto/drbg: additionalInput too long")
 		}
 	}
@@ -133,7 +133,7 @@ func (h *ctrDRGB) Generate(dst []byte, additionalInput []byte) (n int, err error
 	}
 
 	if h.requireDerivationFunction {
-		if len(additionalInput) > ctrdrbg.MaxAdditionalInputLength {
+		if uint64(len(additionalInput)) > ctrdrbg.MaxAdditionalInputLength {
 			return 0, errors.New("krypto/drbg: additionalInput too long")
 		}
 	} else {
@@ -151,7 +151,7 @@ func (h *ctrDRGB) Reseed(additionalInput []byte) error {
 	}
 
 	if h.requireDerivationFunction {
-		if len(additionalInput) > ctrdrbg.MaxAdditionalInputLength {
+		if uint64(len(additionalInput)) > ctrdrbg.MaxAdditionalInputLength {
 			return errors.New("krypto/drbg: additionalInput too long")
 		}
 	} else {

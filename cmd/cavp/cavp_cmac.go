@@ -8,14 +8,8 @@ import (
 )
 
 func processCMAC(path, filename string) {
-	var fnCipher newCipher
-	for substr, v := range prefixBlocks {
-		if strings.Contains(filename, substr) {
-			fnCipher = v
-			break
-		}
-	}
-	if fnCipher == nil {
+	newCipher := getBlock(filename)
+	if newCipher == nil {
 		log.Println("Unknown algorithm: ", filename)
 		return
 	}
@@ -24,68 +18,69 @@ func processCMAC(path, filename string) {
 	defer cavp.Close()
 
 	switch {
-	case strings.HasSuffix(filename, "Gen.req"):
-		processCMAC_Gen(cavp, fnCipher)
-	case strings.HasSuffix(filename, "Ver.req"):
-		processCMAC_Ver(cavp, fnCipher)
+	case strings.HasSuffix(filename, "GEN.REQ"):
+		processCMAC_Gen(cavp, newCipher)
+
+	case strings.HasSuffix(filename, "VER.REQ"):
+		processCMAC_Ver(cavp, newCipher)
 
 	default:
 		log.Println("Unknown algorithm: ", filename)
 	}
 }
 
-func processCMAC_Gen(cavp *cavpProcessor, fnCipher newCipher) {
+func processCMAC_Gen(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 	buf := make([]byte, 0, 64)
 
 	for cavp.Next() {
 		cvl := cavp.ReadValues()
 
-		if cvl.Contains("K") {
+		if cvl.ContainsKey("K") {
 			K := cvl.Hex("K")
 			M := cvl.Hex("M")
 			TLen := cvl.Int("Tlen")
 
-			b, err := fnCipher(K)
+			b, err := newCipher(K)
 			if err != nil {
 				panic(err)
 			}
 
-			cmac := kipher.NewCMAC(b, TLen/8)
+			cmac := kipher.NewCMAC(b)
 			cmac.Write(M)
-			buf = cmac.Sum(buf[:0])
+			buf = cmac.Sum(buf[:0])[:TLen/8]
 
-			cvl = append(cvl, cavpValue{"T", hexStr(buf)})
+			cvl = append(cvl, cavpRow{"T", hexStr(buf), false})
 		}
 
 		cavp.WriteValues(cvl)
 	}
 }
 
-func processCMAC_Ver(cavp *cavpProcessor, fnCipher newCipher) {
+func processCMAC_Ver(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 	buf := make([]byte, 0, 64)
 
 	for cavp.Next() {
 		cvl := cavp.ReadValues()
 
-		if cvl.Contains("K") {
+		if cvl.ContainsKey("K") {
 			K := cvl.Hex("K")
 			M := cvl.Hex("M")
 			TLen := cvl.Int("Tlen")
 			T := cvl.Hex("T")
 
-			b, err := fnCipher(K)
+			b, err := newCipher(K)
 			if err != nil {
 				panic(err)
 			}
 
-			cmac := kipher.NewCMAC(b, TLen/8)
+			cmac := kipher.NewCMAC(b)
 			cmac.Write(M)
-			buf = cmac.Sum(buf[:0])
+			buf = cmac.Sum(buf[:0])[:TLen/8]
 
 			if kipher.Equal(buf, T) {
-				cvl = append(cvl, cavpValue{"", "VALID"})
+				cvl = append(cvl, cavpRow{"", "VALID", false})
 			} else {
-				cvl = append(cvl, cavpValue{"", "INVALID"})
+				cvl = append(cvl, cavpRow{"", "INVALID", false})
 			}
 		}
 
