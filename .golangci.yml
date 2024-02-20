@@ -1,0 +1,90 @@
+run:
+  concurrency: 16
+  timeout: 30s
+
+  skip-dirs:
+    - internal/golang.org
+
+  skip-files:
+    - "internal/randutil/*"
+    - "kipher/gcm_gostd.go"
+
+  go: '1.15'
+
+linters:
+  enable:
+    #- errcheck # checks unchecked errors
+    - gosimple # simplify code
+    - govet # examines Go source code and reports suspicious constructs
+    - ineffassign # detect unused assign
+    - staticcheck # cover Go vet edge cases
+    - typecheck # type-checks Go code
+    - unused # checks Go code for unused constants, variables, functions and types
+    - bidichk # checks for dangerous unicode character sequences
+    - bodyclose # checks whether HTTP response body is closed successfully
+    - contextcheck # check the function whether use a non-inherited context
+    #- dupl # code clone detection
+    - durationcheck # check for two durations multiplied together
+    - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
+    - errorlint # find code that will cause problems with the error wrapping scheme
+    - exportloopref # checks for pointers to enclosing loop variables
+    - goconst # finds repeated strings that could be replaced by a constant
+    - gocritic # provides diagnostics that check for bugs, performance and style issues
+    #- godot # check if comments end in a period
+    #- gofmt # checks whether code was gofmt-ed
+    - gofumpt # Gofumpt checks whether code was gofumpt-ed
+    - goimports # fix imports, formats your code in the same style as gofmt
+    - ifshort # checks that your code uses short syntax for if-statements whenever possible
+    - misspell # finds commonly misspelled English words in comments
+    - noctx # finds sending http request without context.Context
+    - predeclared # find code that shadows one of Go's predeclared identifiers
+    - revive # replacement of golint
+    - rowserrcheck # checks whether Err of rows is checked successfully
+    - sqlclosecheck # checks that sql.Rows and sql.Stmt are closed.
+    - unconvert # remove unnecessary type conversions
+    - wastedassign # finds wasted assignment statements.
+    - whitespace # tool for detection of leading and trailing whitespace
+    #- wrapcheck # check that errors from external packages are wrapped during return to help identify the error source.
+
+issues:
+  #fix: true  
+  max-same-issues: 0
+  max-issues-per-linter: 0
+  
+linters-settings:
+  godot:
+    scope: all
+
+  gofmt:
+    simplify: false
+
+  revive:  
+    rules:
+      - name: var-naming
+        disabled: true
+        exclude:
+          - internal/drbg
+        arguments:
+          - # AllowList
+            - "__.+"
+            - "LSH256_224"
+            - "LSH512_224"
+            - "LSH512_256"
+            - "LSH512_384"
+            - P
+            - Q
+            - G
+            - X
+            - Y
+            - J
+            - G
+            - H
+            - N
+            - V
+          - [ ] # DenyList
+          - - upperCaseConst: true
+
+  gocritic:
+    disabled-checks:
+      - commentFormatting
+      - captLocal
