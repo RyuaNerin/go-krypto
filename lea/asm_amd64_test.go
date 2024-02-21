@@ -29,6 +29,7 @@ func Test_Decrypt_8Blocks_AVX2(t *testing.T) { TA(t, as, tb(8, leaDec8Go, leaDec
 func Benchmark_Encrypt_4Blocks_SSE2(b *testing.B) {
 	BBDA(b, as, 0, 4*BlockSize, BIW(NewCipher), bb(leaEnc4SSE2), false)
 }
+
 func Benchmark_Decrypt_4Blocks_SSE2(b *testing.B) {
 	BBDA(b, as, 0, 4*BlockSize, BIW(NewCipher), bb(leaDec4SSE2), false)
 }
@@ -36,6 +37,7 @@ func Benchmark_Decrypt_4Blocks_SSE2(b *testing.B) {
 func Benchmark_Encrypt_8Blocks_AVX2(b *testing.B) {
 	BBDA(b, as, 0, 8*BlockSize, BIW(NewCipher), bb(leaEnc8AVX2), !hasAVX2)
 }
+
 func Benchmark_Decrypt_8Blocks_AVX2(b *testing.B) {
 	BBDA(b, as, 0, 8*BlockSize, BIW(NewCipher), bb(leaDec8AVX2), !hasAVX2)
 }

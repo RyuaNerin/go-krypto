@@ -20,38 +20,36 @@ type Domain struct {
 	NewHash func() hash.Hash
 }
 
-var (
-	paramValuesMap = map[int]Domain{
-		L2048N224SHA224: {
-			A:       2048,
-			B:       224,
-			LH:      28,
-			NewHash: sha256.New224,
-			L:       512,
-		},
-		L2048N224SHA256: {
-			A:       2048,
-			B:       224,
-			LH:      32,
-			NewHash: sha256.New,
-			L:       512,
-		},
-		L2048N256SHA256: {
-			A:       2048,
-			B:       256,
-			LH:      32,
-			NewHash: sha256.New,
-			L:       512,
-		},
-		L3072N256SHA256: {
-			A:       3072,
-			B:       256,
-			LH:      32,
-			NewHash: sha256.New,
-			L:       512,
-		},
-	}
-)
+var paramValuesMap = map[int]Domain{
+	L2048N224SHA224: {
+		A:       2048,
+		B:       224,
+		LH:      28,
+		NewHash: sha256.New224,
+		L:       512,
+	},
+	L2048N224SHA256: {
+		A:       2048,
+		B:       224,
+		LH:      32,
+		NewHash: sha256.New,
+		L:       512,
+	},
+	L2048N256SHA256: {
+		A:       2048,
+		B:       256,
+		LH:      32,
+		NewHash: sha256.New,
+		L:       512,
+	},
+	L3072N256SHA256: {
+		A:       3072,
+		B:       256,
+		LH:      32,
+		NewHash: sha256.New,
+		L:       512,
+	},
+}
 
 func GetDomain(sizes int) (Domain, bool) {
 	p, ok := paramValuesMap[sizes]

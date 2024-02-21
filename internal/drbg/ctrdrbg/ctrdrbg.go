@@ -22,14 +22,12 @@ const (
 	preallocBlock = 16
 )
 
-var (
-	cbcKey = []byte{
-		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, // 128
-		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, // 192
-		0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, // 256
-	}
-)
+var cbcKey = []byte{
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, // 128
+	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, // 192
+	0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, // 256
+}
 
 type State struct {
 	newCipher func(key []byte) (cipher.Block, error)
@@ -116,7 +114,7 @@ func (state *State) Block_Cipher_df(dst []byte, providedDataList ...[]byte) {
 		}
 
 		for _, inputData := range providedDataList {
-			inputData := inputData[:]
+			inputData := inputData
 			for len(inputData) > 0 {
 				n := subtle.XORBytes(block[inputIdx:], block[inputIdx:], inputData)
 				inputData = inputData[n:]
@@ -348,13 +346,13 @@ func (state *State) Generate_CTR_DRBG(dst []byte, getEntropy func() ([]byte, err
 
 		// 3) (V, Key ) ← CTR_DRBG_Update((V, Key ), additional_input)
 		state.CTR_DRBG_Update(additional_input)
-	} else {
+	} /** else {
 		// c) 추가 입력이 Null 이면, additional_input ← 0 ** seedlen
 		//additional_input = zeros[:state.SeedLenByte]
 		// CTR_DRBG_Update에서 providedData == nil 인 경우에도 성립.
 		//     subtle.XORBytes(temp, temp, nil) 하게되면 아무 작업 안되는데,
 		//     xor 0 일 때도 마찬가지로 아무 작업 안됨.
-	}
+	}*/
 
 	// d) temp ← Null
 	// e) num ← len_output

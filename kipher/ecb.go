@@ -19,6 +19,7 @@ func NewECBEncryptor(b cipher.Block) cipher.BlockMode {
 		process8: kb.Encrypt8,
 	}
 }
+
 func NewECBDecryptor(b cipher.Block) cipher.BlockMode {
 	kb, ok := b.(kryptoBlock)
 	if !ok {
@@ -43,6 +44,7 @@ type ecbEnc struct {
 func (ecb *ecbEnc) BlockSize() int {
 	return ecb.b.BlockSize()
 }
+
 func (ecb *ecbEnc) CryptBlocks(dst, src []byte) {
 	blockSize := ecb.BlockSize()
 

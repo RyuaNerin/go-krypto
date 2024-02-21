@@ -19,8 +19,8 @@ type prfHMAC struct {
 	h func() hash.Hash
 }
 
-func (hrf *prfHMAC) Sum(dst []byte, K []byte, src ...[]byte) []byte {
-	h := hmac.New(hrf.h, K)
+func (hrf *prfHMAC) Sum(dst, key []byte, src ...[]byte) []byte {
+	h := hmac.New(hrf.h, key)
 	for _, v := range src {
 		h.Write(v)
 	}
@@ -40,8 +40,8 @@ type prfCMAC struct {
 	cipher func(key []byte) (cipher.Block, error)
 }
 
-func (hrf *prfCMAC) Sum(dst []byte, K []byte, src ...[]byte) []byte {
-	b, err := hrf.cipher(K)
+func (hrf *prfCMAC) Sum(dst, key []byte, src ...[]byte) []byte {
+	b, err := hrf.cipher(key)
 	if err != nil {
 		panic(err)
 	}

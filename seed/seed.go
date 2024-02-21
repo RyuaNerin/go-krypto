@@ -19,11 +19,9 @@ func (k KeySizeError) Error() string {
 
 // NewCipher creates and returns a new cipher.Block. The key argument should be the SEED key, either 16 or 32 bytes to select SEED-128 or SEED-256.
 func NewCipher(key []byte) (cipher.Block, error) {
-	l := len(key)
-	switch l {
-	case 16:
-		return new128(key), nil
+	if l := len(key); l != 16 {
+		return nil, KeySizeError(l)
 	}
 
-	return nil, KeySizeError(l)
+	return new128(key), nil
 }

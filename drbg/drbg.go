@@ -17,7 +17,7 @@ type DRBG interface {
 
 var ErrUninstantiated = errors.New("krypto/drbg: state is uninstantiated")
 
-type DRBGOption func(args *args)
+type Option func(args *args)
 
 type args struct {
 	nonce                       []byte
@@ -30,22 +30,25 @@ type args struct {
 	reseedInterval uint64
 }
 
-func WithNonce(nonce []byte) DRBGOption {
+func WithNonce(nonce []byte) Option {
 	return func(args *args) {
 		args.nonce = nonce
 	}
 }
-func WithPersonalizationString(personalizationString []byte) DRBGOption {
+
+func WithPersonalizationString(personalizationString []byte) Option {
 	return func(args *args) {
 		args.personalizationString = personalizationString
 	}
 }
-func WithPredictionResistance(require bool) DRBGOption {
+
+func WithPredictionResistance(require bool) Option {
 	return func(args *args) {
 		args.requirePredictionResistance = require
 	}
 }
-func WithDerivationFunction(require bool) DRBGOption {
+
+func WithDerivationFunction(require bool) Option {
 	return func(args *args) {
 		args.requireDerivationFunction = require
 	}

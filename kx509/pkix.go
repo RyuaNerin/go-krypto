@@ -11,8 +11,8 @@ import (
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/kcdsa"
 
-	"golang.org/x/crypto/cryptobyte"
-	cryptobyte_asn1 "golang.org/x/crypto/cryptobyte/asn1"
+	"github.com/RyuaNerin/go-krypto/internal/golang.org/x/crypto/cryptobyte"
+	cryptobyte_asn1 "github.com/RyuaNerin/go-krypto/internal/golang.org/x/crypto/cryptobyte/asn1"
 )
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/x509.go#L58
@@ -33,7 +33,7 @@ func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error) {
 	rest, err := asn1.Unmarshal(derBytes, &pki)
 	if err == nil && len(rest) == 0 {
 		pub, err = parsePublicKey(&pki)
-		if err != errTryStd {
+		if !errors.Is(err, errTryStd) {
 			return
 		}
 	}
@@ -90,22 +90,6 @@ func marshalPublicKey(pub interface{}) (publicKeyBytes []byte, publicKeyAlgorith
 	return publicKeyBytes, publicKeyAlgorithm, nil
 }
 
-func addASN1IntBytes(b *cryptobyte.Builder, bytes []byte) {
-	for len(bytes) > 0 && bytes[0] == 0 {
-		bytes = bytes[1:]
-	}
-	if len(bytes) == 0 {
-		b.SetError(errors.New("invalid integer"))
-		return
-	}
-	b.AddASN1(cryptobyte_asn1.INTEGER, func(c *cryptobyte.Builder) {
-		if bytes[0]&0x80 != 0 {
-			c.AddUint8(0)
-		}
-		c.AddBytes(bytes)
-	})
-}
-
 // MarshalPKIXPublicKey converts a public key to PKIX, ASN.1 DER form.
 //
 // supported key types : *eckcdsa.PublicKey and *kcdsa.PublicKey.
@@ -119,7 +103,7 @@ func MarshalPKIXPublicKey(pub interface{}) ([]byte, error) {
 	var err error
 
 	publicKeyBytes, publicKeyAlgorithm, err = marshalPublicKey(pub)
-	if err == errTryStd {
+	if errors.Is(err, errTryStd) {
 		return x509.MarshalPKIXPublicKey(pub)
 	}
 	if err != nil {

@@ -1,8 +1,6 @@
 package aria
 
-var (
-	newCipher = newCipherGo
-)
+var newCipher = newCipherGo
 
 func init() {
 	if hasSSSE3 {

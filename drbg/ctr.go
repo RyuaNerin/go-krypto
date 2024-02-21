@@ -10,14 +10,15 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/drbg/ctrdrbg"
 )
 
-type CTRDRBGOption DRBGOption
+type CTROption Option
 
-func WithCTRLength(ctrLen int) CTRDRBGOption {
+func WithCTRLength(ctrLen int) CTROption {
 	return func(args *args) {
 		args.ctrLen = ctrLen
 	}
 }
-func WithCTRReseedInterval(reseedInterval uint64) CTRDRBGOption {
+
+func WithCTRReseedInterval(reseedInterval uint64) CTROption {
 	return func(args *args) {
 		args.reseedInterval = reseedInterval
 	}
@@ -39,7 +40,7 @@ func New(
 	newCipher func(key []byte) (cipher.Block, error),
 	keySize int, // Bytes
 	strengthBits int,
-	options ...CTRDRBGOption,
+	options ...CTROption,
 ) (DRBG, error) {
 	var args args
 	for _, v := range options {

@@ -24,6 +24,7 @@ func Test_ARIA256_Decrypt_SSSE3(t *testing.T) { BTD(t, BIW(newCipherAsm), CD, te
 func Benchmark_Encrypt_SSSE3(b *testing.B) {
 	BBDA(b, as, 0, BlockSize, BIW(newCipherAsm), CE, !hasSSSE3)
 }
+
 func Benchmark_Decrypt_SSSE3(b *testing.B) {
 	BBDA(b, as, 0, BlockSize, BIW(newCipherAsm), CD, !hasSSSE3)
 }

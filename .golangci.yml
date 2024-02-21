@@ -44,13 +44,16 @@ linters:
     - unconvert # remove unnecessary type conversions
     - wastedassign # finds wasted assignment statements.
     - whitespace # tool for detection of leading and trailing whitespace
+    - usestdlibvars # A linter that detect the possibility to use variables/constants from the Go standard library.
     #- wrapcheck # check that errors from external packages are wrapped during return to help identify the error source.
 
+    - prealloc
+
 issues:
-  #fix: true  
+  #fix: true
   max-same-issues: 0
   max-issues-per-linter: 0
-  
+
 linters-settings:
   godot:
     scope: all
@@ -58,33 +61,18 @@ linters-settings:
   gofmt:
     simplify: false
 
-  revive:  
+  revive:
     rules:
       - name: var-naming
         disabled: true
-        exclude:
-          - internal/drbg
-        arguments:
-          - # AllowList
-            - "__.+"
-            - "LSH256_224"
-            - "LSH512_224"
-            - "LSH512_256"
-            - "LSH512_384"
-            - P
-            - Q
-            - G
-            - X
-            - Y
-            - J
-            - G
-            - H
-            - N
-            - V
-          - [ ] # DenyList
-          - - upperCaseConst: true
 
   gocritic:
     disabled-checks:
       - commentFormatting
       - captLocal
+
+  gofumpt:
+    lang-version: "1.15"
+
+  goimports:
+    local-prefixes: github.com/RyuaNerin/go-krypto

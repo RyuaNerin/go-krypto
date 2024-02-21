@@ -19,8 +19,6 @@ func Test_ECDSA_TO_ECKCDSA(t *testing.T) {
 				t.Fail()
 				return
 			}
-
-			break
 		}
 	}
 }

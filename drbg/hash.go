@@ -22,7 +22,7 @@ func NewHashDRGB(
 	rand io.Reader,
 	h hash.Hash,
 	strengthBits int,
-	options ...DRBGOption,
+	options ...Option,
 ) (DRBG, error) {
 	var args args
 	for _, v := range options {

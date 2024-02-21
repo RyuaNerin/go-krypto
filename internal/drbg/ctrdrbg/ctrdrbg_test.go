@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	_ "embed"
 	"encoding/csv"
+	"errors"
 	"io"
 	"testing"
 
@@ -239,7 +240,7 @@ func TestCTRDRBG_B2(t *testing.T) {
 	for {
 		testCaseIdx++
 		records, err := r.Read()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 
@@ -247,9 +248,9 @@ func TestCTRDRBG_B2(t *testing.T) {
 			panic(err)
 		}
 		var (
-			algorithm             = records[0]        // A
-			useDerivationFunction = records[1] == "1" // B 유도 함수 사용
-			//description             = records[2]              // C
+			algorithm               = records[0]              // A
+			useDerivationFunction   = records[1] == "1"       // B 유도 함수 사용
+			description             = records[2]              // C
 			usePredictionResistance = records[3] == "1"       // D 예측 내성 사용
 			usePersonal             = records[4] == "1"       // E 개별화 문자열 사용
 			useAdditional           = records[5] == "1"       // F 추가 입력 사용
@@ -328,15 +329,12 @@ func TestCTRDRBG_B2(t *testing.T) {
 			return
 		}
 		if !bytes.Equal(dst, output1) {
-			/**
-			log.Printf(
+			t.Errorf(
 				"case %3d FAILED - output1 - %7s df:%5v  pr:%5v  p:%5v  a:%5v  i1:%5v  i2:%5v - %s\n",
 				testCaseIdx, algorithm,
 				useDerivationFunction, usePredictionResistance, usePersonal, useAdditional, refreshInterval1, refreshInterval2,
 				description,
 			)
-			*/
-			t.FailNow()
 			return
 		} else {
 			dst = internal.ResizeBuffer(dst, len(output2))
@@ -346,24 +344,14 @@ func TestCTRDRBG_B2(t *testing.T) {
 				return
 			}
 			if !bytes.Equal(dst, output2) {
-				/**
-				log.Printf(
+				t.Errorf(
 					"case %3d FAILED - output2 - %7s df:%5v  pr:%5v  p:%5v  a:%5v  i1:%5v  i2:%5v - %s\n",
 					testCaseIdx, algorithm,
 					useDerivationFunction, usePredictionResistance, usePersonal, useAdditional, refreshInterval1, refreshInterval2,
 					description,
 				)
-				*/
-				t.FailNow()
 				return
-			} /** else {
-				log.Printf(
-					"case %3d                  - %7s df:%5v  pr:%5v  p:%5v  a:%5v  i1:%5v  i2:%5v - %s\n",
-					testCaseIdx, algorithm,
-					useDerivationFunction, usePredictionResistance, usePersonal, useAdditional, refreshInterval1, refreshInterval2,
-					description,
-				)
-			}*/
+			}
 		}
 	}
 }

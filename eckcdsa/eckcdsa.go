@@ -15,21 +15,10 @@ import (
 
 var (
 	ErrParametersNotSetUp = errors.New("krypto/eckcdsa: parameters not set up before generating key")
-	ErrInvalidK           = errors.New("krypto/eckcdsa: use another K")
+	errInvalidK           = errors.New("krypto/eckcdsa: use another K")
 )
 
-type paramValues struct {
-	/**
-	MSB(S, L) 바이트 열 S의 맨 좌측 MSB_L 바이트
-	여기에서 MSB_L은 해시 함수 메시지 입력 블록 바이트 길이
-	*/
-	MSB_L int
-	K     int
-
-	NewHash func() hash.Hash
-}
-
-// Generate the paramters
+// Generate the parameters
 func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 	randutil.MaybeReadByte(randReader)
 
@@ -51,7 +40,7 @@ func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 }
 
 // Sign data using K generated randomly like in crypto/ecdsa packages.
-func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.Int, err error) {
+func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big.Int, err error) {
 	randutil.MaybeReadByte(rand)
 
 	if priv == nil || priv.Curve == nil || priv.X == nil || priv.Y == nil || priv.D == nil || !priv.Curve.IsOnCurve(priv.X, priv.Y) {
@@ -59,7 +48,7 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.In
 	}
 
 	h.Reset()
-	h.Write(M)
+	h.Write(data)
 	digest := h.Sum(nil)
 
 	csprng, err := randutil.MixedCSPRNG(rand, priv.D.Bytes(), digest)
@@ -75,8 +64,8 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.In
 			return
 		}
 
-		r, s, err = signUsingK(k, priv, h, M)
-		if err == ErrInvalidK {
+		r, s, err = signUsingK(k, priv, h, data)
+		if errors.Is(err, errInvalidK) {
 			continue
 		}
 
@@ -84,7 +73,7 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.In
 	}
 }
 
-func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.Int, err error) {
+func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big.Int, err error) {
 	curve := priv.Curve
 	curveParams := curve.Params()
 	n := curveParams.N
@@ -97,7 +86,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	xQ := priv.X
 	yQ := priv.Y
 
-	Lh_is_bigger_than_w := Lh > w
+	LhIsBiggerThanW := Lh > w
 	cQLen := L
 	if cQLen < 2*curveSize {
 		cQLen = 2 * curveSize
@@ -108,92 +97,92 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, M []byte) (r, s *big.
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// 2: kG = (x1, y1) 계산
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("2: kG   = (x1, y1) 계산")
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("2: kG   = (x1, y1) 계산")
 	x1, _ := curve.ScalarBaseMult(k.Bytes())
 	x1Bytes := tmp[:curveSize]
 	x1.FillBytes(x1Bytes)
-	//fmt.Println("kGx, x1 = 0x" + hex.EncodeToString(x1Bytes))
+	// fmt.Println("kGx, x1 = 0x" + hex.EncodeToString(x1Bytes))
 
 	// 3: r ← Hash(x1)
-	//해시 코드의 바이트 길이 LH가 w( = log256n)보다 큰 경우 r ← Hash(x1) 연산을 r ← Hash(x1) mod 2^8w로
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("3: r ← Hash(x1)")
-	//fmt.Println("kGx, x1 = 0x" + hex.EncodeToString(x1Bytes))
+	// 해시 코드의 바이트 길이 LH가 w( = log256n)보다 큰 경우 r ← Hash(x1) 연산을 r ← Hash(x1) mod 2^8w로
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("3: r ← Hash(x1)")
+	// fmt.Println("kGx, x1 = 0x" + hex.EncodeToString(x1Bytes))
 	h.Reset()
 	h.Write(x1Bytes)
 	rBytes := h.Sum(tmp[:0])
-	//fmt.Println("r       = 0x" + hex.EncodeToString(rBytes))
-	if Lh_is_bigger_than_w {
+	// fmt.Println("r       = 0x" + hex.EncodeToString(rBytes))
+	if LhIsBiggerThanW {
 		rBytes = rBytes[len(rBytes)-w:]
 	}
 	r = new(big.Int).SetBytes(rBytes)
-	//fmt.Println("r       = 0x" + hex.EncodeToString(r.Bytes()))
+	// fmt.Println("r       = 0x" + hex.EncodeToString(r.Bytes()))
 
 	// 4: cQ ← MSB(xQ ‖ yQ, L)
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("4: cQ ← MSB(xQ ‖ yQ, L)")
-	//fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
-	//fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("4: cQ ← MSB(xQ ‖ yQ, L)")
+	// fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
+	// fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
 	cQ := tmp[:cQLen]
 	xQ.FillBytes(cQ[:curveSize])
 	yQ.FillBytes(cQ[curveSize : curveSize*2])
 	cQ = cQ[:L]
-	//fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
+	// fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
 
 	// 5: v ← Hash(cQ ‖ M)
-	//해시 코드의 바이트 길이 LH가 w( = log256n)보다 큰 경우 v ← Hash(cQ ‖ M) 연산을 v ← Hash(cQ ‖ M) mod 2^(8w)로 대체한다
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("5: v ← Hash(cQ ‖ M)")
-	//fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
-	//fmt.Println("M  = 0x" + hex.EncodeToString(M))
+	// 해시 코드의 바이트 길이 LH가 w( = log256n)보다 큰 경우 v ← Hash(cQ ‖ M) 연산을 v ← Hash(cQ ‖ M) mod 2^(8w)로 대체한다
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("5: v ← Hash(cQ ‖ M)")
+	// fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
+	// fmt.Println("M  = 0x" + hex.EncodeToString(M))
 	h.Reset()
 	h.Write(cQ)
-	h.Write(M)
+	h.Write(data)
 	vBytes := h.Sum(tmp[:0])
-	if Lh_is_bigger_than_w {
+	if LhIsBiggerThanW {
 		vBytes = vBytes[len(vBytes)-w:]
 	}
 	v := new(big.Int).SetBytes(vBytes)
-	//fmt.Println("v  = 0x" + hex.EncodeToString(v.Bytes()))
+	// fmt.Println("v  = 0x" + hex.EncodeToString(v.Bytes()))
 
 	// 6: e ← (r ⊕ v) mod n
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("6: e ← (r ⊕ v) mod n")
-	//fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
-	//fmt.Println("v = 0x" + hex.EncodeToString(v.Bytes()))
-	//fmt.Println("n = 0x" + hex.EncodeToString(n.Bytes()))
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("6: e ← (r ⊕ v) mod n")
+	// fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
+	// fmt.Println("v = 0x" + hex.EncodeToString(v.Bytes()))
+	// fmt.Println("n = 0x" + hex.EncodeToString(n.Bytes()))
 	e := new(big.Int)
 	e.Mod(e.Xor(r, v), n)
-	//fmt.Println("e = 0x" + hex.EncodeToString(e.Bytes()))
+	// fmt.Println("e = 0x" + hex.EncodeToString(e.Bytes()))
 
 	// 7: t ← d(k - e) mod n
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("7: t ← d(k - e) mod n")
-	//fmt.Println("d = 0x" + hex.EncodeToString(d.Bytes()))
-	//fmt.Println("v = 0x" + hex.EncodeToString(v.Bytes()))
-	//fmt.Println("n = 0x" + hex.EncodeToString(n.Bytes()))
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("7: t ← d(k - e) mod n")
+	// fmt.Println("d = 0x" + hex.EncodeToString(d.Bytes()))
+	// fmt.Println("v = 0x" + hex.EncodeToString(v.Bytes()))
+	// fmt.Println("n = 0x" + hex.EncodeToString(n.Bytes()))
 	t := new(big.Int)
 	t.Mod(t.Sub(k, e), n)
 	t.Mod(t.Mul(d, t), n)
-	//fmt.Println("t = 0x" + hex.EncodeToString(t.Bytes()))
+	// fmt.Println("t = 0x" + hex.EncodeToString(t.Bytes()))
 
-	//8: 만약 t = 0이면 단계 1로 간다.
+	// 8: 만약 t = 0이면 단계 1로 간다.
 	if t.Sign() <= 0 {
-		return nil, nil, ErrInvalidK
+		return nil, nil, errInvalidK
 	}
 
-	//9: t를 길이 w의 바이트 열 s로 변환
-	//fmt.Println("--------------------------------------------------")
+	// 9: t를 길이 w의 바이트 열 s로 변환
+	// fmt.Println("--------------------------------------------------")
 	s = t
-	//fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
-	//fmt.Println("s = 0x" + hex.EncodeToString(s.Bytes()))
+	// fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
+	// fmt.Println("s = 0x" + hex.EncodeToString(s.Bytes()))
 
-	//10: Σ = (r, s)를 반환
+	// 10: Σ = (r, s)를 반환
 	return r, s, nil
 }
 
-func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
+func Verify(pub *PublicKey, h hash.Hash, data []byte, r, s *big.Int) bool {
 	if pub == nil || pub.Curve == nil || pub.X == nil || pub.Y == nil || !pub.Curve.IsOnCurve(pub.X, pub.Y) {
 		return false
 	}
@@ -212,7 +201,7 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	xQ := pub.X
 	yQ := pub.Y
 
-	Lh_is_bigger_than_w := Lh > w
+	LhIsBiggerThanW := Lh > w
 	cQLen := L
 	if cQLen < 2*curveSize {
 		cQLen = 2 * curveSize
@@ -230,7 +219,7 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	if r.Sign() <= 0 {
 		return false
 	}
-	if Lh_is_bigger_than_w {
+	if LhIsBiggerThanW {
 		if internal.Bytes(r.BitLen()) > curveSize {
 			return false
 		}
@@ -244,75 +233,75 @@ func Verify(pub *PublicKey, h hash.Hash, M []byte, r, s *big.Int) bool {
 	}
 
 	// 2: cQ ← MSB(xQ ‖ yQ, L)
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("2: cQ ← MSB(xQ ‖ yQ, L)")
-	//fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
-	//fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("2: cQ ← MSB(xQ ‖ yQ, L)")
+	// fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
+	// fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
 	cQ := tmp[:cQLen]
 	xQ.FillBytes(cQ[:curveSize])
 	yQ.FillBytes(cQ[curveSize : curveSize*2])
 	cQ = cQ[:L]
-	//fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
+	// fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
 
 	// 3: v′ ← Hash(cQ ‖ M′)
 	// 해시 코드의 바이트 길이 LH가 w( = log256n)보다 큰 경우 단계 3의 v′ ← Hash(cQ ‖ M′) 연산을 v′ ← Hash(cQ ‖ M′) mod 2^(8w) 으로
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("3: v′ ← Hash(cQ ‖ M′)")
-	//fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
-	//fmt.Println("M  = 0x" + hex.EncodeToString(M))
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("3: v′ ← Hash(cQ ‖ M′)")
+	// fmt.Println("cQ = 0x" + hex.EncodeToString(cQ))
+	// fmt.Println("M  = 0x" + hex.EncodeToString(M))
 	h.Reset()
 	h.Write(cQ)
-	h.Write(M)
+	h.Write(data)
 	vBytes := h.Sum(tmp[:0])
-	//fmt.Println("v  = 0x" + hex.EncodeToString(vBytes))
-	if Lh_is_bigger_than_w {
+	// fmt.Println("v  = 0x" + hex.EncodeToString(vBytes))
+	if LhIsBiggerThanW {
 		vBytes = vBytes[len(vBytes)-w:]
 	}
-	//fmt.Println("v  = 0x" + hex.EncodeToString(vBytes))
+	// fmt.Println("v  = 0x" + hex.EncodeToString(vBytes))
 	v := new(big.Int).SetBytes(vBytes)
 
 	// 4: e′ ← (r′ ⊕ v′) mod n
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("4: e′ ← (r′ ⊕ v′) mod n")
-	//fmt.Println("r  = 0x" + hex.EncodeToString(r.Bytes()))
-	//fmt.Println("v  = 0x" + hex.EncodeToString(v.Bytes()))
-	//fmt.Println("n  = 0x" + hex.EncodeToString(n.Bytes()))
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("4: e′ ← (r′ ⊕ v′) mod n")
+	// fmt.Println("r  = 0x" + hex.EncodeToString(r.Bytes()))
+	// fmt.Println("v  = 0x" + hex.EncodeToString(v.Bytes()))
+	// fmt.Println("n  = 0x" + hex.EncodeToString(n.Bytes()))
 	e := new(big.Int).Xor(r, v)
-	//fmt.Println("e  = 0x" + hex.EncodeToString(e.Bytes()))
+	// fmt.Println("e  = 0x" + hex.EncodeToString(e.Bytes()))
 	e.Mod(e, n)
-	//fmt.Println("e% = 0x" + hex.EncodeToString(e.Bytes()))
+	// fmt.Println("e% = 0x" + hex.EncodeToString(e.Bytes()))
 
 	// 5: (x2, y2) ← t′Q + e′G
 	//		Q : 서명자의 검증키
 	//		G : EC-KCDSA 도메인 변수의 하나로, EC-KCDSA는 기본점 G에 의해 생성되는 타원 곡선 부분군에서 정의
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("5: (x2, y2) ← t′Q + e′G")
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("5: (x2, y2) ← t′Q + e′G")
 	tQx, tQy := curve.ScalarMult(pub.X, pub.Y, t.Bytes())
 	eGx, eGy := curve.ScalarBaseMult(e.Bytes())
 	x2, _ := curve.Add(tQx, tQy, eGx, eGy)
 	x2Bytes := tmp[:curveSize]
 	x2.FillBytes(x2Bytes)
 
-	//fmt.Println("tQ.x  = 0x" + hex.EncodeToString(tQx.Bytes()))
-	//fmt.Println("tQ.y  = 0x" + hex.EncodeToString(tQy.Bytes()))
-	//fmt.Println("eG.x  = 0x" + hex.EncodeToString(eGx.Bytes()))
-	//fmt.Println("eG.y  = 0x" + hex.EncodeToString(eGy.Bytes()))
-	//fmt.Println("x2    = 0x" + hex.EncodeToString(x2Bytes))
+	// fmt.Println("tQ.x  = 0x" + hex.EncodeToString(tQx.Bytes()))
+	// fmt.Println("tQ.y  = 0x" + hex.EncodeToString(tQy.Bytes()))
+	// fmt.Println("eG.x  = 0x" + hex.EncodeToString(eGx.Bytes()))
+	// fmt.Println("eG.y  = 0x" + hex.EncodeToString(eGy.Bytes()))
+	// fmt.Println("x2    = 0x" + hex.EncodeToString(x2Bytes))
 
 	// 6: Hash(x2′) = r′ 여부 확인
 	// 해시 코드의 바이트 길이 LH가 w( = log256n)보다 큰 경우 단계 6의 Hash(x2′) = r′ 연산을 Hash(x2′) mod 2^(8w) = r′로 대체한다.
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("6: Hash(x2′) = r′ 여부 확인")
-	//fmt.Println("x2 = 0x" + hex.EncodeToString(x2Bytes))
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("6: Hash(x2′) = r′ 여부 확인")
+	// fmt.Println("x2 = 0x" + hex.EncodeToString(x2Bytes))
 	h.Reset()
 	h.Write(x2Bytes)
 	rBytes := h.Sum(tmp[:0])
-	if Lh_is_bigger_than_w {
+	if LhIsBiggerThanW {
 		rBytes = rBytes[len(rBytes)-w:]
 	}
 	r2 := new(big.Int).SetBytes(rBytes)
-	//fmt.Println("r2 = 0x" + hex.EncodeToString(r2.Bytes()))
-	//fmt.Println("r  = 0x" + hex.EncodeToString(r.Bytes()))
+	// fmt.Println("r2 = 0x" + hex.EncodeToString(r2.Bytes()))
+	// fmt.Println("r  = 0x" + hex.EncodeToString(r.Bytes()))
 
 	return internal.BigIntEqual(r, r2)
 }

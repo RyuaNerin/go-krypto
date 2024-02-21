@@ -8,7 +8,6 @@ import (
 	"hash"
 	"strings"
 
-	"github.com/RyuaNerin/elliptic2/nist"
 	"github.com/RyuaNerin/go-krypto/aria"
 	"github.com/RyuaNerin/go-krypto/hight"
 	"github.com/RyuaNerin/go-krypto/kcdsa"
@@ -16,6 +15,8 @@ import (
 	"github.com/RyuaNerin/go-krypto/lsh256"
 	"github.com/RyuaNerin/go-krypto/lsh512"
 	"github.com/RyuaNerin/go-krypto/seed"
+
+	"github.com/RyuaNerin/elliptic2/nist"
 )
 
 type HashInfo struct {

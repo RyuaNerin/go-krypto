@@ -6,11 +6,9 @@ import (
 	. "github.com/RyuaNerin/testingutil"
 )
 
-var (
-	as = []CipherSize{
-		{Name: "128", Size: 128},
-	}
-)
+var as = []CipherSize{
+	{Name: "128", Size: 128},
+}
 
 func Test_SEED_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases128, false) }
 func Test_SEED_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases128, false) }

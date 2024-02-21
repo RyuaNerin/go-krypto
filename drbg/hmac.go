@@ -22,7 +22,7 @@ func NewHMACDRGB(
 	rand io.Reader,
 	h func() hash.Hash,
 	strengthBits int,
-	options ...DRBGOption,
+	options ...Option,
 ) (DRBG, error) {
 	var args args
 	for _, v := range options {
@@ -38,9 +38,9 @@ func NewHMACDRGB(
 		return nil, errors.New("krypto/drbg: personalization_string too long")
 	}
 
-	security_strength := hmacdrbg.GetSecurityStrength(strengthBits)
+	securityStrength := hmacdrbg.GetSecurityStrength(strengthBits)
 
-	entropy := newEntropy(rand, security_strength, security_strength*3)
+	entropy := newEntropy(rand, securityStrength, securityStrength*3)
 	entropyInput, err := entropy.Get()
 	if err != nil {
 		return nil, err

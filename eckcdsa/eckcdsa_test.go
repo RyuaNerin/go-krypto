@@ -10,8 +10,9 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/RyuaNerin/elliptic2/nist"
 	"github.com/RyuaNerin/go-krypto/internal"
+
+	"github.com/RyuaNerin/elliptic2/nist"
 )
 
 var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)

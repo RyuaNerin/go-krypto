@@ -16,6 +16,7 @@ import (
 func Benchmark_BlockMode_CBC_Decrypt_Std(b *testing.B) {
 	BA(b, as, benchCBC(newCipherSimple, cipher.NewCBCDecrypter), false)
 }
+
 func Benchmark_BlockMode_CBC_Decrypt_Asm(b *testing.B) {
 	BA(b, as, benchCBC(NewCipher, cipher.NewCBCDecrypter), false)
 }
@@ -23,6 +24,7 @@ func Benchmark_BlockMode_CBC_Decrypt_Asm(b *testing.B) {
 func Benchmark_BlockMode_CTR_Std(b *testing.B) {
 	BA(b, as, benchCTR(newCipherSimple), false)
 }
+
 func Benchmark_BlockMode_CTR_Krypto(b *testing.B) {
 	BA(b, as, benchCTR(NewCipher), false)
 }

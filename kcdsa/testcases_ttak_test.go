@@ -10,10 +10,11 @@ import (
 )
 
 func Test_Verify_TestVectors(t *testing.T) {
-	testVerify(t, testCase_TestVector)
+	testVerify(t, testCaseTTAK)
 }
+
 func Test_Sign_Verify_TestVectors(t *testing.T) {
-	for idx, tc := range testCase_TestVector {
+	for idx, tc := range testCaseTTAK {
 		K := tc.KKEY
 
 		priv := PrivateKey{
@@ -62,9 +63,9 @@ func Test_TTAK_GenerateJ(t *testing.T) {
 	var ok bool
 
 	J := new(big.Int)
-	for _, tc := range testCase_TestVector {
+	for _, tc := range testCaseTTAK {
 		d, _ := kcdsainternal.GetDomain(int(tc.Sizes))
-		buf, ok = kcdsainternal.GenerateJ(J, buf, tc.Seed_, d.NewHash(), d)
+		buf, ok = kcdsainternal.GenerateJ(J, buf, tc.Seedb, d.NewHash(), d)
 		if !ok {
 			t.Fail()
 			return
@@ -89,9 +90,9 @@ func Test_TTAK_GeneratePQ(t *testing.T) {
 	P := new(big.Int)
 	Q := new(big.Int)
 
-	for _, tc := range testCase_TestVector {
+	for _, tc := range testCaseTTAK {
 		d, _ := kcdsainternal.GetDomain(int(tc.Sizes))
-		buf, count, ok = kcdsainternal.GeneratePQ(P, Q, buf, tc.J, tc.Seed_, d.NewHash(), d)
+		buf, count, ok = kcdsainternal.GeneratePQ(P, Q, buf, tc.J, tc.Seedb, d.NewHash(), d)
 		if !ok {
 			t.Fail()
 			return
@@ -115,7 +116,7 @@ func Test_TTAK_GenerateHG(t *testing.T) {
 	H := new(big.Int)
 	G := new(big.Int)
 
-	for _, tc := range testCase_TestVector {
+	for _, tc := range testCaseTTAK {
 		buf, err = kcdsainternal.GenerateHG(H, G, buf, rand.Reader, tc.P, tc.J)
 		if err != nil {
 			t.Error(err)
@@ -131,7 +132,7 @@ func Test_TTAK_GenerateG(t *testing.T) {
 	}
 
 	G := new(big.Int)
-	for _, tc := range testCase_TestVector {
+	for _, tc := range testCaseTTAK {
 		ok := kcdsainternal.GenerateG(G, tc.P, tc.J, new(big.Int).SetBytes(tc.H))
 		if !ok {
 			t.Fail()
@@ -150,11 +151,11 @@ func Test_RegenerateParametersTTAK(t *testing.T) {
 		return
 	}
 
-	for _, tc := range testCase_TestVector {
+	for _, tc := range testCaseTTAK {
 		params := Parameters{
 			TTAKParams: TTAKParameters{
 				J:     tc.J,
-				Seed:  tc.Seed_,
+				Seed:  tc.Seedb,
 				Count: tc.Count,
 			},
 		}
@@ -177,7 +178,7 @@ func Test_TTAK_GenerateKey(t *testing.T) {
 		return
 	}
 
-	for _, tc := range testCase_TestVector {
+	for _, tc := range testCaseTTAK {
 		priv := PrivateKey{
 			PublicKey: PublicKey{
 				Parameters: Parameters{
@@ -215,14 +216,14 @@ var (
 		6f 72 20 4b 43 44 53 41 20 75 73 61 67 65 21`)
 
 	// samples in TTAK.KO-12.0001/R4
-	testCase_TestVector = []testCase{
+	testCaseTTAK = []testCase{
 		// p.30
 		// Ⅱ.1 소수 p, q의 길이 (α, β) = (2048, 224), SHA-224 적용 예
 		{
 			Sizes: L2048N224SHA224,
 			M:     M,
 
-			Seed_: internal.HB(`c0 52 a2 76 41 00 f0 f4 ec 90 6b 9c 5c 6b 10 6e 34 70 df c1 36 9f
+			Seedb: internal.HB(`c0 52 a2 76 41 00 f0 f4 ec 90 6b 9c 5c 6b 10 6e 34 70 df c1 36 9f
 								12 c0 62 f8 0e e9`),
 			J: internal.HI(`870145cb 93f25fb2 9509261c 4510929e b5451582 b0fede90 54a45927 2b87bd40
 							0c7005d1 a7eae156 8d3e2600 f7d0e0ad 74e5a2fe 88ae771d e1dd2652 be027d59
@@ -285,7 +286,7 @@ var (
 			Sizes: L2048N224SHA256,
 			M:     M,
 
-			Seed_: internal.HB(`e1 75 ca d0 ea cb 74 dd b4 5f 15 f1 f2 57 22 bf 15 56 ef 86 0a 0f e0
+			Seedb: internal.HB(`e1 75 ca d0 ea cb 74 dd b4 5f 15 f1 f2 57 22 bf 15 56 ef 86 0a 0f e0
 								31 71 18 44 9b`),
 			J: internal.HI(`853cd825 d245b074 cbc4f83d f6a9f182 4591223b ef5aafe9 5b0c14fc 6e63fc86
 							2f6233ac e777dc96 530b6830 0050adb0 7caf66b6 cf68bdc7 2c0053ac 2a9a02b9
@@ -348,7 +349,7 @@ var (
 			Sizes: L2048N256SHA256,
 			M:     M,
 
-			Seed_: internal.HB(`f7 5a bd a0 03 2c e2 18 ce 04 ba f0 a6 dc 92 c8 7e b4 6a a0 56 8c 42
+			Seedb: internal.HB(`f7 5a bd a0 03 2c e2 18 ce 04 ba f0 a6 dc 92 c8 7e b4 6a a0 56 8c 42
 								78 2e 64 4c c2 b8 2e 24 9a`),
 			J: internal.HI(`804e0d9f 553ee7d2 3d093a41 cfdc7ef9 cc389257 f6a67cfc 392e06b9 b292899c
 							1d7e8163 9d48603d f18ec5fb 5e7833dc af967568 2c1491e9 366dc57e 9e20cd9c
@@ -410,7 +411,7 @@ var (
 			Sizes: L3072N256SHA256,
 			M:     M,
 
-			Seed_: internal.HB(`b8 56 20 16 38 55 a7 c0 05 76 13 dc d1 f2 ae 61 80 c4 34 d0 98 90 ea
+			Seedb: internal.HB(`b8 56 20 16 38 55 a7 c0 05 76 13 dc d1 f2 ae 61 80 c4 34 d0 98 90 ea
 								70 22 00 83 f2 8d 27 54 ad`),
 			J: internal.HI(`85eee24d 8bc775c7 adab8963 9c4013f6 ad8f98c8 350bcd4d db7ed3ca 1e56bd46
 							97fdb8aa 9896e1de 0514d829 6c47d0db 8a68bbb0 1b6b4ffd 400c4cf0 c14d2d01

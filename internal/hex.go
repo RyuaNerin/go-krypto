@@ -11,11 +11,12 @@ func H(s string) string {
 	sb.Grow(len(s))
 	s = strings.TrimPrefix(s, "0x")
 	for _, c := range s {
-		if '0' <= c && c <= '9' {
+		switch {
+		case '0' <= c && c <= '9':
 			sb.WriteRune(c)
-		} else if 'a' <= c && c <= 'f' {
+		case 'a' <= c && c <= 'f':
 			sb.WriteRune(c)
-		} else if 'A' <= c && c <= 'F' {
+		case 'A' <= c && c <= 'F':
 			sb.WriteRune(c)
 		}
 	}

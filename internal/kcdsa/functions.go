@@ -15,22 +15,22 @@ func GenerateJ(
 	seed []byte,
 	h hash.Hash,
 	d Domain,
-) (UBytes []byte, ok bool) {
+) (bufNew []byte, ok bool) {
 	// 2: Seed를 일방향 함수 PPGF의 입력으로 하여 비트 길이가 n = (α - β - 4)인 난수 U를 생성한다.
 	// (U ← PPGF(Seed, n))
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("U ← PPGF(Seed, n)")
-	UBytes = ppgf(buf, d.A-d.B-4, h, seed)
-	//fmt.Println("U = 0x" + hex.EncodeToString(UBytes2))
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("U ← PPGF(Seed, n)")
+	bufNew = ppgf(buf, d.A-d.B-4, h, seed)
+	// fmt.Println("U = 0x" + hex.EncodeToString(UBytes2))
 
 	// 3: U의 상위에 4 비트 '1000'을 붙이고 최하위 비트는 1로 만들어 이를 J로 둔다.
 	// (J ← 2^(α-β-1) ∨ U ∨ 1)
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("J ← 2^(α-β-1) ∨ U ∨ 1")
-	UBytes[len(UBytes)-1] |= 1
-	J.SetBytes(UBytes)
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("J ← 2^(α-β-1) ∨ U ∨ 1")
+	bufNew[len(bufNew)-1] |= 1
+	J.SetBytes(bufNew)
 	J.SetBit(J, d.A-d.B-1, 1)
-	//fmt.Println("J = 0x" + hex.EncodeToString(J.Bytes()))
+	// fmt.Println("J = 0x" + hex.EncodeToString(J.Bytes()))
 
 	// 4: 강한 소수 판정 알고리즘으로 J를 판정하여 소수가 아니면 단계 1로 간다.
 	if !J.ProbablyPrime(internal.NumMRTests) {
@@ -48,13 +48,13 @@ func GeneratePQ(
 	seed []byte,
 	h hash.Hash,
 	d Domain,
-) (UBytes []byte, count int, ok bool) {
+) (bufNew []byte, count int, ok bool) {
 	// 5: Count를 0으로 둔다. (Count ← 0)
 	count = 0
 
 	var countB [4]byte
 
-	UBytes = internal.ResizeBuffer(buf, internal.Bytes(d.B))
+	bufNew = internal.ResizeBuffer(buf, internal.Bytes(d.B))
 
 	// 7: Count > 2^24이면 단계 1로 간다.
 	for count <= (1 << 24) {
@@ -64,12 +64,12 @@ func GeneratePQ(
 
 		// 8: Seed에 Count를 연접한 것을 일방향 함수 PPGF의 입력으로 하여 비트 길이가
 		// β인 난수 UBytes를 생성한다. (UBytes ← PPGF(Seed ‖ Count, β))
-		UBytes = ppgf(UBytes, d.B, h, seed, countB[:])
+		bufNew = ppgf(bufNew, d.B, h, seed, countB[:])
 
 		// 9: U의 최상위 및 최하위 비트를 1로 만들어 이를 q로 둔다.
 		// (q ← 2^(β-1) ∨ U ∨ 1)
-		UBytes[len(UBytes)-1] |= 1
-		Q.SetBytes(UBytes)
+		bufNew[len(bufNew)-1] |= 1
+		Q.SetBytes(bufNew)
 		Q.SetBit(Q, d.B-1, 1)
 
 		// 10: p ← (2Jq + 1)의 비트 길이가 α보다 길면 단계 6으로 간다.
@@ -122,6 +122,7 @@ func GenerateHG(
 		return
 	}
 }
+
 func GenerateG(
 	G *big.Int,
 	///////////////
@@ -133,23 +134,19 @@ func GenerateG(
 	G.Exp(H, G, P)
 
 	// 3: g = 1이면 단계 1로 간다.
-	if G.Cmp(internal.One) == 0 {
-		return false
-	}
-
-	return true
+	return G.Cmp(internal.One) != 0
 }
 
 func GenerateX(Q *big.Int, upri, xkey []byte, h hash.Hash, d Domain) (X *big.Int) {
 	// 3: XSEEDj ← PPGF(user_provided_random_input, b)
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("3: XSEEDj ← PPGF(user_provided_random_input, b)")
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("3: XSEEDj ← PPGF(user_provided_random_input, b)")
 	xseed := ppgf(nil, d.B, h, upri)
-	//fmt.Println("xseed = 0x" + hex.EncodeToString(xseed))
+	// fmt.Println("xseed = 0x" + hex.EncodeToString(xseed))
 
 	// 4: XVAL ← (XKEY + XSEEDj) mod 2^b
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("4: XVAL ← (XKEY + XSEEDj) mod 2^b")
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("4: XVAL ← (XKEY + XSEEDj) mod 2^b")
 	var carry int
 	xval := make([]byte, internal.Bytes(d.B))
 	for i := 0; i < len(xseed); i++ {
@@ -164,15 +161,15 @@ func GenerateX(Q *big.Int, upri, xkey []byte, h hash.Hash, d Domain) (X *big.Int
 		carry = sum >> 8
 	}
 	xval = internal.RightMost(xval, d.B)
-	//fmt.Println("xval = 0x" + hex.EncodeToString(xval.Bytes()))
+	// fmt.Println("xval = 0x" + hex.EncodeToString(xval.Bytes()))
 
 	// 5: xj ← PPGF(XVAL, b) mod q
-	//fmt.Println("--------------------------------------------------")
-	//fmt.Println("5: xj ← PPGF(XVAL, b) mod q")
+	// fmt.Println("--------------------------------------------------")
+	// fmt.Println("5: xj ← PPGF(XVAL, b) mod q")
 	tmp := xseed
 	X = new(big.Int).SetBytes(ppgf(tmp, d.B, h, xval))
 	X.Mod(X, Q)
-	//fmt.Println("X = 0x" + hex.EncodeToString(X.Bytes()))
+	// fmt.Println("X = 0x" + hex.EncodeToString(X.Bytes()))
 
 	return X
 }

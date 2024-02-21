@@ -8,12 +8,6 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-type cmacTestCase struct {
-	K, M []byte
-	Tlen int
-	T    []byte
-}
-
 func TestCMAC_SEED(t *testing.T) {
 	K := internal.HB(`00112233445566778899aabbccddeeff`)
 	M := internal.HB(`000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f`)

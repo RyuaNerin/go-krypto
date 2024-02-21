@@ -8,9 +8,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-var (
-	byteOrder binary.ByteOrder
-)
+var byteOrder binary.ByteOrder
 
 func init() {
 	if internal.IsLittleEndian {

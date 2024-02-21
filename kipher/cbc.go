@@ -38,7 +38,7 @@ type cbc2 struct {
 }
 
 func (b *cbc2) BlockSize() int {
-	return b.BlockSize()
+	return b.b.BlockSize()
 }
 
 func (b *cbc2) CryptBlocks(dst, src []byte) {

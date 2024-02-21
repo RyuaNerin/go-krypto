@@ -18,7 +18,7 @@ type testCase struct {
 
 	M []byte
 
-	Seed_ []byte
+	Seedb []byte
 	J     *big.Int
 	Count int
 	P, Q  *big.Int
@@ -37,18 +37,16 @@ type testCase struct {
 	Fail bool
 }
 
-var (
-	as = []CipherSize{
-		{Name: "L2048 N224 SHA224", Size: int(L2048N224SHA224)},
-		{Name: "L2048 N224 SHA256", Size: int(L2048N224SHA256)},
-		{Name: "L2048 N256 SHA256", Size: int(L2048N256SHA256)},
-		{Name: "L3072 N256 SHA256", Size: int(L3072N256SHA256)},
-	}
-)
+var as = []CipherSize{
+	{Name: "L2048 N224 SHA224", Size: int(L2048N224SHA224)},
+	{Name: "L2048 N224 SHA256", Size: int(L2048N224SHA256)},
+	{Name: "L2048 N256 SHA256", Size: int(L2048N256SHA256)},
+	{Name: "L3072 N256 SHA256", Size: int(L3072N256SHA256)},
+}
 
 func Test_SignVerify_With_BadPublicKey(t *testing.T) {
-	for idx, tc := range testCase_TestVector {
-		tc2 := testCase_TestVector[(idx+1)%len(testCase_TestVector)]
+	for idx, tc := range testCaseTTAK {
+		tc2 := testCaseTTAK[(idx+1)%len(testCaseTTAK)]
 
 		pub := PublicKey{
 			Parameters: Parameters{
@@ -95,6 +93,7 @@ func Test_Signing_With_DegenerateKeys(t *testing.T) {
 		}
 	}
 }
+
 func Test_KCDSA(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping parameter generation test in short mode")
@@ -106,7 +105,7 @@ func Test_KCDSA(t *testing.T) {
 	testKCDSA(t, L3072N256SHA256, 3072, 256)
 }
 
-func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int) {
+func testKCDSA(t *testing.T, sizes ParameterSizes, l, n int) {
 	var priv PrivateKey
 	params := &priv.Parameters
 
@@ -116,13 +115,13 @@ func testKCDSA(t *testing.T, sizes ParameterSizes, L, N int) {
 		return
 	}
 
-	if params.P.BitLen() > L {
-		t.Errorf("%d: params.BitLen got:%d want:%d", int(sizes), params.P.BitLen(), L)
+	if params.P.BitLen() > l {
+		t.Errorf("%d: params.BitLen got:%d want:%d", int(sizes), params.P.BitLen(), l)
 		return
 	}
 
-	if params.Q.BitLen() > N {
-		t.Errorf("%d: q.BitLen got:%d want:%d", int(sizes), params.Q.BitLen(), L)
+	if params.Q.BitLen() > n {
+		t.Errorf("%d: q.BitLen got:%d want:%d", int(sizes), params.Q.BitLen(), l)
 		return
 	}
 

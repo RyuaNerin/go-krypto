@@ -63,7 +63,7 @@ func (ctx *has160Context) Reset() {
 }
 
 func (ctx *has160Context) Write(p []byte) (n int, err error) {
-	if p == nil || len(p) == 0 {
+	if len(p) == 0 {
 		return
 	}
 

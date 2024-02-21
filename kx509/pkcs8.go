@@ -113,6 +113,7 @@ func marshalPKCS8PrivateKeyECKCDSA(privKey *pkcs8, k *eckcdsa.PrivateKey) error 
 
 	return nil
 }
+
 func marshalPKCS8PrivateKeyKCDSA(privKey *pkcs8, k *kcdsa.PrivateKey) error {
 	paramBytes, err := asn1.Marshal(kcdsaParameters{
 		P: k.P,

@@ -38,7 +38,7 @@ func (ps ParameterSizes) Hash() hash.Hash {
 	return domain.NewHash()
 }
 
-// Generate the paramters
+// Generate the parameters
 func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
 	domain, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
@@ -84,7 +84,7 @@ func RegenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSiz
 		params.TTAKParams.Seed,
 		params.TTAKParams.Count,
 	)
-	if err == kcdsainternal.ErrInvalidTTAKParameters {
+	if errors.Is(err, kcdsainternal.ErrInvalidTTAKParameters) {
 		return ErrInvalidTTAKParameters
 	}
 

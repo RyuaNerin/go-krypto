@@ -10,8 +10,7 @@ type entropy struct {
 	rand     io.Reader
 	min, max int
 
-	buf    []byte
-	remain int
+	buf []byte
 }
 
 func newEntropy(rand io.Reader, min, max int) *entropy {

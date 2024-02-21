@@ -9,9 +9,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/ptr"
 )
 
-var (
-	hasSSSE3 = cpu.X86.HasSSSE3
-)
+var hasSSSE3 = cpu.X86.HasSSSE3
 
 func (ctx *ariaContextAsm) initRoundKey(key []byte) {
 	ctx.ctx.initRoundKey(key)

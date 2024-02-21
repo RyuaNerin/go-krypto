@@ -86,7 +86,7 @@ func printHashs() {
 
 	for _, h := range Hashes {
 		h.h.Write(input)
-		dst = h.h.Sum(dst[:])
+		dst = h.h.Sum(dst[:0])
 
 		log.Println(h.name, hex.EncodeToString(input), "->", hex.EncodeToString(dst))
 	}

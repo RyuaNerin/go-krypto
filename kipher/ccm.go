@@ -102,17 +102,7 @@ func (g *ccm) tag(ptLen int, N, A []byte) (tag, ctr, S0 [ccmBlockSize]byte) {
 
 	/* Calculate S0 */
 	g.cipher.Encrypt(S0[:], ctr[:])
-	{
-		//ctr64_inc
-		for idx := len(ctr) - 1; idx >= 0; idx-- {
-			c := ctr[idx]
-			c++
-			ctr[idx] = c
-			if c > 0 {
-				break
-			}
-		}
-	}
+	internal.IncCtr(ctr[:])
 
 	return
 }

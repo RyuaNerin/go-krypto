@@ -18,7 +18,6 @@ func Benchmark_GenerateKey(b *testing.B) {
 	for _, test := range tests {
 		test := test
 		b.Run(test.name, func(b *testing.B) {
-
 			b.ReportAllocs()
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {

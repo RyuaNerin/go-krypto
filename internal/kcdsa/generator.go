@@ -9,9 +9,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-var (
-	ErrInvalidTTAKParameters = errors.New("krypto/kcdsa: invalid domain parameters")
-)
+var ErrInvalidTTAKParameters = errors.New("krypto/kcdsa: invalid domain parameters")
 
 type GeneratedParameter struct {
 	P     *big.Int
@@ -71,25 +69,24 @@ func RegenerateParameters(
 	rand io.Reader,
 	domain Domain,
 	J *big.Int,
-	Seed []byte,
-	Count int,
+	seed []byte,
+	count int,
 ) (
 	P, Q, G *big.Int,
 	err error,
 ) {
-
 	P = new(big.Int)
 	Q = new(big.Int)
 	G = new(big.Int)
 
 	var CountB [4]byte
-	binary.BigEndian.PutUint32(CountB[:], uint32(Count))
+	binary.BigEndian.PutUint32(CountB[:], uint32(count))
 
 	buf := make([]byte, internal.Bytes(domain.B))
 
 	// 8: Seed에 Count를 연접한 것을 일방향 함수 PPGF의 입력으로 하여 비트 길이가
 	// β인 난수 U를 생성한다. (U ← PPGF(Seed ‖ Count, β))
-	U := ppgf(buf, domain.B, domain.NewHash(), Seed, CountB[:])
+	U := ppgf(buf, domain.B, domain.NewHash(), seed, CountB[:])
 
 	// 9: U의 최상위 및 최하위 비트를 1로 만들어 이를 q로 둔다.
 	// (q ← 2^(β-1) ∨ U ∨ 1)

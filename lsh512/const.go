@@ -1,6 +1,7 @@
 package lsh512
 
 var (
+	//nolint:unused
 	iv224 = []uint64{
 		0x0c401e9fe8813a55, 0x4a5f446268fd3d35, 0xff13e452334f612a, 0xf8227661037e354a,
 		0xa5f223723c9ca29d, 0x95d965a11aed3979, 0x01e23835b9ab02cc, 0x52d49cbad5b30616,
@@ -8,6 +9,7 @@ var (
 		0x31e2b67d25be3813, 0xd522c4deed8e4d83, 0xa79f5509b43fbafe, 0xe00d2cd88b4b6c6a,
 	}
 
+	//nolint:unused
 	iv256 = []uint64{
 		0x6dc57c33df989423, 0xd8ea7f6e8342c199, 0x76df8356f8603ac4, 0x40f1b44de838223a,
 		0x39ffe7cfc31484cd, 0x39c4326cc5281548, 0x8a2ff85a346045d8, 0xff202aa46dbdd61e,
@@ -15,6 +17,7 @@ var (
 		0xb596875bf8ff6dba, 0xfcca39b089ef4615, 0xecff4017d020b4b6, 0x7e77384c772ed802,
 	}
 
+	//nolint:unused
 	iv384 = []uint64{
 		0x53156a66292808f6, 0xb2c4f362b204c2bc, 0xb84b7213bfa05c4e, 0x976ceb7c1b299f73,
 		0xdf0cc63c0570ae97, 0xda4441baa486ce3f, 0x6559f5d9b5f2acc2, 0x22dacf19b4b52a16,
@@ -22,6 +25,7 @@ var (
 		0xbb08043fb34e3e30, 0xa0dec48d54618ead, 0x150317267464bc57, 0x32d1501fde63dc93,
 	}
 
+	//nolint:unused
 	iv512 = []uint64{
 		0xadd50f3c7f07094e, 0xe3f3cee8f9418a4f, 0xb527ecde5b3d0ae9, 0x2ef6dec68076f501,
 		0x8cb994cae5aca216, 0xfbb9eae4bba48cc7, 0x650a526174725fea, 0x1f9a61a73f8d8085,
@@ -29,7 +33,7 @@ var (
 		0x4981f5e570147e80, 0xd00c4490ca7d3e30, 0x5d73940c0e4ae1ec, 0x894085e2edb2d819,
 	}
 
-	/// step 상수
+	//nolint:unused
 	step = []uint64{
 		0x97884283c938982a, 0xba1fca93533e2355, 0xc519a2e87aeb1c03, 0x9a0fc95462af17b1,
 		0xfc3dda8ab019a82b, 0x02825d079a895407, 0x79f2d0a7ee06a6f7, 0xd76d15eed9fdf5fe,

@@ -1,7 +1,6 @@
 package kx509
 
 import (
-	"encoding/asn1"
 	"math/big"
 )
 
@@ -30,8 +29,10 @@ type kcdsaParameters struct {
 	Count int      `asn1:"optional"`
 }
 
+/**
 type kcdsaPrivateKey struct {
 	Version    int
 	PrivateKey []byte
 	PublicKey  asn1.BitString `asn1:"optional,explicit,tag:0"`
 }
+*/

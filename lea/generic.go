@@ -24,6 +24,7 @@ func leaEnc4Using1(ctx *leaContext, dst, src []byte) {
 	leaEnc1(ctx, dst[BlockSize*2:], src[BlockSize*2:])
 	leaEnc1(ctx, dst[BlockSize*3:], src[BlockSize*3:])
 }
+
 func leaDec4Using1(ctx *leaContext, dst, src []byte) {
 	leaDec1(ctx, dst[BlockSize*0:], src[BlockSize*0:])
 	leaDec1(ctx, dst[BlockSize*1:], src[BlockSize*1:])
@@ -35,6 +36,7 @@ func leaEnc8Using4(ctx *leaContext, dst, src []byte) {
 	leaEnc4(ctx, dst[BlockSize*0:], src[BlockSize*0:])
 	leaEnc4(ctx, dst[BlockSize*4:], src[BlockSize*4:])
 }
+
 func leaDec8Using4(ctx *leaContext, dst, src []byte) {
 	leaDec4(ctx, dst[BlockSize*0:], src[BlockSize*0:])
 	leaDec4(ctx, dst[BlockSize*4:], src[BlockSize*4:])
@@ -149,6 +151,7 @@ func (ctx *leaContext) Encrypt4(dst, src []byte) {
 
 	leaEnc4(ctx, dst, src)
 }
+
 func (ctx *leaContext) Decrypt4(dst, src []byte) {
 	if len(src) < BlockSize*4 {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
@@ -170,6 +173,7 @@ func (ctx *leaContext) Encrypt8(dst, src []byte) {
 
 	leaEnc8(ctx, dst, src)
 }
+
 func (ctx *leaContext) Decrypt8(dst, src []byte) {
 	if len(src) < BlockSize*8 {
 		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
@@ -299,7 +303,6 @@ func leaSetKeyGo(rk []uint32, key []byte) int {
 		rk[130] = bits.RotateLeft32(rk[124]+delta[1][24], 11)
 		rk[136] = bits.RotateLeft32(rk[130]+delta[2][25], 11)
 		rk[142] = bits.RotateLeft32(rk[136]+delta[3][26], 11)
-		break
 
 	case 24:
 		rk[0] = bits.RotateLeft32(binary.LittleEndian.Uint32(key[4*0:])+delta[0][0], 1)
@@ -475,7 +478,6 @@ func leaSetKeyGo(rk []uint32, key []byte) int {
 		rk[155] = bits.RotateLeft32(rk[149]+delta[1][30], 17)
 		rk[161] = bits.RotateLeft32(rk[155]+delta[2][31], 17)
 		rk[167] = bits.RotateLeft32(rk[161]+delta[3][0], 17)
-		break
 
 	case 32:
 		rk[0] = bits.RotateLeft32(binary.LittleEndian.Uint32(key[4*0:])+delta[0][0], 1)
@@ -677,7 +679,6 @@ func leaSetKeyGo(rk []uint32, key []byte) int {
 		rk[175] = bits.RotateLeft32(rk[167]+delta[5][30], 3)
 		rk[183] = bits.RotateLeft32(rk[175]+delta[6][1], 11)
 		rk[191] = bits.RotateLeft32(rk[183]+delta[7][4], 17)
-		break
 	}
 
 	return (keyLen >> 1) + 16
@@ -703,6 +704,7 @@ func leaEnc1Go(ctx *leaContext, dst, src []byte) {
 	binary.LittleEndian.PutUint32(dst[4*2:], X2)
 	binary.LittleEndian.PutUint32(dst[4*3:], X3)
 }
+
 func leaEnc1GoRoundUnder24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X3 = bitsRotateRight32((X2^ctx.rk[4])+(X3^ctx.rk[5]), 3)
 	X2 = bitsRotateRight32((X1^ctx.rk[2])+(X2^ctx.rk[3]), 5)
@@ -784,6 +786,7 @@ func leaEnc1GoRoundUnder24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint
 
 	return X0, X1, X2, X3
 }
+
 func leaEnc1GoRoundOver24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X3 = bitsRotateRight32((X2^ctx.rk[148])+(X3^ctx.rk[149]), 3)
 	X2 = bitsRotateRight32((X1^ctx.rk[146])+(X2^ctx.rk[147]), 5)
@@ -800,6 +803,7 @@ func leaEnc1GoRoundOver24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint3
 
 	return X0, X1, X2, X3
 }
+
 func leaEnc1GoRoundOver28(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X3 = bitsRotateRight32((X2^ctx.rk[172])+(X3^ctx.rk[173]), 3)
 	X2 = bitsRotateRight32((X1^ctx.rk[170])+(X2^ctx.rk[171]), 5)
@@ -838,6 +842,7 @@ func leaDec1Go(ctx *leaContext, dst, src []byte) {
 	binary.LittleEndian.PutUint32(dst[4*2:], X2)
 	binary.LittleEndian.PutUint32(dst[4*3:], X3)
 }
+
 func leaDec1GoRoundOver28(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[186])) ^ ctx.rk[187]
 	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[188])) ^ ctx.rk[189]
@@ -854,6 +859,7 @@ func leaDec1GoRoundOver28(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint3
 
 	return X0, X1, X2, X3
 }
+
 func leaDec1GoRoundOver24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[162])) ^ ctx.rk[163]
 	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[164])) ^ ctx.rk[165]
@@ -870,6 +876,7 @@ func leaDec1GoRoundOver24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint3
 
 	return X0, X1, X2, X3
 }
+
 func leaDec1GoRoundUnder24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[138])) ^ ctx.rk[139]
 	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[140])) ^ ctx.rk[141]
@@ -952,6 +959,6 @@ func leaDec1GoRoundUnder24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint
 	return X0, X1, X2, X3
 }
 
-func bitsRotateRight32(W, i uint32) uint32 {
-	return (((W) >> (i)) | ((W) << (32 - (i))))
+func bitsRotateRight32(w uint32, i int) uint32 {
+	return bits.RotateLeft32(w, -i)
 }

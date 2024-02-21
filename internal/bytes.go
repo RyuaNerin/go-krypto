@@ -1,6 +1,10 @@
 package internal
 
-import "github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+import (
+	"io"
+
+	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+)
 
 func SliceForAppend(in []byte, n int) (head, tail []byte) {
 	if total := len(in) + n; cap(in) >= total {
@@ -51,7 +55,7 @@ func RightMost(b []byte, bits int) []byte {
 
 	remain := bits % 8
 	if remain > 0 {
-		b[0] = b[0] & ((1 << remain) - 1)
+		b[0] &= ((1 << remain) - 1)
 	}
 
 	return b
@@ -64,7 +68,7 @@ func LeftMost(b []byte, bits int) []byte {
 
 	remain := bits % 8
 	if remain > 0 {
-		b[0] = b[0] & byte(0b_11111111<<(8-remain))
+		b[0] &= byte(0b_11111111 << (8 - remain))
 	}
 
 	return b
@@ -82,7 +86,47 @@ func Add(dst []byte, src ...[]byte) {
 		}
 
 		dst[len(dst)-idx-1] = byte(value & 0xFF)
-		value = value >> 8
+		value >>= 8
 	}
 	kryptoutil.MemsetByte(dst[:len(dst)-n], 0)
+}
+
+func IncCtr(b []byte) {
+	for i := len(b) - 1; i >= 0; i-- {
+		c := b[i]
+		c++
+		b[i] = c
+		if c > 0 {
+			return
+		}
+	}
+}
+
+// resize dst, ReadFull, cut from right
+func ReadBits(dst []byte, rand io.Reader, bits int) ([]byte, error) {
+	bytes := Bytes(bits)
+
+	dst = ResizeBuffer(dst, bytes)
+
+	if _, err := io.ReadFull(rand, dst); err != nil {
+		return dst, err
+	}
+
+	bytes = bits & 0x07
+	if bytes != 0 {
+		dst[0] &= byte((1 << bytes) - 1)
+	}
+
+	return dst, nil
+}
+
+// resize dst, ReadFull, cut from right
+func ReadBytes(dst []byte, rand io.Reader, bytes int) ([]byte, error) {
+	dst = ResizeBuffer(dst, bytes)
+
+	if _, err := io.ReadFull(rand, dst); err != nil {
+		return dst, err
+	}
+
+	return dst, nil
 }

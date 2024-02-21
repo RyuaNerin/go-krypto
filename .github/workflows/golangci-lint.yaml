@@ -1,0 +1,44 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+jobs:
+  golangci:
+    strategy:
+      matrix:
+        go:
+          - '1.15'
+          - '1.16'
+          - '1.17'
+          - '1.18'
+          - '1.19'
+          - '1.20'
+          - '1.21'
+        os:
+          - ubuntu-latest
+          - macos-latest-large
+          - windows-latest
+
+        exclude:
+          - os: macos-latest-large
+            go: '1.15'
+
+    name: lint
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          cache: false
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v4

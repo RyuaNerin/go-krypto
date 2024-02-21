@@ -13,8 +13,8 @@ var (
 	oidPublicKeyKCDSA   = asn1.ObjectIdentifier{1, 2, 410, 200004, 1, 1}         // eGOV-C01.0008
 	oidPublicKeyECKCDSA = asn1.ObjectIdentifier{1, 2, 410, 200004, 1, 100, 2, 1} // eGOV-C01.0008
 
-	oidPublicKeyKCDSAstd   = asn1.ObjectIdentifier{1, 0, 14888, 3, 0, 2} // {iso(1) standard(0) digital-signature-with-appendix(14888) part3(3) algorithm(0) kcdsa(2)}
-	oidPublicKeyECKCDSAstd = asn1.ObjectIdentifier{1, 0, 14888, 3, 0, 5} // {iso(1) standard(0) digital-signature-with-appendix(14888) part3(3) algorithm(0) ec-kcdsa(5)}
+	// oidPublicKeyKCDSAstd   = asn1.ObjectIdentifier{1, 0, 14888, 3, 0, 2} // {iso(1) standard(0) digital-signature-with-appendix(14888) part3(3) algorithm(0) kcdsa(2)}
+	// oidPublicKeyECKCDSAstd = asn1.ObjectIdentifier{1, 0, 14888, 3, 0, 5} // {iso(1) standard(0) digital-signature-with-appendix(14888) part3(3) algorithm(0) ec-kcdsa(5)}
 
 	oidNamedCurveP224 = asn1.ObjectIdentifier{1, 3, 132, 0, 33}          // P-224 / secp224r1 / wap-wsg-idm-ecid-wtls12 / ansip224r1
 	oidNamedCurveP256 = asn1.ObjectIdentifier{1, 2, 840, 10045, 3, 1, 7} // P-256 / secp256r1 / prime256v1
@@ -97,7 +97,6 @@ func oidFromNamedCurve(curve elliptic.Curve) (asn1.ObjectIdentifier, bool) {
 		return oidNamedCurveK409, true
 	case nist.K571():
 		return oidNamedCurveK571, true
-
 	}
 
 	return nil, false

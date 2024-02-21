@@ -126,50 +126,47 @@ func DoublePipeMode(prf PRF, key, label, context []byte, counterSize, length int
 }
 
 func fillL(dst []byte, v uint64) []byte {
-	sz := 0
-
 	switch {
 	case v < 1<<8:
-		sz = 1
 		dst[0] = byte(v)
+		return dst[:1]
 
 	case v < 1<<16:
-		sz = 2
 		dst[0] = byte(v >> 8)
 		dst[1] = byte(v)
+		return dst[:2]
 
 	case v < 1<<24:
-		sz = 3
 		dst[0] = byte(v >> 16)
 		dst[1] = byte(v >> 8)
 		dst[2] = byte(v)
+		return dst[:3]
 
 	case v < 1<<32:
-		sz = 4
 		dst[0] = byte(v >> 24)
 		dst[1] = byte(v >> 16)
 		dst[2] = byte(v >> 8)
 		dst[3] = byte(v)
+		return dst[:4]
 
 	case v < 1<<40:
-		sz = 5
 		dst[0] = byte(v >> 32)
 		dst[1] = byte(v >> 24)
 		dst[2] = byte(v >> 16)
 		dst[3] = byte(v >> 8)
 		dst[4] = byte(v)
+		return dst[:5]
 
 	case v < 1<<48:
-		sz = 6
 		dst[0] = byte(v >> 40)
 		dst[1] = byte(v >> 32)
 		dst[2] = byte(v >> 24)
 		dst[3] = byte(v >> 16)
 		dst[4] = byte(v >> 8)
 		dst[5] = byte(v)
+		return dst[:6]
 
 	case v < 1<<56:
-		sz = 7
 		dst[0] = byte(v >> 48)
 		dst[1] = byte(v >> 40)
 		dst[2] = byte(v >> 32)
@@ -177,9 +174,9 @@ func fillL(dst []byte, v uint64) []byte {
 		dst[4] = byte(v >> 16)
 		dst[5] = byte(v >> 8)
 		dst[6] = byte(v)
+		return dst[:7]
 
 	default:
-		sz = 8
 		dst[0] = byte(v >> 56)
 		dst[1] = byte(v >> 48)
 		dst[2] = byte(v >> 40)
@@ -188,7 +185,6 @@ func fillL(dst []byte, v uint64) []byte {
 		dst[5] = byte(v >> 16)
 		dst[6] = byte(v >> 8)
 		dst[7] = byte(v)
+		return dst[:8]
 	}
-
-	return dst[:sz]
 }

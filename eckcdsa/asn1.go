@@ -6,14 +6,14 @@ import (
 	"io"
 	"math/big"
 
-	"golang.org/x/crypto/cryptobyte"
-	"golang.org/x/crypto/cryptobyte/asn1"
+	"github.com/RyuaNerin/go-krypto/internal/golang.org/x/crypto/cryptobyte"
+	"github.com/RyuaNerin/go-krypto/internal/golang.org/x/crypto/cryptobyte/asn1"
 )
 
 // Sign data using K generated randomly like in crypto/ecdsa packages.
 // returns the ASN.1 encoded signature.
-func SignASN1(randReader io.Reader, priv *PrivateKey, h hash.Hash, M []byte) (sig []byte, err error) {
-	r, s, err := Sign(randReader, priv, h, M)
+func SignASN1(randReader io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (sig []byte, err error) {
+	r, s, err := Sign(randReader, priv, h, data)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func SignASN1(randReader io.Reader, priv *PrivateKey, h hash.Hash, M []byte) (si
 
 // VerifyASN1 verifies the ASN.1 encoded signature, sig, M, of hash using the
 // public key, pub. Its return value records whether the signature is valid.
-func VerifyASN1(pub *PublicKey, h hash.Hash, M, sig []byte) bool {
+func VerifyASN1(pub *PublicKey, h hash.Hash, data, sig []byte) bool {
 	r, s, err := parseSignature(sig)
 	if err != nil {
 		return false
@@ -32,7 +32,7 @@ func VerifyASN1(pub *PublicKey, h hash.Hash, M, sig []byte) bool {
 	return Verify(
 		pub,
 		h,
-		M,
+		data,
 		new(big.Int).SetBytes(r),
 		new(big.Int).SetBytes(s),
 	)
