@@ -10,7 +10,7 @@ permissions:
   checks: write
 
 jobs:
-  golangci:
+  golangci-lint:
     strategy:
       matrix:
         go:
@@ -21,6 +21,7 @@ jobs:
           - '1.19'
           - '1.20'
           - '1.21'
+          - '1.22'
         os:
           - ubuntu-latest
           - macos-latest-large
