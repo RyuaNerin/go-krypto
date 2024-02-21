@@ -3,6 +3,4 @@
 
 package aria
 
-var (
-	newCipher = newCipherAsm
-)
+var newCipher = newCipherAsm

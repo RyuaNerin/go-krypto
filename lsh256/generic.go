@@ -40,9 +40,7 @@ const (
 	betaOdd  = 17
 )
 
-var (
-	gamma = [...]int{0, 8, 16, 24, 24, 16, 8, 0}
-)
+var gamma = [...]int{0, 8, 16, 24, 24, 16, 8, 0}
 
 type lsh256ContextGo struct {
 	cv    [16]uint32
@@ -77,7 +75,7 @@ func (b *lsh256ContextGo) Reset() {
 }
 
 func (b *lsh256ContextGo) Write(p []byte) (n int, err error) {
-	if p == nil || len(p) == 0 {
+	if len(p) == 0 {
 		return
 	}
 	plen := len(p)
@@ -169,6 +167,7 @@ func (b *lsh256ContextGo) msgExpansion(in []byte) {
 		b.msg[idx+15] = b.msg[idx-1] + b.msg[idx-18]
 	}
 }
+
 func (b *lsh256ContextGo) step(stepidx, alpha, beta int) {
 	var vl, vr uint32
 

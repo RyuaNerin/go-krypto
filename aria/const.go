@@ -1,5 +1,6 @@
 package aria
 
+//nolint:unused
 var (
 	krk = []uint32{
 		0x517cc1b7, 0x27220a94, 0xfe13abe8, 0xfa9a6ee0,

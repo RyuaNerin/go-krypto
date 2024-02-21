@@ -9,6 +9,7 @@ run:
     - "internal/randutil/*"
     - "kipher/gcm_gostd.go"
 
+
   go: '1.15'
 
 linters:

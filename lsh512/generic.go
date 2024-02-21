@@ -38,9 +38,7 @@ const (
 	betaOdd  = 3
 )
 
-var (
-	gamma = [...]int{0, 16, 32, 48, 8, 24, 40, 56}
-)
+var gamma = [...]int{0, 16, 32, 48, 8, 24, 40, 56}
 
 type lsh512ContextGo struct {
 	cv    [16]uint64
@@ -50,11 +48,6 @@ type lsh512ContextGo struct {
 
 	boff        int
 	outlenbytes int
-}
-
-func initContextGo(ctx *lsh512ContextGo, size int) {
-	ctx.outlenbytes = size
-	ctx.Reset()
 }
 
 func (b *lsh512ContextGo) Size() int {
@@ -84,7 +77,7 @@ func (b *lsh512ContextGo) Reset() {
 }
 
 func (b *lsh512ContextGo) Write(p []byte) (n int, err error) {
-	if p == nil || len(p) == 0 {
+	if len(p) == 0 {
 		return
 	}
 	plen := len(p)

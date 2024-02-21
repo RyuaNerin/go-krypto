@@ -22,6 +22,7 @@ func Test_Decrypt_4Blocks_NEON(t *testing.T) { TA(t, as, tb(4, leaDec4Go, leaDec
 func Benchmark_Encrypt_4Blocks_NEON(b *testing.B) {
 	BBDA(b, as, 0, 4*BlockSize, BIW(NewCipher), bb(leaEnc4NEON), false)
 }
+
 func Benchmark_Decrypt_4Blocks_NEON(b *testing.B) {
 	BBDA(b, as, 0, 4*BlockSize, BIW(NewCipher), bb(leaDec4NEON), false)
 }

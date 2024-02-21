@@ -7,9 +7,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/ptr"
 )
 
-var (
-	hasNEON = true
-)
+var hasNEON = true
 
 func (ctx *ariaContextAsm) initRoundKey(key []byte) {
 	__encKeySetup_NEON(ptr.PByte(ctx.ctx.ek[:]), ptr.PByte(key), uint64(len(key)))

@@ -12,6 +12,7 @@ var as = []CipherSize{
 	{Name: "256", Size: 256},
 }
 
+//nolint:unused
 func leaEnc4Go(ctx *leaContext, dst, src []byte) {
 	leaEnc1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
 	leaEnc1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
@@ -19,6 +20,7 @@ func leaEnc4Go(ctx *leaContext, dst, src []byte) {
 	leaEnc1Go(ctx, dst[BlockSize*3:], src[BlockSize*3:])
 }
 
+//nolint:unused
 func leaDec4Go(ctx *leaContext, dst, src []byte) {
 	leaDec1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
 	leaDec1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
@@ -26,6 +28,7 @@ func leaDec4Go(ctx *leaContext, dst, src []byte) {
 	leaDec1Go(ctx, dst[BlockSize*3:], src[BlockSize*3:])
 }
 
+//nolint:unused
 func leaEnc8Go(ctx *leaContext, dst, src []byte) {
 	leaEnc1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
 	leaEnc1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
@@ -37,6 +40,7 @@ func leaEnc8Go(ctx *leaContext, dst, src []byte) {
 	leaEnc1Go(ctx, dst[BlockSize*7:], src[BlockSize*7:])
 }
 
+//nolint:unused
 func leaDec8Go(ctx *leaContext, dst, src []byte) {
 	leaDec1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
 	leaDec1Go(ctx, dst[BlockSize*1:], src[BlockSize*1:])
@@ -57,6 +61,7 @@ func Test_LEA196_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases196
 func Test_LEA256_Encrypt(t *testing.T) { BTE(t, BIW(NewCipher), CE, testCases256, false) }
 func Test_LEA256_Decrypt(t *testing.T) { BTD(t, BIW(NewCipher), CD, testCases256, false) }
 
+//nolint:unused
 func tb(blocks int, funcGo, funcAsm funcBlock) func(t *testing.T, keySize int) {
 	return func(t *testing.T, keySize int) {
 		BTTC(
