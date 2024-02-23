@@ -49,21 +49,6 @@ var (
 	sect283r = nist.B283()
 	sect283k = nist.K283()
 
-	curveList = []elliptic.Curve{
-		elliptic.P224(),
-		elliptic.P256(),
-		elliptic.P224(),
-		elliptic.P256(),
-		nist.B233(),
-		nist.K233(),
-		nist.B283(),
-		nist.K283(),
-		nist.B233(),
-		nist.K233(),
-		nist.B283(),
-		nist.K283(),
-	}
-
 	hashSHA256     = sha256.New()
 	hashSHA256_224 = sha256.New224()
 )
