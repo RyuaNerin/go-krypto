@@ -276,13 +276,14 @@ func (p *cavpProcessor) ReadValues() cavpSection {
 				p.cs = append(p.cs, cavpRow{"", strings.Clone(line), false})
 			} else {
 				bo := strings.HasPrefix(line, "[")
-				bc := strings.HasPrefix(line, "]")
+				bc := strings.HasSuffix(line, "]")
 
 				var section bool
 				switch {
 				case bo && bc:
 					section = true
 					line = strings.TrimSuffix(strings.TrimPrefix(line, "["), "]")
+					idx = strings.Index(line, "=")
 					fallthrough
 				case !bo && !bc:
 					p.cs = append(
@@ -322,11 +323,11 @@ func (p *cavpProcessor) WriteValues(lst cavpSection) {
 			p.bw.WriteString(v.Value)
 		} else if v.Value != "" {
 			p.bw.WriteString(v.Value)
-			p.bw.WriteByte('\n')
 		}
 		if v.Section {
 			p.bw.WriteByte(']')
 		}
+		p.bw.WriteByte('\n')
 	}
 	p.bw.WriteByte('\n')
 	p.bw.Flush()
