@@ -26,6 +26,10 @@ func (cv cavpRow) Int() int {
 	return v
 }
 
+func (cv cavpRow) Bool() bool {
+	return strings.EqualFold(cv.Value, "true") || cv.Value == "1"
+}
+
 func (cv cavpRow) Hex() []byte {
 	if len(cv.Value)%2 == 1 {
 		cv.Value = "0" + cv.Value
@@ -65,6 +69,15 @@ func (cv cavpSection) Int(name string) int {
 	for _, v := range cv {
 		if strings.EqualFold(v.Key, name) {
 			return v.Int()
+		}
+	}
+	panic("not found")
+}
+
+func (cv cavpSection) Bool(name string) bool {
+	for _, v := range cv {
+		if strings.EqualFold(v.Key, name) {
+			return v.Bool()
 		}
 	}
 	panic("not found")

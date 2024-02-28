@@ -23,8 +23,9 @@ type State struct {
 
 	seedlen int
 
-	v []byte // seedlen 비트 길이의 변수로, DRBG 인스턴스의 출력값 생성 시 갱신
-	c []byte // 시드로부터 계산되는 seedlen 비트 길이의 상수
+	v    []byte // seedlen 비트 길이의 변수로, DRBG 인스턴스의 출력값 생성 시 갱신
+	vtmp []byte
+	c    []byte // 시드로부터 계산되는 seedlen 비트 길이의 상수
 
 	reseed_counter             uint64 // 시드 생성 이후 DRBG 인스턴스의 출력값 생성 횟수
 	security_strength          int    // DRBG 인스턴스의 안전성 수준
@@ -127,11 +128,11 @@ func Instantiate_Hash_DRBG(
 	// 24: seed_material ← entropy_input ‖ nonce ‖ personalization_string
 	seed_material := drbg.WriteBytes(entropy_input, nonce, personalization_string)
 
-	vcLen := internal.Bytes(seedLen)
-	vc := make([]byte, vcLen*2)
+	seedLenBytes := internal.Bytes(seedLen)
+	vcTmp := make([]byte, seedLenBytes*3)
 
 	// 25: seed ← Hash_df(seed_material, seedlen )
-	seed := Hash_df(vc[:vcLen], h, seed_material, seedLen)
+	seed := Hash_df(vcTmp[:seedLenBytes], h, seed_material, seedLen)
 
 	// 26: (status, state_handle) ← Find_state_space()
 	// 27: if (status ≠ SUCCESS) then
@@ -148,8 +149,9 @@ func Instantiate_Hash_DRBG(
 		h:       h,
 		seedlen: seedLen,
 
-		v: seed,
-		c: Hash_df(vc[vcLen:], h, drbg.WriteBytes([]byte{0}, seed), seedLen),
+		v:    seed,
+		c:    Hash_df(vcTmp[seedLenBytes:seedLenBytes*2], h, drbg.WriteBytes([]byte{0}, seed), seedLen),
+		vtmp: vcTmp[seedLenBytes*2:],
 
 		reseed_counter:             1,
 		security_strength:          security_strength,
@@ -180,7 +182,8 @@ func (state *State) Reseed_Hash_DRBG(
 	//  9: end if
 
 	// 10: seed_material ← 0x01 ‖ V ‖ entropy_input ‖ additional_input
-	seed_material := drbg.WriteBytes([]byte{1}, state.v, entropy_input, additional_input)
+	copy(state.vtmp, state.v)
+	seed_material := drbg.WriteBytes([]byte{1}, state.vtmp, entropy_input, additional_input)
 	// 11: seed ← Hash_df(seed_material, seedlen )
 	// 12: state(state_handle ).V ← seed
 	state.v = Hash_df(state.v, state.h, seed_material, state.seedlen)
@@ -295,7 +298,7 @@ func hashgen(h hash.Hash, dst []byte, V []byte, seedlen int) {
 	outlen := h.Size()
 	m := internal.CeilDiv(requested_no_of_bits, outlen*8)
 
-	W := internal.ResizeBuffer(dst, outlen*m)
+	W := dst
 
 	data := make([]byte, len(V))
 	copy(data, V)
@@ -320,6 +323,7 @@ func (s *State) Uninstantiate_Hash_DRBG() {
 	kryptoutil.MemsetByte(s.v, 0)
 	kryptoutil.MemsetByte(s.c, 0)
 	s.v = nil
+	s.vtmp = nil
 	s.c = nil
 	s.reseed_counter = 0
 	s.security_strength = 0

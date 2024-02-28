@@ -70,7 +70,7 @@ func process(path, filename string) {
 
 	//////////////////////////////////////////////////
 	// HMAC
-	case strings.HasPrefix(filename, "HMAC") && !strings.HasPrefix(filename, "HASH_DRBG"):
+	case strings.HasPrefix(filename, "HMAC") && !strings.HasPrefix(filename, "HMAC_DRBG"):
 		processHMAC(path, filename)
 
 	//////////////////////////////////////////////////

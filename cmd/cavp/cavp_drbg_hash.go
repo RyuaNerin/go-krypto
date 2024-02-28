@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"strings"
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/drbg/hashdrbg"
@@ -17,11 +16,10 @@ func processDRBGHash(path, filename string) {
 		return
 	}
 
-	usePR := strings.Contains(filename, "(USE PR)")
-
 	dst := make([]byte, 0, 1024)
 
 	var returnedBitsLen int
+	var usePR bool
 
 	cavp := NewCavp(path, filename)
 	defer cavp.Close()
@@ -32,7 +30,12 @@ func processDRBGHash(path, filename string) {
 		if cs.ContainsKey("ReturnedBitsLen") {
 			returnedBitsLen = cs.Int("ReturnedBitsLen")
 			dst = internal.ResizeBuffer(dst, internal.Bytes(returnedBitsLen))
-		} else if cs.ContainsKey("COUNT") {
+		}
+		if cs.ContainsKey("PredictionResistance") {
+			usePR = cs.Bool("PredictionResistance")
+		}
+
+		if cs.ContainsKey("COUNT") {
 			EntropyInput := cs.Hex("EntropyInput")
 			Nonce := cs.Hex("Nonce")
 			PersonalizationString := cs.Hex("PersonalizationString")
