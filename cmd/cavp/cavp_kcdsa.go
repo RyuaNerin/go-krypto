@@ -32,8 +32,6 @@ func processKCDSA(path, filename string) {
 }
 
 // 키 쌍 생성
-//
-
 func processKCDSA_KPG(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 	/**
 	req
@@ -144,8 +142,6 @@ func processKCDSA_KPG(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 }
 
 // Sign
-//
-
 func processKCDSA_SGT(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 	/**
 	req
@@ -246,8 +242,6 @@ func processKCDSA_SGT(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 }
 
 // Verify
-//
-
 func processKCDSA_SVT(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 	/**
 	req

@@ -43,8 +43,6 @@ func processECKCDSA(path, filename string) {
 }
 
 // 키 쌍 생성
-//
-
 func processECKCDSA_KPG(cavp *cavpProcessor, curve elliptic.Curve) {
 	/**
 	.req
@@ -89,8 +87,6 @@ func processECKCDSA_KPG(cavp *cavpProcessor, curve elliptic.Curve) {
 }
 
 // 타원곡선 위에 있는지 확인
-//
-
 func processECKCDSA_PKV(cavp *cavpProcessor, curve elliptic.Curve) {
 	/**
 	#  ECKCDSA
@@ -118,8 +114,6 @@ func processECKCDSA_PKV(cavp *cavpProcessor, curve elliptic.Curve) {
 }
 
 // Sign
-//
-
 func processECKCDSA_SGT(cavp *cavpProcessor, h hash.Hash, curve elliptic.Curve) {
 	/**
 	.req
