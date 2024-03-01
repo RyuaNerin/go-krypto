@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
+	"github.com/RyuaNerin/go-krypto/internal"
 )
 
 func processECKCDSA(path, filename string) {
@@ -140,9 +141,9 @@ func processECKCDSA_SGT(cavp *cavpProcessor, h hash.Hash, curve elliptic.Curve) 
 
 		...
 	*/
-	w := curve.Params().BitSize
+	w := internal.BigCeilLog2(curve.Params().N, 8) * 8
 
-	bitsXY := w
+	bitsXY := curve.Params().BitSize
 	bitsR := h.Size() * 8
 	bitsS := w
 
@@ -164,6 +165,10 @@ func processECKCDSA_SGT(cavp *cavpProcessor, h hash.Hash, curve elliptic.Curve) 
 				panic(err)
 			}
 
+			if !eckcdsa.Verify(&privKey.PublicKey, h, cs.Hex("M"), r, s) {
+				panic("failed to verify")
+			}
+
 			cs = append(
 				cs,
 				cavpRow{"Qx", hexInt(privKey.X, bitsXY), false},
@@ -178,8 +183,6 @@ func processECKCDSA_SGT(cavp *cavpProcessor, h hash.Hash, curve elliptic.Curve) 
 }
 
 // Verify
-//
-
 func processECKCDSA_SVT(cavp *cavpProcessor, h hash.Hash, curve elliptic.Curve) {
 	/**
 	req

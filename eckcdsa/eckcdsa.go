@@ -79,7 +79,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 	n := curveParams.N
 
 	curveSize := internal.Bytes(curveParams.BitSize)
-	w := internal.Bytes(curveParams.N.BitLen())
+	w := internal.BigCeilLog2(curveParams.N, 8)
 	Lh := h.Size()
 	L := h.BlockSize()
 	d := priv.D
@@ -195,7 +195,7 @@ func Verify(pub *PublicKey, h hash.Hash, data []byte, r, s *big.Int) bool {
 	n := curveParams.N
 
 	curveSize := internal.Bytes(curveParams.BitSize)
-	w := internal.Bytes(curveParams.N.BitLen())
+	w := internal.BigCeilLog2(curveParams.N, 8)
 	Lh := h.Size()
 	L := h.BlockSize()
 	xQ := pub.X
