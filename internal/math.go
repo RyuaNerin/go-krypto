@@ -83,3 +83,27 @@ func FermatInverse(k, P *big.Int) *big.Int {
 func BigIntEqual(a, b *big.Int) bool {
 	return subtle.ConstantTimeCompare(a.Bytes(), b.Bytes()) == 1
 }
+
+// log(n) / log(2)
+func BigLog2(n *big.Int) int {
+	return n.BitLen() - 1
+}
+
+// log(n) / log(2 ** e)
+func BigLog2e(n *big.Int, e int) int {
+	return (n.BitLen() - 1) / e
+}
+
+// = ceil(log(n) / log(2 ** e))
+func BigCeilLog2(n *big.Int, e int) int {
+	x := BigLog2e(n, e)
+	var c big.Int
+	c.Lsh(One, uint(x)*uint(e))
+
+	// if n > c, return x+1
+	// else return x
+	if n.Cmp(&c) > 0 {
+		return x + 1
+	}
+	return x
+}
