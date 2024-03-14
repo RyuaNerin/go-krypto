@@ -20,6 +20,14 @@
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/cavp",
             "cwd": "${workspaceFolder}/cmd/cavp"
-        }
+        },
+        {
+            "name": "Generate Entropy",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/entropy",
+            "cwd": "${workspaceFolder}/cmd/entropy"
+        },
     ]
 }
