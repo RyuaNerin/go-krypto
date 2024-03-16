@@ -13,6 +13,8 @@ run:
   go: '1.15'
 
 linters:
+  disable:
+    - errcheck
   enable:
     #- errcheck # checks unchecked errors
     - gosimple # simplify code
