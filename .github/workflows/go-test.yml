@@ -19,6 +19,7 @@ jobs:
           - '1.20'
           - '1.21'
           - '1.22'
+
         os:
           - ubuntu-latest
           - macos-latest-large
@@ -26,7 +27,7 @@ jobs:
 
         exclude:
           - os: macos-latest-large
-            go: '1.15'
+            go-version: '1.15'
 
     runs-on: ${{ matrix.os }}
 
