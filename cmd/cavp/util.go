@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"math/big"
 	"strings"
 )
@@ -27,13 +26,13 @@ func hexInt(b *big.Int, bits int) string {
 	if len(str) < targetLength {
 		str = strings.Repeat("0", targetLength-len(str)) + str
 	} else if len(str) > targetLength { // 보통 앞에 자르는거 함.
-		log.Println("cut....")
-		log.Println("bits", bits)
-		log.Println("targetLength", targetLength)
-		log.Println("len", len(str))
-		log.Println(str)
+		// log.Println("cut....")
+		// log.Println("bits", bits)
+		// log.Println("targetLength", targetLength)
+		// log.Println("len", len(str))
+		// log.Println(str)
 		str = str[len(str)-targetLength:]
-		log.Println(str)
+		// log.Println(str)
 	}
 	return str
 }
