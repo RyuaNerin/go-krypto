@@ -16,5 +16,4 @@ func initOptions() {
 	options = []option{
 		{Name: "neon", Feature: &ARM.HasNEON},
 	}
-
 }

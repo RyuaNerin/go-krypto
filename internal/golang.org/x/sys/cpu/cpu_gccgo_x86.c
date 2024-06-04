@@ -24,5 +24,16 @@ gccgoGetCpuidCount(uint32_t leaf, uint32_t subleaf,
 #pragma GCC target("xsave")
 #pragma clang attribute push (__attribute__((target("xsave"))), apply_to=function)
 
+// xgetbv reads the contents of an XCR (Extended Control Register)
+// specified in the ECX register into registers EDX:EAX.
+// Currently, the only supported value for XCR is 0.
+void
+gccgoXgetbv(uint32_t *eax, uint32_t *edx)
+{
+	uint64_t v = _xgetbv(0);
+	*eax = v & 0xffffffff;
+	*edx = v >> 32;
+}
+
 #pragma clang attribute pop
 #pragma GCC pop_options

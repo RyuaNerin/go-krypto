@@ -15,6 +15,7 @@ func initOptions() {
 	options = []option{
 		{Name: "avx", Feature: &X86.HasAVX},
 		{Name: "avx2", Feature: &X86.HasAVX2},
+		{Name: "osxsave", Feature: &X86.HasOSXSAVE},
 		{Name: "ssse3", Feature: &X86.HasSSSE3},
 
 		// These capabilities should always be enabled on amd64:
@@ -23,7 +24,6 @@ func initOptions() {
 }
 
 func archInit() {
-
 	Initialized = true
 
 	maxID, _, _, _ := cpuid(0, 0)
@@ -36,8 +36,15 @@ func archInit() {
 	X86.HasSSE2 = isSet(26, edx1)
 
 	X86.HasSSSE3 = isSet(9, ecx1)
+	X86.HasOSXSAVE = isSet(27, ecx1)
 
 	var osSupportsAVX bool
+	// For XGETBV, OSXSAVE bit is required and sufficient.
+	if X86.HasOSXSAVE {
+		eax, _ := xgetbv()
+		// Check if XMM and YMM registers have OS support.
+		osSupportsAVX = isSet(1, eax) && isSet(2, eax)
+	}
 
 	X86.HasAVX = isSet(28, ecx1) && osSupportsAVX
 
