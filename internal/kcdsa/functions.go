@@ -1,7 +1,6 @@
 package kcdsa
 
 import (
-	"encoding/binary"
 	"hash"
 	"io"
 	"math/big"
@@ -59,8 +58,8 @@ func GeneratePQ(
 	// 7: Count > 2^24이면 단계 1로 간다.
 	for count <= (1 << 24) {
 		// 6: Count를 1 증가시킨다. (Count ← (Count + 1))
+		internal.IncCtr(countB[:])
 		count += 1
-		binary.BigEndian.PutUint32(countB[:], uint32(count))
 
 		// 8: Seed에 Count를 연접한 것을 일방향 함수 PPGF의 입력으로 하여 비트 길이가
 		// β인 난수 UBytes를 생성한다. (UBytes ← PPGF(Seed ‖ Count, β))

@@ -5,16 +5,16 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/RyuaNerin/go-krypto/internal"
+	"github.com/RyuaNerin/go-krypto/internal/golang.org/x/sys/cpu"
 )
 
 var byteOrder binary.ByteOrder
 
 func init() {
-	if internal.IsLittleEndian {
-		byteOrder = binary.BigEndian
-	} else {
+	if cpu.IsBigEndian {
 		byteOrder = binary.LittleEndian
+	} else {
+		byteOrder = binary.BigEndian
 	}
 }
 
