@@ -2,11 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !go1.20 && go1.17 && go1.18 && ((!amd64 && !arm64) || purego)
+//go:build !go1.20 && ((purego && go1.17) || (!purego && !go1.18) || (!purego && !go1.18 && !amd64 && !arm64))
 // +build !go1.20
-// +build go1.17
-// +build go1.18
-// +build !amd64,!arm64 purego
+// +build purego,go1.17 !purego,!go1.18 !purego,!go1.18,!amd64,!arm64
 
 package subtle
 
@@ -18,10 +16,8 @@ import (
 const wordSize = unsafe.Sizeof(uintptr(0))
 
 const supportsUnaligned = runtime.GOARCH == "386" ||
-	runtime.GOARCH == "amd64" ||
-	runtime.GOARCH == "ppc64" ||
-	runtime.GOARCH == "ppc64le" ||
-	runtime.GOARCH == "s390x"
+	runtime.GOARCH == "amd64"
+	
 
 func xorBytes(dstb, xb, yb *byte, n int) {
 	// xorBytes assembly is written using pointers and n. Back to slices.
