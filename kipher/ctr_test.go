@@ -5,6 +5,8 @@ import (
 	"crypto/cipher"
 	"testing"
 
+	"github.com/RyuaNerin/go-krypto/internal"
+
 	. "github.com/RyuaNerin/testingutil"
 )
 
@@ -26,7 +28,7 @@ func testCTR(t *testing.T, bufferBlocks int) {
 			if err != nil {
 				return nil, err
 			}
-			bk := blockWrap{bc}
+			bk := internal.WrapBlock(bc)
 
 			data := &ctr{
 				c: cipher.NewCTR(bc, iv),

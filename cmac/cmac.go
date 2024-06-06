@@ -1,4 +1,4 @@
-package kipher
+package cmac
 
 import (
 	"crypto/cipher"
@@ -8,7 +8,11 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
 )
 
-func NewCMAC(b cipher.Block) hash.Hash {
+func Equal(mac1, mac2 []byte) bool {
+	return subtle.ConstantTimeCompare(mac1, mac2) == 1
+}
+
+func New(b cipher.Block) hash.Hash {
 	blockSize := b.BlockSize()
 
 	arr := make([]byte, 4*blockSize)
@@ -21,11 +25,11 @@ func NewCMAC(b cipher.Block) hash.Hash {
 
 	// k1
 	b.Encrypt(k1, k1)
-	makeCMACSubkey(b, k1)
+	makeCMACSubkey(k1)
 
 	// k2
 	copy(k2, k1)
-	makeCMACSubkey(b, k2)
+	makeCMACSubkey(k2)
 
 	return &cmac{
 		block: b,
@@ -36,7 +40,7 @@ func NewCMAC(b cipher.Block) hash.Hash {
 	}
 }
 
-func makeCMACSubkey(b cipher.Block, k []byte) {
+func makeCMACSubkey(k []byte) {
 	var carry byte
 	for i := len(k) - 1; i >= 1; i -= 2 {
 		carry2 := k[i] >> 7

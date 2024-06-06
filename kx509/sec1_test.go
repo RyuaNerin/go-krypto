@@ -1,29 +1,24 @@
 package kx509
 
 import (
-	"crypto/rand"
 	"testing"
-
-	"github.com/RyuaNerin/go-krypto/eckcdsa"
 )
 
-func TestMarshalAndParseMarshalECPrivateKey(t *testing.T) {
-	for _, curve := range curveList {
-		p1, _ := eckcdsa.GenerateKey(curve, rand.Reader)
-
-		der, err := MarshalECPrivateKey(p1)
+func TestSEC1ASN1DER(t *testing.T) {
+	for _, tc := range eckcdsaTestCases {
+		b, err := MarshalECKCPrivateKey(&tc.key)
 		if err != nil {
 			t.Error(err)
 			return
 		}
 
-		p2, err := ParseECPrivateKey(der)
+		key, err := ParseECKCPrivateKey(b)
 		if err != nil {
 			t.Error(err)
 			return
 		}
 
-		if !p1.Equal(p2) {
+		if !tc.key.Equal(key) {
 			t.Error("not equals!")
 			return
 		}

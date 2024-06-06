@@ -1,8 +1,13 @@
 package kipher
 
 import (
+	"bufio"
+	"crypto/rand"
+
 	. "github.com/RyuaNerin/testingutil"
 )
+
+var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
 
 var as = []CipherSize{
 	{Name: "2 blocks", Size: 2},

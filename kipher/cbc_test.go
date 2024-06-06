@@ -5,10 +5,12 @@ import (
 	"crypto/cipher"
 	"testing"
 
+	"github.com/RyuaNerin/go-krypto/internal"
+
 	. "github.com/RyuaNerin/testingutil"
 )
 
-func Test_BlockMode_CBC(t *testing.T) { TA(t, as, testCBC, false) }
+func Test_CBC(t *testing.T) { TA(t, as, testCBC, false) }
 
 func testCBC(t *testing.T, inputBlocks int) {
 	type ctr struct {
@@ -26,7 +28,7 @@ func testCBC(t *testing.T, inputBlocks int) {
 			if err != nil {
 				return nil, err
 			}
-			bk := blockWrap{bc}
+			bk := internal.WrapBlock(bc)
 
 			data := &ctr{
 				c: cipher.NewCBCDecrypter(bc, iv),

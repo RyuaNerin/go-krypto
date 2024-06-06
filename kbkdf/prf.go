@@ -5,7 +5,7 @@ import (
 	"crypto/hmac"
 	"hash"
 
-	"github.com/RyuaNerin/go-krypto/kipher"
+	"github.com/RyuaNerin/go-krypto/cmac"
 )
 
 // implements of Pseudo-Random Functions
@@ -45,7 +45,7 @@ func (hrf *prfCMAC) Sum(dst, key []byte, src ...[]byte) []byte {
 	if err != nil {
 		panic(err)
 	}
-	h := kipher.NewCMAC(b)
+	h := cmac.New(b)
 	for _, v := range src {
 		h.Write(v)
 	}

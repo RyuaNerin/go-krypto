@@ -13,21 +13,28 @@ import (
 )
 
 var (
-	ErrInvalidPublicKey       = errors.New("krypto/kcdsa: invalid public key")
-	ErrInvalidTTAKParameters  = errors.New("krypto/kcdsa: invalid domain parameters")
-	ErrInvalidParameterSizes  = errors.New("krypto/kcdsa: invalid ParameterSizes")
-	ErrParametersNotSetUp     = errors.New("krypto/kcdsa: parameters not set up before generating key")
-	ErrTTAKParametersNotSetUp = errors.New("krypto/kcdsa: ttakparameters not set up before generating key")
-	ErrShortXKEY              = errors.New("krypto/kcdsa: XKEY is too small.")
+	ErrInvalidPublicKey            = errors.New("krypto/kcdsa: invalid public key")
+	ErrInvalidGenerationParameters = errors.New("krypto/kcdsa: invalid generation parameters")
+	ErrInvalidParameterSizes       = errors.New("krypto/kcdsa: invalid ParameterSizes")
+	ErrParametersNotSetUp          = errors.New("krypto/kcdsa: parameters not set up before generating key")
+	ErrShortXKEY                   = errors.New("krypto/kcdsa: XKEY is too small.")
 )
 
 type ParameterSizes int
 
 const (
-	L2048N224SHA224 ParameterSizes = kcdsainternal.L2048N224SHA224
-	L2048N224SHA256 ParameterSizes = kcdsainternal.L2048N224SHA256
-	L2048N256SHA256 ParameterSizes = kcdsainternal.L2048N256SHA256
-	L3072N256SHA256 ParameterSizes = kcdsainternal.L3072N256SHA256
+	A2048B224SHA224 ParameterSizes = kcdsainternal.A2048B224SHA224 // len(P) = 2048, len(Q) = 224, SHA-224, Recommended
+	A2048B224SHA256 ParameterSizes = kcdsainternal.A2048B224SHA256 // len(P) = 2048, len(Q) = 256, SHA-256
+	A2048B256SHA256 ParameterSizes = kcdsainternal.A2048B256SHA256 // len(P) = 2048, len(Q) = 256, SHA-256
+	A3072B256SHA256 ParameterSizes = kcdsainternal.A3072B256SHA256 // len(P) = 3072, len(Q) = 256, SHA-256, Recommended
+	A1024B160HAS160 ParameterSizes = kcdsainternal.A1024B160HAS160 // Deprecated: unsafe. lagacy use only
+)
+
+const (
+	L2048N224SHA224 ParameterSizes = kcdsainternal.A2048B224SHA224 // Deprecated: use A2048B224SHA224
+	L2048N224SHA256 ParameterSizes = kcdsainternal.A2048B224SHA256 // Deprecated: use A2048B224SHA256
+	L2048N256SHA256 ParameterSizes = kcdsainternal.A2048B256SHA256 // Deprecated: use A2048B256SHA256
+	L3072N256SHA256 ParameterSizes = kcdsainternal.A3072B256SHA256 // Deprecated: use A3072B256SHA256
 )
 
 func (ps ParameterSizes) Hash() hash.Hash {
@@ -35,6 +42,7 @@ func (ps ParameterSizes) Hash() hash.Hash {
 	if !ok {
 		panic(ErrInvalidParameterSizes.Error())
 	}
+
 	return domain.NewHash()
 }
 
@@ -53,9 +61,9 @@ func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes
 	params.P = generated.P
 	params.Q = generated.Q
 	params.G = generated.G
-	params.TTAKParams.J = generated.J
-	params.TTAKParams.Seed = generated.Seed
-	params.TTAKParams.Count = generated.Count
+	params.GenParameters.J = generated.J
+	params.GenParameters.Seed = generated.Seed
+	params.GenParameters.Count = generated.Count
 	return
 }
 
@@ -66,26 +74,26 @@ func RegenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSiz
 		return ErrInvalidParameterSizes
 	}
 
-	if params.TTAKParams.Count == 0 || params.TTAKParams.J == nil || params.TTAKParams.Seed == nil || params.TTAKParams.J.Sign() <= 0 {
-		return ErrInvalidTTAKParameters
+	if params.GenParameters.Count == 0 || len(params.GenParameters.Seed) == 0 {
+		return ErrInvalidGenerationParameters
 	}
-	if params.TTAKParams.J.Sign() <= 0 {
-		return ErrInvalidTTAKParameters
+	if params.GenParameters.J == nil || params.GenParameters.J.Sign() <= 0 {
+		return ErrInvalidGenerationParameters
 	}
 
-	if len(params.TTAKParams.Seed) != internal.Bytes(domain.B) {
-		return ErrInvalidTTAKParameters
+	if len(params.GenParameters.Seed) != internal.Bytes(domain.B) {
+		return ErrInvalidGenerationParameters
 	}
 
 	P, Q, G, err := kcdsainternal.RegenerateParameters(
 		rand,
 		domain,
-		params.TTAKParams.J,
-		params.TTAKParams.Seed,
-		params.TTAKParams.Count,
+		params.GenParameters.J,
+		params.GenParameters.Seed,
+		params.GenParameters.Count,
 	)
-	if errors.Is(err, kcdsainternal.ErrInvalidTTAKParameters) {
-		return ErrInvalidTTAKParameters
+	if errors.Is(err, kcdsainternal.ErrInvalidGenerationParameters) {
+		return ErrInvalidGenerationParameters
 	}
 
 	params.P = P

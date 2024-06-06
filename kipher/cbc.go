@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/cipher"
 
+	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
@@ -12,6 +13,9 @@ import (
 // mode, using the given Block. The length of iv must be the same as the
 // Block's block size.
 func NewCBCEncrypter(b cipher.Block, iv []byte) cipher.BlockMode {
+	if len(iv) != b.BlockSize() {
+		panic("krypto/kipher.NewCBCEncrypter: IV length must equal block size")
+	}
 	return cipher.NewCBCEncrypter(b, iv)
 }
 
@@ -19,29 +23,38 @@ func NewCBCEncrypter(b cipher.Block, iv []byte) cipher.BlockMode {
 // mode, using the given Block. The length of iv must be the same as the
 // Block's block size and must match the iv used to encrypt the data.
 func NewCBCDecrypter(b cipher.Block, iv []byte) cipher.BlockMode {
-	if kb, ok := b.(kryptoBlock); ok {
-		return &cbc2{
+	if len(iv) != b.BlockSize() {
+		panic("krypto/kipher.NewCBCDecrypter: IV length must equal block size")
+	}
+
+	if kb, ok := b.(internal.Block); ok {
+		return &cbc{
 			b:         kb,
 			blockSize: b.BlockSize(),
 			iv:        bytes.Clone(iv),
 			tmp:       make([]byte, 8*b.BlockSize()),
 		}
 	}
+
+	if cbc, ok := b.(internal.CBCDecAble); ok {
+		return cbc.NewCBCDecrypter(iv)
+	}
+
 	return cipher.NewCBCDecrypter(b, iv)
 }
 
-type cbc2 struct {
-	b         kryptoBlock
+type cbc struct {
+	b         internal.Block
 	blockSize int
 	iv        []byte
 	tmp       []byte
 }
 
-func (b *cbc2) BlockSize() int {
+func (b *cbc) BlockSize() int {
 	return b.b.BlockSize()
 }
 
-func (b *cbc2) CryptBlocks(dst, src []byte) {
+func (b *cbc) CryptBlocks(dst, src []byte) {
 	if len(src)%b.blockSize != 0 {
 		panic("krypto/kipher: input not full blocks")
 	}

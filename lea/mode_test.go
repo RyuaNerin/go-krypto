@@ -29,6 +29,14 @@ func Benchmark_BlockMode_CTR_Krypto(b *testing.B) {
 	BA(b, as, benchCTR(NewCipher), false)
 }
 
+func Benchmark_BlockMode_GCM_Std(b *testing.B) {
+	BA(b, as, benchGCM(newCipherSimple), false)
+}
+
+func Benchmark_BlockMode_GCM_Krypto(b *testing.B) {
+	BA(b, as, benchGCM(NewCipher), false)
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func benchCBC(newCipher func(key []byte) (cipher.Block, error), newBlockMode func(cipher.Block, []byte) cipher.BlockMode) func(b *testing.B, keySize int) {
@@ -85,6 +93,33 @@ func benchCTR(
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func benchGCM(newCipher func(key []byte) (cipher.Block, error)) func(b *testing.B, keySize int) {
+	nonce := make([]byte, 12)
+
+	return func(b *testing.B, keySize int) {
+		BBD(
+			b,
+			keySize,
+			BlockSize*BlockSize,
+			BlockSize*BlockSize,
+			func(key, iv []byte) (interface{}, error) {
+				ctx, err := newCipher(key)
+				if err != nil {
+					return nil, err
+				}
+
+				return cipher.NewGCM(ctx)
+			},
+			func(c interface{}, dst, src []byte) {
+				c.(cipher.AEAD).Seal(dst[:0], nonce, src, nil)
+			},
+			false,
+		)
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func newCipherSimple(key []byte) (cipher.Block, error) {
 	block, err := NewCipher(key)
 	if err != nil {
@@ -93,18 +128,8 @@ func newCipherSimple(key []byte) (cipher.Block, error) {
 	return &blockWrap{block}, nil
 }
 
-type blockWrap struct {
-	b cipher.Block
-}
+type blockWrap struct{ b cipher.Block }
 
-func (bw *blockWrap) BlockSize() int {
-	return bw.b.BlockSize()
-}
-
-func (bw *blockWrap) Encrypt(dst, src []byte) {
-	bw.b.Encrypt(dst, src)
-}
-
-func (bw *blockWrap) Decrypt(dst, src []byte) {
-	bw.b.Decrypt(dst, src)
-}
+func (bw *blockWrap) BlockSize() int          { return bw.b.BlockSize() }
+func (bw *blockWrap) Encrypt(dst, src []byte) { bw.b.Encrypt(dst, src) }
+func (bw *blockWrap) Decrypt(dst, src []byte) { bw.b.Decrypt(dst, src) }

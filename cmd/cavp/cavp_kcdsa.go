@@ -111,7 +111,7 @@ func processKCDSA_KPG(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 					P: generated.P,
 					Q: generated.Q,
 					G: generated.G,
-					TTAKParams: kcdsa.TTAKParameters{
+					GenParameters: kcdsa.GenerationParameters{
 						J:     generated.J,
 						Seed:  generated.Seed,
 						Count: generated.Count,
@@ -125,17 +125,17 @@ func processKCDSA_KPG(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 			panic(err)
 		}
 
-		res[0x0].Value = hexInt(privKey.P, bitsP)               // P
-		res[0x1].Value = hexInt(privKey.Q, bitsQ)               // Q
-		res[0x2].Value = hexInt(privKey.G, bitsG)               // G
-		res[0x3].Value = hexInt(privKey.X, bitsX)               // X
-		res[0x4].Value = hexInt(privKey.Y, bitsY)               // Y
-		res[0x5].Value = hexStr(privKey.TTAKParams.Seed)        // Seed
-		res[0x6].Value = strconv.Itoa(privKey.TTAKParams.Count) // Count
-		res[0x7].Value = hexStr(XKEY)                           // XKEY
-		res[0x8].Value = hexStr(OUPRI)                          // OUPRI
-		res[0x9].Value = hexInt(generated.H, bitsH)             // h
-		res[0xA].Value = hexInt(privKey.TTAKParams.J, bitsJ)    // J
+		res[0x0].Value = hexInt(privKey.P, bitsP)                  // P
+		res[0x1].Value = hexInt(privKey.Q, bitsQ)                  // Q
+		res[0x2].Value = hexInt(privKey.G, bitsG)                  // G
+		res[0x3].Value = hexInt(privKey.X, bitsX)                  // X
+		res[0x4].Value = hexInt(privKey.Y, bitsY)                  // Y
+		res[0x5].Value = hexStr(privKey.GenParameters.Seed)        // Seed
+		res[0x6].Value = strconv.Itoa(privKey.GenParameters.Count) // Count
+		res[0x7].Value = hexStr(XKEY)                              // XKEY
+		res[0x8].Value = hexStr(OUPRI)                             // OUPRI
+		res[0x9].Value = hexInt(generated.H, bitsH)                // h
+		res[0xA].Value = hexInt(privKey.GenParameters.J, bitsJ)    // J
 
 		cavp.WriteValues(res)
 	}

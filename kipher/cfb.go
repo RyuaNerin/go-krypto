@@ -13,6 +13,9 @@ import (
 // using the given Block. The iv must be the same length as the Block's block
 // size.
 func NewCFBEncrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
+	if len(iv) != block.BlockSize() {
+		panic("krypto/kipher.NewCFBEncrypter: IV length must equal block size")
+	}
 	if block.BlockSize() == cfbBlockByteSize {
 		return cipher.NewCFBEncrypter(block, iv)
 	}
@@ -23,6 +26,9 @@ func NewCFBEncrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher
 // using the given Block. The iv must be the same length as the Block's block
 // size.
 func NewCFBDecrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
+	if len(iv) != block.BlockSize() {
+		panic("krypto/kipher.NewCFBDecrypter: IV length must equal block size")
+	}
 	if block.BlockSize() == cfbBlockByteSize {
 		return cipher.NewCFBDecrypter(block, iv)
 	}
@@ -31,10 +37,6 @@ func NewCFBDecrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher
 
 func newCFB(block cipher.Block, iv []byte, decrypt bool, cfbBlockByteSize int) cipher.Stream {
 	blockSize := block.BlockSize()
-	if len(iv) != blockSize {
-		// stack trace will indicate whether it was de or encryption
-		panic("kipher.newCFB: IV length must equal block size")
-	}
 	x := &cfb{
 		b:       block,
 		out:     make([]byte, blockSize),

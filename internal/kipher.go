@@ -1,11 +1,32 @@
-package kipher
+package internal
 
 import (
 	"crypto/cipher"
-	"crypto/subtle"
 )
 
-type kryptoBlock interface {
+// cbcDecAble is an interface implemented by ciphers that have a specific
+// optimized implementation of CBC decryption, like crypto/aes.
+// NewCBCDecrypter will check for this interface and return the specific
+// BlockMode if found.
+type CBCDecAble interface {
+	NewCBCDecrypter(iv []byte) cipher.BlockMode
+}
+
+// gcmAble is an interface implemented by ciphers that have a specific optimized
+// implementation of GCM, like crypto/aes. NewGCM will check for this interface
+// and return the specific AEAD if found.
+type GCMAble interface {
+	NewGCM(nonceSize, tagSize int) (cipher.AEAD, error)
+}
+
+// ctrAble is an interface implemented by ciphers that have a specific optimized
+// implementation of CTR, like crypto/aes. NewCTR will check for this interface
+// and return the specific Stream if found.
+type CTRAble interface {
+	NewCTR(iv []byte) cipher.Stream
+}
+
+type Block interface {
 	cipher.Block
 
 	Encrypt4(dst, src []byte)
@@ -15,15 +36,18 @@ type kryptoBlock interface {
 	Decrypt8(dst, src []byte)
 }
 
-func Equal(mac1, mac2 []byte) bool {
-	return subtle.ConstantTimeCompare(mac1, mac2) == 1
+func WrapBlock(b cipher.Block) Block {
+	if kb, ok := b.(Block); ok {
+		return kb
+	}
+	return &blockWrap{Block: b}
 }
 
 type blockWrap struct {
 	cipher.Block
 }
 
-var _ kryptoBlock = (*blockWrap)(nil)
+var _ Block = (*blockWrap)(nil)
 
 func (b blockWrap) Encrypt4(dst, src []byte) {
 	bs := b.BlockSize()

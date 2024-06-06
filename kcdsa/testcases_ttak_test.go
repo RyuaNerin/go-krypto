@@ -104,7 +104,7 @@ func Test_TTAK_GeneratePQ(t *testing.T) {
 	}
 }
 
-func Test_TTAK_GenerateHG(t *testing.T) {
+func Test_GenerateHG(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping ttak parameter generation test in short mode")
 		return
@@ -125,9 +125,9 @@ func Test_TTAK_GenerateHG(t *testing.T) {
 	}
 }
 
-func Test_TTAK_GenerateG(t *testing.T) {
+func Test_GenerateG(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping ttak parameter generation test in short mode")
+		t.Skip("skipping Test_GenerateG in short mode")
 		return
 	}
 
@@ -145,15 +145,15 @@ func Test_TTAK_GenerateG(t *testing.T) {
 	}
 }
 
-func Test_RegenerateParametersTTAK(t *testing.T) {
+func Test_RegenerateParameters(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping ttak parameter generation test in short mode")
+		t.Skip("skipping Test_RegenerateParameters in short mode")
 		return
 	}
 
 	for _, tc := range testCaseTTAK {
 		params := Parameters{
-			TTAKParams: TTAKParameters{
+			GenParameters: GenerationParameters{
 				J:     tc.J,
 				Seed:  tc.Seedb,
 				Count: tc.Count,
@@ -172,9 +172,9 @@ func Test_RegenerateParametersTTAK(t *testing.T) {
 	}
 }
 
-func Test_TTAK_GenerateKey(t *testing.T) {
+func Test_GenerateKey(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping ttak parameter generation test in short mode")
+		t.Skip("skipping Test_GenerateKey in short mode")
 		return
 	}
 
@@ -220,7 +220,7 @@ var (
 		// p.30
 		// Ⅱ.1 소수 p, q의 길이 (α, β) = (2048, 224), SHA-224 적용 예
 		{
-			Sizes: L2048N224SHA224,
+			Sizes: A2048B224SHA224,
 			M:     M,
 
 			Seedb: internal.HB(`c0 52 a2 76 41 00 f0 f4 ec 90 6b 9c 5c 6b 10 6e 34 70 df c1 36 9f
@@ -283,7 +283,7 @@ var (
 		// p.36
 		// Ⅱ.2 소수 p, q의 길이 (α, β) = (2048, 224), SHA-256 적용 예
 		{
-			Sizes: L2048N224SHA256,
+			Sizes: A2048B224SHA256,
 			M:     M,
 
 			Seedb: internal.HB(`e1 75 ca d0 ea cb 74 dd b4 5f 15 f1 f2 57 22 bf 15 56 ef 86 0a 0f e0
@@ -346,7 +346,7 @@ var (
 		// p.42
 		// Ⅱ.3 소수 p, q의 길이 (α, β) = (2048, 256), SHA-256 적용 예
 		{
-			Sizes: L2048N256SHA256,
+			Sizes: A2048B256SHA256,
 			M:     M,
 
 			Seedb: internal.HB(`f7 5a bd a0 03 2c e2 18 ce 04 ba f0 a6 dc 92 c8 7e b4 6a a0 56 8c 42
@@ -408,7 +408,7 @@ var (
 		// p.48
 		// Ⅱ.4 소수 p, q의 길이 (α, β) = (3072, 256), SHA-256 적용 예
 		{
-			Sizes: L3072N256SHA256,
+			Sizes: A3072B256SHA256,
 			M:     M,
 
 			Seedb: internal.HB(`b8 56 20 16 38 55 a7 c0 05 76 13 dc d1 f2 ae 61 80 c4 34 d0 98 90 ea
@@ -486,6 +486,47 @@ var (
 			R: internal.HI(`54 7a 99 02 07 de dd 6d ff 97 89 c4 78 79 ac d9 60 d7 92 51 4b d9 1c 51
 							de c2 a2 4f 90 4c 03 f1`),
 			S: internal.HI(`1668797b 26641e72 94aa68d3 8562eae3 caa842d0 f446949c 4268ae3d 0392434f`),
+		},
+		// p.55
+		// Ⅱ.5 소수 p, q의 길이 (α, β) = (1024, 160), HAS-160 적용 예
+		{
+			Sizes: A1024B160HAS160,
+			M:     M,
+
+			Seedb: internal.HB(`68 ad b0 d1 b6 ae f1 44 a9 50 f3 e7 84 c9 89 3d 36 04 09 0e`),
+			J: internal.HI(`8cfa55c3 2582e0d7 4a09ef55 c5d2acac 5b46e9f3 5470ac48 1d95438c 7f5cc107
+							1d4e0bc5 877e0a0f c6b30dc6 c743f238 9bc69b8f cb7affeb dea013f8 64c68ac2
+							cb8bd7b5 c434809f c6d1b62c d9f20bb1 a7fab58c c3f5d2dc a511e2e4 077e9def
+							912141f8 47f8751d 1dc47f3d`),
+			Count: 5189, // 문서상에는 2189(0x1445)으로 되어있으나, 2189는 오타로 보이며, 실제로는 5189임
+			P: internal.HI(`d7b9afc1 04f4d53f 737db88d 6bf77e12 cd7ec3d7 1cbe3cb7 4cd224bf f348154a
+							fba6bfed 797044df c655dcc2 0c952c0e c43a97e1 ad67e687 d10729ca f622845d
+							162afca8 f0248cc4 12b3596c 4c5d3384 f7e25ee6 44ba87bb 09b164fb 465477b8
+							7fdba5ea a400ffa0 925714ae 19464ffa cead3a97 50d12194 8ab2d8d6 5c82379f`),
+			Q: internal.HI(`c3ddd371 7bf05b8f 8dd725c1 62f0b943 2c6f77fb`),
+
+			H: internal.HB(`1711797e cf9bc4b8 1c5ad487 b2d9f3d4 f4de8616 c47bb030 355ea4bf 2ab07104
+							0ee59c95 453119d7 68af7a79 95133c2d a1e302c6 9128afba 129e698d c7982f56
+							064c70c1 8fb523ba 826b76f8 1efa58a9 1226e6af c96e2010 97589940 8e785fe4
+							a338b398 065ffd22 2fd1e1b7 a1da01a0 90b84168 e3522241 d2855a4e fe87611a`),
+			G: internal.HI(`50e414c7 a56892d1 ad633e42 d5cd8346 f2c09808 111c772c c30b0c54 4102c27e
+							7b5f9bec 57b9df2a 15312891 9d795e46 652b2a07 2e1f2517 f2a3afff 5815253a
+							aefe3572 4cfa1af6 afce3a6b 41e3d0e1 3bed0eff 54383c46 65e69b47 ba79bbc3
+							339f86b9 be2b5889 4a18b201 afc41fe3 a0d93d31 25efda79 bc50dbbb 2c3ab639`),
+
+			XKEY: internal.HB(`f2072ce3 0a017656 8324564b fdbd7077 173b7e3f`),
+			X:    internal.HI(`068c4ef3 55d8b6f5 3eff1df6 f243f985 63896c58`),
+			Y: internal.HI(`96dce0e7 b2f17009 3d9b51d2 ba782027 33b62c40 6d376975 8b3e0cbb a1ff6c78
+							727a3570 3cb6bc24 76c3c293 743dfee9 4aa4b9ef a9a17fa6 bf790ac2 5a82c615
+							23f50aba ac7b6464 7eb15c95 7b07f5ed 7d467243 089f7469 5cd58fbf 57920cc0
+							c05d4582 9c0a8161 b943f184 51845760 ed096540 e78aa975 0b03d024 48cbf8de`),
+			Z: internal.HI(`23 f5 0a ba ac 7b 64 64 7e b1 5c 95 7b 07 f5 ed 7d 46 72 43 08 9f 74 69
+							5c d5 8f bf 57 92 0c c0 c0 5d 45 82 9c 0a 81 61 b9 43 f1 84 51 84 57 60
+							ed 09 65 40 e7 8a a9 75 0b 03 d0 24 48 cb f8 de`),
+
+			KKEY: internal.HI(`4b037e4b 573bb7e3 34cad0a7 0bed6b58 81df9e8e`),
+			R:    internal.HI(`8f 99 6a 98 ed a5 7c c8 d8 8a a6 ff df ae a2 2f 39 d7 fa 8a`),
+			S:    internal.HI(`541f7dc4 f92c65eb 7f63b6b4 f22177f1 ee2cf339`),
 		},
 	}
 )

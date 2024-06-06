@@ -95,10 +95,10 @@ var (
 	}
 
 	algKCDSA = map[string]kcdsa.ParameterSizes{
-		"(2048)(224)_SHA-224": kcdsa.L2048N224SHA224,
-		"(2048)(224)_SHA-256": kcdsa.L2048N224SHA256,
-		"(2048)(256)_SHA-256": kcdsa.L2048N256SHA256,
-		"(3072)(256)_SHA-256": kcdsa.L3072N256SHA256,
+		"(2048)(224)_SHA-224": kcdsa.A2048B224SHA224,
+		"(2048)(224)_SHA-256": kcdsa.A2048B224SHA256,
+		"(2048)(256)_SHA-256": kcdsa.A2048B256SHA256,
+		"(3072)(256)_SHA-256": kcdsa.A3072B256SHA256,
 	}
 
 	algECKCDSACurve = map[string]elliptic.Curve{

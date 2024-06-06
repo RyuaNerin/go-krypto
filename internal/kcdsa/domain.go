@@ -3,13 +3,16 @@ package kcdsa
 import (
 	"crypto/sha256"
 	"hash"
+
+	"github.com/RyuaNerin/go-krypto/has160"
 )
 
 const (
-	L2048N224SHA224 = iota
-	L2048N224SHA256
-	L2048N256SHA256
-	L3072N256SHA256
+	A2048B224SHA224 = iota // 권고
+	A2048B224SHA256        // A2048B224SHA224 와 강도 동일
+	A2048B256SHA256        // 효율성이 떨어지지만, 필요에 따라 이용 가능하다.
+	A3072B256SHA256        // 권고
+	A1024B160HAS160        // 레거시
 )
 
 type Domain struct {
@@ -21,33 +24,40 @@ type Domain struct {
 }
 
 var paramValuesMap = map[int]Domain{
-	L2048N224SHA224: {
+	A2048B224SHA224: {
 		A:       2048,
 		B:       224,
-		LH:      28,
 		NewHash: sha256.New224,
-		L:       512,
+		LH:      sha256.Size224 * 8,
+		L:       sha256.BlockSize,
 	},
-	L2048N224SHA256: {
+	A2048B224SHA256: {
 		A:       2048,
 		B:       224,
-		LH:      32,
 		NewHash: sha256.New,
-		L:       512,
+		LH:      sha256.Size * 8,
+		L:       sha256.BlockSize,
 	},
-	L2048N256SHA256: {
+	A2048B256SHA256: {
 		A:       2048,
 		B:       256,
-		LH:      32,
 		NewHash: sha256.New,
-		L:       512,
+		LH:      sha256.Size * 8,
+		L:       sha256.BlockSize,
 	},
-	L3072N256SHA256: {
+	A3072B256SHA256: {
 		A:       3072,
 		B:       256,
-		LH:      32,
 		NewHash: sha256.New,
-		L:       512,
+		LH:      sha256.Size * 8,
+		L:       sha256.BlockSize,
+	},
+	A1024B160HAS160: {
+		A:       1024,
+		B:       160,
+		NewHash: has160.New,
+		LH:      has160.Size * 8,
+		L:       has160.BlockSize,
 	},
 }
 

@@ -690,12 +690,12 @@ func leaEnc1Go(ctx *leaContext, dst, src []byte) {
 	X2 := binary.LittleEndian.Uint32(src[4*2:])
 	X3 := binary.LittleEndian.Uint32(src[4*3:])
 
-	X0, X1, X2, X3 = leaEnc1GoRoundUnder24(ctx, dst, src, X0, X1, X2, X3)
+	X0, X1, X2, X3 = leaEnc1GoRoundUnder24(ctx, X0, X1, X2, X3)
 
 	if ctx.round > 24 {
-		X0, X1, X2, X3 = leaEnc1GoRoundOver24(ctx, dst, src, X0, X1, X2, X3)
+		X0, X1, X2, X3 = leaEnc1GoRoundOver24(ctx, X0, X1, X2, X3)
 		if ctx.round > 28 {
-			X0, X1, X2, X3 = leaEnc1GoRoundOver28(ctx, dst, src, X0, X1, X2, X3)
+			X0, X1, X2, X3 = leaEnc1GoRoundOver28(ctx, X0, X1, X2, X3)
 		}
 	}
 
@@ -705,7 +705,7 @@ func leaEnc1Go(ctx *leaContext, dst, src []byte) {
 	binary.LittleEndian.PutUint32(dst[4*3:], X3)
 }
 
-func leaEnc1GoRoundUnder24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
+func leaEnc1GoRoundUnder24(ctx *leaContext, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X3 = bitsRotateRight32((X2^ctx.rk[4])+(X3^ctx.rk[5]), 3)
 	X2 = bitsRotateRight32((X1^ctx.rk[2])+(X2^ctx.rk[3]), 5)
 	X1 = bits.RotateLeft32((X0^ctx.rk[0])+(X1^ctx.rk[1]), 9)
@@ -787,7 +787,7 @@ func leaEnc1GoRoundUnder24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint
 	return X0, X1, X2, X3
 }
 
-func leaEnc1GoRoundOver24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
+func leaEnc1GoRoundOver24(ctx *leaContext, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X3 = bitsRotateRight32((X2^ctx.rk[148])+(X3^ctx.rk[149]), 3)
 	X2 = bitsRotateRight32((X1^ctx.rk[146])+(X2^ctx.rk[147]), 5)
 	X1 = bits.RotateLeft32((X0^ctx.rk[144])+(X1^ctx.rk[145]), 9)
@@ -804,7 +804,7 @@ func leaEnc1GoRoundOver24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint3
 	return X0, X1, X2, X3
 }
 
-func leaEnc1GoRoundOver28(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
+func leaEnc1GoRoundOver28(ctx *leaContext, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X3 = bitsRotateRight32((X2^ctx.rk[172])+(X3^ctx.rk[173]), 3)
 	X2 = bitsRotateRight32((X1^ctx.rk[170])+(X2^ctx.rk[171]), 5)
 	X1 = bits.RotateLeft32((X0^ctx.rk[168])+(X1^ctx.rk[169]), 9)
@@ -828,14 +828,14 @@ func leaDec1Go(ctx *leaContext, dst, src []byte) {
 	X3 := binary.LittleEndian.Uint32(src[4*3:])
 
 	if ctx.round > 28 {
-		X0, X1, X2, X3 = leaDec1GoRoundOver28(ctx, dst, src, X0, X1, X2, X3)
+		X0, X1, X2, X3 = leaDec1GoRoundOver28(ctx, X0, X1, X2, X3)
 	}
 
 	if ctx.round > 24 {
-		X0, X1, X2, X3 = leaDec1GoRoundOver24(ctx, dst, src, X0, X1, X2, X3)
+		X0, X1, X2, X3 = leaDec1GoRoundOver24(ctx, X0, X1, X2, X3)
 	}
 
-	X0, X1, X2, X3 = leaDec1GoRoundUnder24(ctx, dst, src, X0, X1, X2, X3)
+	X0, X1, X2, X3 = leaDec1GoRoundUnder24(ctx, X0, X1, X2, X3)
 
 	binary.LittleEndian.PutUint32(dst[4*0:], X0)
 	binary.LittleEndian.PutUint32(dst[4*1:], X1)
@@ -843,7 +843,7 @@ func leaDec1Go(ctx *leaContext, dst, src []byte) {
 	binary.LittleEndian.PutUint32(dst[4*3:], X3)
 }
 
-func leaDec1GoRoundOver28(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
+func leaDec1GoRoundOver28(ctx *leaContext, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[186])) ^ ctx.rk[187]
 	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[188])) ^ ctx.rk[189]
 	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[190])) ^ ctx.rk[191]
@@ -860,7 +860,7 @@ func leaDec1GoRoundOver28(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint3
 	return X0, X1, X2, X3
 }
 
-func leaDec1GoRoundOver24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
+func leaDec1GoRoundOver24(ctx *leaContext, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[162])) ^ ctx.rk[163]
 	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[164])) ^ ctx.rk[165]
 	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[166])) ^ ctx.rk[167]
@@ -877,7 +877,7 @@ func leaDec1GoRoundOver24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint3
 	return X0, X1, X2, X3
 }
 
-func leaDec1GoRoundUnder24(ctx *leaContext, dst, src []byte, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
+func leaDec1GoRoundUnder24(ctx *leaContext, X0, X1, X2, X3 uint32) (uint32, uint32, uint32, uint32) {
 	X0 = (bitsRotateRight32(X0, 9) - (X3 ^ ctx.rk[138])) ^ ctx.rk[139]
 	X1 = (bits.RotateLeft32(X1, 5) - (X0 ^ ctx.rk[140])) ^ ctx.rk[141]
 	X2 = (bits.RotateLeft32(X2, 3) - (X1 ^ ctx.rk[142])) ^ ctx.rk[143]

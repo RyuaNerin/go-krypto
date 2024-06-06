@@ -8,8 +8,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-// only for GenerateParametersTTAK or GenerateParametersTTAKPQG
-type TTAKParameters struct {
+type GenerationParameters struct {
 	J     *big.Int
 	Seed  []byte
 	Count int
@@ -18,7 +17,7 @@ type TTAKParameters struct {
 type Parameters struct {
 	P, Q, G *big.Int
 
-	TTAKParams TTAKParameters
+	GenParameters GenerationParameters
 }
 
 // PublicKey represents a KCDSA public key.
@@ -63,8 +62,15 @@ func (params Parameters) Equal(xx Parameters) bool {
 		internal.BigIntEqual(params.G, xx.G)
 }
 
+func (params *GenerationParameters) IsValid() bool {
+	return params.Count > 0 &&
+		len(params.Seed) > 0 &&
+		params.J == nil &&
+		params.J.Sign() > 0
+}
+
 // Equal reports whether p, q, g and sizes have the same value.
-func (params *TTAKParameters) Equal(xx TTAKParameters) bool {
+func (params *GenerationParameters) Equal(xx GenerationParameters) bool {
 	return internal.BigIntEqual(params.J, xx.J) &&
 		subtle.ConstantTimeEq(int32(params.Count), int32(xx.Count)) == 1 &&
 		subtle.ConstantTimeCompare(params.Seed, xx.Seed) == 1

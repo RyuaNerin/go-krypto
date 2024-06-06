@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/RyuaNerin/go-krypto/kipher"
+	"github.com/RyuaNerin/go-krypto/cmac"
 )
 
 func processCMAC(path, filename string) {
@@ -45,9 +45,9 @@ func processCMAC_Gen(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 				panic(err)
 			}
 
-			cmac := kipher.NewCMAC(b)
-			cmac.Write(M)
-			buf = cmac.Sum(buf[:0])[:TLen/8]
+			h := cmac.New(b)
+			h.Write(M)
+			buf = h.Sum(buf[:0])[:TLen/8]
 
 			cs = append(cs, cavpRow{"T", hexStr(buf), false})
 		}
@@ -73,11 +73,11 @@ func processCMAC_Ver(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 				panic(err)
 			}
 
-			cmac := kipher.NewCMAC(b)
-			cmac.Write(M)
-			buf = cmac.Sum(buf[:0])[:TLen/8]
+			h := cmac.New(b)
+			h.Write(M)
+			buf = h.Sum(buf[:0])[:TLen/8]
 
-			if kipher.Equal(buf, T) {
+			if cmac.Equal(buf, T) {
 				cs = append(cs, cavpRow{"", "VALID", false})
 			} else {
 				cs = append(cs, cavpRow{"", "INVALID", false})

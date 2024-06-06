@@ -8,47 +8,52 @@ import (
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
+	"github.com/RyuaNerin/go-krypto/internal"
 	eckcdsainternal "github.com/RyuaNerin/go-krypto/internal/eckcdsa"
 )
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L27-L32
-type ecPrivateKey struct {
+type eckcPrivateKey struct {
 	Version       int
 	PrivateKey    []byte
 	NamedCurveOID asn1.ObjectIdentifier `asn1:"optional,explicit,tag:0"`
 	PublicKey     asn1.BitString        `asn1:"optional,explicit,tag:1"`
 }
 
-// ParseECPrivateKey parses an EC private key in SEC 1, ASN.1 DER form.
+// ParseECKCPrivateKey parses an EC private key in SEC 1, ASN.1 DER form.
 //
 // This kind of key is commonly encoded in PEM blocks of type "EC PRIVATE KEY".
-func ParseECPrivateKey(der []byte) (*eckcdsa.PrivateKey, error) {
+//
+// warning: this is non-normative
+func ParseECKCPrivateKey(der []byte) (*eckcdsa.PrivateKey, error) {
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L37-L39
-	return parseECPrivateKey(nil, der)
+	return parseECKCPrivateKey(nil, der)
 }
 
-// MarshalECPrivateKey converts an EC private key to SEC 1, ASN.1 DER form.
+// MarshalECKCPrivateKey converts an EC private key to SEC 1, ASN.1 DER form.
 //
 // This kind of key is commonly encoded in PEM blocks of type "EC PRIVATE KEY".
 // For a more flexible key format which is not EC specific, use
 // MarshalPKCS8PrivateKey.
-func MarshalECPrivateKey(key *eckcdsa.PrivateKey) ([]byte, error) {
+//
+// warning: this is non-normative
+func MarshalECKCPrivateKey(key *eckcdsa.PrivateKey) ([]byte, error) {
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L46-L53
 	oid, ok := oidFromNamedCurve(key.Curve)
 	if !ok {
 		return nil, errors.New("kx509: unknown elliptic curve")
 	}
 
-	return marshalECPrivateKeyWithOID(key, oid)
+	return marshalECKCPrivateKeyWithOID(key, oid)
 }
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L55-L68
-func marshalECPrivateKeyWithOID(key *eckcdsa.PrivateKey, oid asn1.ObjectIdentifier) ([]byte, error) {
+func marshalECKCPrivateKeyWithOID(key *eckcdsa.PrivateKey, oid asn1.ObjectIdentifier) ([]byte, error) {
 	if !key.Curve.IsOnCurve(key.X, key.Y) {
 		return nil, errors.New("kx509: invalid elliptic key public key")
 	}
-	privateKey := make([]byte, (key.Curve.Params().N.BitLen()+7)/8)
-	return asn1.Marshal(ecPrivateKey{
+	privateKey := make([]byte, internal.Bytes(key.D.BitLen()))
+	return asn1.Marshal(eckcPrivateKey{
 		Version:       1,
 		PrivateKey:    key.D.FillBytes(privateKey),
 		NamedCurveOID: oid,
@@ -57,8 +62,8 @@ func marshalECPrivateKeyWithOID(key *eckcdsa.PrivateKey, oid asn1.ObjectIdentifi
 }
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L84-L136
-func parseECPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key *eckcdsa.PrivateKey, err error) {
-	var privKey ecPrivateKey
+func parseECKCPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key *eckcdsa.PrivateKey, err error) {
+	var privKey eckcPrivateKey
 	if _, err := asn1.Unmarshal(der, &privKey); err != nil {
 		if _, err := asn1.Unmarshal(der, &pkcs8{}); err == nil {
 			return nil, errors.New("kx509: failed to parse private key (use ParsePKCS8PrivateKey instead for this key format)")

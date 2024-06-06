@@ -1,89 +1,58 @@
 package kx509
 
 import (
-	"crypto/rand"
+	"bytes"
+	"encoding/hex"
+	"encoding/pem"
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/kcdsa"
 )
 
-func TestMarshalAndParsePKCS8PrivateKey(t *testing.T) {
+func TestPKCS8PrivateKey(t *testing.T) {
 	t.Run("EC-KCDSA", func(t *testing.T) {
-		for _, curve := range curveList {
-			p1, _ := eckcdsa.GenerateKey(curve, rand.Reader)
+		for _, tc := range eckcdsaTestCases {
+			pb, _ := pem.Decode([]byte(tc.pkcs8PrivateKey))
+			expectedDER := pb.Bytes
 
-			der, err := MarshalPKCS8PrivateKey(p1)
+			actualDER, err := MarshalPKCS8PrivateKey(&tc.key)
 			if err != nil {
 				t.Error(err)
 				return
 			}
+			if !bytes.Equal(expectedDER, actualDER) {
+				t.Errorf("Not equal:\nexpected: %s\nactual  : %s", hex.EncodeToString(expectedDER), hex.EncodeToString(actualDER))
+				return
+			}
 
-			p2, err := ParsePKCS8PrivateKey(der)
+			key, err := ParsePKCS8PrivateKey(expectedDER)
 			if err != nil {
 				t.Error(err)
 				return
 			}
-
-			if !p1.Equal(p2) {
-				t.Error("not equals!")
+			if !eqPrivECKCDSA(t, &tc.key, key.(*eckcdsa.PrivateKey)) {
 				return
 			}
 		}
 	})
 
 	t.Run("KCDSA", func(t *testing.T) {
-		for _, size := range sizeList {
-			var p1 kcdsa.PrivateKey
-
-			kcdsa.GenerateParameters(&p1.Parameters, rand.Reader, size)
-			kcdsa.GenerateKey(&p1, rand.Reader)
-
-			der, err := MarshalPKCS8PrivateKey(&p1)
+		for _, tc := range kcdsaTestCases {
+			der, err := MarshalPKCS8PrivateKey(tc.key)
 			if err != nil {
 				t.Error(err)
 				return
 			}
 
-			p2, err := ParsePKCS8PrivateKey(der)
+			psdKeyRaw, err := ParsePKCS8PrivateKey(der)
 			if err != nil {
 				t.Error(err)
 				return
 			}
+			psdKey := psdKeyRaw.(*kcdsa.PrivateKey)
 
-			if !p1.Equal(p2) {
-				t.Error("not equals!")
-				return
-			}
-		}
-	})
-	t.Run("KCDSA-TTAK", func(t *testing.T) {
-		for _, size := range sizeList {
-			var p1 kcdsa.PrivateKey
-
-			kcdsa.GenerateParameters(&p1.Parameters, rand.Reader, size)
-			kcdsa.GenerateKey(&p1, rand.Reader)
-
-			der, err := MarshalPKCS8PrivateKey(&p1)
-			if err != nil {
-				t.Error(err)
-				return
-			}
-
-			p2r, err := ParsePKCS8PrivateKey(der)
-			if err != nil {
-				t.Error(err)
-				return
-			}
-
-			p2, ok := p2r.(*kcdsa.PrivateKey)
-			if !ok {
-				t.Error("type error")
-				return
-			}
-
-			if !p1.Equal(p2) || !p1.TTAKParams.Equal(p2.TTAKParams) {
-				t.Error("not equals!")
+			if !eqPrivKCDSA(t, &tc.key, psdKey) {
 				return
 			}
 		}

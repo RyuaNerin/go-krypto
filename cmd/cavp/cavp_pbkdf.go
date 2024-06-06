@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/RyuaNerin/go-krypto/kdf/pbkdf"
+	"github.com/RyuaNerin/go-krypto/pbkdf"
 )
 
 func processPBKDF(path, filename string) {

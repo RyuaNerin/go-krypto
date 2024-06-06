@@ -9,7 +9,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-var ErrInvalidTTAKParameters = errors.New("krypto/kcdsa: invalid domain parameters")
+var ErrInvalidGenerationParameters = errors.New("krypto/kcdsa: invalid generation parameters")
 
 type GeneratedParameter struct {
 	P     *big.Int
@@ -97,19 +97,19 @@ func RegenerateParameters(
 	// 10: p ← (2Jq + 1)의 비트 길이가 α보다 길면 단계 6으로 간다.
 	P.Add(P.Lsh(P.Mul(J, Q), 1), internal.One)
 	if P.BitLen() > domain.A {
-		err = ErrInvalidTTAKParameters
+		err = ErrInvalidGenerationParameters
 		return
 	}
 
 	// 11: 강한 소수 판정 알고리즘으로 q를 판정하여 소수가 아니면 단계 6으로 간다.
 	if !Q.ProbablyPrime(internal.NumMRTests) {
-		err = ErrInvalidTTAKParameters
+		err = ErrInvalidGenerationParameters
 		return
 	}
 
 	// 12: 강한 소수 판정 알고리즘으로 p를 판정하여 소수가 아니면 단계 6으로 간다
 	if !P.ProbablyPrime(internal.NumMRTests) {
-		err = ErrInvalidTTAKParameters
+		err = ErrInvalidGenerationParameters
 		return
 	}
 

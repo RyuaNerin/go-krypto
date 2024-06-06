@@ -39,6 +39,13 @@ func TestCCM(t *testing.T) {
 	}
 
 	if !bytes.Equal(input, output) {
-		t.Fail()
+		t.Error("output not equals to input")
+		return
+	}
+
+	_, err = aead.Open(nil, nonce, seal, additionalData[:len(additionalData)-1])
+	if err == nil {
+		t.Error("unexpected success")
+		return
 	}
 }

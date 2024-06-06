@@ -11,8 +11,18 @@ import (
 
 // NewCTR returns a Stream which encrypts/decrypts using the given Block in
 // counter mode. The length of iv must be the same as the Block's block size.
-func NewCTR(b cipher.Block, iv []byte) cipher.Stream {
-	if kb, ok := b.(kryptoBlock); ok {
+func NewCTR(block cipher.Block, iv []byte) cipher.Stream {
+	kb, ok := block.(internal.Block)
+	if !ok {
+		if ctr, ok := block.(internal.CTRAble); ok {
+			return ctr.NewCTR(iv)
+		}
+	}
+	if len(iv) != block.BlockSize() {
+		panic("krypto/kipher.NewCTR: IV length must equal block size")
+	}
+
+	if ok {
 		ctr := &ctr{
 			b:   kb,
 			ctr: bytes.Clone(iv),
@@ -22,11 +32,11 @@ func NewCTR(b cipher.Block, iv []byte) cipher.Stream {
 
 		return ctr
 	}
-	return cipher.NewCTR(b, iv)
+	return cipher.NewCTR(block, iv)
 }
 
 type ctr struct {
-	b       kryptoBlock
+	b       internal.Block
 	ctr     []byte
 	out     []byte
 	outUsed int
@@ -46,10 +56,10 @@ func (x *ctr) refill() {
 
 func (x *ctr) XORKeyStream(dst, src []byte) {
 	if len(dst) < len(src) {
-		panic("krypto/lea: output smaller than input")
+		panic("krypto/kipher: output smaller than input")
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("krypto/lea: invalid buffer overlap")
+		panic("krypto/kipher: invalid buffer overlap")
 	}
 
 	for len(src) > 0 {

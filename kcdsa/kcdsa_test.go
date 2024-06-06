@@ -38,10 +38,10 @@ type testCase struct {
 }
 
 var as = []CipherSize{
-	{Name: "L2048 N224 SHA224", Size: int(L2048N224SHA224)},
-	{Name: "L2048 N224 SHA256", Size: int(L2048N224SHA256)},
-	{Name: "L2048 N256 SHA256", Size: int(L2048N256SHA256)},
-	{Name: "L3072 N256 SHA256", Size: int(L3072N256SHA256)},
+	{Name: "A2048 B224 SHA224", Size: int(A2048B224SHA224)},
+	{Name: "A2048 B224 SHA256", Size: int(A2048B224SHA256)},
+	{Name: "A2048 B256 SHA256", Size: int(A2048B256SHA256)},
+	{Name: "A3072 B256 SHA256", Size: int(A3072B256SHA256)},
 }
 
 func Test_SignVerify_With_BadPublicKey(t *testing.T) {
@@ -87,7 +87,7 @@ func Test_Signing_With_DegenerateKeys(t *testing.T) {
 			X: internal.HI(test.x),
 		}
 
-		if _, _, err := Sign(rand.Reader, &priv, L2048N224SHA224, msg); err == nil {
+		if _, _, err := Sign(rand.Reader, &priv, A2048B224SHA224, msg); err == nil {
 			t.Errorf("#%d: unexpected success", i)
 			return
 		}
@@ -99,10 +99,10 @@ func Test_KCDSA(t *testing.T) {
 		t.Skip("skipping parameter generation test in short mode")
 	}
 
-	testKCDSA(t, L2048N224SHA224, 2048, 224)
-	testKCDSA(t, L2048N224SHA256, 2048, 224)
-	testKCDSA(t, L2048N256SHA256, 2048, 256)
-	testKCDSA(t, L3072N256SHA256, 3072, 256)
+	testKCDSA(t, A2048B224SHA224, 2048, 224)
+	testKCDSA(t, A2048B224SHA256, 2048, 224)
+	testKCDSA(t, A2048B256SHA256, 2048, 256)
+	testKCDSA(t, A3072B256SHA256, 3072, 256)
 }
 
 func testKCDSA(t *testing.T, sizes ParameterSizes, l, n int) {

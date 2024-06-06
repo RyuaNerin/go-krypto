@@ -3,16 +3,14 @@ package kipher
 import (
 	"crypto/cipher"
 
+	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
 )
 
 func NewECBEncryptor(b cipher.Block) cipher.BlockMode {
-	kb, ok := b.(kryptoBlock)
-	if !ok {
-		kb = &blockWrap{b}
-	}
+	kb := internal.WrapBlock(b)
 
-	return &ecbEnc{
+	return &ecb{
 		b:        kb,
 		process1: kb.Encrypt,
 		process4: kb.Encrypt4,
@@ -21,12 +19,9 @@ func NewECBEncryptor(b cipher.Block) cipher.BlockMode {
 }
 
 func NewECBDecryptor(b cipher.Block) cipher.BlockMode {
-	kb, ok := b.(kryptoBlock)
-	if !ok {
-		kb = &blockWrap{b}
-	}
+	kb := internal.WrapBlock(b)
 
-	return &ecbEnc{
+	return &ecb{
 		b:        kb,
 		process1: kb.Decrypt,
 		process4: kb.Decrypt4,
@@ -34,18 +29,18 @@ func NewECBDecryptor(b cipher.Block) cipher.BlockMode {
 	}
 }
 
-type ecbEnc struct {
-	b        kryptoBlock
+type ecb struct {
+	b        internal.Block
 	process1 func(dst, src []byte)
 	process4 func(dst, src []byte)
 	process8 func(dst, src []byte)
 }
 
-func (ecb *ecbEnc) BlockSize() int {
+func (ecb *ecb) BlockSize() int {
 	return ecb.b.BlockSize()
 }
 
-func (ecb *ecbEnc) CryptBlocks(dst, src []byte) {
+func (ecb *ecb) CryptBlocks(dst, src []byte) {
 	blockSize := ecb.BlockSize()
 
 	if len(src)%blockSize != 0 {

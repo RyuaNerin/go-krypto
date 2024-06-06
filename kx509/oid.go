@@ -10,11 +10,11 @@ import (
 const ecPrivKeyVersion = 1
 
 var (
-	oidPublicKeyKCDSA   = asn1.ObjectIdentifier{1, 2, 410, 200004, 1, 1}         // eGOV-C01.0008
-	oidPublicKeyECKCDSA = asn1.ObjectIdentifier{1, 2, 410, 200004, 1, 100, 2, 1} // eGOV-C01.0008
+	oidPublicKeyKCDSA   = asn1.ObjectIdentifier{1, 0, 14888, 3, 0, 2} // {iso(1) standard(0) digital-signature-with-appendix(14888) part3(3) algorithm(0) kcdsa(2)}
+	oidPublicKeyECKCDSA = asn1.ObjectIdentifier{1, 0, 14888, 3, 0, 5} // {iso(1) standard(0) digital-signature-with-appendix(14888) part3(3) algorithm(0) ec-kcdsa(5)}
 
-	// oidPublicKeyKCDSAstd   = asn1.ObjectIdentifier{1, 0, 14888, 3, 0, 2} // {iso(1) standard(0) digital-signature-with-appendix(14888) part3(3) algorithm(0) kcdsa(2)}
-	// oidPublicKeyECKCDSAstd = asn1.ObjectIdentifier{1, 0, 14888, 3, 0, 5} // {iso(1) standard(0) digital-signature-with-appendix(14888) part3(3) algorithm(0) ec-kcdsa(5)}
+	oidPublicKeyKCDSAAlteGOV   = asn1.ObjectIdentifier{1, 2, 410, 200004, 1, 1}         // eGOV-C01.0008
+	oidPublicKeyECKCDSAAlteGOV = asn1.ObjectIdentifier{1, 2, 410, 200004, 1, 100, 2, 1} // eGOV-C01.0008
 
 	oidNamedCurveP224 = asn1.ObjectIdentifier{1, 3, 132, 0, 33}          // P-224 / secp224r1 / wap-wsg-idm-ecid-wtls12 / ansip224r1
 	oidNamedCurveP256 = asn1.ObjectIdentifier{1, 2, 840, 10045, 3, 1, 7} // P-256 / secp256r1 / prime256v1
@@ -100,4 +100,38 @@ func oidFromNamedCurve(curve elliptic.Curve) (asn1.ObjectIdentifier, bool) {
 	}
 
 	return nil, false
+}
+
+func curveToName(curve elliptic.Curve) string {
+	switch curve {
+	case elliptic.P224():
+		return "P224"
+	case elliptic.P256():
+		return "P256"
+	case elliptic.P384():
+		return "P384"
+	case elliptic.P521():
+		return "P521"
+
+	// github.com/RyuaNerin/elliptic2
+	case nist.B233():
+		return "B233"
+	case nist.B283():
+		return "B283"
+	case nist.B409():
+		return "B409"
+	case nist.B571():
+		return "B571"
+
+	case nist.K233():
+		return "K233"
+	case nist.K283():
+		return "K283"
+	case nist.K409():
+		return "K409"
+	case nist.K571():
+		return "K571"
+	}
+
+	return ""
 }

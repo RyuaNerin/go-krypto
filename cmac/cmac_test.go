@@ -1,4 +1,4 @@
-package kipher
+package cmac
 
 import (
 	"bytes"
@@ -54,7 +54,7 @@ func TestCMAC_SEED(t *testing.T) {
 
 	var dst []byte
 	for length := 1; length < len(M); length++ {
-		h := NewCMAC(b)
+		h := New(b)
 		h.Write(M[:length])
 		dst = h.Sum(dst[:0])
 

@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/RyuaNerin/go-krypto/kdf/kbkdf"
+	"github.com/RyuaNerin/go-krypto/kbkdf"
 )
 
 type funcKBKDF func(prf kbkdf.PRF, key, label, context, iv []byte, r, length int) []byte

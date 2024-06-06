@@ -9,10 +9,9 @@ import (
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
-	"github.com/RyuaNerin/go-krypto/kcdsa"
-
 	"github.com/RyuaNerin/go-krypto/internal/golang.org/x/crypto/cryptobyte"
 	cryptobyte_asn1 "github.com/RyuaNerin/go-krypto/internal/golang.org/x/crypto/cryptobyte/asn1"
+	"github.com/RyuaNerin/go-krypto/kcdsa"
 )
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/x509.go#L58
@@ -66,16 +65,19 @@ func marshalPublicKey(pub interface{}) (publicKeyBytes []byte, publicKeyAlgorith
 			return nil, pkix.AlgorithmIdentifier{}, errors.New("kx509: invalid public key")
 		}
 
-		var paramBytes []byte
-		paramBytes, err = asn1.Marshal(kcdsaParameters{
+		params := kcdsaParameters{
 			P: pub.P,
 			Q: pub.Q,
 			G: pub.G,
-			// TODO: Read KCDSA Parameters J, Seed, Count
-			J:     pub.TTAKParams.J,
-			Seed:  pub.TTAKParams.Seed,
-			Count: pub.TTAKParams.Count,
-		})
+		}
+		if pub.GenParameters.IsValid() {
+			params.J = pub.GenParameters.J
+			params.Seed = pub.GenParameters.Seed
+			params.Count = pub.GenParameters.Count
+		}
+
+		var paramBytes []byte
+		paramBytes, err = asn1.Marshal(params)
 		if err != nil {
 			return nil, pkix.AlgorithmIdentifier{}, errors.New("kx509: invalid paramerter")
 		}
@@ -191,7 +193,7 @@ func parsePublicKey(keyData *publicKeyInfo) (interface{}, error) {
 		if paramsDer.ReadASN1Integer(J) &&
 			paramsDer.ReadASN1Bytes(&seed, cryptobyte_asn1.OCTET_STRING) &&
 			paramsDer.ReadASN1Integer(&count) {
-			pub.Parameters.TTAKParams = kcdsa.TTAKParameters{
+			pub.Parameters.GenParameters = kcdsa.GenerationParameters{
 				J:     J,
 				Seed:  seed,
 				Count: count,
