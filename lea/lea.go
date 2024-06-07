@@ -3,7 +3,6 @@ package lea
 
 import (
 	"crypto/cipher"
-	"fmt"
 )
 
 type leaContext struct {
@@ -16,12 +15,6 @@ const (
 	// The LEA block size in bytes.
 	BlockSize = 16
 )
-
-type KeySizeError int
-
-func (k KeySizeError) Error() string {
-	return fmt.Sprintf("krypto/lea: invalid key size %d", int(k))
-}
 
 // NewCipher creates and returns a new cipher.Block.
 // The key argument should be the LEA key, either 16, 24, or 32 bytes to select LEA-128, LEA-192, or LEA-256.

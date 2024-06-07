@@ -7,9 +7,10 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
+// counterSize: 0 <= counterSize <= 8
 func CounterMode(prf PRF, key, label, context []byte, counterSize, length int) []byte {
 	if counterSize < 0 || 8 < counterSize {
-		panic("krypto/kbkdf: invalid counterSize")
+		panic(msgInvalidCounterSize)
 	}
 
 	//  1: n ← ⎡L/h⎤
@@ -44,9 +45,10 @@ func CounterMode(prf PRF, key, label, context []byte, counterSize, length int) [
 	return dst
 }
 
+// counterSize: 0 <= counterSize <= 8
 func FeedbackMode(prf PRF, key, label, context, iv []byte, counterSize, length int) []byte {
 	if counterSize < 0 || 8 < counterSize {
-		panic("krypto/kbkdf: invalid counterSize")
+		panic(msgInvalidCounterSize)
 	}
 
 	//  1: n ← ⎡L/h⎤
@@ -81,9 +83,10 @@ func FeedbackMode(prf PRF, key, label, context, iv []byte, counterSize, length i
 	return dst
 }
 
+// counterSize: 0 <= counterSize <= 8
 func DoublePipeMode(prf PRF, key, label, context []byte, counterSize, length int) []byte {
 	if counterSize < 0 || 8 < counterSize {
-		panic("krypto/kbkdf: invalid counterSize")
+		panic(msgInvalidCounterSize)
 	}
 
 	//  1: n ← ⎡L/h⎤

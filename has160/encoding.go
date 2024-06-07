@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	magic         = "has\x01"
+	magic         = "has\x00"
 	marshaledSize = len(magic) + /*H*/ 5*4 + /*block*/ BlockSize + /*boff*/ 1 + /*length*/ 8
 )
 
@@ -30,10 +30,10 @@ func (ctx *has160Context) MarshalBinary() ([]byte, error) {
 
 func (ctx *has160Context) UnmarshalBinary(b []byte) error {
 	if len(b) < len(magic) || string(b[:len(magic)]) != magic {
-		return errors.New("krypto/hash160: invalid hash state identifier")
+		return errors.New(msgInvalidHashStateIdentifier)
 	}
 	if len(b) != marshaledSize {
-		return errors.New("krypto/hash160: invalid hash state size")
+		return errors.New(msgInvalidHashStateSize)
 	}
 
 	b = b[len(magic):]

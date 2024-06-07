@@ -12,14 +12,6 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
 )
 
-const (
-	errInvalidPublicKey            = "krypto/kcdsa: invalid public key"
-	errInvalidGenerationParameters = "krypto/kcdsa: invalid generation parameters"
-	errInvalidParameterSizes       = "krypto/kcdsa: invalid ParameterSizes"
-	errParametersNotSetUp          = "krypto/kcdsa: parameters not set up before generating key"
-	errShortXKEY                   = "krypto/kcdsa: XKEY is too small."
-)
-
 type ParameterSizes int
 
 const (
@@ -40,7 +32,7 @@ const (
 func (ps ParameterSizes) Hash() hash.Hash {
 	domain, ok := kcdsainternal.GetDomain(int(ps))
 	if !ok {
-		panic("krypto/kcdsa: invalid ParameterSizes")
+		panic(msgInvalidParameterSizes)
 	}
 
 	return domain.NewHash()
@@ -50,7 +42,7 @@ func (ps ParameterSizes) Hash() hash.Hash {
 func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
 	d, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
-		return errors.New("krypto/kcdsa: invalid ParameterSizes")
+		return errors.New(msgInvalidParameterSizes)
 	}
 
 	generated, err := kcdsainternal.GenerateParametersFast(rand, d)
@@ -69,7 +61,7 @@ func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes
 func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
 	domain, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
-		return errors.New(errInvalidParameterSizes)
+		return errors.New(msgInvalidParameterSizes)
 	}
 
 	generated, err := kcdsainternal.GenerateParametersTTAK(rand, domain)
@@ -90,32 +82,34 @@ func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterS
 func RegenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) error {
 	domain, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
-		return errors.New(errInvalidParameterSizes)
+		return errors.New(msgInvalidParameterSizes)
 	}
 
 	if params.GenParameters.Count == 0 || len(params.GenParameters.Seed) == 0 {
-		return errors.New(errInvalidGenerationParameters)
+		return errors.New(msgInvalidGenerationParameters)
 	}
 	if params.GenParameters.J == nil || params.GenParameters.J.Sign() <= 0 {
-		return errors.New(errInvalidGenerationParameters)
+		return errors.New(msgInvalidGenerationParameters)
 	}
 
 	if len(params.GenParameters.Seed) != internal.BitsToBytes(domain.B) {
-		return errors.New(errInvalidGenerationParameters)
+		return errors.New(msgInvalidGenerationParameters)
 	}
 
-	P, Q, G, isValid, err := kcdsainternal.RegenerateParameters(
-		rand,
+	P, Q, ok := kcdsainternal.RegeneratePQ(
 		domain,
 		params.GenParameters.J,
 		params.GenParameters.Seed,
 		params.GenParameters.Count,
 	)
+	if !ok {
+		return errors.New(msgInvalidGenerationParameters)
+	}
+
+	H, G := new(big.Int), new(big.Int)
+	_, err := kcdsainternal.GenerateHG(H, G, nil, rand, P, params.GenParameters.J)
 	if err != nil {
 		return err
-	}
-	if isValid {
-		return errors.New(errInvalidGenerationParameters)
 	}
 
 	params.P = P
@@ -127,7 +121,7 @@ func RegenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSiz
 
 func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 	if priv.P == nil || priv.Q == nil || priv.G == nil {
-		return errors.New(errParametersNotSetUp)
+		return errors.New(msgErrorParametersNotSetUp)
 	}
 
 	X, Y := new(big.Int), new(big.Int)
@@ -155,11 +149,11 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 func GenerateKeyWithSeed(priv *PrivateKey, rand io.Reader, xkey, upri []byte, sizes ParameterSizes) (xkeyOut, upriOut []byte, err error) {
 	domain, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
-		return nil, nil, errors.New(errInvalidParameterSizes)
+		return nil, nil, errors.New(msgInvalidParameterSizes)
 	}
 
 	if priv.P == nil || priv.Q == nil || priv.G == nil {
-		return nil, nil, errors.New(errParametersNotSetUp)
+		return nil, nil, errors.New(msgErrorParametersNotSetUp)
 	}
 
 	if len(xkey) == 0 {
@@ -168,7 +162,7 @@ func GenerateKeyWithSeed(priv *PrivateKey, rand io.Reader, xkey, upri []byte, si
 			return nil, nil, err
 		}
 	} else if len(xkey) < internal.BitsToBytes(domain.B) {
-		return nil, nil, errors.New(errShortXKEY)
+		return nil, nil, errors.New(msgErrorShortXKEY)
 	}
 	if len(upri) == 0 {
 		upri, err = internal.ReadBytes(nil, rand, 64)
@@ -189,14 +183,13 @@ func GenerateKeyWithSeed(priv *PrivateKey, rand io.Reader, xkey, upri []byte, si
 func Sign(rand io.Reader, priv *PrivateKey, sizes ParameterSizes, data []byte) (r, s *big.Int, err error) {
 	domain, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
-		return nil, nil, errors.New(errInvalidParameterSizes)
+		return nil, nil, errors.New(msgInvalidParameterSizes)
 	}
 
 	randutil.MaybeReadByte(rand)
 
 	if priv.Q.Sign() <= 0 || priv.P.Sign() <= 0 || priv.G.Sign() <= 0 || priv.X.Sign() <= 0 || priv.Q.BitLen()%8 != 0 {
-		err = errors.New(errInvalidPublicKey)
-		return
+		return nil, nil, errors.New(msgInvalidPublicKey)
 	}
 
 	r, s = new(big.Int), new(big.Int)
@@ -242,7 +235,7 @@ func Sign(rand io.Reader, priv *PrivateKey, sizes ParameterSizes, data []byte) (
 	// Only degenerate private keys will require more than a handful of
 	// attempts.
 	if attempts == 0 {
-		return nil, nil, errors.New(errInvalidPublicKey)
+		return nil, nil, errors.New(msgInvalidPublicKey)
 	}
 
 	return

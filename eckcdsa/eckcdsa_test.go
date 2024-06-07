@@ -80,9 +80,9 @@ func testSignVerify(t *testing.T, testCases []testCase) {
 			D: tc.D,
 		}
 
-		R, S, err := signUsingK(tc.K, &key, tc.hash, tc.M)
-		if err != nil {
-			t.Errorf("%d: error signing: %s", idx, err)
+		R, S, ok := signUsingK(tc.K, &key, tc.hash, tc.M)
+		if !ok {
+			t.Errorf("%d: error signing: invalid K", idx)
 			return
 		}
 
@@ -91,7 +91,7 @@ func testSignVerify(t *testing.T, testCases []testCase) {
 			return
 		}
 
-		ok := Verify(&key.PublicKey, tc.hash, tc.M, tc.R, tc.S)
+		ok = Verify(&key.PublicKey, tc.hash, tc.M, tc.R, tc.S)
 		if ok == tc.Fail {
 			t.Errorf("%d: Verify failed, got:%v want:%v\nM=%s", idx, ok, !tc.Fail, hex.EncodeToString(tc.M))
 			return

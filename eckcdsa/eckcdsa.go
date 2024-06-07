@@ -13,11 +13,6 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
 )
 
-var (
-	ErrParametersNotSetUp = errors.New("krypto/eckcdsa: parameters not set up before generating key")
-	errInvalidK           = errors.New("krypto/eckcdsa: use another K")
-)
-
 // Generate the parameters
 func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 	randutil.MaybeReadByte(randReader)
@@ -44,7 +39,7 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big
 	randutil.MaybeReadByte(rand)
 
 	if priv == nil || priv.Curve == nil || priv.X == nil || priv.Y == nil || priv.D == nil || !priv.Curve.IsOnCurve(priv.X, priv.Y) {
-		return nil, nil, ErrParametersNotSetUp
+		return nil, nil, errors.New(msgParametersNotSetUp)
 	}
 
 	h.Reset()
@@ -56,6 +51,7 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big
 		return nil, nil, err
 	}
 
+	var isInvalidK bool
 	var k *big.Int
 	for {
 		// https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=77-113
@@ -64,8 +60,8 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big
 			return
 		}
 
-		r, s, err = signUsingK(k, priv, h, data)
-		if errors.Is(err, errInvalidK) {
+		r, s, isInvalidK = signUsingK(k, priv, h, data)
+		if isInvalidK {
 			continue
 		}
 
@@ -73,7 +69,7 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big
 	}
 }
 
-func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big.Int, err error) {
+func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big.Int, ok bool) {
 	curve := priv.Curve
 	curveParams := curve.Params()
 	n := curveParams.N
@@ -169,7 +165,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 
 	// 8: 만약 t = 0이면 단계 1로 간다.
 	if t.Sign() <= 0 {
-		return nil, nil, errInvalidK
+		return nil, nil, false
 	}
 
 	// 9: t를 길이 w의 바이트 열 s로 변환
@@ -179,7 +175,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 	// fmt.Println("s = 0x" + hex.EncodeToString(s.Bytes()))
 
 	// 10: Σ = (r, s)를 반환
-	return r, s, nil
+	return r, s, true
 }
 
 func Verify(pub *PublicKey, h hash.Hash, data []byte, r, s *big.Int) bool {

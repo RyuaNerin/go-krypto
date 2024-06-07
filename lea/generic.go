@@ -63,17 +63,17 @@ func (ctx *leaContext) BlockSize() int {
 
 func (ctx *leaContext) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
 	}
 
 	if !ctx.ecb {
 		leaEnc1Go(ctx, dst, src)
 	} else {
 		if len(src)%BlockSize != 0 {
-			panic("krypto/lea: input not full blocks")
+			panic(msgInputNotFullBlocks)
 		}
 
 		remainBlock := len(src) / ctx.BlockSize()
@@ -103,17 +103,17 @@ func (ctx *leaContext) Encrypt(dst, src []byte) {
 
 func (ctx *leaContext) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
 	}
 
 	if !ctx.ecb {
 		leaDec1Go(ctx, dst, src)
 	} else {
 		if len(src)%BlockSize != 0 {
-			panic("krypto/lea: input not full blocks")
+			panic(msgInputNotFullBlocks)
 		}
 
 		remainBlock := len(src) / ctx.BlockSize()
@@ -143,10 +143,10 @@ func (ctx *leaContext) Decrypt(dst, src []byte) {
 
 func (ctx *leaContext) Encrypt4(dst, src []byte) {
 	if len(src) < BlockSize*4 {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
 	}
 	if len(dst) < BlockSize*4 {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
 	}
 
 	leaEnc4(ctx, dst, src)
@@ -154,10 +154,10 @@ func (ctx *leaContext) Encrypt4(dst, src []byte) {
 
 func (ctx *leaContext) Decrypt4(dst, src []byte) {
 	if len(src) < BlockSize*4 {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
 	}
 	if len(dst) < BlockSize*4 {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
 	}
 
 	leaDec4(ctx, dst, src)
@@ -165,10 +165,10 @@ func (ctx *leaContext) Decrypt4(dst, src []byte) {
 
 func (ctx *leaContext) Encrypt8(dst, src []byte) {
 	if len(src) < BlockSize*8 {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
 	}
 	if len(dst) < BlockSize*8 {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
 	}
 
 	leaEnc8(ctx, dst, src)
@@ -176,10 +176,10 @@ func (ctx *leaContext) Encrypt8(dst, src []byte) {
 
 func (ctx *leaContext) Decrypt8(dst, src []byte) {
 	if len(src) < BlockSize*8 {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
 	}
 	if len(dst) < BlockSize*8 {
-		panic(fmt.Sprintf("krypto/lea: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
 	}
 
 	leaDec8(ctx, dst, src)

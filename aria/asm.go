@@ -32,10 +32,10 @@ func (ctx *ariaContextAsm) BlockSize() int {
 
 func (ctx *ariaContextAsm) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("krypto/aria: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgFormatInvalidBlockSizeSrc, len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("krypto/aria: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgFormatInvalidBlockSizeDst, len(dst)))
 	}
 
 	ctx.process(dst, src, ctx.ctx.ek[:])
@@ -43,10 +43,10 @@ func (ctx *ariaContextAsm) Encrypt(dst, src []byte) {
 
 func (ctx *ariaContextAsm) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("krypto/aria: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgFormatInvalidBlockSizeSrc, len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("krypto/aria: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgFormatInvalidBlockSizeDst, len(dst)))
 	}
 
 	ctx.process(dst, src, ctx.ctx.dk[:])

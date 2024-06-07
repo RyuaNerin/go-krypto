@@ -2,14 +2,11 @@ package kcdsa
 
 import (
 	"encoding/binary"
-	"errors"
 	"io"
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
 )
-
-var ErrInvalidGenerationParameters = errors.New("krypto/kcdsa: invalid generation parameters")
 
 type GeneratedParameter struct {
 	P     *big.Int
@@ -150,20 +147,17 @@ func GenerateParametersTTAK(rand io.Reader, domain Domain) (generated GeneratedP
 	}
 }
 
-func RegenerateParameters(
-	rand io.Reader,
+func RegeneratePQ(
 	domain Domain,
 	J *big.Int,
 	seed []byte,
 	count int,
 ) (
-	P, Q, G *big.Int,
-	isValid bool,
-	err error,
+	P, Q *big.Int,
+	ok bool,
 ) {
 	P = new(big.Int)
 	Q = new(big.Int)
-	G = new(big.Int)
 
 	var CountB [4]byte
 	binary.BigEndian.PutUint32(CountB[:], uint32(count))
@@ -183,24 +177,18 @@ func RegenerateParameters(
 	// 10: p ← (2Jq + 1)의 비트 길이가 α보다 길면 단계 6으로 간다.
 	P.Add(P.Lsh(P.Mul(J, Q), 1), internal.One)
 	if P.BitLen() > domain.A {
-		return nil, nil, nil, false, nil
+		return nil, nil, false
 	}
 
 	// 11: 강한 소수 판정 알고리즘으로 q를 판정하여 소수가 아니면 단계 6으로 간다.
 	if !Q.ProbablyPrime(internal.NumMRTests) {
-		return nil, nil, nil, false, nil
+		return nil, nil, false
 	}
 
 	// 12: 강한 소수 판정 알고리즘으로 p를 판정하여 소수가 아니면 단계 6으로 간다
 	if !P.ProbablyPrime(internal.NumMRTests) {
-		return nil, nil, nil, false, nil
+		return nil, nil, false
 	}
 
-	H := new(big.Int)
-	_, err = GenerateHG(H, G, buf, rand, P, J)
-	if err != nil {
-		return nil, nil, nil, true, err
-	}
-
-	return P, Q, G, true, nil
+	return P, Q, true
 }

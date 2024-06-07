@@ -21,7 +21,7 @@ func NewGMAC(b cipher.Block, iv []byte) (hash.Hash, error) {
 	kb := internal.WrapBlock(b)
 
 	if kb.BlockSize() != igcm.GCMBlockSize {
-		return nil, errors.New("krypto/gmac: NewGMAC requires 128-bit block cipher")
+		return nil, errors.New(msgRequired128BitBlockCipher)
 	}
 
 	if len(iv) == 0 {

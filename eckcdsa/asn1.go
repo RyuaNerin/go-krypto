@@ -54,7 +54,7 @@ func addASN1IntBytes(b *cryptobyte.Builder, bytes []byte) {
 		bytes = bytes[1:]
 	}
 	if len(bytes) == 0 {
-		b.SetError(errors.New("invalid integer"))
+		b.SetError(errors.New(msgInvalidInteger))
 		return
 	}
 	b.AddASN1(asn1.INTEGER, func(c *cryptobyte.Builder) {
@@ -74,7 +74,7 @@ func parseSignature(sig []byte) (r, s []byte, err error) {
 		!inner.ReadASN1Integer(&r) ||
 		!inner.ReadASN1Integer(&s) ||
 		!inner.Empty() {
-		return nil, nil, errors.New("invalid ASN.1")
+		return nil, nil, errors.New(msgInvalidASN1)
 	}
 	return r, s, nil
 }

@@ -35,14 +35,14 @@ type gcm struct {
 // if tagSize = 0, tagSize = 16
 func NewGCM(b cipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
 	if nonceSize <= 0 {
-		return nil, errors.New("krypto/kipher: the nonce can't have zero length, or the security of the key will be immediately compromised")
+		return nil, errors.New(msgInvalidNonceZero)
 	}
 
 	kb, ok := b.(internal.Block)
 	if !ok {
 		if cipher, ok := b.(internal.GCMAble); ok {
 			if tagSize < igcm.GCMMinimumTagSize || tagSize > igcm.GCMBlockSize {
-				return nil, errors.New("krypto/kipher: incorrect tag size given to GCM")
+				return nil, errors.New(msgInvalidTagSizeGCM)
 			}
 			return cipher.NewGCM(nonceSize, tagSize)
 		}
@@ -50,7 +50,7 @@ func NewGCM(b cipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
 	}
 
 	if b.BlockSize() != igcm.GCMBlockSize {
-		return nil, errors.New("krypto/kipher: NewGCM requires 128-bit block cipher")
+		return nil, errors.New(msgRequire128Bits)
 	}
 
 	if nonceSize == 0 {
@@ -116,15 +116,15 @@ func (g *gcm) Overhead() int {
 
 func (g *gcm) Seal(dst, nonce, plaintext, data []byte) []byte {
 	if len(nonce) != g.nonceSize {
-		panic("krypto/kipher: incorrect nonce length given to GCM")
+		panic(msgInvalidNonce)
 	}
 	if uint64(len(plaintext)) > ((1<<32)-2)*uint64(g.gcm.Cipher.BlockSize()) {
-		panic("krypto/kipher: message too large for GCM")
+		panic(msgDataTooLarge)
 	}
 
 	ret, out := internal.SliceForAppend(dst, len(plaintext)+g.tagSize)
 	if alias.InexactOverlap(out, plaintext) {
-		panic("krypto/kipher: invalid buffer overlap")
+		panic(msgBufferOverlap)
 	}
 
 	var counter, tagMask [igcm.GCMBlockSize]byte
@@ -142,18 +142,16 @@ func (g *gcm) Seal(dst, nonce, plaintext, data []byte) []byte {
 	return ret
 }
 
-var errOpen = errors.New("kipher: message authentication failed")
-
 func (g *gcm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 	if len(nonce) != g.nonceSize {
-		panic("krypto/kipher: incorrect nonce length given to GCM")
+		panic(msgInvalidNonce)
 	}
 
 	if len(ciphertext) < g.tagSize {
-		return nil, errOpen
+		return nil, errors.New(msgOpenFailed)
 	}
 	if uint64(len(ciphertext)) > ((1<<32)-2)*uint64(g.gcm.Cipher.BlockSize())+uint64(g.tagSize) {
-		return nil, errOpen
+		return nil, errors.New(msgOpenFailed)
 	}
 
 	tag := ciphertext[len(ciphertext)-g.tagSize:]
@@ -170,7 +168,7 @@ func (g *gcm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 
 	ret, out := internal.SliceForAppend(dst, len(ciphertext))
 	if alias.InexactOverlap(out, ciphertext) {
-		panic("krypto/kipher: invalid buffer overlap")
+		panic(msgBufferOverlap)
 	}
 
 	if subtle.ConstantTimeCompare(expectedTag[:g.tagSize], tag) != 1 {
@@ -181,7 +179,7 @@ func (g *gcm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 		for i := range out {
 			out[i] = 0
 		}
-		return nil, errOpen
+		return nil, errors.New(msgOpenFailed)
 	}
 
 	g.gcm.CounterCrypt(out, ciphertext, &counter)

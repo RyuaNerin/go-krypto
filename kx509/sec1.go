@@ -41,7 +41,7 @@ func MarshalECKCPrivateKey(key *eckcdsa.PrivateKey) ([]byte, error) {
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L46-L53
 	oid, ok := oidFromNamedCurve(key.Curve)
 	if !ok {
-		return nil, errors.New("kx509: unknown elliptic curve")
+		return nil, errors.New(msgUnknownEllipticCurve)
 	}
 
 	return marshalECKCPrivateKeyWithOID(key, oid)
@@ -50,7 +50,7 @@ func MarshalECKCPrivateKey(key *eckcdsa.PrivateKey) ([]byte, error) {
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L55-L68
 func marshalECKCPrivateKeyWithOID(key *eckcdsa.PrivateKey, oid asn1.ObjectIdentifier) ([]byte, error) {
 	if !key.Curve.IsOnCurve(key.X, key.Y) {
-		return nil, errors.New("kx509: invalid elliptic key public key")
+		return nil, errors.New(msgInvalidPublicKey)
 	}
 	privateKey := make([]byte, internal.BitsToBytes(key.D.BitLen()))
 	return asn1.Marshal(eckcPrivateKey{
@@ -66,12 +66,12 @@ func parseECKCPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key 
 	var privKey eckcPrivateKey
 	if _, err := asn1.Unmarshal(der, &privKey); err != nil {
 		if _, err := asn1.Unmarshal(der, &pkcs8{}); err == nil {
-			return nil, errors.New("kx509: failed to parse private key (use ParsePKCS8PrivateKey instead for this key format)")
+			return nil, errors.New(msgUseParsePKCS8PrivateKey)
 		}
-		return nil, errors.New("kx509: failed to parse EC private key: " + err.Error())
+		return nil, err
 	}
 	if privKey.Version != ecPrivKeyVersion {
-		return nil, fmt.Errorf("kx509: unknown EC private key version %d", privKey.Version)
+		return nil, fmt.Errorf(msgUnknownECPrivateKeyVersionFormat, privKey.Version)
 	}
 
 	var curve elliptic.Curve
@@ -81,13 +81,13 @@ func parseECKCPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key 
 		curve = namedCurveFromOID(privKey.NamedCurveOID)
 	}
 	if curve == nil {
-		return nil, errors.New("kx509: unknown elliptic curve")
+		return nil, errors.New(msgUnknownEllipticCurve)
 	}
 
 	k := new(big.Int).SetBytes(privKey.PrivateKey)
 	curveOrder := curve.Params().N
 	if k.Cmp(curveOrder) >= 0 {
-		return nil, errors.New("kx509: invalid elliptic curve private key value")
+		return nil, errors.New(msgInvalidPrivateKeyValue)
 	}
 
 	priv := new(eckcdsa.PrivateKey)
@@ -100,7 +100,7 @@ func parseECKCPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key 
 	// according to [SEC1], but this code will ignore it.
 	for len(privKey.PrivateKey) > len(privateKey) {
 		if privKey.PrivateKey[0] != 0 {
-			return nil, errors.New("kx509: invalid private key length")
+			return nil, errors.New(msgInvalidPrivateKeyLength)
 		}
 		privKey.PrivateKey = privKey.PrivateKey[1:]
 	}

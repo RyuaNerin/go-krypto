@@ -19,7 +19,7 @@ func NewCTR(block cipher.Block, iv []byte) cipher.Stream {
 		}
 	}
 	if len(iv) != block.BlockSize() {
-		panic("krypto/kipher.NewCTR: IV length must equal block size")
+		panic(msgInvalidIVLength)
 	}
 
 	if ok {
@@ -56,10 +56,10 @@ func (x *ctr) refill() {
 
 func (x *ctr) XORKeyStream(dst, src []byte) {
 	if len(dst) < len(src) {
-		panic("krypto/kipher: output smaller than input")
+		panic(msgBufferOverlap)
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("krypto/kipher: invalid buffer overlap")
+		panic(msgSmallDst)
 	}
 
 	for len(src) > 0 {

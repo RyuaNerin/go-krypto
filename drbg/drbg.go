@@ -3,7 +3,6 @@
 package drbg
 
 import (
-	"errors"
 	"io"
 )
 
@@ -14,8 +13,6 @@ type DRBG interface {
 	Generate(dst []byte, additionalInput []byte) (n int, err error)
 	Reseed(additionalInput []byte) error
 }
-
-var ErrUninstantiated = errors.New("krypto/drbg: state is uninstantiated")
 
 type Option func(args *args)
 

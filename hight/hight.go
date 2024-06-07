@@ -13,14 +13,10 @@ const (
 	KeySize = 16
 )
 
-type KeySizeError int
-
-func (k KeySizeError) Error() string {
-	return fmt.Sprintf("krypto/hight: invalid key size %d", int(k))
-}
+const pdwRoundKeySize = 136
 
 type hight struct {
-	pdwRoundKey [136]byte
+	pdwRoundKey [pdwRoundKeySize]byte
 }
 
 // NewCipher creates and returns a new cipher.Block.
@@ -55,10 +51,10 @@ func (s *hight) BlockSize() int {
 
 func (s *hight) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("krypto/hight: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("krypto/hight: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
 	}
 
 	XX := []byte{
@@ -310,10 +306,10 @@ func (s *hight) Encrypt(dst, src []byte) {
 
 func (s *hight) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("krypto/hight: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("krypto/hight: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
 	}
 
 	XX := []byte{

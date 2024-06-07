@@ -66,7 +66,7 @@ func makeCMACSubkey(k []byte) {
 			k[126] ^= 0x00
 			k[127] ^= 0x43
 		default:
-			panic("krypto/kipher: unsupported cipher")
+			panic(msgUnsupportedCipher)
 		}
 	}
 }

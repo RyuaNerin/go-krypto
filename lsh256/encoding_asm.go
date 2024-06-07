@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	magic         = "lsh\x00asm"
+	magic         = "lsh\x00"
 	marshaledSize = len(magic) +
 		/*data*/ contextDataSize +
 		/*size*/ 2
@@ -27,10 +27,10 @@ func (ctx *lsh256ContextAsm) MarshalBinary() ([]byte, error) {
 
 func (ctx *lsh256ContextAsm) UnmarshalBinary(b []byte) error {
 	if len(b) < len(magic) || string(b[:len(magic)]) != magic {
-		return errors.New("krypto/hash160: invalid hash state identifier")
+		return errors.New(msgInvalidHashStateIdentifier)
 	}
 	if len(b) != marshaledSize {
-		return errors.New("krypto/hash160: invalid hash state size")
+		return errors.New(msgInvalidHashStateSize)
 	}
 
 	b = b[len(magic):]

@@ -14,7 +14,7 @@ import (
 // Block's block size.
 func NewCBCEncrypter(b cipher.Block, iv []byte) cipher.BlockMode {
 	if len(iv) != b.BlockSize() {
-		panic("krypto/kipher.NewCBCEncrypter: IV length must equal block size")
+		panic(msgInvalidIVLength)
 	}
 	return cipher.NewCBCEncrypter(b, iv)
 }
@@ -24,7 +24,7 @@ func NewCBCEncrypter(b cipher.Block, iv []byte) cipher.BlockMode {
 // Block's block size and must match the iv used to encrypt the data.
 func NewCBCDecrypter(b cipher.Block, iv []byte) cipher.BlockMode {
 	if len(iv) != b.BlockSize() {
-		panic("krypto/kipher.NewCBCDecrypter: IV length must equal block size")
+		panic(msgInvalidIVLength)
 	}
 
 	if kb, ok := b.(internal.Block); ok {
@@ -56,13 +56,13 @@ func (b *cbc) BlockSize() int {
 
 func (b *cbc) CryptBlocks(dst, src []byte) {
 	if len(src)%b.blockSize != 0 {
-		panic("krypto/kipher: input not full blocks")
+		panic(msgNotFullBlocks)
 	}
 	if len(dst) < len(src) {
-		panic("krypto/kipher: output smaller than input")
+		panic(msgSmallDst)
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("krypto/kipher: invalid buffer overlap")
+		panic(msgBufferOverlap)
 	}
 
 	var (

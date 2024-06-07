@@ -5,6 +5,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	"errors"
+	"fmt"
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
@@ -31,7 +32,7 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 	var privKey pkcs8
 	if _, err := asn1.Unmarshal(der, &privKey); err != nil {
 		if _, err := asn1.Unmarshal(der, &eckcPrivateKey{}); err == nil {
-			return nil, errors.New("kx509: failed to parse private key (use ParseECPrivateKey instead for this key format)")
+			return nil, errors.New(msgUseParseECKCPrivateKey)
 		}
 		return nil, err
 	}
@@ -48,7 +49,7 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 		}
 		key, err = parseECKCPrivateKey(namedCurveOID, privKey.PrivateKey)
 		if err != nil {
-			return nil, errors.New("kx509: failed to parse EC private key embedded in PKCS#8: " + err.Error())
+			return nil, err
 		}
 		return key, nil
 
@@ -59,14 +60,14 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 		X := new(big.Int)
 		_, err = asn1.Unmarshal(privKey.PrivateKey, &X)
 		if err != nil {
-			return nil, errors.New("kx509: invalid x")
+			return nil, errors.New(msgInvalidPrivateKeyX)
 		}
 
 		// Parse parameters
 		bytes := privKey.Algo.Parameters.FullBytes
 		var params kcdsaParameters
 		if _, err = asn1.Unmarshal(bytes, &params); err != nil {
-			return nil, errors.New("kx509: invalid paramerter")
+			return nil, errors.New(msgInvalidParametersDSA)
 		}
 
 		priv := &kcdsa.PrivateKey{
@@ -100,11 +101,11 @@ func marshalPKCS8PrivateKeyECKCDSA(privKey *pkcs8, k *eckcdsa.PrivateKey) error 
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/pkcs8.go#L112-L129
 	oid, ok := oidFromNamedCurve(k.Curve)
 	if !ok {
-		return errors.New("kx509: unknown curve while marshaling to PKCS#8")
+		return errors.New(msgUnknownEllipticCurve)
 	}
 	oidBytes, err := asn1.Marshal(oid)
 	if err != nil {
-		return errors.New("kx509: failed to marshal curve OID: " + err.Error())
+		return fmt.Errorf(msgUnknownEllipticCurveOIDFormat, oid.String())
 	}
 	privKey.Algo = pkix.AlgorithmIdentifier{
 		Algorithm: oidPublicKeyECKCDSA,
@@ -113,7 +114,7 @@ func marshalPKCS8PrivateKeyECKCDSA(privKey *pkcs8, k *eckcdsa.PrivateKey) error 
 		},
 	}
 	if privKey.PrivateKey, err = marshalECKCPrivateKeyWithOID(k, nil); err != nil {
-		return errors.New("kx509: failed to marshal EC private key while building PKCS#8: " + err.Error())
+		return err
 	}
 
 	return nil
@@ -132,7 +133,7 @@ func marshalPKCS8PrivateKeyKCDSA(privKey *pkcs8, k *kcdsa.PrivateKey) error {
 	}
 	paramBytes, err := asn1.Marshal(params)
 	if err != nil {
-		return errors.New("kx509: invalid paramerter")
+		return errors.New(msgInvalidParametersDSA)
 	}
 
 	privKey.Algo = pkix.AlgorithmIdentifier{
@@ -143,7 +144,7 @@ func marshalPKCS8PrivateKeyKCDSA(privKey *pkcs8, k *kcdsa.PrivateKey) error {
 	}
 	privKey.PrivateKey, err = asn1.Marshal(k.X)
 	if err != nil {
-		return errors.New("kx509: invalid public key")
+		return errors.New(msgInvalidPublicKey)
 	}
 
 	return nil

@@ -44,13 +44,13 @@ func (ecb *ecb) CryptBlocks(dst, src []byte) {
 	blockSize := ecb.BlockSize()
 
 	if len(src)%blockSize != 0 {
-		panic("krypto/kipher: input not full blocks")
+		panic(msgNotFullBlocks)
 	}
 	if len(dst) < len(src) {
-		panic("krypto/kipher: output smaller than input")
+		panic(msgSmallDst)
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("krypto/kipher: invalid buffer overlap")
+		panic(msgBufferOverlap)
 	}
 
 	var (

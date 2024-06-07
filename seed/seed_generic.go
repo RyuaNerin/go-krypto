@@ -198,10 +198,10 @@ func (s *seed128) keySchedKey(key []byte) {
 
 func (s *seed128) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic(fmt.Sprintf("krypto/seed: invalid block size %d (src)", len(src)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
 	}
 	if len(dst) < BlockSize {
-		panic(fmt.Sprintf("krypto/seed: invalid block size %d (dst)", len(dst)))
+		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
 	}
 
 	var T0, T1 uint32

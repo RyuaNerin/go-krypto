@@ -20,17 +20,17 @@ type ccm struct {
 
 func NewCCM(b cipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
 	if nonceSize <= 0 {
-		return nil, errors.New("krypto/kipher.NewCCM: the nonce can't have zero length, or the security of the key will be immediately compromised")
+		return nil, errors.New(msgInvalidNonceZero)
 	}
 	if nonceSize < 7 || nonceSize > 13 {
-		return nil, errors.New("krypto/kipher.NewCCM: invalid nonce size")
+		return nil, errors.New(msgInvalidNonceSize)
 	}
 	if tagSize < 4 || 16 < tagSize || tagSize%2 != 0 {
-		return nil, errors.New("krypto/kipher.NewCCM: tagSize must be 4, 6, 8, 10, 12, 14 or 16")
+		return nil, errors.New(msgInvalidTagSizeCCM)
 	}
 
 	if b.BlockSize() != ccmBlockSize {
-		return nil, errors.New("krypto/kipher.NewCCM: NewCCM requires 128-bit block cipher")
+		return nil, errors.New(msgRequire128Bits)
 	}
 
 	return &ccm{
@@ -109,15 +109,15 @@ func (g *ccm) tag(ptLen int, N, A []byte) (tag, ctr, S0 [ccmBlockSize]byte) {
 
 func (g *ccm) Seal(dst, N, pt, A []byte) []byte {
 	if len(N) != g.nonceSize {
-		panic("krypto/kipher: incorrect nonce length given to CCM")
+		panic(msgInvalidNonce)
 	}
 	if uint64(len(pt)) > ((1<<32)-2)*uint64(g.cipher.BlockSize()) {
-		panic("krypto/kipher: message too large for CCM")
+		panic(msgDataTooLarge)
 	}
 
 	ret, out := internal.SliceForAppend(dst, len(pt)+g.tagSize)
 	if alias.InexactOverlap(out, pt) {
-		panic("krypto/kipher: invalid buffer overlap")
+		panic(msgBufferOverlap)
 	}
 	ct, T := out[:len(pt)], out[len(pt):]
 
@@ -138,17 +138,17 @@ func (g *ccm) Seal(dst, N, pt, A []byte) []byte {
 
 func (g *ccm) Open(dst, N, ctT, A []byte) ([]byte, error) {
 	if len(N) != g.nonceSize {
-		panic("krypto/kipher: incorrect nonce length given to CCM")
+		panic(msgInvalidNonce)
 	}
 	if uint64(len(ctT)) > ((1<<32)-2)*uint64(g.cipher.BlockSize()) {
-		panic("krypto/kipher: message too large for CCM")
+		panic(msgDataTooLarge)
 	}
 
 	ct, T := ctT[:len(ctT)-g.tagSize], ctT[len(ctT)-g.tagSize:]
 
 	ret, pt := internal.SliceForAppend(dst, len(ct))
 	if alias.InexactOverlap(pt, ct) {
-		panic("krypto/kipher: invalid buffer overlap")
+		panic(msgBufferOverlap)
 	}
 
 	tag, ctr, S0 := g.tag(len(ct), N, A)
@@ -166,7 +166,7 @@ func (g *ccm) Open(dst, N, ctT, A []byte) ([]byte, error) {
 
 	if subtle.ConstantTimeCompare(T[:g.tagSize], tag[:g.tagSize]) != 1 {
 		kryptoutil.MemsetByte(pt, 0)
-		return nil, errOpen
+		return nil, errors.New(msgOpenFailed)
 	}
 
 	return ret, nil

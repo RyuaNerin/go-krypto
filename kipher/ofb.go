@@ -8,7 +8,7 @@ import "crypto/cipher"
 func NewOFB(b cipher.Block, iv []byte) cipher.Stream {
 	blockSize := b.BlockSize()
 	if len(iv) != blockSize {
-		panic("krypto/kipher.NewOFB: IV length must equal block size")
+		panic(msgInvalidIVLength)
 	}
 	return cipher.NewOFB(b, iv)
 }

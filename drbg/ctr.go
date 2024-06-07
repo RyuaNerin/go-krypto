@@ -59,15 +59,15 @@ func New(
 
 	if args.requireDerivationFunction {
 		if len(args.personalizationString) > seedLen {
-			return nil, errors.New("krypto/drbg: additionalInput too long")
+			return nil, errors.New(msgAdditionalInputIsTooLong)
 		}
 	} else {
 		if uint64(len(args.personalizationString)) > ctrdrbg.MaxAdditionalInputLength {
-			return nil, errors.New("krypto/drbg: additionalInput too long")
+			return nil, errors.New(msgAdditionalInputIsTooLong)
 		}
 	}
 	if args.ctrLen < 4 || b.BlockSize() < args.ctrLen {
-		return nil, errors.New("krypto/drbg: invalid ctrLen")
+		return nil, errors.New(msgInvalidCtrLength)
 	}
 
 	var entropy *entropy
@@ -126,20 +126,20 @@ func (h *ctrDRGB) Read(dst []byte) (n int, err error) {
 
 func (h *ctrDRGB) Generate(dst []byte, additionalInput []byte) (n int, err error) {
 	if h.closed {
-		return 0, ErrUninstantiated
+		return 0, errors.New(msgErrorUninstantiated)
 	}
 
 	if len(dst) > h.state.MaxNoOfBitsPerRequest {
-		return 0, errors.New("krypto/drbg: too many bits requested")
+		return 0, errors.New(msgTooManyBitsRequested)
 	}
 
 	if h.requireDerivationFunction {
 		if uint64(len(additionalInput)) > ctrdrbg.MaxAdditionalInputLength {
-			return 0, errors.New("krypto/drbg: additionalInput too long")
+			return 0, errors.New(msgAdditionalInputIsTooLong)
 		}
 	} else {
 		if len(additionalInput) > h.state.SeedLenByte {
-			return 0, errors.New("krypto/drbg: additionalInput too long")
+			return 0, errors.New(msgAdditionalInputIsTooLong)
 		}
 	}
 
@@ -148,16 +148,16 @@ func (h *ctrDRGB) Generate(dst []byte, additionalInput []byte) (n int, err error
 
 func (h *ctrDRGB) Reseed(additionalInput []byte) error {
 	if h.closed {
-		return ErrUninstantiated
+		return errors.New(msgErrorUninstantiated)
 	}
 
 	if h.requireDerivationFunction {
 		if uint64(len(additionalInput)) > ctrdrbg.MaxAdditionalInputLength {
-			return errors.New("krypto/drbg: additionalInput too long")
+			return errors.New(msgAdditionalInputIsTooLong)
 		}
 	} else {
 		if len(additionalInput) > h.state.SeedLenByte {
-			return errors.New("krypto/drbg: additionalInput too long")
+			return errors.New(msgAdditionalInputIsTooLong)
 		}
 	}
 
@@ -172,7 +172,7 @@ func (h *ctrDRGB) Reseed(additionalInput []byte) error {
 
 func (h *ctrDRGB) Close() error {
 	if h.closed {
-		return ErrUninstantiated
+		return errors.New(msgErrorUninstantiated)
 	}
 	h.closed = true
 

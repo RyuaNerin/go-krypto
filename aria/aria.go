@@ -3,19 +3,12 @@ package aria
 
 import (
 	"crypto/cipher"
-	"fmt"
 )
 
 const (
 	// The ARIA block size in bytes.
 	BlockSize = 16
 )
-
-type KeySizeError int
-
-func (k KeySizeError) Error() string {
-	return fmt.Sprintf("krypto/aria: invalid key size %d", int(k))
-}
 
 const (
 	rkSize = 16 * 17

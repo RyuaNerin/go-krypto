@@ -1,6 +1,7 @@
 package krypto
 
 import (
+	"fmt"
 	"hash"
 	"strconv"
 )
@@ -56,7 +57,7 @@ func (h KryptoHash) Size() int {
 	if h > 0 && h < maxHash {
 		return int(digestSizes[h])
 	}
-	panic("krypto: Size of unknown hash function")
+	panic(msgSizeOfUnknwon)
 }
 
 var hashes = make([]func() hash.Hash, maxHash)
@@ -70,7 +71,7 @@ func (h KryptoHash) New() hash.Hash {
 			return f()
 		}
 	}
-	panic("crypto: requested hash function #" + strconv.Itoa(int(h)) + " is unavailable")
+	panic(fmt.Sprintf(msgUnavailableFormat, h))
 }
 
 // Available reports whether the given hash function is linked into the binary.
@@ -83,7 +84,7 @@ func (h KryptoHash) Available() bool {
 // packages that implement hash functions.
 func RegisterHash(h KryptoHash, f func() hash.Hash) {
 	if h >= maxHash {
-		panic("crypto: RegisterHash of unknown hash function")
+		panic(msgRegisterHashOfUnknown)
 	}
 	hashes[h] = f
 }

@@ -29,10 +29,11 @@ type pkixPublicKey struct {
 func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error) {
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/x509.go#L71-L82
 	var pki publicKeyInfo
+	var isSupportedType bool
 	rest, err := asn1.Unmarshal(derBytes, &pki)
 	if err == nil && len(rest) == 0 {
-		pub, err = parsePublicKey(&pki)
-		if !errors.Is(err, errTryStd) {
+		pub, isSupportedType, err = parsePublicKey(&pki)
+		if !isSupportedType {
 			return
 		}
 	}
@@ -40,15 +41,15 @@ func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error) {
 }
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/x509.go#L84
-func marshalPublicKey(pub interface{}) (publicKeyBytes []byte, publicKeyAlgorithm pkix.AlgorithmIdentifier, err error) {
+func marshalPublicKey(pub interface{}) (publicKeyBytes []byte, publicKeyAlgorithm pkix.AlgorithmIdentifier, isSupportedType bool, err error) {
 	switch pub := pub.(type) {
 	case *eckcdsa.PublicKey:
 		oid, ok := oidFromNamedCurve(pub.Curve)
 		if !ok {
-			return nil, pkix.AlgorithmIdentifier{}, errors.New("kx509: unsupported elliptic curve")
+			return nil, pkix.AlgorithmIdentifier{}, true, errors.New(msgUnknownEllipticCurve)
 		}
 		if !pub.Curve.IsOnCurve(pub.X, pub.Y) {
-			return nil, pkix.AlgorithmIdentifier{}, errors.New("kx509: invalid elliptic curve public key")
+			return nil, pkix.AlgorithmIdentifier{}, true, errors.New(msgInvalidPublicKey)
 		}
 		publicKeyBytes = elliptic.Marshal(pub.Curve, pub.X, pub.Y)
 		publicKeyAlgorithm.Algorithm = oidPublicKeyECKCDSA
@@ -62,7 +63,7 @@ func marshalPublicKey(pub interface{}) (publicKeyBytes []byte, publicKeyAlgorith
 	case *kcdsa.PublicKey:
 		publicKeyBytes, err = asn1.Marshal(pub.Y)
 		if err != nil {
-			return nil, pkix.AlgorithmIdentifier{}, errors.New("kx509: invalid public key")
+			return nil, pkix.AlgorithmIdentifier{}, true, errors.New(msgInvalidPrivateKeyY)
 		}
 
 		params := kcdsaParameters{
@@ -79,17 +80,17 @@ func marshalPublicKey(pub interface{}) (publicKeyBytes []byte, publicKeyAlgorith
 		var paramBytes []byte
 		paramBytes, err = asn1.Marshal(params)
 		if err != nil {
-			return nil, pkix.AlgorithmIdentifier{}, errors.New("kx509: invalid paramerter")
+			return nil, pkix.AlgorithmIdentifier{}, true, errors.New(msgInvalidParametersDSA)
 		}
 
 		publicKeyAlgorithm.Algorithm = oidPublicKeyKCDSA
 		publicKeyAlgorithm.Parameters.FullBytes = paramBytes
 
 	default:
-		return nil, pkix.AlgorithmIdentifier{}, errTryStd
+		return nil, pkix.AlgorithmIdentifier{}, false, nil
 	}
 
-	return publicKeyBytes, publicKeyAlgorithm, nil
+	return publicKeyBytes, publicKeyAlgorithm, true, nil
 }
 
 // MarshalPKIXPublicKey converts a public key to PKIX, ASN.1 DER form.
@@ -102,10 +103,11 @@ func MarshalPKIXPublicKey(pub interface{}) ([]byte, error) {
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/x509.go#L150
 	var publicKeyBytes []byte
 	var publicKeyAlgorithm pkix.AlgorithmIdentifier
+	var isSupportedType bool
 	var err error
 
-	publicKeyBytes, publicKeyAlgorithm, err = marshalPublicKey(pub)
-	if errors.Is(err, errTryStd) {
+	publicKeyBytes, publicKeyAlgorithm, isSupportedType, err = marshalPublicKey(pub)
+	if !isSupportedType {
 		return x509.MarshalPKIXPublicKey(pub)
 	}
 	if err != nil {
@@ -131,7 +133,7 @@ type publicKeyInfo struct {
 	PublicKey asn1.BitString
 }
 
-func parsePublicKey(keyData *publicKeyInfo) (interface{}, error) {
+func parsePublicKey(keyData *publicKeyInfo) (privateKey interface{}, isSupportedType bool, err error) {
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/parser.go#L217-L220
 	oid := keyData.Algorithm.Algorithm
 	params := keyData.Algorithm.Parameters
@@ -143,27 +145,27 @@ func parsePublicKey(keyData *publicKeyInfo) (interface{}, error) {
 		paramsDer := cryptobyte.String(params.FullBytes)
 		namedCurveOID := new(asn1.ObjectIdentifier)
 		if !paramsDer.ReadASN1ObjectIdentifier(namedCurveOID) {
-			return nil, errors.New("kx509: invalid ECDSA parameters")
+			return nil, true, errors.New(msgInvalidParametersEC)
 		}
 		namedCurve := namedCurveFromOID(*namedCurveOID)
 		if namedCurve == nil {
-			return nil, errors.New("kx509: unsupported elliptic curve")
+			return nil, true, errors.New(msgUnknownEllipticCurve)
 		}
 		x, y := elliptic.Unmarshal(namedCurve, der)
 		if x == nil {
-			return nil, errors.New("kx509: failed to unmarshal elliptic curve point")
+			return nil, true, errors.New(msgFailedToUnmarshalEllipticPoint)
 		}
 		pub := &eckcdsa.PublicKey{
 			Curve: namedCurve,
 			X:     x,
 			Y:     y,
 		}
-		return pub, nil
+		return pub, true, nil
 
 	case oid.Equal(oidPublicKeyKCDSA):
 		y := new(big.Int)
 		if !der.ReadASN1Integer(y) {
-			return nil, errors.New("kx509: invalid KCDSA public key")
+			return nil, true, errors.New(msgInvalidPublicKeyY)
 		}
 		pub := &kcdsa.PublicKey{
 			Y: y,
@@ -179,11 +181,11 @@ func parsePublicKey(keyData *publicKeyInfo) (interface{}, error) {
 			!paramsDer.ReadASN1Integer(pub.Parameters.P) ||
 			!paramsDer.ReadASN1Integer(pub.Parameters.Q) ||
 			!paramsDer.ReadASN1Integer(pub.Parameters.G) {
-			return nil, errors.New("kx509: invalid KCDSA parameters")
+			return nil, true, errors.New(msgInvalidParametersDSA)
 		}
 		if pub.Y.Sign() <= 0 || pub.Parameters.P.Sign() <= 0 ||
 			pub.Parameters.Q.Sign() <= 0 || pub.Parameters.G.Sign() <= 0 {
-			return nil, errors.New("kx509: zero or negative KCDSA parameter")
+			return nil, true, errors.New(msgZeroOrNegativeParameterDSA)
 		}
 
 		// TODO: Read KCDSA Parameters J, Seed, Count
@@ -200,9 +202,9 @@ func parsePublicKey(keyData *publicKeyInfo) (interface{}, error) {
 			}
 		}
 
-		return pub, nil
+		return pub, true, nil
 
 	default:
-		return nil, errTryStd
+		return nil, false, nil
 	}
 }

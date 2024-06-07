@@ -14,7 +14,7 @@ import (
 // size.
 func NewCFBEncrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
 	if len(iv) != block.BlockSize() {
-		panic("krypto/kipher.NewCFBEncrypter: IV length must equal block size")
+		panic(msgInvalidIVLength)
 	}
 	if block.BlockSize() == cfbBlockByteSize {
 		return cipher.NewCFBEncrypter(block, iv)
@@ -27,7 +27,7 @@ func NewCFBEncrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher
 // size.
 func NewCFBDecrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
 	if len(iv) != block.BlockSize() {
-		panic("krypto/kipher.NewCFBDecrypter: IV length must equal block size")
+		panic(msgInvalidIVLength)
 	}
 	if block.BlockSize() == cfbBlockByteSize {
 		return cipher.NewCFBDecrypter(block, iv)
@@ -62,10 +62,10 @@ type cfb struct {
 
 func (x *cfb) XORKeyStream(dst, src []byte) {
 	if len(dst) < len(src) {
-		panic("krypto/kipher: output smaller than input")
+		panic(msgSmallDst)
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("krypto/kipher: invalid buffer overlap")
+		panic(msgBufferOverlap)
 	}
 	for len(src) > 0 {
 		if x.outUsed == x.bytes {

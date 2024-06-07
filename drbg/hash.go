@@ -30,10 +30,10 @@ func NewHashDRGB(
 	}
 
 	if strengthBits > h.BlockSize()*8 {
-		return nil, errors.New("krypto/drbg: invalid strength")
+		return nil, errors.New(msgInvalidStrength)
 	}
 	if uint64(len(args.personalizationString)) > hashdrbg.MaxPersonalizationStringLength {
-		return nil, errors.New("krypto/drbg: personalization_string too long")
+		return nil, errors.New(msgPersonalizationStringIsTooLong)
 	}
 
 	securityStrength := hashdrbg.GetSecurityStrength(strengthBits)
@@ -83,15 +83,15 @@ func (h *hashDRGB) Read(dst []byte) (n int, err error) {
 
 func (h *hashDRGB) Generate(dst []byte, additionalInput []byte) (n int, err error) {
 	if h.closed {
-		return 0, ErrUninstantiated
+		return 0, errors.New(msgErrorUninstantiated)
 	}
 
 	if len(dst) > hashdrbg.MaxNoOfBitsPerRequest/8 {
-		return 0, errors.New("krypto/drbg: too many bits requested")
+		return 0, errors.New(msgTooManyBitsRequested)
 	}
 
 	if uint64(len(additionalInput)) > hashdrbg.MaxAdditionalInputLength {
-		return 0, errors.New("krypto/drbg: additional_input too long")
+		return 0, errors.New(msgAdditionalInputIsTooLong)
 	}
 
 	return len(dst), h.state.Generate_Hash_DRBG(dst, h.entropy.Get, additionalInput)
@@ -99,7 +99,7 @@ func (h *hashDRGB) Generate(dst []byte, additionalInput []byte) (n int, err erro
 
 func (h *hashDRGB) Reseed(additionalInput []byte) error {
 	if h.closed {
-		return ErrUninstantiated
+		return errors.New(msgErrorUninstantiated)
 	}
 
 	entropyInput, err := h.entropy.Get()
@@ -113,7 +113,7 @@ func (h *hashDRGB) Reseed(additionalInput []byte) error {
 
 func (h *hashDRGB) Close() error {
 	if h.closed {
-		return ErrUninstantiated
+		return errors.New(msgErrorUninstantiated)
 	}
 	h.closed = true
 
