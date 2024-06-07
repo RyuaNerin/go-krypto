@@ -1,3 +1,6 @@
+//go:build amd64 && !purego
+// +build amd64,!purego
+
 package aria
 
 var newCipher = newCipherGo

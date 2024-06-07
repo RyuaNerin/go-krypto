@@ -724,7 +724,7 @@ func c_mm(T0, T1, T2, T3 *uint32) { // inlinable
 	(*T1) ^= (*T2)
 }
 
-func c_p(T0, T1, T2, T3 *uint32) { // inlinable
+func c_p(_, T1, T2, T3 *uint32) { // inlinable
 	*T1 = (((*T1) << 8) & uint32(0xff00ff00)) ^ (((*T1) >> 8) & uint32(0x00ff00ff))
 	*T2 = (((*T2) << 16) & uint32(0xffff0000)) ^ (((*T2) >> 16) & uint32(0x0000ffff))
 	*T3 = bits.ReverseBytes32(*T3)
