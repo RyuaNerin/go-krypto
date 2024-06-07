@@ -53,7 +53,7 @@ func GeneratePQ(
 
 	var countB [4]byte
 
-	bufNew = internal.ResizeBuffer(buf, internal.Bytes(d.B))
+	bufNew = internal.Grow(buf, internal.BitsToBytes(d.B))
 
 	// 7: Count > 2^24이면 단계 1로 간다.
 	for count <= (1 << 24) {
@@ -107,7 +107,7 @@ func GenerateHG(
 		//
 		//     0 < h < p 로 생성 한 다음에
 		//
-		bufOut, err = internal.Int(H, rand, buf, P)
+		bufOut, err = internal.ReadBigInt(H, rand, buf, P)
 		if err != nil {
 			return
 		}
@@ -147,7 +147,7 @@ func GenerateX(Q *big.Int, upri, xkey []byte, h hash.Hash, d Domain) (X *big.Int
 	// fmt.Println("--------------------------------------------------")
 	// fmt.Println("4: XVAL ← (XKEY + XSEEDj) mod 2^b")
 	var carry int
-	xval := make([]byte, internal.Bytes(d.B))
+	xval := make([]byte, internal.BitsToBytes(d.B))
 	for i := 0; i < len(xseed); i++ {
 		idx := len(xseed) - i - 1
 		sum := int(xseed[idx]) + carry

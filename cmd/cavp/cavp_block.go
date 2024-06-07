@@ -63,14 +63,14 @@ func processBlock_KAT_MMT(cavp *cavpProcessor, fnCipher funcNewBlockCipher, fnNe
 			if cs.ContainsKey("PT") {
 				src := cs.Hex("PT")
 
-				dst = internal.ResizeBuffer(dst, len(src))
+				dst = internal.Grow(dst, len(src))
 				fn(dst, src, true)
 
 				cs = append(cs, cavpRow{"CT", hexStr(dst), false})
 			} else {
 				src := cs.Hex("CT")
 
-				dst = internal.ResizeBuffer(dst, len(src))
+				dst = internal.Grow(dst, len(src))
 				fn(dst, src, false)
 
 				cs = append(cs, cavpRow{"PT", hexStr(dst), false})

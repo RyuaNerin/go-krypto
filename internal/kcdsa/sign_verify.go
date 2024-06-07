@@ -17,7 +17,7 @@ func Sign(
 	B := domain.B
 	l := h.BlockSize()
 
-	tmp := make([]byte, internal.Bytes(domain.A))
+	tmp := make([]byte, internal.BitsToBytes(domain.A))
 
 	// step 2. w = g^k mod p
 	// fmt.Println("--------------------------------------------------")
@@ -26,7 +26,7 @@ func Sign(
 	// fmt.Println("K = 0x" + hex.EncodeToString(K.Bytes()))
 	// fmt.Println("P = 0x" + hex.EncodeToString(P.Bytes()))
 	W := new(big.Int).Exp(G, K, P)
-	WBytes := tmp[:internal.Bytes(domain.A)]
+	WBytes := tmp[:internal.BitsToBytes(domain.A)]
 	W.FillBytes(WBytes)
 	// fmt.Println("W = 0x" + hex.EncodeToString(WBytes))
 	// fmt.Println("W = 0x" + hex.EncodeToString(W.Bytes()))
@@ -44,7 +44,7 @@ func Sign(
 	// fmt.Println("--------------------------------------------------")
 	// fmt.Println("step 4. Z = Y mod 2^l")
 	// fmt.Println("Y = 0x" + hex.EncodeToString(Y.Bytes()))
-	ZBytesLen := internal.Bytes(Y.BitLen())
+	ZBytesLen := internal.BitsToBytes(Y.BitLen())
 	if ZBytesLen < l {
 		ZBytesLen = l
 	}
@@ -104,8 +104,8 @@ func Verify(
 	l := h.BlockSize()
 
 	tmpSize := l
-	YBytesLen := internal.Bytes(Y.BitLen())
-	PBytesLen := internal.Bytes(P.BitLen())
+	YBytesLen := internal.BitsToBytes(Y.BitLen())
+	PBytesLen := internal.BitsToBytes(P.BitLen())
 	if tmpSize < YBytesLen {
 		tmpSize = YBytesLen
 	}
@@ -174,5 +174,5 @@ func Verify(
 	// fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
 	// fmt.Println("R = 0x" + hex.EncodeToString(R.Bytes()))
 
-	return internal.BigIntEqual(R, r)
+	return internal.BigEqual(R, r)
 }

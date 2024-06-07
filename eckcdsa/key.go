@@ -33,7 +33,7 @@ func (priv *PrivateKey) Equal(x crypto.PrivateKey) bool {
 	if !ok {
 		return false
 	}
-	return priv.PublicKey.Equal(&xx.PublicKey) && internal.BigIntEqual(priv.D, xx.D)
+	return priv.PublicKey.Equal(&xx.PublicKey) && internal.BigEqual(priv.D, xx.D)
 }
 
 // Equal reports whether pub and x have the same value.
@@ -42,6 +42,6 @@ func (pub *PublicKey) Equal(x crypto.PublicKey) bool {
 	if !ok {
 		return false
 	}
-	return internal.BigIntEqual(pub.X, xx.X) && internal.BigIntEqual(pub.Y, xx.Y) &&
+	return internal.BigEqual(pub.X, xx.X) && internal.BigEqual(pub.Y, xx.Y) &&
 		pub.Curve == xx.Curve
 }

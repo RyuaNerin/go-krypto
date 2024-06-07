@@ -78,7 +78,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 	curveParams := curve.Params()
 	n := curveParams.N
 
-	curveSize := internal.Bytes(curveParams.BitSize)
+	curveSize := internal.BitsToBytes(curveParams.BitSize)
 	w := internal.BigCeilLog2(curveParams.N, 8)
 	Lh := h.Size()
 	L := h.BlockSize()
@@ -194,7 +194,7 @@ func Verify(pub *PublicKey, h hash.Hash, data []byte, r, s *big.Int) bool {
 	curveParams := pub.Curve.Params()
 	n := curveParams.N
 
-	curveSize := internal.Bytes(curveParams.BitSize)
+	curveSize := internal.BitsToBytes(curveParams.BitSize)
 	w := internal.BigCeilLog2(curveParams.N, 8)
 	Lh := h.Size()
 	L := h.BlockSize()
@@ -220,11 +220,11 @@ func Verify(pub *PublicKey, h hash.Hash, data []byte, r, s *big.Int) bool {
 		return false
 	}
 	if LhIsBiggerThanW {
-		if internal.Bytes(r.BitLen()) > curveSize {
+		if internal.BitsToBytes(r.BitLen()) > curveSize {
 			return false
 		}
 	} else {
-		if internal.Bytes(r.BitLen()) > Lh {
+		if internal.BitsToBytes(r.BitLen()) > Lh {
 			return false
 		}
 	}
@@ -303,7 +303,7 @@ func Verify(pub *PublicKey, h hash.Hash, data []byte, r, s *big.Int) bool {
 	// fmt.Println("r2 = 0x" + hex.EncodeToString(r2.Bytes()))
 	// fmt.Println("r  = 0x" + hex.EncodeToString(r.Bytes()))
 
-	return internal.BigIntEqual(r, r2)
+	return internal.BigEqual(r, r2)
 }
 
 // https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=168-188

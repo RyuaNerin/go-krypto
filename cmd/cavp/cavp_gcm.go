@@ -43,10 +43,10 @@ func processGCM_AE(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 			pt := cs.Hex("PT")
 			adata := cs.Hex("Adata")
 
-			key = internal.ResizeBuffer(key, keyLen/8)
-			iv = internal.ResizeBuffer(iv, ivLen/8)
-			pt = internal.ResizeBuffer(pt, ptLen/8)
-			adata = internal.ResizeBuffer(adata, aadLen/8)
+			key = internal.Grow(key, keyLen/8)
+			iv = internal.Grow(iv, ivLen/8)
+			pt = internal.Grow(pt, ptLen/8)
+			adata = internal.Grow(adata, aadLen/8)
 
 			b, err := newCipher(key)
 			if err != nil {
@@ -95,13 +95,13 @@ func processGCM_AD(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 			c := cs.Hex("C")
 			t := cs.Hex("T")
 
-			key = internal.ResizeSlice(key, keyLen/8)
-			iv = internal.ResizeSlice(iv, ivLen/8)
-			adata = internal.ResizeSlice(adata, aadLen/8)
-			c = internal.ResizeSlice(c, ptLen/8)
-			t = internal.ResizeSlice(t, tagLen/8)
+			key = internal.Resize(key, keyLen/8)
+			iv = internal.Resize(iv, ivLen/8)
+			adata = internal.Resize(adata, aadLen/8)
+			c = internal.Resize(c, ptLen/8)
+			t = internal.Resize(t, tagLen/8)
 
-			ct = internal.ResizeBuffer(ct, len(c)+len(t))
+			ct = internal.Grow(ct, len(c)+len(t))
 			copy(ct[:len(c)], c)
 			copy(ct[len(c):], t)
 

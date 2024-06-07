@@ -52,7 +52,7 @@ func marshalECKCPrivateKeyWithOID(key *eckcdsa.PrivateKey, oid asn1.ObjectIdenti
 	if !key.Curve.IsOnCurve(key.X, key.Y) {
 		return nil, errors.New("kx509: invalid elliptic key public key")
 	}
-	privateKey := make([]byte, internal.Bytes(key.D.BitLen()))
+	privateKey := make([]byte, internal.BitsToBytes(key.D.BitLen()))
 	return asn1.Marshal(eckcPrivateKey{
 		Version:       1,
 		PrivateKey:    key.D.FillBytes(privateKey),

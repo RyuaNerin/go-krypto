@@ -14,7 +14,7 @@ var (
 	Three = big.NewInt(3)
 )
 
-func Bytes(bits int) int {
+func BitsToBytes(bits int) int {
 	// 32bit: 0xFFFF_FFF8 / 64bit: 0xFFFF FFFF FFFF FFF8
 	const MAX_UINT_MINUS_7 = ^uint(0) - 7
 
@@ -29,8 +29,8 @@ func CeilDiv(a, b int) int {
 	return (a + b - 1) / b
 }
 
-// Int returns a uniform random value in [0, max). It panics if max <= 0.
-func Int(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bufNew []byte, err error) {
+// ReadBigInt returns a uniform random value in [0, max). It panics if max <= 0.
+func ReadBigInt(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bufNew []byte, err error) {
 	if max.Sign() <= 0 {
 		panic("crypto/rand: argument to Int is <= 0")
 	}
@@ -42,14 +42,14 @@ func Int(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bufNew []byte,
 		return
 	}
 	// k is the maximum byte length needed to encode a value < max.
-	k := Bytes(bitLen)
+	k := BitsToBytes(bitLen)
 	// b is the number of bits in the most significant byte of max-1.
 	b := uint(bitLen % 8)
 	if b == 0 {
 		b = 8
 	}
 
-	bufNew = ResizeBuffer(buf, k)
+	bufNew = Grow(buf, k)
 
 	mask := uint8(int(1<<b) - 1)
 
@@ -80,7 +80,7 @@ func FermatInverse(k, P *big.Int) *big.Int {
 	return new(big.Int).Exp(k, nMinus2, P)
 }
 
-func BigIntEqual(a, b *big.Int) bool {
+func BigEqual(a, b *big.Int) bool {
 	return subtle.ConstantTimeCompare(a.Bytes(), b.Bytes()) == 1
 }
 

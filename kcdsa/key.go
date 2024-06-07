@@ -43,7 +43,7 @@ func (priv *PrivateKey) Equal(x crypto.PrivateKey) bool {
 	if !ok {
 		return false
 	}
-	return priv.PublicKey.Equal(&xx.PublicKey) && internal.BigIntEqual(priv.X, xx.X)
+	return priv.PublicKey.Equal(&xx.PublicKey) && internal.BigEqual(priv.X, xx.X)
 }
 
 // Equal reports whether pub and y have the same value.
@@ -52,14 +52,14 @@ func (pub *PublicKey) Equal(x crypto.PublicKey) bool {
 	if !ok {
 		return false
 	}
-	return pub.Parameters.Equal(xx.Parameters) && internal.BigIntEqual(pub.Y, xx.Y)
+	return pub.Parameters.Equal(xx.Parameters) && internal.BigEqual(pub.Y, xx.Y)
 }
 
 // Equal reports whether p, q, g and sizes have the same value.
 func (params Parameters) Equal(xx Parameters) bool {
-	return internal.BigIntEqual(params.P, xx.P) &&
-		internal.BigIntEqual(params.Q, xx.Q) &&
-		internal.BigIntEqual(params.G, xx.G)
+	return internal.BigEqual(params.P, xx.P) &&
+		internal.BigEqual(params.Q, xx.Q) &&
+		internal.BigEqual(params.G, xx.G)
 }
 
 func (params *GenerationParameters) IsValid() bool {
@@ -71,7 +71,7 @@ func (params *GenerationParameters) IsValid() bool {
 
 // Equal reports whether p, q, g and sizes have the same value.
 func (params *GenerationParameters) Equal(xx GenerationParameters) bool {
-	return internal.BigIntEqual(params.J, xx.J) &&
+	return internal.BigEqual(params.J, xx.J) &&
 		subtle.ConstantTimeEq(int32(params.Count), int32(xx.Count)) == 1 &&
 		subtle.ConstantTimeCompare(params.Seed, xx.Seed) == 1
 }

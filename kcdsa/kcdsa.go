@@ -81,7 +81,7 @@ func RegenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSiz
 		return ErrInvalidGenerationParameters
 	}
 
-	if len(params.GenParameters.Seed) != internal.Bytes(domain.B) {
+	if len(params.GenParameters.Seed) != internal.BitsToBytes(domain.B) {
 		return ErrInvalidGenerationParameters
 	}
 
@@ -143,7 +143,7 @@ func GenerateKeyWithSeed(priv *PrivateKey, rand io.Reader, xkey, upri []byte, si
 		if err != nil {
 			return nil, nil, err
 		}
-	} else if len(xkey) < internal.Bytes(domain.B) {
+	} else if len(xkey) < internal.BitsToBytes(domain.B) {
 		return nil, nil, ErrShortXKEY
 	}
 	if len(upri) == 0 {
@@ -177,7 +177,7 @@ func Sign(rand io.Reader, priv *PrivateKey, sizes ParameterSizes, data []byte) (
 	qblen := priv.Q.BitLen()
 
 	K := new(big.Int)
-	buf := make([]byte, internal.Bytes(qblen))
+	buf := make([]byte, internal.BitsToBytes(qblen))
 
 	var attempts int
 	for attempts = 10; attempts > 0; attempts-- {

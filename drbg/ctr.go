@@ -72,7 +72,7 @@ func New(
 
 	var entropy *entropy
 	if args.requireDerivationFunction {
-		entropy = newEntropy(rand, internal.Bytes(strengthBits), internal.Bytes(strengthBits)*3)
+		entropy = newEntropy(rand, internal.BitsToBytes(strengthBits), internal.BitsToBytes(strengthBits)*3)
 	} else {
 		entropy = newEntropy(rand, seedLen, seedLen)
 	}

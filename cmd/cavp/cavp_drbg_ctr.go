@@ -34,7 +34,7 @@ func processDRBGCTR(path, filename string) {
 
 		if cs.ContainsKey("ReturnedBitsLen") {
 			returnedBitsLen = cs.Int("ReturnedBitsLen")
-			dst = internal.ResizeBuffer(dst, internal.Bytes(returnedBitsLen))
+			dst = internal.Grow(dst, internal.BitsToBytes(returnedBitsLen))
 		} else if cs.ContainsKey("COUNT") {
 			EntropyInput := cs.Hex("EntropyInput")
 			var Nonce []byte

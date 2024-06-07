@@ -68,7 +68,7 @@ func TestCTRDRBG_B1(t *testing.T) {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// b) 첫 번째 출력 생성
-	dst = internal.ResizeBuffer(dst, 256/8)
+	dst = internal.Grow(dst, 256/8)
 
 	// 1) 유도 함수
 	err := state.Generate_CTR_DRBG(
@@ -94,7 +94,7 @@ func TestCTRDRBG_B1(t *testing.T) {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// c) 두 번째 출력 생성
-	dst = internal.ResizeBuffer(dst, 256/8)
+	dst = internal.Grow(dst, 256/8)
 
 	// 1) 재초기화 함수
 	err = state.Generate_CTR_DRBG(
@@ -322,7 +322,7 @@ func TestCTRDRBG_B2(t *testing.T) {
 
 		entropyIdx := 0
 
-		dst = internal.ResizeBuffer(dst, len(output1))
+		dst = internal.Grow(dst, len(output1))
 		err = state.Generate_CTR_DRBG(dst, func() ([]byte, error) { entropyIdx++; return input.entropy[entropyIdx], nil }, additionalData[0])
 		if err != nil {
 			t.Error(err)
@@ -337,7 +337,7 @@ func TestCTRDRBG_B2(t *testing.T) {
 			)
 			return
 		} else {
-			dst = internal.ResizeBuffer(dst, len(output2))
+			dst = internal.Grow(dst, len(output2))
 			err = state.Generate_CTR_DRBG(dst, func() ([]byte, error) { entropyIdx++; return input.entropy[entropyIdx], nil }, additionalData[1])
 			if err != nil {
 				t.Error(err)

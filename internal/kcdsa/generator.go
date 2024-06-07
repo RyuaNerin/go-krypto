@@ -34,7 +34,7 @@ func GenerateParameters(rand io.Reader, domain Domain) (
 	generated.G = new(big.Int)
 
 	// p. 13
-	generated.Seed = make([]byte, internal.Bytes(domain.B))
+	generated.Seed = make([]byte, internal.BitsToBytes(domain.B))
 
 	var ok bool
 	var buf []byte
@@ -82,7 +82,7 @@ func RegenerateParameters(
 	var CountB [4]byte
 	binary.BigEndian.PutUint32(CountB[:], uint32(count))
 
-	buf := make([]byte, internal.Bytes(domain.B))
+	buf := make([]byte, internal.BitsToBytes(domain.B))
 
 	// 8: Seed에 Count를 연접한 것을 일방향 함수 PPGF의 입력으로 하여 비트 길이가
 	// β인 난수 U를 생성한다. (U ← PPGF(Seed ‖ Count, β))

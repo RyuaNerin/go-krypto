@@ -54,7 +54,7 @@ func Hash_df(dst []byte, h hash.Hash, write func(w io.Writer), no_of_bits int) [
 	// 1: temp ← Null
 	// 2: len ← no_of_bits /outlen 
 
-	dst = internal.ResizeBuffer(dst, internal.Bytes(no_of_bits))
+	dst = internal.Grow(dst, internal.BitsToBytes(no_of_bits))
 
 	var hashInput [5]byte
 	binary.BigEndian.PutUint32(hashInput[1:], uint32(no_of_bits))
@@ -128,7 +128,7 @@ func Instantiate_Hash_DRBG(
 	// 24: seed_material ← entropy_input ‖ nonce ‖ personalization_string
 	seed_material := drbg.WriteBytes(entropy_input, nonce, personalization_string)
 
-	seedLenBytes := internal.Bytes(seedLen)
+	seedLenBytes := internal.BitsToBytes(seedLen)
 	vcTmp := make([]byte, seedLenBytes*3)
 
 	// 25: seed ← Hash_df(seed_material, seedlen )

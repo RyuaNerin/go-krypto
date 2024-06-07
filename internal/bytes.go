@@ -18,7 +18,7 @@ func SliceForAppend(in []byte, n int) (head, tail []byte) {
 }
 
 // without guarantee of data
-func ResizeBuffer(buf []byte, bytes int) []byte {
+func Grow(buf []byte, bytes int) []byte {
 	if bytes < cap(buf) {
 		return buf[:bytes]
 	} else {
@@ -27,7 +27,7 @@ func ResizeBuffer(buf []byte, bytes int) []byte {
 }
 
 // keep data
-func ResizeSlice(arr []byte, bytes int) []byte {
+func Resize(arr []byte, bytes int) []byte {
 	arrLen := len(arr)
 	arrCap := cap(arr)
 
@@ -50,7 +50,7 @@ func ResizeSlice(arr []byte, bytes int) []byte {
 
 // 0 0[0 0 0 0 0 0]
 func RightMost(b []byte, bits int) []byte {
-	bytes := Bytes(bits)
+	bytes := BitsToBytes(bits)
 	b = b[len(b)-bytes:]
 
 	remain := bits % 8
@@ -63,7 +63,7 @@ func RightMost(b []byte, bits int) []byte {
 
 // [0 0 0 0 0 0]0 0
 func LeftMost(b []byte, bits int) []byte {
-	bytes := Bytes(bits)
+	bytes := BitsToBytes(bits)
 	b = b[:bytes]
 
 	remain := bits % 8
@@ -104,9 +104,9 @@ func IncCtr(b []byte) {
 
 // resize dst, ReadFull, cut from right
 func ReadBits(dst []byte, rand io.Reader, bits int) ([]byte, error) {
-	bytes := Bytes(bits)
+	bytes := BitsToBytes(bits)
 
-	dst = ResizeBuffer(dst, bytes)
+	dst = Grow(dst, bytes)
 
 	if _, err := io.ReadFull(rand, dst); err != nil {
 		return dst, err
@@ -122,7 +122,7 @@ func ReadBits(dst []byte, rand io.Reader, bits int) ([]byte, error) {
 
 // resize dst, ReadFull, cut from right
 func ReadBytes(dst []byte, rand io.Reader, bytes int) ([]byte, error) {
-	dst = ResizeBuffer(dst, bytes)
+	dst = Grow(dst, bytes)
 
 	if _, err := io.ReadFull(rand, dst); err != nil {
 		return dst, err

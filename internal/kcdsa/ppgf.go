@@ -12,8 +12,8 @@ func ppgf(
 ) []byte {
 	// p.12
 	// from java
-	i := internal.Bytes(nBits)
-	dst = internal.ResizeBuffer(dst, i)
+	i := internal.BitsToBytes(nBits)
+	dst = internal.Grow(dst, i)
 
 	LH := h.Size()
 
