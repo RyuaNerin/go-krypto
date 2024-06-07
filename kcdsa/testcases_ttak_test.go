@@ -14,6 +14,10 @@ func Test_Verify_TestVectors(t *testing.T) {
 }
 
 func Test_Sign_Verify_TestVectors(t *testing.T) {
+	R, S := new(big.Int), new(big.Int)
+	tmp := new(big.Int)
+	var tmpBuf []byte
+
 	for idx, tc := range testCaseTTAK {
 		K := tc.KKEY
 
@@ -31,9 +35,13 @@ func Test_Sign_Verify_TestVectors(t *testing.T) {
 
 		domain, _ := kcdsainternal.GetDomain(int(tc.Sizes))
 
-		R, S, ok := kcdsainternal.Sign(
+		var ok bool
+		tmpBuf, ok = kcdsainternal.Sign(
+			R, S,
 			priv.P, priv.Q, priv.G, priv.Y, priv.X,
 			domain, K, tc.M,
+			tmp,
+			tmpBuf,
 		)
 		if !ok {
 			t.Errorf("%d: error signing", idx)

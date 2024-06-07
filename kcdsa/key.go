@@ -65,7 +65,7 @@ func (params Parameters) Equal(xx Parameters) bool {
 func (params *GenerationParameters) IsValid() bool {
 	return params.Count > 0 &&
 		len(params.Seed) > 0 &&
-		params.J == nil &&
+		params.J != nil &&
 		params.J.Sign() > 0
 }
 

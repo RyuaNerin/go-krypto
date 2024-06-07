@@ -20,10 +20,24 @@ func Benchmark_GenerateParameters(b *testing.B) {
 	}, false)
 }
 
+func Benchmark_GenerateParametersTTAK(b *testing.B) {
+	BA(b, as, func(b *testing.B, sz int) {
+		var params Parameters
+		b.ReportAllocs()
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			if err := GenerateParametersTTAK(&params, rnd, ParameterSizes(sz)); err != nil {
+				b.Error(err)
+				return
+			}
+		}
+	}, false)
+}
+
 func Benchmark_RegenerateParameters(b *testing.B) {
 	BA(b, as, func(b *testing.B, sz int) {
 		var params Parameters
-		if err := GenerateParameters(&params, rnd, ParameterSizes(sz)); err != nil {
+		if err := GenerateParametersTTAK(&params, rnd, ParameterSizes(sz)); err != nil {
 			b.Error(err)
 			return
 		}

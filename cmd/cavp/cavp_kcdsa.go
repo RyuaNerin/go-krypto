@@ -101,7 +101,7 @@ func processKCDSA_KPG(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 	for i := 0; i < 10; i++ {
 		domain, _ := kcdsainternal.GetDomain(int(sz))
 
-		generated, err := kcdsainternal.GenerateParameters(rnd, domain)
+		generated, err := kcdsainternal.GenerateParametersTTAK(rnd, domain)
 		if err != nil {
 			panic(err)
 		}

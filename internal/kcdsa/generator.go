@@ -21,10 +21,95 @@ type GeneratedParameter struct {
 	H     *big.Int
 }
 
-func GenerateParameters(rand io.Reader, domain Domain) (
-	generated GeneratedParameter,
-	err error,
-) {
+func GenerateParametersFast(rand io.Reader, d Domain) (generated GeneratedParameter, err error) {
+	P, Q, G := new(big.Int), new(big.Int), new(big.Int)
+
+	buf := make([]byte, internal.BitsToBytes(d.A))
+
+	// TTAK
+	// U: random len(U) = (α - β - 4)
+	// J: 2^(a-b-1) ∨ U ∨ 1
+	// q: 2^(b-1) ∨ U ∨ 1
+	// p: 2Jq + 1, len(p) <= a
+	// H: 1 < H < (p - 1)
+	// g: h^(2J) mod p, g > 1
+	//
+	// Fast
+	// p: prime, 2^(a-1)  < U < 2^a
+	// q: p-1 is multiple of q, 2^(b-1)  < U < 2^b,
+	// F: 1 < F < p -1, F ** ((p - 1)/Q) mod p > 1
+	// G = F**((p-1)/Q) mod p, Z*p에 있는 위수 q의 요소
+
+	tmp := new(big.Int)
+	F := new(big.Int)
+
+	// https://github.com/golang/go/blob/go1.22.4/src/crypto/dsa/dsa.go#L98-L136
+GeneratePrimes:
+	for {
+		if buf, err = internal.ReadBits(buf, rand, d.B); err != nil {
+			return
+		}
+		buf[len(buf)-1] |= 1
+		Q.SetBytes(buf)
+		Q.SetBit(Q, d.B-1, 1)
+
+		if !Q.ProbablyPrime(internal.NumMRTests) {
+			continue
+		}
+
+		for i := 0; i < 4*d.A; i++ {
+			if buf, err = internal.ReadBits(buf, rand, d.A); err != nil {
+				return
+			}
+			buf[len(buf)-1] |= 1
+			P.SetBytes(buf)
+			P.SetBit(P, d.A-1, 1)
+
+			// P - (P % Q) - 1
+			P.Sub(P, tmp.Sub(tmp.Mod(P, Q), internal.One))
+			if P.BitLen() < d.A {
+				continue
+			}
+
+			if !P.ProbablyPrime(internal.NumMRTests) {
+				continue
+			}
+
+			break GeneratePrimes
+		}
+	}
+
+	tmp.Div(tmp.Sub(P, internal.One), Q)
+
+	for {
+		if buf, err = internal.ReadBits(buf, rand, d.A); err != nil {
+			return
+		}
+		F.SetBytes(buf)
+		F.Add(F, internal.Two)
+		if F.Cmp(P) >= 0 {
+			continue
+		}
+
+		G.Exp(F, tmp, P)
+		if G.Cmp(internal.One) <= 0 {
+			continue
+		}
+		if G.Cmp(P) >= 0 {
+			continue
+		}
+
+		break
+	}
+
+	return GeneratedParameter{
+		P: P,
+		Q: Q,
+		G: G,
+	}, nil
+}
+
+func GenerateParametersTTAK(rand io.Reader, domain Domain) (generated GeneratedParameter, err error) {
 	h := domain.NewHash()
 
 	generated.J = new(big.Int)
@@ -73,6 +158,7 @@ func RegenerateParameters(
 	count int,
 ) (
 	P, Q, G *big.Int,
+	isValid bool,
 	err error,
 ) {
 	P = new(big.Int)
@@ -97,27 +183,24 @@ func RegenerateParameters(
 	// 10: p ← (2Jq + 1)의 비트 길이가 α보다 길면 단계 6으로 간다.
 	P.Add(P.Lsh(P.Mul(J, Q), 1), internal.One)
 	if P.BitLen() > domain.A {
-		err = ErrInvalidGenerationParameters
-		return
+		return nil, nil, nil, false, nil
 	}
 
 	// 11: 강한 소수 판정 알고리즘으로 q를 판정하여 소수가 아니면 단계 6으로 간다.
 	if !Q.ProbablyPrime(internal.NumMRTests) {
-		err = ErrInvalidGenerationParameters
-		return
+		return nil, nil, nil, false, nil
 	}
 
 	// 12: 강한 소수 판정 알고리즘으로 p를 판정하여 소수가 아니면 단계 6으로 간다
 	if !P.ProbablyPrime(internal.NumMRTests) {
-		err = ErrInvalidGenerationParameters
-		return
+		return nil, nil, nil, false, nil
 	}
 
 	H := new(big.Int)
 	_, err = GenerateHG(H, G, buf, rand, P, J)
 	if err != nil {
-		return
+		return nil, nil, nil, true, err
 	}
 
-	return
+	return P, Q, G, true, nil
 }

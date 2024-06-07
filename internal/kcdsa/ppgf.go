@@ -13,91 +13,105 @@ type marshalableHash interface {
 	encoding.BinaryUnmarshaler
 }
 
+type ppgfCtx struct {
+	h           hash.Hash
+	initVectors []byte // either initVectors or initSources
+
+	mh          marshalableHash
+	initSources [][]byte // either initVectors or initSources
+
+	lh int
+}
+
 func ppgf(
 	dst []byte,
 	nBits int, h hash.Hash, src ...[]byte,
 ) []byte {
-	if hh, ok := h.(marshalableHash); ok {
-		return ppgfFast(dst, nBits, hh, src...)
-	}
+	return newPPGF(h).Read(dst, nBits, src...)
+}
 
-	// p.12
-	// from java
-	i := internal.BitsToBytes(nBits)
-	dst = internal.Grow(dst, i)
-
-	LH := h.Size()
-
-	count := 0
-	var iBuf [1]byte
-	hbuf := make([]byte, 0, LH)
-
-	for {
-		iBuf[0] = byte(count)
-
+func newPPGF(h hash.Hash, src ...[]byte) (ppgf ppgfCtx) {
+	mh, ok := h.(marshalableHash)
+	if ok {
 		h.Reset()
 		for _, v := range src {
 			h.Write(v)
 		}
-		h.Write(iBuf[:])
-		hbuf = h.Sum(hbuf[:0])
-
-		if i >= LH {
-			i -= LH
-			copy(dst[i:], hbuf)
-			if i == 0 {
-				break
-			}
-		} else {
-			copy(dst, hbuf[len(hbuf)-i:])
-			break
-		}
-
-		count++
+		ppgf.mh = mh
+		ppgf.initVectors, _ = mh.MarshalBinary()
+	} else {
+		ppgf.h = h
+		ppgf.initSources = src
 	}
 
-	return internal.RightMost(dst, nBits)
+	ppgf.lh = h.Size()
+	return
 }
 
-func ppgfFast(
-	dst []byte,
-	nBits int, h marshalableHash, src ...[]byte,
-) []byte {
-	for _, v := range src {
-		h.Write(v)
-	}
-	marshalled, _ := h.MarshalBinary()
-
+func (p ppgfCtx) Read(dst []byte, nBits int, src ...[]byte) []byte {
 	// p.12
 	// from java
 	i := internal.BitsToBytes(nBits)
 	dst = internal.Grow(dst, i)
 
-	LH := h.Size()
-
-	count := 0
 	var iBuf [1]byte
-	hbuf := make([]byte, 0, LH)
+	hbuf := make([]byte, 0, p.lh)
 
-	for {
-		iBuf[0] = byte(count)
-
-		h.UnmarshalBinary(marshalled)
-		h.Write(iBuf[:])
-		hbuf = h.Sum(hbuf[:0])
-
-		if i >= LH {
-			i -= LH
-			copy(dst[i:], hbuf)
-			if i == 0 {
-				break
+	if p.mh != nil {
+		var saved []byte
+		if len(src) > 0 {
+			p.mh.UnmarshalBinary(p.initVectors)
+			for _, v := range src {
+				p.mh.Write(v)
 			}
+			saved, _ = p.mh.MarshalBinary()
 		} else {
-			copy(dst, hbuf[len(hbuf)-i:])
-			break
+			saved = p.initVectors
 		}
 
-		count++
+		for {
+			p.mh.UnmarshalBinary(saved)
+			p.mh.Write(iBuf[:])
+			hbuf = p.mh.Sum(hbuf[:0])
+
+			if i >= p.lh {
+				i -= p.lh
+				copy(dst[i:], hbuf)
+				if i == 0 {
+					break
+				}
+			} else {
+				copy(dst, hbuf[len(hbuf)-i:])
+				break
+			}
+
+			iBuf[0]++
+		}
+	} else {
+		for {
+			p.h.Reset()
+			for _, v := range p.initSources {
+				p.h.Write(v)
+			}
+			for _, v := range src {
+				p.h.Write(v)
+			}
+			p.h.Write(iBuf[:])
+			hbuf = p.h.Sum(hbuf[:0])
+
+			if i >= p.lh {
+				i -= p.lh
+				copy(dst[i:], hbuf)
+				if i == 0 {
+					break
+				}
+			} else {
+				copy(dst, hbuf[len(hbuf)-i:])
+				break
+			}
+
+			iBuf[0]++
+		}
 	}
 
 	return internal.RightMost(dst, nBits)

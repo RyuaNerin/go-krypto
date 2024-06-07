@@ -86,7 +86,8 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 			},
 		}
 
-		priv.Y = kcdsainternal.GenerateY(priv.P, priv.Q, priv.G, priv.X)
+		priv.Y = new(big.Int)
+		kcdsainternal.GenerateY(priv.Y, priv.P, priv.Q, priv.G, priv.X)
 
 		return priv, nil
 

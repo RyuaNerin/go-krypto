@@ -20,7 +20,7 @@ func GenerateJ(
 	// fmt.Println("--------------------------------------------------")
 	// fmt.Println("U ← PPGF(Seed, n)")
 	bufNew = ppgf(buf, d.A-d.B-4, h, seed)
-	// fmt.Println("U = 0x" + hex.EncodeToString(UBytes2))
+	// fmt.Println("U = 0x" + hex.EncodeToString(UBytes2))f
 
 	// 3: U의 상위에 4 비트 '1000'을 붙이고 최하위 비트는 1로 만들어 이를 J로 둔다.
 	// (J ← 2^(α-β-1) ∨ U ∨ 1)
@@ -55,6 +55,9 @@ func GeneratePQ(
 
 	bufNew = internal.Grow(buf, internal.BitsToBytes(d.B))
 
+	// krypto: 성능 향상을 위해서 PPGF(Seed)의 State를 먼저 계산해둔다.
+	ppgf := newPPGF(h, seed)
+
 	// 7: Count > 2^24이면 단계 1로 간다.
 	for count <= (1 << 24) {
 		// 6: Count를 1 증가시킨다. (Count ← (Count + 1))
@@ -63,7 +66,7 @@ func GeneratePQ(
 
 		// 8: Seed에 Count를 연접한 것을 일방향 함수 PPGF의 입력으로 하여 비트 길이가
 		// β인 난수 UBytes를 생성한다. (UBytes ← PPGF(Seed ‖ Count, β))
-		bufNew = ppgf(bufNew, d.B, h, seed, countB[:])
+		bufNew = ppgf.Read(bufNew, d.B, countB[:])
 
 		// 9: U의 최상위 및 최하위 비트를 1로 만들어 이를 q로 둔다.
 		// (q ← 2^(β-1) ∨ U ∨ 1)
@@ -96,8 +99,8 @@ func GeneratePQ(
 
 func GenerateHG(
 	H, G *big.Int,
-	buf []byte,
 	///////////////
+	buf []byte,
 	rand io.Reader,
 	P, J *big.Int,
 ) (bufOut []byte, err error) {
@@ -136,7 +139,10 @@ func GenerateG(
 	return G.Cmp(internal.One) != 0
 }
 
-func GenerateX(Q *big.Int, upri, xkey []byte, h hash.Hash, d Domain) (X *big.Int) {
+func GenerateX(
+	X *big.Int,
+	Q *big.Int, upri, xkey []byte, h hash.Hash, d Domain,
+) {
 	// 3: XSEEDj ← PPGF(user_provided_random_input, b)
 	// fmt.Println("--------------------------------------------------")
 	// fmt.Println("3: XSEEDj ← PPGF(user_provided_random_input, b)")
@@ -165,18 +171,18 @@ func GenerateX(Q *big.Int, upri, xkey []byte, h hash.Hash, d Domain) (X *big.Int
 	// 5: xj ← PPGF(XVAL, b) mod q
 	// fmt.Println("--------------------------------------------------")
 	// fmt.Println("5: xj ← PPGF(XVAL, b) mod q")
-	tmp := xseed
-	X = new(big.Int).SetBytes(ppgf(tmp, d.B, h, xval))
+	X.SetBytes(ppgf(xseed, d.B, h, xval))
 	X.Mod(X, Q)
 	// fmt.Println("X = 0x" + hex.EncodeToString(X.Bytes()))
-
-	return X
 }
 
-func GenerateY(P, Q, G, X *big.Int) *big.Int {
+func GenerateY(
+	Y *big.Int,
+	P, Q, G, X *big.Int,
+) {
 	// x의 역원 생성
 	xInv := internal.FermatInverse(X, Q)
 
 	// 전자서명 검증키 y 생성(Y = G^{X^{-1} mod Q} mod P)
-	return new(big.Int).Exp(G, xInv, P)
+	Y.Exp(G, xInv, P)
 }
