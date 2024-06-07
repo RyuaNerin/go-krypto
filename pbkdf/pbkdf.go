@@ -11,14 +11,14 @@ import (
 
 // Generate a key from the password, salt and iteration count,
 // then returns a []byte of length keylen.
-func Generate(password, salt []byte, iteration, keyLen int, h func() hash.Hash) []byte {
+func Generate(dst, password, salt []byte, iteration, keyLen int, h func() hash.Hash) []byte {
 	hh := hmac.New(h, password)
 	hLen := hh.Size()
 
 	U := make([]byte, hLen, hLen*2)
 	T := U[hLen : hLen*2]
 
-	dst := make([]byte, keyLen)
+	dst, out := internal.SliceForAppend(dst, keyLen)
 
 	var i [4]byte
 	for off := 0; off < keyLen; off += hLen {
@@ -39,7 +39,7 @@ func Generate(password, salt []byte, iteration, keyLen int, h func() hash.Hash) 
 			subtle.XORBytes(T, T, U)
 		}
 
-		copy(dst[off:], T)
+		copy(out[off:], T)
 	}
 
 	return dst

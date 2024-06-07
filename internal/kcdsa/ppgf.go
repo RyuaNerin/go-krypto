@@ -1,23 +1,16 @@
 package kcdsa
 
 import (
-	"encoding"
 	"hash"
 
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-type marshalableHash interface {
-	hash.Hash
-	encoding.BinaryMarshaler
-	encoding.BinaryUnmarshaler
-}
-
 type ppgfCtx struct {
 	h           hash.Hash
 	initVectors []byte // either initVectors or initSources
 
-	mh          marshalableHash
+	mh          internal.Hash
 	initSources [][]byte // either initVectors or initSources
 
 	lh int
@@ -31,7 +24,7 @@ func ppgf(
 }
 
 func newPPGF(h hash.Hash, src ...[]byte) (ppgf ppgfCtx) {
-	mh, ok := h.(marshalableHash)
+	mh, ok := h.(internal.Hash)
 	if ok {
 		h.Reset()
 		for _, v := range src {
