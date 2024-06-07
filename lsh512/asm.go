@@ -34,9 +34,11 @@ func (simd *simdSet) Sum(size int, data []byte) [Size]byte {
 	return ctx.checkSum()
 }
 
+const contextDataSize = 16 + 16 + 8*8 + 8*8 + 256
+
 type lsh512ContextAsm struct {
 	//nolint:unused
-	data [16 + 16 + 8*8 + 8*8 + 256]byte // 최상단으로 배치하여 aligned 문제 수정...
+	data [contextDataSize]byte // 최상단으로 배치하여 aligned 문제 수정...
 
 	simd *simdSet
 	size int
