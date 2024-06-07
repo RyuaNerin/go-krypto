@@ -18,6 +18,8 @@ func processPBKDF(path, filename string) {
 	cavp := NewCavp(path, filename)
 	defer cavp.Close()
 
+	var dst []byte
+
 	for cavp.Next() {
 		cs := cavp.ReadValues()
 
@@ -28,7 +30,7 @@ func processPBKDF(path, filename string) {
 			Salt := cs.Hex("Salt")
 			KLen := cs.Int("KLen")
 
-			dst := pbkdf.Generate([]byte(Password), Salt, iteration, KLen/8, hashInfo.New)
+			dst = pbkdf.Generate(dst[:0], []byte(Password), Salt, iteration, KLen/8, hashInfo.New)
 
 			cs = append(cs, cavpRow{"MK", hexStr(dst), false})
 		}
