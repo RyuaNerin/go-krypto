@@ -7,17 +7,17 @@ import (
 	"github.com/RyuaNerin/go-krypto/kbkdf"
 )
 
-type funcKBKDF func(prf kbkdf.PRF, key, label, context, iv []byte, r, length int) []byte
+type funcKBKDF func(dst []byte, prf kbkdf.PRF, key, label, context, iv []byte, r, length int) []byte
 
 func processKBKDF(path, filename string) {
 	cavp := NewCavp(path, filename)
 	defer cavp.Close()
 
-	counterMode := func(prf kbkdf.PRF, key, label, context, _ []byte, r, length int) []byte {
-		return kbkdf.CounterMode(prf, key, label, context, r, length)
+	counterMode := func(dst []byte, prf kbkdf.PRF, key, label, context, _ []byte, r, length int) []byte {
+		return kbkdf.CounterMode(dst, prf, key, label, context, r, length)
 	}
-	doublePipeMode := func(prf kbkdf.PRF, key, label, context, _ []byte, r, length int) []byte {
-		return kbkdf.DoublePipeMode(prf, key, label, context, r, length)
+	doublePipeMode := func(dst []byte, prf kbkdf.PRF, key, label, context, _ []byte, r, length int) []byte {
+		return kbkdf.DoublePipeMode(dst, prf, key, label, context, r, length)
 	}
 	feedbackMode := kbkdf.FeedbackMode
 
@@ -95,7 +95,7 @@ func processKBKDF_HMAC(cavp *cavpProcessor, hashInfo *HashInfo, fn funcKBKDF) {
 				IV = cs.Hex("IV")
 			}
 
-			dst = fn(prf, KI, Label, Context, IV, rlen/8, L/8)
+			dst = fn(dst[:0], prf, KI, Label, Context, IV, rlen/8, L/8)
 			cs = append(cs, cavpRow{"KO", hexStr(dst), false})
 		}
 
@@ -128,7 +128,7 @@ func processKBKDF_CMAC(cavp *cavpProcessor, newCipher funcNewBlockCipher, fn fun
 			}
 
 			prf := kbkdf.NewCMACPRF(newCipher)
-			dst = fn(prf, KI, Label, Context, IV, rlen/8, L/8)
+			dst = fn(dst[:0], prf, KI, Label, Context, IV, rlen/8, L/8)
 			cs = append(cs, cavpRow{"KO", hexStr(dst), false})
 		}
 

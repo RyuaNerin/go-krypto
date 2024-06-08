@@ -8,10 +8,12 @@ import (
 )
 
 // counterSize: 0 <= counterSize <= 8
-func CounterMode(prf PRF, key, label, context []byte, counterSize, length int) []byte {
+func CounterMode(dst []byte, prf PRF, key, label, context []byte, counterSize, length int) []byte {
 	if counterSize < 0 || 8 < counterSize {
 		panic(msgInvalidCounterSize)
 	}
+
+	out, dst := internal.SliceForAppend(dst, length)
 
 	//  1: n ← ⎡L/h⎤
 	//  2: if (n > (2r - 1)) then
@@ -24,8 +26,6 @@ func CounterMode(prf PRF, key, label, context []byte, counterSize, length int) [
 	//  9: end do
 	// 10: KO ← leftmost(result(n), L)
 	// 11: return KO
-
-	dst := make([]byte, length)
 
 	var Lr [8]byte
 	L := fillL(Lr[:], uint64(length*8))
@@ -42,14 +42,16 @@ func CounterMode(prf PRF, key, label, context []byte, counterSize, length int) [
 		off += len(K)
 	}
 
-	return dst
+	return out
 }
 
 // counterSize: 0 <= counterSize <= 8
-func FeedbackMode(prf PRF, key, label, context, iv []byte, counterSize, length int) []byte {
+func FeedbackMode(dst []byte, prf PRF, key, label, context, iv []byte, counterSize, length int) []byte {
 	if counterSize < 0 || 8 < counterSize {
 		panic(msgInvalidCounterSize)
 	}
+
+	out, dst := internal.SliceForAppend(dst, length)
 
 	//  1: n ← ⎡L/h⎤
 	//  2: if (n > (232 - 1)) then
@@ -63,8 +65,6 @@ func FeedbackMode(prf PRF, key, label, context, iv []byte, counterSize, length i
 	// 10: end do
 	// 11: KO ← leftmost(result(n), L)
 	// 12: return KO
-
-	dst := make([]byte, length)
 
 	var Lr [8]byte
 	L := fillL(Lr[:], uint64(length*8))
@@ -80,14 +80,16 @@ func FeedbackMode(prf PRF, key, label, context, iv []byte, counterSize, length i
 		off += len(K)
 	}
 
-	return dst
+	return out
 }
 
 // counterSize: 0 <= counterSize <= 8
-func DoublePipeMode(prf PRF, key, label, context []byte, counterSize, length int) []byte {
+func DoublePipeMode(dst []byte, prf PRF, key, label, context []byte, counterSize, length int) []byte {
 	if counterSize < 0 || 8 < counterSize {
 		panic(msgInvalidCounterSize)
 	}
+
+	out, dst := internal.SliceForAppend(dst, length)
 
 	//  1: n ← ⎡L/h⎤
 	//  2: if (n > (232 - 1)) then
@@ -102,8 +104,6 @@ func DoublePipeMode(prf PRF, key, label, context []byte, counterSize, length int
 	// 11: end do
 	// 12: KO ← leftmost(result(n), L)
 	// 13: return KO
-
-	dst := make([]byte, length)
 
 	var Lr [8]byte
 	L := fillL(Lr[:], uint64(length*8))
@@ -125,7 +125,7 @@ func DoublePipeMode(prf PRF, key, label, context []byte, counterSize, length int
 		off += len(K)
 	}
 
-	return dst
+	return out
 }
 
 func fillL(dst []byte, v uint64) []byte {

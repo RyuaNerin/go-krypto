@@ -18,7 +18,7 @@ func Generate(dst, password, salt []byte, iteration, keyLen int, h func() hash.H
 	U := make([]byte, hLen, hLen*2)
 	T := U[hLen : hLen*2]
 
-	dst, out := internal.SliceForAppend(dst, keyLen)
+	out, dst := internal.SliceForAppend(dst, keyLen)
 
 	var i [4]byte
 	for off := 0; off < keyLen; off += hLen {
@@ -39,8 +39,8 @@ func Generate(dst, password, salt []byte, iteration, keyLen int, h func() hash.H
 			subtle.XORBytes(T, T, U)
 		}
 
-		copy(out[off:], T)
+		copy(dst[off:], T)
 	}
 
-	return dst
+	return out
 }

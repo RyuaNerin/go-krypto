@@ -13,6 +13,7 @@ import (
 // I.1. 카운터 모드를 이용한 키 유도 함수 (KDF in Counter Mode)
 func TestCMAC_Counter_SEED_R1(t *testing.T) {
 	answer := CounterMode(
+		nil,
 		NewCMACPRF(seed.NewCipher),
 		internal.HB(`d899a261ac0bf40b04f110681b8859e4`),
 		internal.HB(`8ed363214d5ca03328964b636a889f83850bc41af69ce426d080490cf57465514ee2768d47fde795fad82ca919ca1c9553122d8017549d431ddd6b0a`),
@@ -30,6 +31,7 @@ func TestCMAC_Counter_SEED_R1(t *testing.T) {
 // 2. 피드백 모드를 이용한 키 유도 함수 (KDF in Feedback Mode)
 func TestCMAC_Feedback_SEED_R1(t *testing.T) {
 	answer := FeedbackMode(
+		nil,
 		NewCMACPRF(seed.NewCipher),
 		internal.HB(`c0ec404a828088e5f79e2840b4dfda41`),
 		internal.HB(`67bd99e57f8b859fd13b89a0250b945a9ddb7408d85e8008daea9cc1a57305e639f1550f5e2a8cbd9dcc368c4391759e66bb332977670a237cb60753`),
@@ -48,6 +50,7 @@ func TestCMAC_Feedback_SEED_R1(t *testing.T) {
 // 3. 더블파이프라인 반복 모드를 이용한 키 유도 함수 (KDF in Double-Pipeline Iteration Mode)
 func TestCMAC_DoublePipeline_SEED_R1(t *testing.T) {
 	answer := DoublePipeMode(
+		nil,
 		NewCMACPRF(seed.NewCipher),
 		internal.HB(`5b898cdfdd9b46a8e3f8e5edb79247c4`),
 		internal.HB(`50db604f57ac1864fb19657a60cef868c8e5c04025b08d78222cdeed819093a6bd5117b30d98b3bc69989be2f84e0043761b2686c2060db81c4cc1a3`),

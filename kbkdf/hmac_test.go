@@ -14,6 +14,7 @@ import (
 // 5.1 HMAC-SHA-224의 단계별 참조구현값
 func TestHMAC_Counter_SHA224(t *testing.T) {
 	answer := CounterMode(
+		nil,
 		NewHMACPRF(sha256.New224),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabb`),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabb`),
@@ -32,6 +33,7 @@ func TestHMAC_Counter_SHA224(t *testing.T) {
 // 6.1.1 카운터 입력을 사용하고 IV ≠ ∅는 경우
 func TestHMAC_Feedback_SHA224_Counter_IV(t *testing.T) {
 	answer := FeedbackMode(
+		nil,
 		NewHMACPRF(sha256.New224),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabb`),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabb`),
@@ -50,6 +52,7 @@ func TestHMAC_Feedback_SHA224_Counter_IV(t *testing.T) {
 // 6.1.2 카운터 입력을 사용하고 IV = ∅인 경우
 func TestHMAC_Feedback_SHA224_Counter(t *testing.T) {
 	answer := FeedbackMode(
+		nil,
 		NewHMACPRF(sha256.New224),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabb`),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabb`),
@@ -68,6 +71,7 @@ func TestHMAC_Feedback_SHA224_Counter(t *testing.T) {
 // 6.1.3 카운터 입력을 사용하지 않고 IV ≠ ∅는 경우
 func TestHMAC_Feedback_SHA224_IV(t *testing.T) {
 	answer := FeedbackMode(
+		nil,
 		NewHMACPRF(sha256.New224),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabb`),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabb`),
@@ -86,6 +90,7 @@ func TestHMAC_Feedback_SHA224_IV(t *testing.T) {
 // 6.1.4 카운터 입력을 사용하지 않고 IV = ∅인 경우
 func TestHMAC_Feedback_SHA224(t *testing.T) {
 	answer := FeedbackMode(
+		nil,
 		NewHMACPRF(sha256.New224),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabb`),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabb`),
@@ -104,6 +109,7 @@ func TestHMAC_Feedback_SHA224(t *testing.T) {
 // 7.1.1 카운터 입력을 사용한 경우
 func TestHMAC_DoublePipeline_SHA224_Counter(t *testing.T) {
 	answer := DoublePipeMode(
+		nil,
 		NewHMACPRF(sha256.New224),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabb`),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabb`),
@@ -121,6 +127,7 @@ func TestHMAC_DoublePipeline_SHA224_Counter(t *testing.T) {
 // 7.1.2 카운터 입력을 사용하지 않는 경우
 func TestHMAC_DoublePipeline_SHA224(t *testing.T) {
 	answer := DoublePipeMode(
+		nil,
 		NewHMACPRF(sha256.New224),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabb`),
 		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabb`),
