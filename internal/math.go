@@ -1,9 +1,10 @@
 package internal
 
 import (
-	"crypto/subtle"
 	"io"
 	"math/big"
+
+	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 const NumMRTests = 64
@@ -76,8 +77,8 @@ func ReadBigInt(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bufNew 
 // in math/big.Int.ModInverse) although math/big itself isn't strictly
 // constant-time so it's not perfect.
 func FermatInverse(k, P *big.Int) *big.Int {
-	nMinus2 := new(big.Int).Sub(P, Two)
-	return new(big.Int).Exp(k, nMinus2, P)
+	tmp := new(big.Int).Sub(P, Two)
+	return tmp.Exp(k, tmp, P)
 }
 
 func BigEqual(a, b *big.Int) bool {

@@ -1,7 +1,6 @@
 package kipher
 
 import (
-	"bytes"
 	"crypto/cipher"
 
 	"github.com/RyuaNerin/go-krypto/internal"
@@ -31,7 +30,7 @@ func NewCBCDecrypter(b cipher.Block, iv []byte) cipher.BlockMode {
 		return &cbc{
 			b:         kb,
 			blockSize: b.BlockSize(),
-			iv:        bytes.Clone(iv),
+			iv:        internal.BytesClone(iv),
 			tmp:       make([]byte, 8*b.BlockSize()),
 		}
 	}

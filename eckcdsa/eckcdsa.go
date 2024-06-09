@@ -51,7 +51,7 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big
 		return nil, nil, err
 	}
 
-	var isInvalidK bool
+	var ok bool
 	var k *big.Int
 	for {
 		// https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=77-113
@@ -60,8 +60,8 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big
 			return
 		}
 
-		r, s, isInvalidK = signUsingK(k, priv, h, data)
-		if isInvalidK {
+		r, s, ok = signUsingK(k, priv, h, data)
+		if !ok {
 			continue
 		}
 

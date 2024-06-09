@@ -122,23 +122,27 @@ func Test_ECKCDSA(t *testing.T) {
 		t.Skip("skipping parameter generation test in short mode")
 	}
 
-	testKCDSA(t, "P224_SHA256_224", p224, hashSHA256_224)
-	testKCDSA(t, "P224_SHA256_256", p224, hashSHA256)
+	t.Run("P224_SHA256_224", testKCDSA(p224, hashSHA256_224))
+	t.Run("P224_SHA256_256", testKCDSA(p224, hashSHA256))
 
-	testKCDSA(t, "P256_SHA256_224", p256, hashSHA256_224)
-	testKCDSA(t, "P256_SHA256_256", p256, hashSHA256)
+	t.Run("P256_SHA256_224", testKCDSA(p256, hashSHA256_224))
+	t.Run("P256_SHA256_256", testKCDSA(p256, hashSHA256))
 
-	testKCDSA(t, "B233_SHA256_224", b233, hashSHA256_224)
-	testKCDSA(t, "B233_SHA256_256", b233, hashSHA256)
+	if testing.Short() {
+		return
+	}
 
-	testKCDSA(t, "B283_SHA256_224", b283, hashSHA256_224)
-	testKCDSA(t, "B283_SHA256_256", b283, hashSHA256)
+	t.Run("B233_SHA256_224", testKCDSA(b233, hashSHA256_224))
+	t.Run("B233_SHA256_256", testKCDSA(b233, hashSHA256))
 
-	testKCDSA(t, "K233_SHA256_224", k233, hashSHA256_224)
-	testKCDSA(t, "K233_SHA256_256", k233, hashSHA256)
+	t.Run("B283_SHA256_224", testKCDSA(b283, hashSHA256_224))
+	t.Run("B283_SHA256_256", testKCDSA(b283, hashSHA256))
 
-	testKCDSA(t, "K283_SHA256_224", k283, hashSHA256_224)
-	testKCDSA(t, "K283_SHA256_256", k283, hashSHA256)
+	t.Run("K233_SHA256_224", testKCDSA(k233, hashSHA256_224))
+	t.Run("K233_SHA256_256", testKCDSA(k233, hashSHA256))
+
+	t.Run("K283_SHA256_224", testKCDSA(k283, hashSHA256_224))
+	t.Run("K283_SHA256_256", testKCDSA(k283, hashSHA256))
 }
 
 func Test_Signing_With_DegenerateKeys(t *testing.T) {
@@ -170,36 +174,35 @@ func Test_Signing_With_DegenerateKeys(t *testing.T) {
 }
 
 func testKCDSA(
-	t *testing.T,
-	name string,
 	curve elliptic.Curve,
 	h hash.Hash,
-) {
-	priv, err := GenerateKey(curve, rand.Reader)
-	if err != nil {
-		t.Errorf("%s: error generating key: %s", name, err)
-		return
-	}
+) func(t *testing.T) {
+	return func(t *testing.T) {
+		priv, err := GenerateKey(curve, rand.Reader)
+		if err != nil {
+			t.Errorf("error generating key: %s", err)
+			return
+		}
 
-	testSignAndVerify(t, name, priv, h)
+		testSignAndVerify(t, priv, h)
+	}
 }
 
 func testSignAndVerify(
 	t *testing.T,
-	name string,
 	priv *PrivateKey,
 	h hash.Hash,
 ) {
 	data := []byte("testing")
 	r, s, err := Sign(rand.Reader, priv, h, data)
 	if err != nil {
-		t.Errorf("%s: error signing: %s", name, err)
+		t.Errorf("error signing: %s", err)
 		return
 	}
 
 	ok := Verify(&priv.PublicKey, h, data, r, s)
 	if !ok {
-		t.Errorf("%s: Verify failed", name)
+		t.Errorf("Verify failed")
 		return
 	}
 }

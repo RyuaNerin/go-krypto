@@ -5,12 +5,6 @@ import (
 	"crypto/cipher"
 )
 
-type leaContext struct {
-	rk    [192]uint32
-	round uint8
-	ecb   bool
-}
-
 const (
 	// The LEA block size in bytes.
 	BlockSize = 16

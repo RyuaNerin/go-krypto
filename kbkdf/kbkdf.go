@@ -2,8 +2,6 @@
 package kbkdf
 
 import (
-	"bytes"
-
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
@@ -70,7 +68,7 @@ func FeedbackMode(dst []byte, prf PRF, key, label, context, iv []byte, counterSi
 	L := fillL(Lr[:], uint64(length*8))
 	I := make([]byte, counterSize)
 
-	K := bytes.Clone(iv)
+	K := internal.BytesClone(iv)
 
 	for off := 0; off < length; {
 		internal.IncCtr(I)

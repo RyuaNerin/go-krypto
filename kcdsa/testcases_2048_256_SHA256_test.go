@@ -6,7 +6,13 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-func Test_Verify_2048_256_SHA256(t *testing.T) { testVerify(t, testCase_2048_256_SHA256) }
+func Test_Verify_2048_256_SHA256(t *testing.T) {
+	tc := testCase_2048_256_SHA256
+	if testing.Short() {
+		tc = tc[:1]
+	}
+	verifyTestCases(t, tc)
+}
 
 var testCase_2048_256_SHA256 = []testCase{
 	////////////////////////////////////////////////////////////////////////////////////////////////////

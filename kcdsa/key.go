@@ -2,10 +2,10 @@ package kcdsa
 
 import (
 	"crypto"
-	"crypto/subtle"
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
+	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 type GenerationParameters struct {

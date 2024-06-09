@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/RyuaNerin/go-krypto/internal"
 )
 
 type cavpRow struct {
@@ -227,7 +229,7 @@ func (p *cavpProcessor) ReadLine() string {
 		break
 	}
 
-	s := strings.Clone(p.lineBuf.String())
+	s := internal.StringClone(p.lineBuf.String())
 	p.lineBuf.Reset()
 
 	p.lineCur++
@@ -282,11 +284,11 @@ func (p *cavpProcessor) ReadValues() cavpSection {
 		}
 
 		if strings.HasPrefix(line, "#") {
-			p.cs = append(p.cs, cavpRow{"", strings.Clone(line), false})
+			p.cs = append(p.cs, cavpRow{"", internal.StringClone(line), false})
 		} else {
 			idx := strings.Index(line, "=")
 			if idx == -1 {
-				p.cs = append(p.cs, cavpRow{"", strings.Clone(line), false})
+				p.cs = append(p.cs, cavpRow{"", internal.StringClone(line), false})
 			} else {
 				bo := strings.HasPrefix(line, "[")
 				bc := strings.HasSuffix(line, "]")
@@ -302,8 +304,8 @@ func (p *cavpProcessor) ReadValues() cavpSection {
 					p.cs = append(
 						p.cs,
 						cavpRow{
-							Key:     strings.Clone(strings.TrimSpace(line[:idx])),
-							Value:   strings.Clone(strings.TrimSpace(line[idx+1:])),
+							Key:     internal.StringClone(strings.TrimSpace(line[:idx])),
+							Value:   internal.StringClone(strings.TrimSpace(line[idx+1:])),
 							Section: section,
 						},
 					)
@@ -311,7 +313,7 @@ func (p *cavpProcessor) ReadValues() cavpSection {
 				case !bo && bc:
 					fallthrough
 				case bo && !bc:
-					p.cs = append(p.cs, cavpRow{"", strings.Clone(line), false})
+					p.cs = append(p.cs, cavpRow{"", internal.StringClone(line), false})
 				}
 			}
 		}

@@ -2,11 +2,11 @@ package ctrdrbg
 
 import (
 	"crypto/cipher"
-	"crypto/subtle"
 	"encoding/binary"
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 const (

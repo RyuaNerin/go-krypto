@@ -8,13 +8,13 @@ package kipher
 
 import (
 	"crypto/cipher"
-	"crypto/subtle"
 	"encoding/binary"
 	"errors"
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
 	igcm "github.com/RyuaNerin/go-krypto/internal/gcm"
+	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 type gcm struct {

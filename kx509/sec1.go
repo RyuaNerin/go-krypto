@@ -57,7 +57,7 @@ func marshalECKCPrivateKeyWithOID(key *eckcdsa.PrivateKey, oid asn1.ObjectIdenti
 		Version:       1,
 		PrivateKey:    key.D.FillBytes(privateKey),
 		NamedCurveOID: oid,
-		PublicKey:     asn1.BitString{Bytes: elliptic.Marshal(key.Curve, key.X, key.Y)},
+		PublicKey:     asn1.BitString{Bytes: elliptic.Marshal(key.Curve, key.X, key.Y)}, //nolint:staticcheck
 	})
 }
 

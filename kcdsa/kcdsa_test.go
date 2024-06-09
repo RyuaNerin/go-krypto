@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
+	"github.com/RyuaNerin/go-krypto/internal/kcdsa"
 
 	. "github.com/RyuaNerin/testingutil"
 )
@@ -99,57 +100,66 @@ func Test_KCDSA(t *testing.T) {
 		t.Skip("skipping parameter generation test in short mode")
 	}
 
-	testKCDSA(t, A2048B224SHA224, 2048, 224)
-	testKCDSA(t, A2048B224SHA256, 2048, 224)
-	testKCDSA(t, A2048B256SHA256, 2048, 256)
-	testKCDSA(t, A3072B256SHA256, 3072, 256)
+	t.Run("A2048B224SHA224", testKCDSA(A2048B224SHA224))
+	t.Run("A2048B224SHA256", testKCDSA(A2048B224SHA256))
+	t.Run("A2048B256SHA256", testKCDSA(A2048B256SHA256))
+	t.Run("A3072B256SHA256", testKCDSA(A3072B256SHA256))
+	t.Run("A1024B160HAS160", testKCDSA(A1024B160HAS160))
 }
 
-func testKCDSA(t *testing.T, sizes ParameterSizes, l, n int) {
-	var priv PrivateKey
-	params := &priv.Parameters
+func testKCDSA(sizes ParameterSizes) func(*testing.T) {
+	return func(t *testing.T) {
+		d, ok := kcdsa.GetDomain(int(sizes))
+		if !ok {
+			t.Errorf("domain not found")
+			return
+		}
 
-	err := GenerateParameters(params, rand.Reader, sizes)
-	if err != nil {
-		t.Errorf("%d: %s", int(sizes), err)
-		return
+		var priv PrivateKey
+		params := &priv.Parameters
+
+		err := GenerateParameters(params, rand.Reader, sizes)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		if params.P.BitLen() > d.A {
+			t.Errorf("params.BitLen got:%d want:%d", params.P.BitLen(), d.A)
+			return
+		}
+
+		if params.Q.BitLen() > d.B {
+			t.Errorf("q.BitLen got:%d want:%d", params.Q.BitLen(), d.B)
+			return
+		}
+
+		err = GenerateKey(&priv, rand.Reader)
+		if err != nil {
+			t.Errorf("error generating key: %s", err)
+			return
+		}
+
+		testSignAndVerify(t, &priv, sizes)
 	}
-
-	if params.P.BitLen() > l {
-		t.Errorf("%d: params.BitLen got:%d want:%d", int(sizes), params.P.BitLen(), l)
-		return
-	}
-
-	if params.Q.BitLen() > n {
-		t.Errorf("%d: q.BitLen got:%d want:%d", int(sizes), params.Q.BitLen(), l)
-		return
-	}
-
-	err = GenerateKey(&priv, rand.Reader)
-	if err != nil {
-		t.Errorf("error generating key: %s", err)
-		return
-	}
-
-	testSignAndVerify(t, int(sizes), &priv, sizes)
 }
 
-func testSignAndVerify(t *testing.T, i int, priv *PrivateKey, sizes ParameterSizes) {
+func testSignAndVerify(t *testing.T, priv *PrivateKey, sizes ParameterSizes) {
 	data := []byte("testing")
 	r, s, err := Sign(rand.Reader, priv, sizes, data)
 	if err != nil {
-		t.Errorf("%d: error signing: %s", i, err)
+		t.Errorf("error signing: %s", err)
 		return
 	}
 
 	ok := Verify(&priv.PublicKey, sizes, data, r, s)
 	if !ok {
-		t.Errorf("%d: Verify failed", i)
+		t.Error("Verify failed")
 		return
 	}
 }
 
-func testVerify(t *testing.T, testCases []testCase) {
+func verifyTestCases(t *testing.T, testCases []testCase) {
 	for _, tc := range testCases {
 		pub := PublicKey{
 			Parameters: Parameters{

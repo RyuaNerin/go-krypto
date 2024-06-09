@@ -1,5 +1,5 @@
-//go:build !(arm64 || amd64 || amd64p32) || purego
-// +build !arm64,!amd64,!amd64p32 purego
+//go:build !(arm64 || amd64) || purego || (gccgo && !go1.18)
+// +build !arm64,!amd64 purego gccgo,!go1.18
 
 package lsh256
 
@@ -26,18 +26,18 @@ func (ctx *lsh256ContextGo) MarshalBinary() ([]byte, error) {
 	b := make([]byte, 0, marshaledSize)
 	b = append(b, magic...)
 	for _, v := range ctx.cv {
-		b = binary.BigEndian.AppendUint32(b, v)
+		b = internal.AppendBigUint32(b, v)
 	}
 	for _, v := range ctx.tcv {
-		b = binary.BigEndian.AppendUint32(b, v)
+		b = internal.AppendBigUint32(b, v)
 	}
 	for _, v := range ctx.msg {
-		b = binary.BigEndian.AppendUint32(b, v)
+		b = internal.AppendBigUint32(b, v)
 	}
 	b = append(b, ctx.block[:ctx.boff]...)
 	b = b[:len(b)+len(ctx.block)-ctx.boff] // already zero
 	b = append(b, byte(ctx.boff))
-	b = binary.BigEndian.AppendUint16(b, uint16(ctx.outlenbytes))
+	b = internal.AppendBigUint16(b, uint16(ctx.outlenbytes))
 	return b, nil
 }
 

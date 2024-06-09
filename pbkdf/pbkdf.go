@@ -3,10 +3,10 @@ package pbkdf
 
 import (
 	"crypto/hmac"
-	"crypto/subtle"
 	"hash"
 
 	"github.com/RyuaNerin/go-krypto/internal"
+	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 // Generate a key from the password, salt and iteration count,

@@ -7,7 +7,11 @@ import (
 )
 
 func Test_Verify_K283_SHA224(t *testing.T) {
-	testVerify(t, testCases_K283_SHA224, k283, hashSHA256_224)
+	tc := testCases_K283_SHA224
+	if testing.Short() {
+		tc = tc[:1]
+	}
+	testVerify(t, tc, k283, hashSHA256_224)
 }
 
 var testCases_K283_SHA224 = []testCase{

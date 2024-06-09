@@ -7,7 +7,11 @@ import (
 )
 
 func Test_Verify_P256_SHA224(t *testing.T) {
-	testVerify(t, testCases_P256_SHA224, p256, hashSHA256_224)
+	tc := testCases_P256_SHA224
+	if testing.Short() {
+		tc = tc[:1]
+	}
+	testVerify(t, tc, p256, hashSHA256_224)
 }
 
 var testCases_P256_SHA224 = []testCase{

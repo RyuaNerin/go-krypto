@@ -33,7 +33,7 @@ func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error) {
 	rest, err := asn1.Unmarshal(derBytes, &pki)
 	if err == nil && len(rest) == 0 {
 		pub, isSupportedType, err = parsePublicKey(&pki)
-		if !isSupportedType {
+		if isSupportedType {
 			return
 		}
 	}
@@ -43,15 +43,15 @@ func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error) {
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/x509.go#L84
 func marshalPublicKey(pub interface{}) (publicKeyBytes []byte, publicKeyAlgorithm pkix.AlgorithmIdentifier, isSupportedType bool, err error) {
 	switch pub := pub.(type) {
-	case *eckcdsa.PublicKey:
+	case *eckcdsa.PublicKey: //nolint:typecheck
 		oid, ok := oidFromNamedCurve(pub.Curve)
 		if !ok {
 			return nil, pkix.AlgorithmIdentifier{}, true, errors.New(msgUnknownEllipticCurve)
 		}
-		if !pub.Curve.IsOnCurve(pub.X, pub.Y) {
+		if !pub.Curve.IsOnCurve(pub.X, pub.Y) { //nolint:staticcheck
 			return nil, pkix.AlgorithmIdentifier{}, true, errors.New(msgInvalidPublicKey)
 		}
-		publicKeyBytes = elliptic.Marshal(pub.Curve, pub.X, pub.Y)
+		publicKeyBytes = elliptic.Marshal(pub.Curve, pub.X, pub.Y) //nolint:staticcheck
 		publicKeyAlgorithm.Algorithm = oidPublicKeyECKCDSA
 		var paramBytes []byte
 		paramBytes, err = asn1.Marshal(oid)
@@ -151,7 +151,7 @@ func parsePublicKey(keyData *publicKeyInfo) (privateKey interface{}, isSupported
 		if namedCurve == nil {
 			return nil, true, errors.New(msgUnknownEllipticCurve)
 		}
-		x, y := elliptic.Unmarshal(namedCurve, der)
+		x, y := elliptic.Unmarshal(namedCurve, der) //nolint:staticcheck
 		if x == nil {
 			return nil, true, errors.New(msgFailedToUnmarshalEllipticPoint)
 		}

@@ -164,12 +164,12 @@ func MarshalPKCS8PrivateKey(key interface{}) ([]byte, error) {
 	switch k := key.(type) {
 	case eckcdsa.PrivateKey:
 		err = marshalPKCS8PrivateKeyECKCDSA(&privKey, &k)
-	case *eckcdsa.PrivateKey:
+	case *eckcdsa.PrivateKey: //nolint:typecheck
 		err = marshalPKCS8PrivateKeyECKCDSA(&privKey, k)
 
 	case kcdsa.PrivateKey:
 		err = marshalPKCS8PrivateKeyKCDSA(&privKey, &k)
-	case *kcdsa.PrivateKey:
+	case *kcdsa.PrivateKey: //nolint:typecheck
 		err = marshalPKCS8PrivateKeyKCDSA(&privKey, k)
 
 	default:

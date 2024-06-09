@@ -2,10 +2,10 @@ package cmac
 
 import (
 	"crypto/cipher"
-	"crypto/subtle"
 	"hash"
 
 	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 func Equal(mac1, mac2 []byte) bool {

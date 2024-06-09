@@ -38,7 +38,7 @@ func (ps ParameterSizes) Hash() hash.Hash {
 	return domain.NewHash()
 }
 
-// Generate the parameters. without GenParameters
+// Generate the parameters without Key Generation Parameters (J, Seed, Count)
 func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
 	d, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {
@@ -57,7 +57,7 @@ func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes
 	return
 }
 
-// Generate the parameters. with GenParameters
+// Generate the parameters using Key Generation Parameters (J, Seed, Count)
 func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
 	domain, ok := kcdsainternal.GetDomain(int(sizes))
 	if !ok {

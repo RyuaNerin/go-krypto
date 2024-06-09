@@ -1,6 +1,7 @@
-//go:build (amd64 || arm64) && !purego
+//go:build (amd64 || arm64) && !purego && (!gccgo || go1.18)
 // +build amd64 arm64
 // +build !purego
+// +build !gccgo go1.18
 
 package lea
 

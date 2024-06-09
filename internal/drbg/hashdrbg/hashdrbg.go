@@ -292,7 +292,7 @@ func (state *State) Generate_Hash_DRBG(
 }
 
 // 알고리즘 4의 출력값 생성 과정(단계 39)에서 사용되는 함수 Hashgen의 구체적인 동작 방식은 알고리즘 5와 같다.
-func hashgen(h hash.Hash, dst []byte, V []byte, seedlen int) {
+func hashgen(h hash.Hash, dst []byte, V []byte, _ int) {
 	requested_no_of_bits := len(dst) * 8
 
 	outlen := h.Size()

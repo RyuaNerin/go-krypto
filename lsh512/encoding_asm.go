@@ -1,6 +1,7 @@
-//go:build (arm64 || amd64 || amd64p32) && !purego
-// +build arm64 amd64 amd64p32
+//go:build (arm64 || amd64) && !purego && (!gccgo || go1.18)
+// +build arm64 amd64
 // +build !purego
+// +build !gccgo go1.18
 
 package lsh512
 
@@ -8,6 +9,8 @@ import (
 	"encoding"
 	"encoding/binary"
 	"errors"
+
+	"github.com/RyuaNerin/go-krypto/internal"
 )
 
 const (
@@ -21,7 +24,7 @@ func (ctx *lsh512ContextAsm) MarshalBinary() ([]byte, error) {
 	b := make([]byte, 0, marshaledSize)
 	b = append(b, magic...)
 	b = append(b, ctx.data[:]...)
-	b = binary.BigEndian.AppendUint16(b, uint16(ctx.size))
+	b = internal.AppendBigUint16(b, uint16(ctx.size))
 	return b, nil
 }
 

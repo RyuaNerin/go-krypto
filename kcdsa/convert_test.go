@@ -1,7 +1,7 @@
 package kcdsa
 
 import (
-	"crypto/dsa"
+	"crypto/dsa" //nolint:staticcheck
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"

@@ -6,6 +6,12 @@ import (
 	"math/bits"
 )
 
+type leaContext struct {
+	rk    [192]uint32
+	round uint8
+	ecb   bool
+}
+
 type funcBlock func(ctx *leaContext, dst, src []byte)
 
 var (

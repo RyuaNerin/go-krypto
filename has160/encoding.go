@@ -16,15 +16,15 @@ const (
 func (ctx *has160Context) MarshalBinary() ([]byte, error) {
 	b := make([]byte, 0, marshaledSize)
 	b = append(b, magic...)
-	b = binary.BigEndian.AppendUint32(b, ctx.H[0])
-	b = binary.BigEndian.AppendUint32(b, ctx.H[1])
-	b = binary.BigEndian.AppendUint32(b, ctx.H[2])
-	b = binary.BigEndian.AppendUint32(b, ctx.H[3])
-	b = binary.BigEndian.AppendUint32(b, ctx.H[4])
+	b = internal.AppendBigUint32(b, ctx.H[0])
+	b = internal.AppendBigUint32(b, ctx.H[1])
+	b = internal.AppendBigUint32(b, ctx.H[2])
+	b = internal.AppendBigUint32(b, ctx.H[3])
+	b = internal.AppendBigUint32(b, ctx.H[4])
 	b = append(b, ctx.block[:ctx.boff]...)
 	b = b[:len(b)+len(ctx.block)-ctx.boff] // already zero
 	b = append(b, byte(ctx.boff))
-	b = binary.BigEndian.AppendUint64(b, uint64(ctx.length))
+	b = internal.AppendBigUint64(b, uint64(ctx.length))
 	return b, nil
 }
 

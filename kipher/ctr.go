@@ -1,12 +1,11 @@
 package kipher
 
 import (
-	"bytes"
 	"crypto/cipher"
-	"crypto/subtle"
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
+	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 // NewCTR returns a Stream which encrypts/decrypts using the given Block in
@@ -25,7 +24,7 @@ func NewCTR(block cipher.Block, iv []byte) cipher.Stream {
 	if ok {
 		ctr := &ctr{
 			b:   kb,
-			ctr: bytes.Clone(iv),
+			ctr: internal.BytesClone(iv),
 			out: make([]byte, 8*kb.BlockSize()),
 		}
 		ctr.refill()

@@ -10,7 +10,7 @@ import (
 )
 
 func Test_Verify_TestVectors(t *testing.T) {
-	testVerify(t, testCaseTTAK)
+	verifyTestCases(t, testCaseTTAK)
 }
 
 func Test_Sign_Verify_TestVectors(t *testing.T) {
@@ -93,13 +93,17 @@ func Test_TTAK_GeneratePQ(t *testing.T) {
 
 	var buf []byte
 	var count int
-	var ok bool
 
 	P := new(big.Int)
 	Q := new(big.Int)
 
 	for _, tc := range testCaseTTAK {
-		d, _ := kcdsainternal.GetDomain(int(tc.Sizes))
+		d, ok := kcdsainternal.GetDomain(int(tc.Sizes))
+		if !ok {
+			t.Errorf("domain not found")
+			return
+		}
+
 		buf, count, ok = kcdsainternal.GeneratePQ(P, Q, buf, tc.J, tc.Seedb, d.NewHash(), d)
 		if !ok {
 			t.Fail()

@@ -4,7 +4,6 @@ package gmac
 
 import (
 	"crypto/cipher"
-	"crypto/subtle"
 	"encoding/binary"
 	"errors"
 	"hash"
@@ -12,6 +11,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal"
 	igcm "github.com/RyuaNerin/go-krypto/internal/gcm"
 	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 var defaultIV [igcm.GCMStandardNonceSize]byte
