@@ -70,6 +70,10 @@ func testVerify(t *testing.T, testCases []testCase, curve elliptic.Curve, hash h
 }
 
 func testSignVerify(t *testing.T, testCases []testCase) {
+	R, S, tmp := new(big.Int), new(big.Int), new(big.Int)
+	var buf []byte
+	var ok bool
+
 	for idx, tc := range testCases {
 		key := PrivateKey{
 			PublicKey: PublicKey{
@@ -80,7 +84,7 @@ func testSignVerify(t *testing.T, testCases []testCase) {
 			D: tc.D,
 		}
 
-		R, S, ok := signUsingK(tc.K, &key, tc.hash, tc.M)
+		buf, ok = signUsingK(tc.K, R, S, &key, tc.hash, tc.M, buf, tmp)
 		if !ok {
 			t.Errorf("%d: error signing: invalid K", idx)
 			return

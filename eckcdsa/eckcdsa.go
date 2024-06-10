@@ -18,7 +18,8 @@ func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 	randutil.MaybeReadByte(randReader)
 
 	// https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=20-31
-	D, err := randFieldElement(c, randReader)
+	D := new(big.Int)
+	err := randFieldElement(D, c, randReader)
 	if err != nil {
 		return nil, err
 	}
@@ -52,15 +53,19 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big
 	}
 
 	var ok bool
-	var k *big.Int
+	k := new(big.Int)
+	r, s = new(big.Int), new(big.Int)
+
+	var buf []byte
+	tmp := new(big.Int)
 	for {
 		// https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=77-113
-		k, err = randFieldElement(priv.Curve, csprng)
+		err = randFieldElement(k, priv.Curve, csprng)
 		if err != nil {
 			return
 		}
 
-		r, s, ok = signUsingK(k, priv, h, data)
+		buf, ok = signUsingK(k, r, s, priv, h, data, buf, tmp)
 		if !ok {
 			continue
 		}
@@ -69,7 +74,7 @@ func Sign(rand io.Reader, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big
 	}
 }
 
-func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *big.Int, ok bool) {
+func signUsingK(k, r, s *big.Int, priv *PrivateKey, h hash.Hash, data []byte, buf []byte, tmp *big.Int) (bufOut []byte, ok bool) {
 	curve := priv.Curve
 	curveParams := curve.Params()
 	n := curveParams.N
@@ -88,7 +93,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 		cQLen = 2 * curveSize
 	}
 
-	tmp := make([]byte, cQLen)
+	buf = internal.Grow(buf, cQLen)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -96,7 +101,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 	// fmt.Println("--------------------------------------------------")
 	// fmt.Println("2: kG   = (x1, y1) 계산")
 	x1, _ := curve.ScalarBaseMult(k.Bytes())
-	x1Bytes := tmp[:curveSize]
+	x1Bytes := buf[:curveSize]
 	x1.FillBytes(x1Bytes)
 	// fmt.Println("kGx, x1 = 0x" + hex.EncodeToString(x1Bytes))
 
@@ -107,12 +112,12 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 	// fmt.Println("kGx, x1 = 0x" + hex.EncodeToString(x1Bytes))
 	h.Reset()
 	h.Write(x1Bytes)
-	rBytes := h.Sum(tmp[:0])
+	rBytes := h.Sum(buf[:0])
 	// fmt.Println("r       = 0x" + hex.EncodeToString(rBytes))
 	if LhIsBiggerThanW {
 		rBytes = rBytes[len(rBytes)-w:]
 	}
-	r = new(big.Int).SetBytes(rBytes)
+	r.SetBytes(rBytes)
 	// fmt.Println("r       = 0x" + hex.EncodeToString(r.Bytes()))
 
 	// 4: cQ ← MSB(xQ ‖ yQ, L)
@@ -120,7 +125,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 	// fmt.Println("4: cQ ← MSB(xQ ‖ yQ, L)")
 	// fmt.Println("xQ = 0x" + hex.EncodeToString(xQ.Bytes()))
 	// fmt.Println("yQ = 0x" + hex.EncodeToString(yQ.Bytes()))
-	cQ := tmp[:cQLen]
+	cQ := buf[:cQLen]
 	xQ.FillBytes(cQ[:curveSize])
 	yQ.FillBytes(cQ[curveSize : curveSize*2])
 	cQ = cQ[:L]
@@ -135,11 +140,11 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 	h.Reset()
 	h.Write(cQ)
 	h.Write(data)
-	vBytes := h.Sum(tmp[:0])
+	vBytes := h.Sum(buf[:0])
 	if LhIsBiggerThanW {
 		vBytes = vBytes[len(vBytes)-w:]
 	}
-	v := new(big.Int).SetBytes(vBytes)
+	v := tmp.SetBytes(vBytes)
 	// fmt.Println("v  = 0x" + hex.EncodeToString(v.Bytes()))
 
 	// 6: e ← (r ⊕ v) mod n
@@ -148,7 +153,7 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 	// fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
 	// fmt.Println("v = 0x" + hex.EncodeToString(v.Bytes()))
 	// fmt.Println("n = 0x" + hex.EncodeToString(n.Bytes()))
-	e := new(big.Int)
+	e := tmp
 	e.Mod(e.Xor(r, v), n)
 	// fmt.Println("e = 0x" + hex.EncodeToString(e.Bytes()))
 
@@ -158,24 +163,23 @@ func signUsingK(k *big.Int, priv *PrivateKey, h hash.Hash, data []byte) (r, s *b
 	// fmt.Println("d = 0x" + hex.EncodeToString(d.Bytes()))
 	// fmt.Println("v = 0x" + hex.EncodeToString(v.Bytes()))
 	// fmt.Println("n = 0x" + hex.EncodeToString(n.Bytes()))
-	t := new(big.Int)
+	t := s
 	t.Mod(t.Sub(k, e), n)
 	t.Mod(t.Mul(d, t), n)
 	// fmt.Println("t = 0x" + hex.EncodeToString(t.Bytes()))
 
 	// 8: 만약 t = 0이면 단계 1로 간다.
-	if t.Sign() <= 0 {
-		return nil, nil, false
+	if t.Sign() <= 0 { //nolint:gosimple
+		return buf, false
 	}
 
 	// 9: t를 길이 w의 바이트 열 s로 변환
 	// fmt.Println("--------------------------------------------------")
-	s = t
 	// fmt.Println("r = 0x" + hex.EncodeToString(r.Bytes()))
 	// fmt.Println("s = 0x" + hex.EncodeToString(s.Bytes()))
 
 	// 10: Σ = (r, s)를 반환
-	return r, s, true
+	return buf, true
 }
 
 func Verify(pub *PublicKey, h hash.Hash, data []byte, r, s *big.Int) bool {
@@ -262,7 +266,7 @@ func Verify(pub *PublicKey, h hash.Hash, data []byte, r, s *big.Int) bool {
 	// fmt.Println("r  = 0x" + hex.EncodeToString(r.Bytes()))
 	// fmt.Println("v  = 0x" + hex.EncodeToString(v.Bytes()))
 	// fmt.Println("n  = 0x" + hex.EncodeToString(n.Bytes()))
-	e := new(big.Int).Xor(r, v)
+	e := v.Xor(r, v)
 	// fmt.Println("e  = 0x" + hex.EncodeToString(e.Bytes()))
 	e.Mod(e, n)
 	// fmt.Println("e% = 0x" + hex.EncodeToString(e.Bytes()))
@@ -305,7 +309,7 @@ func Verify(pub *PublicKey, h hash.Hash, data []byte, r, s *big.Int) bool {
 // https://cs.opensource.google/go/go/+/refs/tags/go1.20.7:src/crypto/ecdsa/ecdsa_legacy.go;l=168-188
 // randFieldElement returns a random element of the order of the given
 // curve using the procedure given in FIPS 186-4, Appendix B.5.2.
-func randFieldElement(c elliptic.Curve, rand io.Reader) (k *big.Int, err error) {
+func randFieldElement(k *big.Int, c elliptic.Curve, rand io.Reader) (err error) {
 	// See randomPoint for notes on the algorithm. This has to match, or s390x
 	// signatures will come out different from other architectures, which will
 	// break TLS recorded tests.
@@ -313,7 +317,6 @@ func randFieldElement(c elliptic.Curve, rand io.Reader) (k *big.Int, err error) 
 	N := c.Params().N                   // 1. N = len(n)
 	b := make([]byte, (N.BitLen()+7)/8) // 2. If N is invalid, then return an ERROR indication, Invalid_d, and Invalid_Q.
 
-	k = new(big.Int)
 	for {
 		if _, err = io.ReadFull(rand, b); err != nil { // 3
 			return
