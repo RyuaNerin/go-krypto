@@ -23,16 +23,16 @@ jobs:
           - '1.21'
           - '1.22'
 
-        os:
+        runs-on:
           - ubuntu-latest
-          - macos-latest-large
+          - [ 'macOS', 'self-hosted' ]
           - windows-latest
 
         exclude:
-          - os: macos-latest-large
+          - runs-on: [ 'macOS', 'self-hosted' ]
             go-version: '1.15'
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runs-on }}
 
     steps:
       - uses: actions/checkout@v4
@@ -43,12 +43,14 @@ jobs:
           cache: false
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.56.2
+          skip-go-installation: true
+          version: v1.59.0
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.56.2
+          skip-go-installation: true
+          version: v1.59.0
           args: --build-tags purego
