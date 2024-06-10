@@ -1,5 +1,5 @@
 // drbg implemented deterministic random bit generator
-// as defined in TTAK.KO-12.0331, TTAK.KO-12.0332, TTAK.KO-12.0189/R1
+// as defined in TTAK.KO-12.0331, TTAK.KO-12.0332, TTAK.KO-12.0189/R1, NIST SP 800-90A.
 package drbg
 
 import (

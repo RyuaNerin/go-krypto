@@ -1,4 +1,4 @@
-// Package kbkdf implements Key Based Key Derivation Functions, as defined in TTAK.KO-12.0272, TTAK.KO-12.0333
+// Package kbkdf implements Key Based Key Derivation Functions, as defined in TTAK.KO-12.0272, TTAK.KO-12.0333, NIST SP 800-108.
 package kbkdf
 
 import (

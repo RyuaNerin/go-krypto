@@ -1,4 +1,4 @@
-// Package pbkdf2 implements HMAC-based Key Derivation Functions, as defined in TTAK.KO-12.0334-Part1
+// Package pbkdf2 implements HMAC-based Key Derivation Functions, as defined in TTAK.KO-12.0334, NIST SP 800-132, RFC 2898(PKCS #5)
 package pbkdf2
 
 import (

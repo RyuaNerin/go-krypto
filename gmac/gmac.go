@@ -1,3 +1,4 @@
+// Pakcage gmac implements a Galois/Counter Mode (GCM) based MAC, as defined in KS X ISO/IEC 9797-3, NIST SP 800-38D.
 package gmac
 
 // Based on https://github.com/golang/go/blob/go1.21.6/src/crypto/cipher/gcm.go

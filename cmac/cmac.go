@@ -1,3 +1,4 @@
+// Package cmac implements CMAC(Cipher Message Authentication Code) as defined in NIST SP 800-38B, KS X ISO/IEC 9797-1.
 package cmac
 
 import (

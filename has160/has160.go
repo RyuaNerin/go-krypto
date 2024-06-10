@@ -1,4 +1,5 @@
 // Package has160 implements HAS-160 encryption, as defined in TTAS.KO-12.0011/R2
+//
 // Deprecated: HAS-160 is a legacy algorithm.
 package has160
 

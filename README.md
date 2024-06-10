@@ -30,35 +30,30 @@ import (
 
 ### Block Cipher Supports
 
-| Algorithm | Package        | Document           | 128 | 192 | 256 | SIMD Supports                  |
+| Algorithm | Package        | Reference          | 128 | 192 | 256 | SIMD Supports                  |
 |:---------:|----------------|:------------------:|:---:|:---:|:---:|:------------------------------:|
 | SEED-128  | `krypto/seed`  | TTAS.KO-12.0004/R1 | O   |     |     |                                |
 | HIGHT     | `krypto/hight` | TTAS.KO-12.0040/R1 | O   |     |     |                                |
 | ARIA      | `krypto/aria`  | KS X 1213-1        | O   | O   | O   | arm64(NEON), amd64(SSSE3)      |
 | LEA       | `krypto/lea`   | TTAK.KO-12.0223    | O   | O   | O   | arm64(NEON), amd64(SSE2, AVX2) |
 
-- Use `krypto/kipher` for block mode supports.
-    
-    -  `crypto/cipher` package is available, but recommend `krypto/kipher` package for performance.
-    
-    - Supports
+#### Block Cipher Mode Supports
 
-        - Block Mode
+- `crypto/cipher` package is available too.
 
-            - ECB (Electronic Codebook)
-            - CBC (Cipher-Block Chaining)
-            - CFB (Cipher Feedback) : CFB-8, CFG-32, ...
-            - OFB (Output Feedback)
-            - CTR (Counter)
-
-        - AEAD (Authenticated Encryption with Associated Data)
-
-            - GCM (Galois/Counter Mode)
-            - CCM (Counter with CBC-MAC)
+| Mode  | Name                        | Reference       | Comment                     |
+|:-----:|:---------------------------:|:---------------:|-----------------------------|
+| Block | ECB (Electronic Codebook)   | NIST SP 800-38A |                             |
+| Block | CBC (Cipher-Block Chaining) | NIST SP 800-38A |                             |
+| Block | CFB (Cipher Feedback)       | NIST SP 800-38A | Supports CFB-8, CFG-32, ... |
+| Block | OFB (Output Feedback)       | NIST SP 800-38A |                             |
+| Block | CTR (Counter)               | NIST SP 800-38A |                             |
+| AEAD  | CCM (Counter with CBC-MAC)  | NIST SP 800-38C |                             |
+| AEAD  | GCM (Galois/Counter Mode)   | NIST SP 800-38D |                             |
 
 ### Hash Function Supports
 
-| Algorithm  | Package         | Document           | 160 | 224 | 256 | 384 | 512 | SIMD Supports                         |
+| Algorithm  | Package         | Reference          | 160 | 224 | 256 | 384 | 512 | SIMD Supports                         |
 |:----------:|-----------------|:------------------:|:---:|:---:|:---:|:---:|:---:|:-------------------------------------:|
 | HAS-160    | `krypto/has160` | TTAS.KO-12.0011/R2 | O   |     |     |     |     |                                       |
 | LSH-256    | `krypto/lsh256` | KS X 3262          |     | O   | O   |     |     | arm64(NEON), amd64(SSE2, SSSE3, AVX2) |
@@ -66,7 +61,7 @@ import (
 
 ### Digital Signature Supports
 
-| Algorithm | Package          | Document           |
+| Algorithm | Package          | Reference          |
 |:---------:|------------------|:------------------:|
 | KCDSA     | `krypto/kcdsa`   | TTAK.KO-12.0001/R4 |
 | EC-KCDSA  | `krypto/eckcdsa` | TTAK.KO-12.0015/R3 |
@@ -82,28 +77,28 @@ import (
 
 ### Message Authentication Code Supports
 
-| Algorithm | Package       | Document            |
-|:---------:|---------------|---------------------|
-| CMAC      | `krypto/cmac` | KS X ISO/IEC 9797-1 |
-| GMAC      | `krypto/gmac` | KS X ISO/IEC 9797-1 |
+| Algorithm | Package       | Reference                            |
+|:---------:|---------------|--------------------------------------|
+| CMAC      | `krypto/cmac` | KS X ISO/IEC 9797-1, NIST SP 800-38B |
+| GMAC      | `krypto/gmac` | KS X ISO/IEC 9797-3, NIST SP 800-38D |
 
 - use `crypto/hmac` for HMAC.
 
 ### Random Number Generator Supports
 
-| Algorithm | Package       | Document            |
-|:---------:|---------------|---------------------|
-| Hash_DRBG | `krypto/drbg`  | TTAK.KO-12.0331    |
-| HMAC_DRBG | `krypto/drbg`  | TTAK.KO-12.0332    |
-| CTR_DRBG  | `krypto/drbg`  | TTAK.KO-12.0189/R1 |
+| Algorithm | Package       | Reference                            |
+|:---------:|---------------|--------------------------------------|
+| Hash_DRBG | `krypto/drbg`  | TTAK.KO-12.0331, NIST SP 800-90A    |
+| HMAC_DRBG | `krypto/drbg`  | TTAK.KO-12.0332, NIST SP 800-90A    |
+| CTR_DRBG  | `krypto/drbg`  | TTAK.KO-12.0189/R1, NIST SP 800-90A |
 
 ### Key Derivation Function Supports
 
-| Algorithm    | Package        | Document        |
-|:------------:|----------------|-----------------|
-| KBKDF (HMAC) | `krypto/kbkdf` | TTAK.KO-12.0272 |
-| KBKDF (CMAC) | `krypto/kbkdf` | TTAK.KO-12.0272 |
-| PBKDF (HMAC) | `krypto/pbkdf` | TTAK.KO-12.0334 |
+| Algorithm     | Package       - | Reference                                           |
+|:-------------:|-----------------|-----------------------------------------------------|
+| KBKDF (CMAC)  | `krypto/kbkdf`  | TTAK.KO-12.0272, NIST SP 800-108                    |
+| KBKDF (HMAC)  | `krypto/kbkdf`  | TTAK.KO-12.0333, NIST SP 800-108                    |
+| PBKDF2 (HMAC) | `krypto/pbkdf2` | TTAK.KO-12.0334, NIST SP 800-132, RFC 2898(PKCS #5) |
 
 ### SIMD Support
 
