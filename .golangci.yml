@@ -1,6 +1,6 @@
 run:
   concurrency: 0
-  timeout: 30s
+  timeout: 10m
 
   go: '1.20'
 
