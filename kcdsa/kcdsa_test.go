@@ -141,6 +141,7 @@ func testKCDSA(sizes ParameterSizes) func(*testing.T) {
 		}
 
 		testSignAndVerify(t, &priv, sizes)
+		testSignAndVerifyASN1(t, &priv, sizes)
 	}
 }
 
@@ -156,6 +157,29 @@ func testSignAndVerify(t *testing.T, priv *PrivateKey, sizes ParameterSizes) {
 	if !ok {
 		t.Error("Verify failed")
 		return
+	}
+
+	data[0] ^= 0xff
+	if Verify(&priv.PublicKey, sizes, data, r, s) {
+		t.Errorf("Verify always works!")
+	}
+}
+
+func testSignAndVerifyASN1(t *testing.T, priv *PrivateKey, sizes ParameterSizes) {
+	data := []byte("testing")
+	sig, err := SignASN1(rand.Reader, priv, sizes, data)
+	if err != nil {
+		t.Errorf("error signing: %s", err)
+		return
+	}
+
+	if !VerifyASN1(&priv.PublicKey, sizes, data, sig) {
+		t.Errorf("VerifyASN1 failed")
+	}
+
+	data[0] ^= 0xff
+	if VerifyASN1(&priv.PublicKey, sizes, data, sig) {
+		t.Errorf("VerifyASN1 always works!")
 	}
 }
 
