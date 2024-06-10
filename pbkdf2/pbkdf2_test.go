@@ -1,4 +1,4 @@
-package pbkdf
+package pbkdf2
 
 import (
 	"bufio"
@@ -23,12 +23,25 @@ func TestSHA256(t *testing.T) {
 		768/8,
 		sha256.New,
 	)
+	dstP := GenerateParallel(
+		nil,
+		[]byte(`TTAKO!HellowWorld!SHA2256`),
+		internal.HB(`00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff`),
+		2048,
+		768/8,
+		sha256.New,
+		0,
+	)
+
 	expect := internal.HB(`
 		934cf2b39078d94ab9c7fbf7b98241ed9a1db71a4a80465e7925b27846e699a6
 		c878d69473beac7ab6b2e458f22dc85052463704600597aff02022c3cd35d72f
 		e833e46bcd7bcfc3c30b2abc8a141b551f4488497d3f6b17b4d14c4fcc3b448e`)
 
 	if !bytes.Equal(dst, expect) {
+		t.Fail()
+	}
+	if !bytes.Equal(dstP, expect) {
 		t.Fail()
 	}
 }
@@ -75,7 +88,35 @@ func BenchmarkGenerate(b *testing.B) {
 	}
 
 	// https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
-	b.Run("SHA1: ITER 1_300_000", bench(sha1.New, 1_300_000, 128, 128, 128))
-	b.Run("SHA256: ITER 600_000", bench(sha256.New, 600_000, 128, 128, 128))
-	b.Run("SHA512: ITER 210_000", bench(sha512.New, 210_000, 128, 128, 128))
+	b.Run("SHA1: ITER 1_300_000", bench(sha1.New, 1_300_000, 129, 128, 128))
+	b.Run("SHA256: ITER 600_000", bench(sha256.New, 600_000, 129, 128, 128))
+	b.Run("SHA512: ITER 210_000", bench(sha512.New, 210_000, 129, 128, 128))
+}
+
+func BenchmarkGeneratePrarallel(b *testing.B) {
+	rnd := bufio.NewReaderSize(rand.Reader, 1<<10)
+
+	bench := func(h func() hash.Hash, iteration, keyLen, passwordLen, saltLen int) func(b *testing.B) {
+		return func(b *testing.B) {
+			password := make([]byte, passwordLen)
+			salt := make([]byte, saltLen)
+			out := make([]byte, keyLen)
+
+			rnd.Read(salt)
+			rnd.Read(out)
+
+			b.ResetTimer()
+			b.ReportAllocs()
+			for i := 0; i < b.N; i++ {
+				copy(password, salt)
+				copy(salt, out)
+				out = GenerateParallel(out[:0], password, salt, iteration, keyLen, h, 0)
+			}
+		}
+	}
+
+	// https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
+	b.Run("SHA1: ITER 1_300_000", bench(sha1.New, 1_300_000, 129, 128, 128))
+	b.Run("SHA256: ITER 600_000", bench(sha256.New, 600_000, 129, 128, 128))
+	b.Run("SHA512: ITER 210_000", bench(sha512.New, 210_000, 129, 128, 128))
 }

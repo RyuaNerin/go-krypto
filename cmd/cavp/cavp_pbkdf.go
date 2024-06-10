@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/RyuaNerin/go-krypto/pbkdf"
+	"github.com/RyuaNerin/go-krypto/pbkdf2"
 )
 
 func processPBKDF(path, filename string) {
@@ -30,7 +30,7 @@ func processPBKDF(path, filename string) {
 			Salt := cs.Hex("Salt")
 			KLen := cs.Int("KLen")
 
-			dst = pbkdf.Generate(dst[:0], []byte(Password), Salt, iteration, KLen/8, hashInfo.New)
+			dst = pbkdf2.Generate(dst[:0], []byte(Password), Salt, iteration, KLen/8, hashInfo.New)
 
 			cs = append(cs, cavpRow{"MK", hexStr(dst), false})
 		}
