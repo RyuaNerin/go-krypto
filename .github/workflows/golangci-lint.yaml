@@ -25,11 +25,21 @@ jobs:
 
         runs-on:
           - ubuntu-latest
+          - [ 'macOS', 'self-hosted' ]
           - windows-latest
+
+        exclude:
+          - runs-on: [ 'macOS', 'self-hosted' ]
+            go-version: '1.15'
 
     runs-on: ${{ matrix.runs-on }}
 
     steps:
+      - name: Set git to use LF
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-go@v5
@@ -43,46 +53,9 @@ jobs:
           skip-go-installation: true
           version: v1.59.0
 
-      - name: golangci-lint (purego)
+      - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           skip-go-installation: true
           version: v1.59.0
           args: --build-tags purego
-
-
-  golangci-lint-macos:
-    strategy:
-      matrix:
-        go-version:
-          - '1.16'
-          - '1.17'
-          - '1.18'
-          - '1.19'
-          - '1.20'
-          - '1.21'
-          - '1.22'
-
-    runs-on: [ 'macOS', 'self-hosted' ]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ matrix.go-version }}
-          cache: false
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          skip-go-installation: true
-          version: v1.59.0
-          args: --disable gofumpt
-
-      - name: golangci-lint (purego)
-        uses: golangci/golangci-lint-action@v6
-        with:
-          skip-go-installation: true
-          version: v1.59.0
-          args: --disable gofumpt --build-tags purego
