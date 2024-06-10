@@ -3,13 +3,13 @@ name: Go Test
 on:
   workflow_run:
     workflows: [ 'Lint' ]
+    branches:
+      - master
     types:
       - completed
 
 jobs:
   go-test:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-
     strategy:
       matrix:
         go-version:
