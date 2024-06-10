@@ -1,16 +1,8 @@
 run:
-  concurrency: 16
+  concurrency: 0
   timeout: 30s
 
-  skip-dirs:
-    - internal/golang.org
-
-  skip-files:
-    - "internal/randutil/*"
-    - "kipher/gcm_gostd.go"
-
-
-  go: '1.15'
+  go: '1.20'
 
 linters:
   disable:
@@ -21,7 +13,6 @@ linters:
     - govet # examines Go source code and reports suspicious constructs
     - ineffassign # detect unused assign
     - staticcheck # cover Go vet edge cases
-    - typecheck # type-checks Go code
     - unused # checks Go code for unused constants, variables, functions and types
     - bidichk # checks for dangerous unicode character sequences
     - bodyclose # checks whether HTTP response body is closed successfully
@@ -37,7 +28,7 @@ linters:
     #- gofmt # checks whether code was gofmt-ed
     - gofumpt # Gofumpt checks whether code was gofumpt-ed
     - goimports # fix imports, formats your code in the same style as gofmt
-    - ifshort # checks that your code uses short syntax for if-statements whenever possible
+    #- ifshort # checks that your code uses short syntax for if-statements whenever possible
     - misspell # finds commonly misspelled English words in comments
     - noctx # finds sending http request without context.Context
     - predeclared # find code that shadows one of Go's predeclared identifiers
@@ -53,17 +44,23 @@ linters:
     - prealloc
 
 issues:
+  exclude-dirs:
+    - internal/golang.org/x
+
+  exclude-files:
+    - "internal/randutil/csprng.go"
+    - "internal/randutil/randutil.go"
+
+  exclude-rules:
+    - linters:
+      - typecheck
+      text: "lang was set to"
+
   #fix: true
   max-same-issues: 0
   max-issues-per-linter: 0
 
 linters-settings:
-  godot:
-    scope: all
-
-  gofmt:
-    simplify: false
-
   revive:
     rules:
       - name: var-naming
@@ -73,9 +70,6 @@ linters-settings:
     disabled-checks:
       - commentFormatting
       - captLocal
-
-  gofumpt:
-    lang-version: "1.15"
 
   goimports:
     local-prefixes: github.com/RyuaNerin/go-krypto
