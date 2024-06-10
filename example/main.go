@@ -8,7 +8,7 @@ import (
 	"log"
 
 	"github.com/RyuaNerin/go-krypto/aria"
-	"github.com/RyuaNerin/go-krypto/has160"
+	"github.com/RyuaNerin/go-krypto/has160" //nolint:staticcheck
 	"github.com/RyuaNerin/go-krypto/hight"
 	"github.com/RyuaNerin/go-krypto/lea"
 	"github.com/RyuaNerin/go-krypto/lsh256"

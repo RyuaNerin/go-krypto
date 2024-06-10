@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"hash"
 
-	"github.com/RyuaNerin/go-krypto/has160"
+	"github.com/RyuaNerin/go-krypto/has160" //nolint:staticcheck
 )
 
 const (
