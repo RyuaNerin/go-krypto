@@ -2,6 +2,7 @@ package kcdsa
 
 import (
 	"crypto"
+	"io"
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
@@ -75,3 +76,39 @@ func (params *GenerationParameters) Equal(xx GenerationParameters) bool {
 		subtle.ConstantTimeEq(int32(params.Count), int32(xx.Count)) == 1 &&
 		subtle.ConstantTimeCompare(params.Seed, xx.Seed) == 1
 }
+
+// crypto.Signer
+func (priv *PrivateKey) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
+	if _, ok := opts.(*SignerOpts); !ok {
+		panic(msgInvalidSignerOpts)
+	}
+
+	return SignASN1(rand, priv, opts.(*SignerOpts).Sizes, digest)
+}
+
+// SignerOpts contains options for creating and verifying EC-KCDSA signatures.
+type SignerOpts struct {
+	Sizes ParameterSizes
+}
+
+// HashFunc returns opts.Hash so that [SignerOpts] implements [crypto.SignerOpts].
+func (opts *SignerOpts) HashFunc() crypto.Hash {
+	return crypto.SHA256
+}
+
+type (
+	stdPublicKey interface {
+		Equal(x crypto.PublicKey) bool
+	}
+	stdPrivateKey interface {
+		Public() crypto.PublicKey
+		Equal(x crypto.PrivateKey) bool
+	}
+)
+
+var (
+	_ stdPublicKey      = (*PublicKey)(nil)
+	_ stdPrivateKey     = (*PrivateKey)(nil)
+	_ crypto.Signer     = (*PrivateKey)(nil)
+	_ crypto.SignerOpts = (*SignerOpts)(nil)
+)

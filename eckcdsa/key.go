@@ -3,6 +3,7 @@ package eckcdsa
 import (
 	"crypto"
 	"crypto/elliptic"
+	"io"
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
@@ -45,3 +46,35 @@ func (pub *PublicKey) Equal(x crypto.PublicKey) bool {
 	return internal.BigEqual(pub.X, xx.X) && internal.BigEqual(pub.Y, xx.Y) &&
 		pub.Curve == xx.Curve
 }
+
+// crypto.Signer
+func (priv *PrivateKey) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
+	return SignASN1(rand, priv, opts.HashFunc().New(), digest)
+}
+
+// SignerOpts contains options for creating and verifying EC-KCDSA signatures.
+type SignerOpts struct {
+	Hash crypto.Hash
+}
+
+// HashFunc returns opts.Hash so that [SignerOpts] implements [crypto.SignerOpts].
+func (opts *SignerOpts) HashFunc() crypto.Hash {
+	return opts.Hash
+}
+
+type (
+	stdPublicKey interface {
+		Equal(x crypto.PublicKey) bool
+	}
+	stdPrivateKey interface {
+		Public() crypto.PublicKey
+		Equal(x crypto.PrivateKey) bool
+	}
+)
+
+var (
+	_ stdPublicKey      = (*PublicKey)(nil)
+	_ stdPrivateKey     = (*PrivateKey)(nil)
+	_ crypto.Signer     = (*PrivateKey)(nil)
+	_ crypto.SignerOpts = (*SignerOpts)(nil)
+)
