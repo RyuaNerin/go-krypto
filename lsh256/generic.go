@@ -12,23 +12,23 @@ import (
 )
 
 func newContextGo(size int) hash.Hash {
-	ctx := new(lsh256ContextGo)
-	ctx.outlenbytes = size
+	ctx := &lsh256ContextGo{
+		outlenbytes: size,
+	}
 	ctx.Reset()
 
 	return ctx
 }
 
 func sumGo(size int, data []byte) [Size]byte {
-	var ctx lsh256ContextGo
-	ctx.outlenbytes = size
+	ctx := lsh256ContextGo{
+		outlenbytes: size,
+	}
 	ctx.Reset()
 	ctx.Write(data)
 
 	return ctx.checkSum()
 }
-
-// java to go
 
 const (
 	numStep = 26

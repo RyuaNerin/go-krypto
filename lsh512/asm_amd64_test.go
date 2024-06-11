@@ -8,6 +8,8 @@ package lsh512
 import (
 	"testing"
 
+	"github.com/RyuaNerin/go-krypto/internal/aligned"
+
 	. "github.com/RyuaNerin/testingutil"
 )
 
@@ -16,6 +18,15 @@ var (
 	newSSSE3 = simdSetSSSE3.NewContext
 	newAVX2  = simdSetAVX2.NewContext
 )
+
+func Test_Aligned(t *testing.T) {
+	var ctx lsh512ContextAsm
+	aligned.TestIsAligned(t, 16, &ctx, "algType")
+	aligned.TestIsAligned(t, 16, &ctx, "remainDataByteLen")
+	aligned.TestIsAligned(t, 16, &ctx, "cvL")
+	aligned.TestIsAligned(t, 16, &ctx, "cvR")
+	aligned.TestIsAligned(t, 16, &ctx, "lastBlock")
+}
 
 func Test_ShortWrite_SSE2(t *testing.T)  { HTSWA(t, as, newSSE2, !hasSSE2) }
 func Test_ShortWrite_SSSE3(t *testing.T) { HTSWA(t, as, newSSSE3, !hasSSSE3) }

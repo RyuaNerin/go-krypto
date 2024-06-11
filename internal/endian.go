@@ -1,5 +1,11 @@
 package internal
 
+func AppendBigUint8(b []byte, v byte) []byte {
+	return append(b,
+		v,
+	)
+}
+
 func AppendBigUint16(b []byte, v uint16) []byte {
 	return append(b,
 		byte(v>>8),

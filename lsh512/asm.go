@@ -18,35 +18,40 @@ type simdSet struct {
 }
 
 func (simd *simdSet) NewContext(size int) hash.Hash {
-	ctx := new(lsh512ContextAsm)
-	ctx.simd = simd
-	ctx.size = size
+	ctx := &lsh512ContextAsm{
+		simd:    simd,
+		algType: size,
+	}
 	ctx.Reset()
 	return ctx
 }
 
 func (simd *simdSet) Sum(size int, data []byte) [Size]byte {
-	var ctx lsh512ContextAsm
-	ctx.simd = simd
-	ctx.size = size
+	ctx := lsh512ContextAsm{
+		simd:    simd,
+		algType: size,
+	}
 	ctx.Reset()
 	ctx.Write(data)
 
 	return ctx.checkSum()
 }
 
-const contextDataSize = 16 + 16 + 8*8 + 8*8 + 256
-
 type lsh512ContextAsm struct {
-	//nolint:unused
-	data [contextDataSize]byte // 최상단으로 배치하여 aligned 문제 수정...
+	// 16 bytes aligned
+	algType           int
+	_                 uintptr
+	remainDataByteLen int
+	_                 [1]uintptr
+	cvL               [8]uint64
+	cvR               [8]uint64
+	lastBlock         [BlockSize]byte
 
 	simd *simdSet
-	size int
 }
 
 func (ctx *lsh512ContextAsm) Size() int {
-	return ctx.size
+	return ctx.algType
 }
 
 func (ctx *lsh512ContextAsm) BlockSize() int {
@@ -54,7 +59,7 @@ func (ctx *lsh512ContextAsm) BlockSize() int {
 }
 
 func (ctx *lsh512ContextAsm) Reset() {
-	ctx.simd.init(ctx, uint64(ctx.size))
+	ctx.simd.init(ctx, uint64(ctx.algType))
 }
 
 func (ctx *lsh512ContextAsm) Write(data []byte) (n int, err error) {
@@ -69,7 +74,7 @@ func (ctx *lsh512ContextAsm) Write(data []byte) (n int, err error) {
 func (ctx *lsh512ContextAsm) Sum(p []byte) []byte {
 	ctx0 := *ctx
 	hash := ctx0.checkSum()
-	return append(p, hash[:ctx.size]...)
+	return append(p, hash[:ctx.algType]...)
 }
 
 func (ctx *lsh512ContextAsm) checkSum() (hash [Size]byte) {

@@ -8,10 +8,21 @@ package lsh512
 import (
 	"testing"
 
+	"github.com/RyuaNerin/go-krypto/internal/aligned"
+
 	. "github.com/RyuaNerin/testingutil"
 )
 
 var newNEON = simdSetNEON.NewContext
+
+func Test_Aligned(t *testing.T) {
+	var ctx lsh512ContextAsm
+	aligned.TestIsAligned(t, 16, &ctx, "algType")
+	aligned.TestIsAligned(t, 16, &ctx, "remainDataByteLen")
+	aligned.TestIsAligned(t, 16, &ctx, "cvL")
+	aligned.TestIsAligned(t, 16, &ctx, "cvR")
+	aligned.TestIsAligned(t, 16, &ctx, "lastBlock")
+}
 
 func Test_ShortWrite_NEON(t *testing.T) { HTSWA(t, as, newNEON, !hasNEON) }
 

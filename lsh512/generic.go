@@ -12,16 +12,18 @@ import (
 )
 
 func newContextGo(size int) hash.Hash {
-	ctx := new(lsh512ContextGo)
-	ctx.outlenbytes = size
+	ctx := &lsh512ContextGo{
+		outlenbytes: size,
+	}
 	ctx.Reset()
 
 	return ctx
 }
 
 func sumGo(size int, data []byte) [Size]byte {
-	var ctx lsh512ContextGo
-	ctx.outlenbytes = size
+	ctx := lsh512ContextGo{
+		outlenbytes: size,
+	}
 	ctx.Reset()
 	ctx.Write(data)
 

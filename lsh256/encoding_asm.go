@@ -7,7 +7,6 @@ package lsh256
 
 import (
 	"encoding"
-	"encoding/binary"
 	"errors"
 
 	"github.com/RyuaNerin/go-krypto/internal"
@@ -16,15 +15,32 @@ import (
 const (
 	magic         = "lsh\x00"
 	marshaledSize = len(magic) +
-		/*data*/ contextDataSize +
-		/*size*/ 2
+		1 + /* algType */
+		1 + /* remainDataByteLen */
+		4*8 + /* cvL */
+		4*8 + /* cvR */
+		BlockSize /* lastBlock */
 )
 
 func (ctx *lsh256ContextAsm) MarshalBinary() ([]byte, error) {
 	b := make([]byte, 0, marshaledSize)
 	b = append(b, magic...)
-	b = append(b, ctx.data[:]...)
-	b = internal.AppendBigUint16(b, uint16(ctx.size))
+
+	b = internal.AppendBigUint8(b, uint8(ctx.algType))
+
+	b = internal.AppendBigUint8(b, uint8(ctx.remainDataByteLen))
+
+	for _, v := range ctx.cvL {
+		b = internal.AppendBigUint64(b, v)
+	}
+
+	for _, v := range ctx.cvR {
+		b = internal.AppendBigUint64(b, v)
+	}
+
+	b = append(b, ctx.lastBlock[:ctx.remainDataByteLen]...)
+	b = b[:len(b)+len(ctx.lastBlock)-ctx.remainDataByteLen] // already zero
+
 	return b, nil
 }
 
@@ -37,8 +53,21 @@ func (ctx *lsh256ContextAsm) UnmarshalBinary(b []byte) error {
 	}
 
 	b = b[len(magic):]
-	b = b[copy(ctx.data[:], b[:contextDataSize]):]
-	ctx.size = int(binary.BigEndian.Uint16(b))
+
+	ctx.algType = int(b[0])
+	ctx.remainDataByteLen = int(b[1])
+	b = b[2:]
+
+	for i := range ctx.cvL {
+		b, ctx.cvL[i] = internal.ConsumeUint64(b)
+	}
+
+	for i := range ctx.cvR {
+		b, ctx.cvR[i] = internal.ConsumeUint64(b)
+	}
+
+	copy(ctx.lastBlock[:], b)
+
 	return nil
 }
 
