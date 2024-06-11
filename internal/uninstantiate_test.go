@@ -58,7 +58,7 @@ func TestUninstantiate(t *testing.T) {
 		}
 		d.PointerA = d2
 
-		SetZeroResurvie(d)
+		SetZero(d)
 
 		if d.pointerA != nil ||
 			d.IntValue != 0 ||
