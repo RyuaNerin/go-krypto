@@ -67,7 +67,7 @@ func uninstantiateField(value interface{}, visited map[uintptr]bool) {
 
 		field := v.Field(fieldIdx)
 		switch field.Kind() {
-		case reflect.Pointer:
+		case reflect.Ptr:
 			uninstantiateField(field.Interface(), visited)
 		case reflect.Slice:
 			l := field.Len()
