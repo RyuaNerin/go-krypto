@@ -40,23 +40,23 @@ func processDRBGHMAC(path, filename string) {
 			Nonce := cs.Hex("Nonce")
 			PersonalizationString := cs.Hex("PersonalizationString")
 
-			drbg := hmacdrbg.Instantiate_HMAC_DRBG(
+			drbg := hmacdrbg.Instantiate(
 				hashInfo.New,
-				returnedBitsLen,
 				EntropyInput,
 				Nonce,
 				PersonalizationString,
 				usePR,
+				0,
 			)
 			if usePR {
 				EntropyInputPR := cs.HexList("EntropyInputPR")
 				AdditionalInput := cs.HexList("AdditionalInput")
 
-				err = drbg.Generate_HMAC_DRBG(dst, ret(EntropyInputPR[0]), AdditionalInput[0])
+				err = drbg.Generate(dst, ret(EntropyInputPR[0]), AdditionalInput[0])
 				if err != nil {
 					panic(err)
 				}
-				err = drbg.Generate_HMAC_DRBG(dst, ret(EntropyInputPR[1]), AdditionalInput[1])
+				err = drbg.Generate(dst, ret(EntropyInputPR[1]), AdditionalInput[1])
 				if err != nil {
 					panic(err)
 				}
@@ -65,13 +65,13 @@ func processDRBGHMAC(path, filename string) {
 				AdditionalInputReseed := cs.Hex("AdditionalInputReseed")
 				AdditionalInput := cs.HexList("AdditionalInput")
 
-				drbg.Reseed_HMAC_DRBG(EntropyInputReseed, AdditionalInputReseed)
+				drbg.Reseed(EntropyInputReseed, AdditionalInputReseed)
 
-				err = drbg.Generate_HMAC_DRBG(dst, nil, AdditionalInput[0])
+				err = drbg.Generate(dst, nil, AdditionalInput[0])
 				if err != nil {
 					panic(err)
 				}
-				err = drbg.Generate_HMAC_DRBG(dst, nil, AdditionalInput[1])
+				err = drbg.Generate(dst, nil, AdditionalInput[1])
 				if err != nil {
 					panic(err)
 				}

@@ -66,7 +66,7 @@ func GeneratePQ(
 
 		// 8: Seed에 Count를 연접한 것을 일방향 함수 PPGF의 입력으로 하여 비트 길이가
 		// β인 난수 UBytes를 생성한다. (UBytes ← PPGF(Seed ‖ Count, β))
-		bufNew = ppgf.Read(bufNew, d.B, countB[:])
+		bufNew = ppgf.Generate(bufNew, d.B, countB[:])
 
 		// 9: U의 최상위 및 최하위 비트를 1로 만들어 이를 q로 둔다.
 		// (q ← 2^(β-1) ∨ U ∨ 1)

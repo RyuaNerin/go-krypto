@@ -1,8 +1,10 @@
 package internal
 
 import (
+	"encoding/binary"
 	"io"
 	"math/big"
+	"math/bits"
 
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
@@ -107,4 +109,32 @@ func BigCeilLog2(n *big.Int, e int) int {
 		return x + 1
 	}
 	return x
+}
+
+func ReadRange(r io.Reader, min, max int) (int, error) {
+	if min == max {
+		return min, nil
+	}
+	if min > max {
+		min, max = max, min
+	}
+
+	var buf [8]byte
+
+	rangeSize := uint64(max - min + 1)
+	bitSize := uint(bits.Len64(rangeSize))
+
+	var randomValue uint64
+	for {
+		if _, err := io.ReadFull(r, buf[:]); err != nil {
+			return 0, err
+		}
+
+		randomValue = binary.BigEndian.Uint64(buf[:])
+		randomValue >>= 64 - bitSize
+
+		if randomValue < rangeSize {
+			return min + int(randomValue), nil
+		}
+	}
 }

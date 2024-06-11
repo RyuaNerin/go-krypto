@@ -43,7 +43,7 @@ func processDRBGCTR(path, filename string) {
 			}
 			PersonalizationString := cs.Hex("PersonalizationString")
 
-			drbg := ctrdrbg.Instantiate_CTR_DRBG(
+			drbg := ctrdrbg.Instantiate(
 				newBlockCipher,
 				keySize,
 				0,
@@ -58,11 +58,11 @@ func processDRBGCTR(path, filename string) {
 				EntropyInputPR := cs.HexList("EntropyInputPR")
 				AdditionalInput := cs.HexList("AdditionalInput")
 
-				err = drbg.Generate_CTR_DRBG(dst, ret(EntropyInputPR[0]), AdditionalInput[0])
+				err = drbg.Generate(dst, ret(EntropyInputPR[0]), AdditionalInput[0])
 				if err != nil {
 					panic(err)
 				}
-				err = drbg.Generate_CTR_DRBG(dst, ret(EntropyInputPR[1]), AdditionalInput[1])
+				err = drbg.Generate(dst, ret(EntropyInputPR[1]), AdditionalInput[1])
 				if err != nil {
 					panic(err)
 				}
@@ -71,13 +71,13 @@ func processDRBGCTR(path, filename string) {
 				AdditionalInputReseed := cs.Hex("AdditionalInputReseed")
 				AdditionalInput := cs.HexList("AdditionalInput")
 
-				drbg.Reseed_CTR_DRBG(EntropyInputReseed, AdditionalInputReseed)
+				drbg.Reseed(EntropyInputReseed, AdditionalInputReseed)
 
-				err = drbg.Generate_CTR_DRBG(dst, nil, AdditionalInput[0])
+				err = drbg.Generate(dst, nil, AdditionalInput[0])
 				if err != nil {
 					panic(err)
 				}
-				err = drbg.Generate_CTR_DRBG(dst, nil, AdditionalInput[1])
+				err = drbg.Generate(dst, nil, AdditionalInput[1])
 				if err != nil {
 					panic(err)
 				}

@@ -20,7 +20,7 @@ func ppgf(
 	dst []byte,
 	nBits int, h hash.Hash, src ...[]byte,
 ) []byte {
-	return newPPGF(h).Read(dst, nBits, src...)
+	return newPPGF(h).Generate(dst, nBits, src...)
 }
 
 func newPPGF(h hash.Hash, src ...[]byte) (ppgf ppgfCtx) {
@@ -41,7 +41,7 @@ func newPPGF(h hash.Hash, src ...[]byte) (ppgf ppgfCtx) {
 	return
 }
 
-func (p ppgfCtx) Read(dst []byte, nBits int, src ...[]byte) []byte {
+func (p ppgfCtx) Generate(dst []byte, nBits int, src ...[]byte) []byte {
 	// p.12
 	// from java
 	i := internal.BitsToBytes(nBits)

@@ -6,6 +6,17 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
 )
 
+// Clone returns a copy of b[:len(b)].
+// The result may have additional unused capacity.
+// Clone(nil) returns nil.
+func BytesClone(b []byte) []byte {
+	// bytes.Clone (go1.20)
+	if b == nil {
+		return nil
+	}
+	return append([]byte{}, b...)
+}
+
 func SliceForAppend(in []byte, n int) (head, tail []byte) {
 	if total := len(in) + n; cap(in) >= total {
 		head = in[:total]
@@ -76,6 +87,7 @@ func LeftMost(b []byte, bits int) []byte {
 
 func Add(dst []byte, src ...[]byte) {
 	n := len(dst)
+	dstEnd := n - 1
 
 	var value uint64
 	for idx := 0; idx < n; idx++ {
@@ -85,7 +97,7 @@ func Add(dst []byte, src ...[]byte) {
 			}
 		}
 
-		dst[len(dst)-idx-1] = byte(value & 0xFF)
+		dst[dstEnd-idx] = byte(value & 0xFF)
 		value >>= 8
 	}
 	kryptoutil.MemsetByte(dst[:len(dst)-n], 0)

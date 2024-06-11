@@ -26,8 +26,8 @@ func TestPPGF(t *testing.T) {
 
 	for i := 0; i < iter; i++ {
 		rnd.Read(src2)
-		dst1 = ppgf1.Read(dst1[:0], dstBit, src2)
-		dst2 = ppgf2.Read(dst2[:0], dstBit, src2)
+		dst1 = ppgf1.Generate(dst1[:0], dstBit, src2)
+		dst2 = ppgf2.Generate(dst2[:0], dstBit, src2)
 
 		if !bytes.Equal(dst1, dst2) {
 			t.Errorf("ppgf1 != ppgf2")
@@ -55,7 +55,7 @@ func BenchmarkPPGF(b *testing.B) {
 			b.SetBytes(int64(dstBits))
 			for i := 0; i < b.N; i++ {
 				rnd.Read(src2)
-				dst = ppgf.Read(dst[:0], dstBits, src2)
+				dst = ppgf.Generate(dst[:0], dstBits, src2)
 			}
 		}
 	}

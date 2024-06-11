@@ -1,56 +1,46 @@
 package internal
 
 import (
+	crand "crypto/rand"
 	"encoding/binary"
 	"math/rand"
 	"testing"
 )
 
 func TestAdd(t *testing.T) {
-	var xb, yb, zb [8]byte
+	var dst [8]byte
+	var xb, yb [8]byte
 
-	t.Run("8+8", func(t *testing.T) {
-		for i := 0; i < 1000; i++ {
-			x, y := uint64(rand.Int63()), uint64(rand.Int63())
+	for xs := 1; xs <= 8; xs++ {
+		for ys := 8; ys > 0; ys-- {
+			for i := 0; i < 1000; i++ {
+				x, y := uint64(rand.Int63()), uint64(rand.Int63())
+				x >>= 64 - xs*8
+				y >>= 64 - ys*8
 
-			binary.BigEndian.PutUint64(xb[:], x)
-			binary.BigEndian.PutUint64(yb[:], y)
+				binary.BigEndian.PutUint64(xb[:], x)
+				binary.BigEndian.PutUint64(yb[:], y)
 
-			Add(zb[:], xb[:], yb[:])
-			if binary.BigEndian.Uint64(zb[:]) != x+y {
-				t.Fail()
-				return
+				Add(dst[:], xb[len(xb)-xs:], yb[len(yb)-ys:])
+				if binary.BigEndian.Uint64(dst[:]) != x+y {
+					t.Fail()
+					return
+				}
 			}
 		}
-	})
+	}
+}
 
-	t.Run("4+8", func(t *testing.T) {
-		for i := 0; i < 1000; i++ {
-			x, y := uint64(rand.Int31()), uint64(rand.Int63())
+func BenchmarkAdd(b *testing.B) {
+	var dst [8]byte
+	var xb, yb [8]byte
 
-			binary.BigEndian.PutUint64(xb[:], x)
-			binary.BigEndian.PutUint64(yb[:], y)
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		crand.Read(xb[:])
+		crand.Read(yb[:])
 
-			Add(zb[:], xb[4:], yb[:])
-			if binary.BigEndian.Uint64(zb[:]) != x+y {
-				t.Fail()
-				return
-			}
-		}
-	})
-
-	t.Run("8+4", func(t *testing.T) {
-		for i := 0; i < 1000; i++ {
-			x, y := uint64(rand.Int63()), uint64(rand.Int31())
-
-			binary.BigEndian.PutUint64(xb[:], x)
-			binary.BigEndian.PutUint64(yb[:], y)
-
-			Add(zb[:], xb[:], yb[4:])
-			if binary.BigEndian.Uint64(zb[:]) != x+y {
-				t.Fail()
-				return
-			}
-		}
-	})
+		Add(dst[:], xb[:], yb[:])
+	}
 }
