@@ -7,6 +7,8 @@ import (
 	"encoding/binary"
 	"hash"
 	"math/bits"
+
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
 func newContextGo(size int) hash.Hash {
