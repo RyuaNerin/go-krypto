@@ -64,6 +64,13 @@ func GenerateParallel(dst, password, salt []byte, iteration, keyLen int, h func(
 		nThreads = iters
 	}
 
+	if nThreads <= 2 {
+		return Generate(dst, password, salt, iteration, keyLen, h)
+	}
+	return generateParallel(dst, password, salt, iteration, keyLen, h, nThreads, hLen, iters)
+}
+
+func generateParallel(dst, password, salt []byte, iteration, keyLen int, h func() hash.Hash, nThreads, hLen, iters int) []byte {
 	out, dst := internal.SliceForAppend(dst, iters*hLen)
 
 	type iter struct {
@@ -80,7 +87,8 @@ func GenerateParallel(dst, password, salt []byte, iteration, keyLen int, h func(
 
 			hh := hmac.New(h, password)
 
-			U := make([]byte, hLen)
+			U := make([]byte, hLen, hLen*2)
+			T := U[hLen : hLen*2]
 
 			var ctr [4]byte
 			for it := range ch {
@@ -91,15 +99,17 @@ func GenerateParallel(dst, password, salt []byte, iteration, keyLen int, h func(
 				hh.Write(ctr[:])
 				U = hh.Sum(U[:0])
 
-				copy(dst[it.off:], U)
+				copy(T, U)
 
 				for iter := 1; iter < iteration; iter++ {
 					hh.Reset()
 					hh.Write(U)
 					U = hh.Sum(U[:0])
 
-					subtle.XORBytes(dst[it.off:], dst[it.off:], U)
+					subtle.XORBytes(T, T, U)
 				}
+
+				copy(dst[it.off:], T)
 			}
 		}()
 	}
@@ -113,5 +123,5 @@ func GenerateParallel(dst, password, salt []byte, iteration, keyLen int, h func(
 	close(ch)
 
 	w.Wait()
-	return out[len(out)-len(dst)+keyLen:]
+	return out[:len(out)-len(dst)+keyLen]
 }
