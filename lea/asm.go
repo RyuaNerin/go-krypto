@@ -5,10 +5,12 @@
 
 package lea
 
-import "github.com/RyuaNerin/go-krypto/internal/ptr"
+import (
+	"github.com/RyuaNerin/go-krypto/internal/memory"
+)
 
 func toAsmFunc(f func(ctx *leaContext, dst, src *byte)) func(ctx *leaContext, dst, src []byte) {
 	return func(ctx *leaContext, dst, src []byte) {
-		f(ctx, ptr.PByte(dst), ptr.PByte(src))
+		f(ctx, memory.PByte(dst), memory.PByte(src))
 	}
 }

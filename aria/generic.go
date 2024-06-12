@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"math/bits"
 
-	"github.com/RyuaNerin/go-krypto/internal/ptr"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
 func newCipherGo(key []byte) (cipher.Block, error) {
@@ -288,7 +288,7 @@ func encKeySetup(rk []byte, mk []byte) {
 }
 
 func decKeySetup(rk []byte, rValue int) {
-	a := ptr.PUint32(rk)
+	a := memory.PUint32(rk)
 	z := a
 
 	aIdx := 0
