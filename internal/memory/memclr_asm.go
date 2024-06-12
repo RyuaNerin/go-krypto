@@ -11,14 +11,23 @@ import (
 )
 
 func Memclr(b []byte) {
+	if len(b) == 0 {
+		return
+	}
 	memclrNoHeapPointers(unsafe.Pointer(&b[0]), uintptr(len(b)))
 }
 
 func MemclrU32(b []uint32) {
+	if len(b) == 0 {
+		return
+	}
 	memclrNoHeapPointers(unsafe.Pointer(&b[0]), uintptr(len(b)*4))
 }
 
 func MemclrU64(b []uint64) {
+	if len(b) == 0 {
+		return
+	}
 	memclrNoHeapPointers(unsafe.Pointer(&b[0]), uintptr(len(b)*8))
 }
 
@@ -31,16 +40,13 @@ func MemclrI(v interface{}) {
 
 	switch p.Kind() {
 	case reflect.Slice:
-		memclrNoHeapPointers(
-			unsafe.Pointer(p.Pointer()),
-			uintptr(p.Cap())*pt.Elem().Size(),
-		)
-
+		if sz := p.Cap(); sz > 0 {
+			memclrNoHeapPointers(unsafe.Pointer(p.Pointer()), uintptr(sz)*pt.Elem().Size())
+		}
 	case reflect.Array:
-		memclrNoHeapPointers(
-			unsafe.Pointer(p.UnsafeAddr()),
-			uintptr(p.Cap())*pt.Elem().Size(),
-		)
+		if sz := p.Cap(); sz > 0 {
+			memclrNoHeapPointers(unsafe.Pointer(p.UnsafeAddr()), uintptr(sz)*pt.Elem().Size())
+		}
 
 	case reflect.Map:
 		for _, key := range p.MapKeys() {
@@ -48,10 +54,7 @@ func MemclrI(v interface{}) {
 		}
 
 	case reflect.Struct:
-		memclrNoHeapPointers(
-			unsafe.Pointer(p.UnsafeAddr()),
-			pt.Size(),
-		)
+		memclrNoHeapPointers(unsafe.Pointer(p.UnsafeAddr()), pt.Size())
 	}
 }
 
