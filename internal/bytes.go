@@ -3,7 +3,7 @@ package internal
 import (
 	"io"
 
-	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
 // Clone returns a copy of b[:len(b)].
@@ -49,7 +49,7 @@ func Resize(arr []byte, bytes int) []byte {
 
 	case bytes <= arrCap:
 		arr = arr[:bytes]
-		kryptoutil.MemsetByte(arr[arrLen:], 0)
+		memory.Memclr(arr[arrLen:])
 
 	default:
 		arr2 := make([]byte, bytes)
@@ -100,7 +100,7 @@ func Add(dst []byte, src ...[]byte) {
 		dst[dstEnd-idx] = byte(value & 0xFF)
 		value >>= 8
 	}
-	kryptoutil.MemsetByte(dst[:len(dst)-n], 0)
+	memory.Memclr(dst[:len(dst)-n])
 }
 
 func IncCtr(b []byte) {

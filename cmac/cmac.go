@@ -5,7 +5,7 @@ import (
 	"crypto/cipher"
 	"hash"
 
-	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
@@ -86,7 +86,7 @@ func (c *cmac) Size() int { return c.block.BlockSize() }
 func (c *cmac) BlockSize() int { return c.block.BlockSize() }
 
 func (c *cmac) Reset() {
-	kryptoutil.MemsetByte(c.ciph, 0)
+	memory.Memclr(c.ciph)
 	c.mIdx = 0
 }
 

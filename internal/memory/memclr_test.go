@@ -1,11 +1,11 @@
-package internal
+package memory
 
 import "testing"
 
-func TestUninstantiate(t *testing.T) {
+func TestMemclrI(t *testing.T) {
 	t.Run("slice", func(t *testing.T) {
 		s := []int{1, 2, 3, 4, 5}
-		SetZero(s)
+		MemclrI(s)
 		for _, v := range s {
 			if v != 0 {
 				t.Fail()
@@ -15,7 +15,7 @@ func TestUninstantiate(t *testing.T) {
 
 	t.Run("array", func(t *testing.T) {
 		s := [3]int{1, 2, 3}
-		SetZero(&s)
+		MemclrI(&s)
 		for _, v := range s {
 			if v != 0 {
 				t.Fail()
@@ -44,8 +44,8 @@ func TestUninstantiate(t *testing.T) {
 		d := &data{
 			IntValue:    1,
 			intValue:    2,
-			StringValue: StringClone("aaa"),
-			stringValue: StringClone("bbb"),
+			StringValue: "aaa",
+			stringValue: "bbb",
 			SliceValue:  arr,
 			sliceValue:  []byte{1, 2, 3},
 			ArrayValue:  [3]byte{7, 8, 9},
@@ -58,7 +58,7 @@ func TestUninstantiate(t *testing.T) {
 		}
 		d.PointerA = d2
 
-		SetZero(d)
+		MemclrI(d)
 
 		if d.pointerA != nil ||
 			d.IntValue != 0 ||

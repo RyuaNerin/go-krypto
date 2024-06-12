@@ -11,7 +11,7 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	igcm "github.com/RyuaNerin/go-krypto/internal/gcm"
-	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
@@ -104,7 +104,7 @@ func (g *ghash) Sum(b []byte) []byte {
 		n := copy(block[:], g.remains[:g.remainIdx])
 		g.gcm.UpdateBlocks(&yy, block[:])
 
-		kryptoutil.MemsetByte(block[:n], 0)
+		memory.Memclr(block[:n])
 	}
 
 	yy.Low ^= uint64(written) * 8

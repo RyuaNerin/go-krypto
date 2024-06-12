@@ -310,11 +310,3 @@ func (state *State) hashgen(dst []byte, V []byte, _ int) {
 		internal.IncCtr(state.tmpV)
 	}
 }
-
-// 6.6 인스턴스 소멸 함수(uninstantiate function)
-//
-// Hash_DRBG의 인스턴스 소멸 함수 Uninstantiate는
-// 인스턴스의 내부 상태를 해제하여 인스턴스가 더 이상 동작할 수 없도록 한다.
-func (s *State) Uninstantiate() {
-	internal.SetZero(s)
-}

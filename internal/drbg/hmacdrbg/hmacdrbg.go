@@ -4,8 +4,7 @@ import (
 	"crypto/hmac"
 	"hash"
 
-	"github.com/RyuaNerin/go-krypto/internal"
-	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
 const (
@@ -144,7 +143,7 @@ func Instantiate(
 	)
 	// 25: Key ← 0x00 00...00
 	// 26: V ← 0x01 01...01
-	kryptoutil.MemsetByte(v, 1)
+	memory.Memset(v, 1)
 
 	state := &State{
 		New:                         h,
@@ -305,12 +304,4 @@ func (state *State) Generate(
 
 	// 47: return (SUCCESS, pseudorandom_bits)
 	return nil
-}
-
-// 6.6 인스턴스 소멸 함수(uninstantiate function)
-//
-// HMAC_DRBG의 인스턴스 소멸 함수 Uninstantiate_HMAC_DRBG는
-// 인스턴스의 내부 상태를 해제하여 인스턴스가 더 이상 동작할 수 없도록 한다.
-func (s *State) Uninstantiate() {
-	internal.SetZero(s)
 }

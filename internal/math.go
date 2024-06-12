@@ -32,6 +32,28 @@ func CeilDiv(a, b int) int {
 	return (a + b - 1) / b
 }
 
+// [0, max)
+func ReadInt(r io.Reader, max int) (int, error) {
+	var buf [8]byte
+
+	bitSize := uint(bits.Len64(uint64(max)))
+
+	var randomValue uint64
+	for {
+		if _, err := io.ReadFull(r, buf[:]); err != nil {
+			return 0, err
+		}
+		buf[0] &= 0x7F
+
+		randomValue = binary.BigEndian.Uint64(buf[:])
+		randomValue >>= 64 - bitSize
+
+		if randomValue < uint64(max) {
+			return int(randomValue), nil
+		}
+	}
+}
+
 // ReadBigInt returns a uniform random value in [0, max). It panics if max <= 0.
 func ReadBigInt(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bufNew []byte, err error) {
 	if max.Sign() <= 0 {
@@ -109,32 +131,4 @@ func BigCeilLog2(n *big.Int, e int) int {
 		return x + 1
 	}
 	return x
-}
-
-func ReadRange(r io.Reader, min, max int) (int, error) {
-	if min == max {
-		return min, nil
-	}
-	if min > max {
-		min, max = max, min
-	}
-
-	var buf [8]byte
-
-	rangeSize := uint64(max - min + 1)
-	bitSize := uint(bits.Len64(rangeSize))
-
-	var randomValue uint64
-	for {
-		if _, err := io.ReadFull(r, buf[:]); err != nil {
-			return 0, err
-		}
-
-		randomValue = binary.BigEndian.Uint64(buf[:])
-		randomValue >>= 64 - bitSize
-
-		if randomValue < rangeSize {
-			return min + int(randomValue), nil
-		}
-	}
 }

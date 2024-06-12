@@ -1,10 +1,23 @@
-package internal
+//go:build !((amd64 || arm64) && !purego && !gccgo)
+// +build !amd64,!arm64 purego gccgo
 
-import (
-	"reflect"
-)
+package memory
 
-func SetZero(v interface{}) {
+import "reflect"
+
+func Memclr(b []byte) {
+	Memset(b, 0)
+}
+
+func MemclrU32(b []uint32) {
+	MemsetU32(b, 0)
+}
+
+func MemclrU64(b []uint64) {
+	MemsetU64(b, 0)
+}
+
+func MemclrI(v interface{}) {
 	p := reflect.ValueOf(v)
 	for p.Kind() == reflect.Ptr {
 		p = p.Elem()

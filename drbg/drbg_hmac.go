@@ -10,6 +10,7 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/drbg/ctrdrbg"
 	"github.com/RyuaNerin/go-krypto/internal/drbg/hashdrbg"
 	"github.com/RyuaNerin/go-krypto/internal/drbg/hmacdrbg"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
 type hmacDRGB struct {
@@ -152,7 +153,7 @@ func (h *hmacDRGB) Close() error {
 	}
 	h.closed = true
 
-	h.state.Uninstantiate()
+	memory.MemclrI(h.state)
 
 	h.state = nil
 	h.entropy = nil

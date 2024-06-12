@@ -9,7 +9,7 @@ import (
 	"math/bits"
 
 	"github.com/RyuaNerin/go-krypto"
-	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
 func init() {
@@ -105,12 +105,12 @@ func (ctx *has160Context) checkSum() (hash [20]byte) {
 	ctx.boff++
 
 	if BlockSize-8 < ctx.boff {
-		kryptoutil.MemsetByte(ctx.block[ctx.boff:], 0)
+		memory.Memclr(ctx.block[ctx.boff:])
 		ctx.stepBlock(ctx.block[:])
 		ctx.boff = 0
 	}
 
-	kryptoutil.MemsetByte(ctx.block[ctx.boff:], 0)
+	memory.Memclr(ctx.block[ctx.boff:])
 	binary.LittleEndian.PutUint64(ctx.block[BlockSize-8:], uint64(ctx.length)*8)
 	ctx.stepBlock(ctx.block[:])
 

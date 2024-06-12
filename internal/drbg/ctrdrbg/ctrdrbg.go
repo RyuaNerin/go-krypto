@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
@@ -98,7 +98,7 @@ func (state *State) df(dst []byte, providedDataList ...[]byte) {
 		// Block 1
 		// C || pad
 		copy(block, cnt[:])
-		kryptoutil.MemsetByte(block[4:], 0)
+		memory.Memclr(block[4:])
 		state.CBC.Encrypt(block, block)
 
 		// Block 2
@@ -384,8 +384,4 @@ func (state *State) Generate(
 
 	// k) return (returned_bits, V, Key, reseed_counter )
 	return nil
-}
-
-func (s *State) Uninstantiate() {
-	internal.SetZero(s)
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/drbg/ctrdrbg"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
 func WithCTRLength(ctrLen int) Option {
@@ -206,7 +207,7 @@ func (h *ctrDRGB) Close() error {
 	}
 	h.closed = true
 
-	h.state.Uninstantiate()
+	memory.MemclrI(h.state)
 
 	h.state = nil
 	h.entropy = nil

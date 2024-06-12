@@ -8,7 +8,7 @@ import (
 	"hash"
 	"math/bits"
 
-	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
 func newContextGo(size int) hash.Hash {
@@ -61,9 +61,9 @@ func (b *lsh512ContextGo) BlockSize() int {
 }
 
 func (b *lsh512ContextGo) Reset() {
-	kryptoutil.MemsetUint64(b.tcv[:], 0)
-	kryptoutil.MemsetUint64(b.msg[:], 0)
-	kryptoutil.MemsetByte(b.block[:], 0)
+	memory.MemclrU64(b.tcv[:])
+	memory.MemclrU64(b.msg[:])
+	memory.Memclr(b.block[:])
 
 	b.boff = 0
 	switch b.outlenbytes {
@@ -116,7 +116,7 @@ func (b *lsh512ContextGo) Sum(p []byte) []byte {
 func (b *lsh512ContextGo) checkSum() [Size]byte {
 	b.block[b.boff] = 0x80
 
-	kryptoutil.MemsetByte(b.block[b.boff+1:], 0)
+	memory.Memclr(b.block[b.boff+1:])
 	b.compress(b.block[:])
 
 	var temp [8]uint64

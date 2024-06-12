@@ -8,7 +8,7 @@ package lsh256
 import (
 	"hash"
 
-	"github.com/RyuaNerin/go-krypto/internal/ptr"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
 type simdSet struct {
@@ -78,6 +78,6 @@ func (ctx *lsh256ContextAsm) Sum(p []byte) []byte {
 }
 
 func (ctx *lsh256ContextAsm) checkSum() (hash [Size]byte) {
-	ctx.simd.final(ctx, ptr.PByte(hash[:]))
+	ctx.simd.final(ctx, memory.PByte(hash[:]))
 	return
 }

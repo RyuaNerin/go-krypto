@@ -6,7 +6,7 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
-	"github.com/RyuaNerin/go-krypto/internal/kryptoutil"
+	"github.com/RyuaNerin/go-krypto/internal/memory"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
@@ -165,7 +165,7 @@ func (g *ccm) Open(dst, N, ctT, A []byte) ([]byte, error) {
 	subtle.XORBytes(tag[:], tag[:g.tagSize], S0[:])
 
 	if subtle.ConstantTimeCompare(T[:g.tagSize], tag[:g.tagSize]) != 1 {
-		kryptoutil.MemsetByte(pt, 0)
+		memory.Memclr(pt)
 		return nil, errors.New(msgOpenFailed)
 	}
 

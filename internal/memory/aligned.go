@@ -1,11 +1,11 @@
-package aligned
+package memory
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestIsAligned(t *testing.T, align uintptr, raw interface{}, fieldName string) {
+func TestFieldIsAligned(t *testing.T, align uintptr, raw interface{}, fieldName string) {
 	v := reflect.ValueOf(raw)
 	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
