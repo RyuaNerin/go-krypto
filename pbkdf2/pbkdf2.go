@@ -59,7 +59,7 @@ func GenerateParallel(dst, password, salt []byte, iteration, keyLen int, h func(
 		nThreads = runtime.NumCPU()
 	}
 
-	iters := (keyLen + hLen - 1) / hLen
+	iters := internal.CeilDiv(keyLen, hLen)
 	if iters < nThreads {
 		nThreads = iters
 	}

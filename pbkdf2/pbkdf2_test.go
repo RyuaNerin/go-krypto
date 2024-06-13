@@ -23,7 +23,7 @@ func generateParallelNoBranch(dst, password, salt []byte, iteration, keyLen int,
 		nThreads = runtime.NumCPU()
 	}
 
-	iters := (keyLen + hLen - 1) / hLen
+	iters := internal.CeilDiv(keyLen, hLen)
 	if iters < nThreads {
 		nThreads = iters
 	}
