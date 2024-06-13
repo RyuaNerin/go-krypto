@@ -1,80 +1,176 @@
-package kipher
+package kipher_test
 
 import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
-	"encoding/binary"
 	"encoding/hex"
+	"math/rand"
 	"testing"
 
-	"github.com/RyuaNerin/go-krypto/internal"
-	igcm "github.com/RyuaNerin/go-krypto/internal/gcm"
+	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/kipher"
+	"github.com/RyuaNerin/go-krypto/lea"
 )
 
-func Test_GCM(t *testing.T) {
-	const iter = 256
-	const maxLen = 16 * igcm.GCMBlockSize * igcm.GCMBlockSize
+func TestGCM(t *testing.T) {
+	const iter = 64 * 1024
+	const maxLen = 16 * ikipher.GCMBlockSize
 
-	key := make([]byte, 32)
+	test := func(nonceSize, tagSize int) func(t *testing.T) {
+		return func(t *testing.T) {
+			key := make([]byte, 16)
 
-	nonce := make([]byte, maxLen)
-	input := make([]byte, maxLen)
-	additional := make([]byte, maxLen)
+			nonce := make([]byte, maxLen)
+			input := make([]byte, maxLen)
+			additional := make([]byte, maxLen)
 
-	dstCipher := make([]byte, maxLen+igcm.GCMBlockSize)
-	dstKipher := make([]byte, maxLen+igcm.GCMBlockSize)
+			sealed := make([]byte, maxLen+ikipher.GCMBlockSize)
+			opened := make([]byte, maxLen)
 
-	openedKipher := make([]byte, maxLen)
+			for i := 0; i < iter; i++ {
+				inputSize := 1 + rand.Intn(maxLen-1)
+				additionalSize := rand.Intn(maxLen)
 
-	nextLen := func(max int) int {
-		var lRaw [4]byte
-		rnd.Read(lRaw[:])
-		lRaw[0] &= 0x7F
-		return int(binary.BigEndian.Uint32(lRaw[:])) % max
-	}
+				rnd.Read(key)
+				rnd.Read(nonce[:nonceSize])
+				rnd.Read(input[:inputSize])
+				rnd.Read(additional[:additionalSize])
 
-	for i := 0; i < iter; i++ {
-		keySize := 16 + nextLen(2)*8
-		nonceSize := 1 + nextLen(maxLen-1)
-		inputSize := 1 + nextLen(maxLen-1)
-		additionalSize := nextLen(maxLen)
+				b, _ := aes.NewCipher(key)
 
-		rnd.Read(key[:keySize])
-		rnd.Read(nonce[:nonceSize])
-		rnd.Read(input[:inputSize])
-		rnd.Read(additional[:additionalSize])
+				gcm, err := kipher.NewGCM(ikipher.WrapCipher(b), nonceSize, tagSize)
+				if err != nil {
+					t.Error(err)
+					return
+				}
 
-		b, _ := aes.NewCipher(key[:keySize])
-		kb := internal.WrapBlock(b) // ignore gcmAble
-
-		gcmCipher, err := cipher.NewGCMWithNonceSize(kb, nonceSize)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		gcmKipher, err := newGCMWithNonceAndTagSize(kb, nonceSize, igcm.GCMTagSize)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-
-		dstCipher = gcmCipher.Seal(dstCipher[:0], nonce[:nonceSize], input[:inputSize], additional[:additionalSize])
-		dstKipher = gcmKipher.Seal(dstKipher[:0], nonce[:nonceSize], input[:inputSize], additional[:additionalSize])
-
-		if !bytes.Equal(dstKipher, dstCipher) {
-			t.Errorf("failed to Seal\nexpect: %s\nactual: %s", hex.EncodeToString(dstCipher), hex.EncodeToString(dstKipher))
-			return
-		}
-
-		openedKipher, err = gcmKipher.Open(openedKipher[:0], nonce[:nonceSize], dstKipher, additional[:additionalSize])
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		if !bytes.Equal(openedKipher, input[:inputSize]) {
-			t.Errorf("failed to Open\nexpect: %v\nactual: %v", hex.EncodeToString(input[:inputSize]), hex.EncodeToString(openedKipher))
-			return
+				sealed = gcm.Seal(sealed[:0], nonce[:nonceSize], input[:inputSize], additional[:additionalSize])
+				opened, err = gcm.Open(opened[:0], nonce[:nonceSize], sealed, additional[:additionalSize])
+				if err != nil {
+					t.Error(err)
+					return
+				}
+				if !bytes.Equal(opened, input[:inputSize]) {
+					t.Errorf("failed to Open\nexpect: %v\nactual: %v", hex.EncodeToString(input[:inputSize]), hex.EncodeToString(opened))
+					return
+				}
+			}
 		}
 	}
+
+	t.Run("Nonce=12/Tag=16", test(12, 16))
+	t.Run("Nonce=10/Tag=16", test(10, 16))
+	t.Run("Nonce=12/Tag=12", test(12, 12))
+	t.Run("Nonce=10/Tag=10", test(10, 10))
+}
+
+func TestGCMWithStd(t *testing.T) {
+	const maxLen = blocks * ikipher.GCMBlockSize
+
+	test := func(
+		nonceSize int,
+		newCipher func(cipher.Block) (cipher.AEAD, error),
+		newKipher func(cipher.Block) (cipher.AEAD, error),
+	) func(t *testing.T) {
+		return func(t *testing.T) {
+			key := make([]byte, keySize)
+
+			nonce := make([]byte, nonceSize)
+			input := make([]byte, maxLen)
+			additional := make([]byte, maxLen)
+
+			dstCipher := make([]byte, maxLen+ikipher.GCMBlockSize)
+			dstKipher := make([]byte, maxLen+ikipher.GCMBlockSize)
+
+			for i := 0; i < iter; i++ {
+				inputSize := 1 + rand.Intn(maxLen-1)
+				additionalSize := rand.Intn(maxLen)
+
+				rnd.Read(key)
+				rnd.Read(nonce)
+				rnd.Read(input[:inputSize])
+				rnd.Read(additional[:additionalSize])
+
+				b, _ := aes.NewCipher(key)
+
+				gcmCipher, err := newCipher(ikipher.WrapCipher(b))
+				if err != nil {
+					t.Error(err)
+					return
+				}
+				gcmKipher, err := newKipher(ikipher.WrapKipher(b))
+				if err != nil {
+					t.Error(err)
+					return
+				}
+
+				dstCipher = gcmCipher.Seal(dstCipher[:0], nonce, input[:inputSize], additional[:additionalSize])
+				dstKipher = gcmKipher.Seal(dstKipher[:0], nonce, input[:inputSize], additional[:additionalSize])
+
+				if !bytes.Equal(dstKipher, dstCipher) {
+					t.Errorf("failed to Seal\nexpect: %s\nactual: %s", hex.EncodeToString(dstCipher), hex.EncodeToString(dstKipher))
+					return
+				}
+			}
+		}
+	}
+
+	t.Run("Default", test(
+		ikipher.GCMStandardNonceSize,
+		cipher.NewGCM,
+		func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(b, 0, 0) }),
+	)
+	t.Run("Nonce=14", test(
+		14,
+		func(b cipher.Block) (cipher.AEAD, error) { return cipher.NewGCMWithNonceSize(b, 14) },
+		func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCMWithNonceSize(b, 14) },
+	))
+	t.Run("Tag=14", test(
+		ikipher.GCMStandardNonceSize,
+		func(b cipher.Block) (cipher.AEAD, error) { return cipher.NewGCMWithTagSize(b, 14) },
+		func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCMWithTagSize(b, 14) },
+	))
+}
+
+func BenchmarkGCMSeal(b *testing.B) {
+	const blockSize = blocks * ikipher.GCMBlockSize
+
+	bench := func(
+		newCipher func([]byte) (cipher.Block, error),
+		nonceSize int,
+		newGCM func(cipher.Block) (cipher.AEAD, error),
+	) func(b *testing.B) {
+		return func(b *testing.B) {
+			key := make([]byte, keySize)
+
+			block, _ := newCipher(key)
+			gcm, err := newGCM(block)
+			if err != nil {
+				b.Error(err)
+				return
+			}
+
+			nonce := make([]byte, nonceSize)
+			input := make([]byte, blockSize)
+			sealed := make([]byte, blockSize+ikipher.GCMBlockSize)
+
+			rnd.Read(nonce)
+			rnd.Read(input)
+
+			b.SetBytes(int64(blockSize))
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				sealed = gcm.Seal(sealed[:0], nonce, input, nil)
+				copy(input, sealed)
+				copy(nonce, sealed[4:])
+			}
+		}
+	}
+
+	b.Run("AES/Std", bench(aes.NewCipher, ikipher.GCMStandardNonceSize, func(b cipher.Block) (cipher.AEAD, error) { return cipher.NewGCM(ikipher.WrapCipher(b)) }))
+	b.Run("AES/krypto", bench(aes.NewCipher, ikipher.GCMStandardNonceSize, func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(ikipher.WrapKipher(b), 0, 0) }))
+	b.Run("LEA/Std", bench(lea.NewCipher, ikipher.GCMStandardNonceSize, func(b cipher.Block) (cipher.AEAD, error) { return cipher.NewGCM(ikipher.WrapCipher(b)) }))
+	b.Run("LEA/krypto", bench(lea.NewCipher, ikipher.GCMStandardNonceSize, func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(ikipher.WrapKipher(b), 0, 0) }))
 }

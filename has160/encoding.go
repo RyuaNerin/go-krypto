@@ -37,11 +37,11 @@ func (ctx *has160Context) UnmarshalBinary(b []byte) error {
 	}
 
 	b = b[len(magic):]
-	b, ctx.H[0] = internal.ConsumeUint32(b)
-	b, ctx.H[1] = internal.ConsumeUint32(b)
-	b, ctx.H[2] = internal.ConsumeUint32(b)
-	b, ctx.H[3] = internal.ConsumeUint32(b)
-	b, ctx.H[4] = internal.ConsumeUint32(b)
+	b, ctx.H[0] = internal.ConsumeBigU32(b)
+	b, ctx.H[1] = internal.ConsumeBigU32(b)
+	b, ctx.H[2] = internal.ConsumeBigU32(b)
+	b, ctx.H[3] = internal.ConsumeBigU32(b)
+	b, ctx.H[4] = internal.ConsumeBigU32(b)
 	b = b[copy(ctx.block[:], b[:BlockSize]):]
 	ctx.boff = int(b[0])
 	ctx.length = int(binary.BigEndian.Uint64(b[1:]))

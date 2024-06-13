@@ -280,9 +280,10 @@ func (state *State) Generate(
 
 	// 37: temp ← Null
 	// 38: While (len(temp) < requested_no_of_bits ) do
+	h := hmac.New(state.New, state.Key)
 	for len(dst) > 0 {
 		// 39:     V ← HMAC(Key, V )
-		h := hmac.New(state.New, state.Key)
+		h.Reset()
 		h.Write(state.V)
 		copy(state.V, h.Sum(state.sum[:0]))
 

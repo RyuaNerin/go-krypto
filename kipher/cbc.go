@@ -5,6 +5,7 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
+	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
@@ -26,7 +27,7 @@ func NewCBCDecrypter(b cipher.Block, iv []byte) cipher.BlockMode {
 		panic(msgInvalidIVLength)
 	}
 
-	if kb, ok := b.(internal.Block); ok {
+	if kb, ok := b.(ikipher.Block); ok {
 		return &cbc{
 			b:         kb,
 			blockSize: b.BlockSize(),
@@ -35,7 +36,7 @@ func NewCBCDecrypter(b cipher.Block, iv []byte) cipher.BlockMode {
 		}
 	}
 
-	if cbc, ok := b.(internal.CBCDecAble); ok {
+	if cbc, ok := b.(ikipher.CBCDecAble); ok {
 		return cbc.NewCBCDecrypter(iv)
 	}
 
@@ -43,7 +44,7 @@ func NewCBCDecrypter(b cipher.Block, iv []byte) cipher.BlockMode {
 }
 
 type cbc struct {
-	b         internal.Block
+	b         ikipher.Block
 	blockSize int
 	iv        []byte
 	tmp       []byte

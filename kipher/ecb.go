@@ -3,15 +3,19 @@ package kipher
 import (
 	"crypto/cipher"
 
-	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
+	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
 )
 
 func NewECBEncryptor(b cipher.Block) cipher.BlockMode {
-	kb := internal.WrapBlock(b)
+	kb := ikipher.WrapKipher(b)
+	bs := kb.BlockSize()
 
 	return &ecb{
 		b:        kb,
+		bs1:      1 * bs,
+		bs4:      4 * bs,
+		bs8:      8 * bs,
 		process1: kb.Encrypt,
 		process4: kb.Encrypt4,
 		process8: kb.Encrypt8,
@@ -19,10 +23,14 @@ func NewECBEncryptor(b cipher.Block) cipher.BlockMode {
 }
 
 func NewECBDecryptor(b cipher.Block) cipher.BlockMode {
-	kb := internal.WrapBlock(b)
+	kb := ikipher.WrapKipher(b)
+	bs := kb.BlockSize()
 
 	return &ecb{
 		b:        kb,
+		bs1:      1 * bs,
+		bs4:      4 * bs,
+		bs8:      8 * bs,
 		process1: kb.Decrypt,
 		process4: kb.Decrypt4,
 		process8: kb.Decrypt8,
@@ -30,10 +38,11 @@ func NewECBDecryptor(b cipher.Block) cipher.BlockMode {
 }
 
 type ecb struct {
-	b        internal.Block
-	process1 func(dst, src []byte)
-	process4 func(dst, src []byte)
-	process8 func(dst, src []byte)
+	b             ikipher.Block
+	bs1, bs4, bs8 int
+	process1      func(dst, src []byte)
+	process4      func(dst, src []byte)
+	process8      func(dst, src []byte)
 }
 
 func (ecb *ecb) BlockSize() int {
@@ -41,9 +50,7 @@ func (ecb *ecb) BlockSize() int {
 }
 
 func (ecb *ecb) CryptBlocks(dst, src []byte) {
-	blockSize := ecb.BlockSize()
-
-	if len(src)%blockSize != 0 {
+	if len(src)%ecb.bs1 != 0 {
 		panic(msgNotFullBlocks)
 	}
 	if len(dst) < len(src) {
@@ -53,26 +60,21 @@ func (ecb *ecb) CryptBlocks(dst, src []byte) {
 		panic(msgBufferOverlap)
 	}
 
-	var (
-		blockSize4 = 4 * blockSize
-		blockSize8 = 8 * blockSize
-	)
-
-	for len(src) >= blockSize8 {
+	for len(src) >= ecb.bs8 {
 		ecb.process8(dst, src)
 
-		dst, src = dst[blockSize8:], src[blockSize8:]
+		dst, src = dst[ecb.bs8:], src[ecb.bs8:]
 	}
 
-	for len(src) >= blockSize4 {
+	for len(src) >= ecb.bs4 {
 		ecb.process4(dst, src)
 
-		dst, src = dst[blockSize4:], src[blockSize4:]
+		dst, src = dst[ecb.bs4:], src[ecb.bs4:]
 	}
 
 	for len(src) > 0 {
 		ecb.process1(dst, src)
 
-		dst, src = dst[blockSize:], src[blockSize:]
+		dst, src = dst[ecb.bs1:], src[ecb.bs1:]
 	}
 }

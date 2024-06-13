@@ -1,4 +1,4 @@
-package internal
+package kipher
 
 import (
 	"crypto/cipher"
@@ -36,18 +36,53 @@ type Block interface {
 	Decrypt8(dst, src []byte)
 }
 
-func WrapBlock(b cipher.Block) Block {
+func WrapCipher(b cipher.Block) cipher.Block {
+	return &simpleWrap{b}
+}
+
+func NewCipherC(newCipher func([]byte) (cipher.Block, error)) func([]byte) (cipher.Block, error) {
+	return func(key []byte) (cipher.Block, error) {
+		b, err := newCipher(key)
+		if err != nil {
+			return nil, err
+		}
+		return WrapCipher(b), nil
+	}
+}
+
+func WrapKipher(b cipher.Block) Block {
 	if kb, ok := b.(Block); ok {
 		return kb
 	}
 	return &blockWrap{Block: b}
 }
 
+func NewKipher(newCipher func([]byte) (cipher.Block, error)) func([]byte) (cipher.Block, error) {
+	return func(key []byte) (cipher.Block, error) {
+		b, err := newCipher(key)
+		if err != nil {
+			return nil, err
+		}
+		return WrapKipher(b), nil
+	}
+}
+
+type simpleWrap struct{ b cipher.Block }
+
+var _ cipher.Block = (*simpleWrap)(nil)
+
+func (bw *simpleWrap) BlockSize() int          { return bw.b.BlockSize() }
+func (bw *simpleWrap) Encrypt(dst, src []byte) { bw.b.Encrypt(dst, src) }
+func (bw *simpleWrap) Decrypt(dst, src []byte) { bw.b.Decrypt(dst, src) }
+
 type blockWrap struct {
 	cipher.Block
 }
 
-var _ Block = (*blockWrap)(nil)
+var (
+	_ cipher.Block = (*blockWrap)(nil)
+	_ Block        = (*blockWrap)(nil)
+)
 
 func (b blockWrap) Encrypt4(dst, src []byte) {
 	bs := b.BlockSize()

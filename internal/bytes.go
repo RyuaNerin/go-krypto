@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/binary"
 	"io"
 
 	"github.com/RyuaNerin/go-krypto/internal/memory"
@@ -104,12 +105,24 @@ func Add(dst []byte, src ...[]byte) {
 }
 
 func IncCtr(b []byte) {
-	for i := len(b) - 1; i >= 0; i-- {
-		c := b[i]
-		c++
-		b[i] = c
-		if c > 0 {
-			return
+	switch len(b) {
+	case 1:
+		b[0]++
+	case 2:
+		v := binary.BigEndian.Uint16(b)
+		binary.BigEndian.PutUint16(b, v+1)
+	case 4:
+		v := binary.BigEndian.Uint32(b)
+		binary.BigEndian.PutUint32(b, v+1)
+	case 8:
+		v := binary.BigEndian.Uint64(b)
+		binary.BigEndian.PutUint64(b, v+1)
+	default:
+		for i := len(b) - 1; i >= 0; i-- {
+			b[i]++
+			if b[i] > 0 {
+				return
+			}
 		}
 	}
 }

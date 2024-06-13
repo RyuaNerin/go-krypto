@@ -1,10 +1,7 @@
-package gcm
+package kipher
 
 import (
 	"encoding/binary"
-
-	"github.com/RyuaNerin/go-krypto/internal"
-	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 // Based on https://github.com/golang/go/blob/go1.21.6/src/crypto/cipher/gcm.go
@@ -31,13 +28,13 @@ type GCMFieldElement struct {
 // GCM represents a Galois Counter Mode with a specific key. See
 // https://csrc.nist.gov/groups/ST/toolkit/BCM/documents/proposedmodes/GCM/GCM-revised-spec.pdf
 type GCM struct {
-	Cipher internal.Block
+	Cipher Block
 	// ProductTable contains the first sixteen powers of the key, H.
 	// However, they are in bit reversed order. See NewGCMWithNonceSize.
 	ProductTable [16]GCMFieldElement
 }
 
-func Init(g *GCM, cipher internal.Block) {
+func Init(g *GCM, cipher Block) {
 	var key [GCMBlockSize]byte
 	cipher.Encrypt(key[:], key[:])
 
@@ -158,85 +155,12 @@ func (g *GCM) Update(y *GCMFieldElement, data []byte) {
 	}
 }
 
-// GCMInc32 treats the final four bytes of counterBlock as a big-endian value
-// and increments it.
-func GCMInc32(counterBlock *[GCMBlockSize]byte) {
-	ctr := counterBlock[len(counterBlock)-4:]
-	binary.BigEndian.PutUint32(ctr, binary.BigEndian.Uint32(ctr)+1)
-}
-
-func gcmSub32(counterBlock *[GCMBlockSize]byte, value uint32) {
-	ctr := counterBlock[len(counterBlock)-4:]
-	binary.BigEndian.PutUint32(ctr, binary.BigEndian.Uint32(ctr)+value)
-}
-
 // counterCrypt crypts in to out using g.cipher in counter mode.
 func (g *GCM) CounterCrypt(out, in []byte, counter *[GCMBlockSize]byte) {
-	const (
-		bs8 = 8 * GCMBlockSize
-		bs4 = 4 * GCMBlockSize
-		bs3 = 3 * GCMBlockSize
-		bs1 = 1 * GCMBlockSize
-	)
-	var maskBuf [bs8]byte
-
-	for len(in) >= bs8 {
-		for i := 0; i < 8; i++ {
-			copy(maskBuf[i*bs1:], counter[:])
-			GCMInc32(counter)
-		}
-		g.Cipher.Encrypt8(maskBuf[:], maskBuf[:])
-
-		subtle.XORBytes(out, in, maskBuf[:])
-		out = out[bs8:]
-		in = in[bs8:]
-	}
-
-	mask := maskBuf[:0]
-	for len(in) >= bs4 {
-		if len(mask) == 0 {
-			for i := 0; i < 8; i++ {
-				copy(maskBuf[i*bs1:], counter[:])
-				GCMInc32(counter)
-			}
-			g.Cipher.Encrypt8(maskBuf[:], maskBuf[:])
-			mask = maskBuf[:]
-		}
-
-		subtle.XORBytes(out, in, mask[:bs4])
-		out = out[bs4:]
-		in = in[bs4:]
-		mask = mask[bs4:]
-	}
-
-	for len(in) >= bs1 {
-		if len(mask) == 0 {
-			for i := 0; i < 3; i++ {
-				copy(maskBuf[i*bs1:], counter[:])
-				GCMInc32(counter)
-			}
-			g.Cipher.Encrypt4(maskBuf[:bs4], maskBuf[:bs4])
-			mask = maskBuf[:bs3]
-		}
-
-		subtle.XORBytes(out, in, mask[:bs1])
-		out = out[bs1:]
-		in = in[bs1:]
-		mask = mask[bs1:]
-	}
-
-	if len(in) > 0 {
-		if len(mask) == 0 {
-			mask = maskBuf[:bs1]
-			g.Cipher.Encrypt(mask, counter[:])
-		}
-		subtle.XORBytes(out, in, mask)
-		mask = nil
-	}
-
-	if len(mask) > 0 {
-		gcmSub32(counter, uint32(len(mask)/bs1))
-	}
+	var ctr CTR
+	ctr.Init(g.Cipher, counter[:], 4)
+	ctr.Xor(out, in)
+	ctr.CopyCTR(counter[:])
 }
 
 // deriveCounter computes the initial GCM counter state from the given nonce.

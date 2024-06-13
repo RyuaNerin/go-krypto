@@ -59,11 +59,11 @@ func (ctx *lsh256ContextAsm) UnmarshalBinary(b []byte) error {
 	b = b[2:]
 
 	for i := range ctx.cvL {
-		b, ctx.cvL[i] = internal.ConsumeUint64(b)
+		b, ctx.cvL[i] = internal.ConsumeBigU64(b)
 	}
 
 	for i := range ctx.cvR {
-		b, ctx.cvR[i] = internal.ConsumeUint64(b)
+		b, ctx.cvR[i] = internal.ConsumeBigU64(b)
 	}
 
 	copy(ctx.lastBlock[:], b)

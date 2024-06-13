@@ -10,18 +10,18 @@ import (
 	"hash"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-	igcm "github.com/RyuaNerin/go-krypto/internal/gcm"
+	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
 	"github.com/RyuaNerin/go-krypto/internal/memory"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
-var defaultIV [igcm.GCMStandardNonceSize]byte
+var defaultIV [ikipher.GCMStandardNonceSize]byte
 
 // new MAC using GMAC by only passing additional data(aad data).
 func NewGMAC(b cipher.Block, iv []byte) (hash.Hash, error) {
-	kb := internal.WrapBlock(b)
+	kb := ikipher.WrapKipher(b)
 
-	if kb.BlockSize() != igcm.GCMBlockSize {
+	if kb.BlockSize() != ikipher.GCMBlockSize {
 		return nil, errors.New(msgRequired128BitBlockCipher)
 	}
 
@@ -30,9 +30,9 @@ func NewGMAC(b cipher.Block, iv []byte) (hash.Hash, error) {
 	}
 
 	g := &ghash{}
-	igcm.Init(&g.gcm, kb)
+	ikipher.Init(&g.gcm, kb)
 
-	var counter [igcm.GCMBlockSize]byte
+	var counter [ikipher.GCMBlockSize]byte
 	g.gcm.DeriveCounter(&counter, iv)
 	g.gcm.Cipher.Encrypt(g.tagMask[:], counter[:])
 
@@ -40,26 +40,26 @@ func NewGMAC(b cipher.Block, iv []byte) (hash.Hash, error) {
 }
 
 type ghash struct {
-	gcm igcm.GCM
+	gcm ikipher.GCM
 
-	tagMask [igcm.GCMBlockSize]byte
+	tagMask [ikipher.GCMBlockSize]byte
 
-	y         igcm.GCMFieldElement
-	remains   [igcm.GCMBlockSize]byte
+	y         ikipher.GCMFieldElement
+	remains   [ikipher.GCMBlockSize]byte
 	remainIdx int
 	written   int
 }
 
 func (g ghash) Size() int {
-	return igcm.GCMBlockSize
+	return ikipher.GCMBlockSize
 }
 
 func (g ghash) BlockSize() int {
-	return igcm.GCMBlockSize
+	return ikipher.GCMBlockSize
 }
 
 func (g *ghash) Reset() {
-	g.y = igcm.GCMFieldElement{}
+	g.y = ikipher.GCMFieldElement{}
 	g.remainIdx = 0
 	g.written = 0
 }
@@ -70,7 +70,7 @@ func (g *ghash) Write(b []byte) (n int, err error) {
 		g.written += n
 		g.remainIdx += n
 
-		if g.remainIdx < igcm.GCMBlockSize {
+		if g.remainIdx < ikipher.GCMBlockSize {
 			return n, nil
 		}
 		b = b[n:]
@@ -79,7 +79,7 @@ func (g *ghash) Write(b []byte) (n int, err error) {
 		g.remainIdx = 0
 	}
 
-	fullBlocks := (len(b) / igcm.GCMBlockSize) * igcm.GCMBlockSize
+	fullBlocks := (len(b) / ikipher.GCMBlockSize) * ikipher.GCMBlockSize
 	g.gcm.UpdateBlocks(&g.y, b[:fullBlocks])
 	n += fullBlocks
 	g.written += fullBlocks
@@ -98,7 +98,7 @@ func (g *ghash) Sum(b []byte) []byte {
 
 	written := g.written + g.remainIdx
 
-	var block [igcm.GCMBlockSize]byte
+	var block [ikipher.GCMBlockSize]byte
 
 	if g.remainIdx > 0 {
 		n := copy(block[:], g.remains[:g.remainIdx])
@@ -110,7 +110,7 @@ func (g *ghash) Sum(b []byte) []byte {
 	yy.Low ^= uint64(written) * 8
 	g.gcm.Mul(&yy)
 
-	ret, out := internal.SliceForAppend(b, len(b)+igcm.GCMBlockSize)
+	ret, out := internal.SliceForAppend(b, len(b)+ikipher.GCMBlockSize)
 	binary.BigEndian.PutUint64(out, yy.Low)
 	binary.BigEndian.PutUint64(out[8:], yy.High)
 

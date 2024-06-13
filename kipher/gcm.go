@@ -13,12 +13,12 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
-	igcm "github.com/RyuaNerin/go-krypto/internal/gcm"
+	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 type gcm struct {
-	gcm igcm.GCM
+	gcm ikipher.GCM
 
 	nonceSize int
 	tagSize   int
@@ -34,30 +34,30 @@ type gcm struct {
 // if nonceSize = 0, nonceSize = 12
 // if tagSize = 0, tagSize = 16
 func NewGCM(b cipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
+	if nonceSize == 0 {
+		nonceSize = ikipher.GCMStandardNonceSize
+	}
+	if tagSize == 0 {
+		tagSize = ikipher.GCMTagSize
+	}
+
 	if nonceSize <= 0 {
 		return nil, errors.New(msgInvalidNonceZero)
 	}
 
-	kb, ok := b.(internal.Block)
+	kb, ok := b.(ikipher.Block)
 	if !ok {
-		if cipher, ok := b.(internal.GCMAble); ok {
-			if tagSize < igcm.GCMMinimumTagSize || tagSize > igcm.GCMBlockSize {
+		if cipher, ok := b.(ikipher.GCMAble); ok {
+			if tagSize < ikipher.GCMMinimumTagSize || tagSize > ikipher.GCMBlockSize {
 				return nil, errors.New(msgInvalidTagSizeGCM)
 			}
 			return cipher.NewGCM(nonceSize, tagSize)
 		}
-		kb = internal.WrapBlock(b)
+		kb = ikipher.WrapKipher(b)
 	}
 
-	if b.BlockSize() != igcm.GCMBlockSize {
+	if b.BlockSize() != ikipher.GCMBlockSize {
 		return nil, errors.New(msgRequire128Bits)
-	}
-
-	if nonceSize == 0 {
-		nonceSize = igcm.GCMStandardNonceSize
-	}
-	if tagSize == 0 {
-		tagSize = igcm.GCMTagSize
 	}
 
 	return newGCMWithNonceAndTagSize(kb, nonceSize, tagSize)
@@ -70,7 +70,7 @@ func NewGCM(b cipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
 // An exception is when the underlying Block was created by aes.NewCipher
 // on systems with hardware support for AES. See the crypto/aes package documentation for details.
 func NewGCMWithDefaultSize(b cipher.Block) (cipher.AEAD, error) {
-	return NewGCM(b, igcm.GCMStandardNonceSize, igcm.GCMTagSize)
+	return NewGCM(b, ikipher.GCMStandardNonceSize, ikipher.GCMTagSize)
 }
 
 // NewGCMWithNonceSize returns the given 128-bit, block cipher wrapped in Galois
@@ -81,7 +81,7 @@ func NewGCMWithDefaultSize(b cipher.Block) (cipher.AEAD, error) {
 // cryptosystem that uses non-standard nonce lengths. All other users should use
 // NewGCM, which is faster and more resistant to misuse.
 func NewGCMWithNonceSize(b cipher.Block, size int) (cipher.AEAD, error) {
-	return NewGCM(b, size, igcm.GCMTagSize)
+	return NewGCM(b, size, ikipher.GCMTagSize)
 }
 
 // NewGCMWithTagSize returns the given 128-bit, block cipher wrapped in Galois
@@ -93,15 +93,15 @@ func NewGCMWithNonceSize(b cipher.Block, size int) (cipher.AEAD, error) {
 // cryptosystem that uses non-standard tag lengths. All other users should use
 // NewGCM, which is more resistant to misuse.
 func NewGCMWithTagSize(b cipher.Block, tagSize int) (cipher.AEAD, error) {
-	return NewGCM(b, igcm.GCMStandardNonceSize, tagSize)
+	return NewGCM(b, ikipher.GCMStandardNonceSize, tagSize)
 }
 
-func newGCMWithNonceAndTagSize(b internal.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
+func newGCMWithNonceAndTagSize(b ikipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
 	g := &gcm{
 		nonceSize: nonceSize,
 		tagSize:   tagSize,
 	}
-	igcm.Init(&g.gcm, b)
+	ikipher.Init(&g.gcm, b)
 
 	return g, nil
 }
@@ -127,15 +127,15 @@ func (g *gcm) Seal(dst, nonce, plaintext, data []byte) []byte {
 		panic(msgBufferOverlap)
 	}
 
-	var counter, tagMask [igcm.GCMBlockSize]byte
+	var counter, tagMask [ikipher.GCMBlockSize]byte
 	g.gcm.DeriveCounter(&counter, nonce)
 
 	g.gcm.Cipher.Encrypt(tagMask[:], counter[:])
-	igcm.GCMInc32(&counter)
+	internal.IncCtr(counter[ikipher.GCMBlockSize-4:])
 
 	g.gcm.CounterCrypt(out, plaintext, &counter)
 
-	var tag [igcm.GCMTagSize]byte
+	var tag [ikipher.GCMTagSize]byte
 	g.auth(tag[:], out[:len(plaintext)], data, &tagMask)
 	copy(out[len(plaintext):], tag[:])
 
@@ -157,13 +157,13 @@ func (g *gcm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 	tag := ciphertext[len(ciphertext)-g.tagSize:]
 	ciphertext = ciphertext[:len(ciphertext)-g.tagSize]
 
-	var counter, tagMask [igcm.GCMBlockSize]byte
+	var counter, tagMask [ikipher.GCMBlockSize]byte
 	g.gcm.DeriveCounter(&counter, nonce)
 
 	g.gcm.Cipher.Encrypt(tagMask[:], counter[:])
-	igcm.GCMInc32(&counter)
+	internal.IncCtr(counter[ikipher.GCMBlockSize-4:])
 
-	var expectedTag [igcm.GCMTagSize]byte
+	var expectedTag [ikipher.GCMTagSize]byte
 	g.auth(expectedTag[:], ciphertext, data, &tagMask)
 
 	ret, out := internal.SliceForAppend(dst, len(ciphertext))
@@ -189,8 +189,8 @@ func (g *gcm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 
 // auth calculates GHASH(ciphertext, additionalData), masks the result with
 // tagMask and writes the result to out.
-func (g *gcm) auth(out, ciphertext, additionalData []byte, tagMask *[igcm.GCMTagSize]byte) {
-	var y igcm.GCMFieldElement
+func (g *gcm) auth(out, ciphertext, additionalData []byte, tagMask *[ikipher.GCMTagSize]byte) {
+	var y ikipher.GCMFieldElement
 	g.gcm.Update(&y, additionalData)
 	g.gcm.Update(&y, ciphertext)
 
