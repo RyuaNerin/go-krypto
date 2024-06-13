@@ -79,7 +79,7 @@ func processKBKDF_HMAC(cavp *cavpProcessor, hashInfo *HashInfo, fn funcKBKDF) {
 		cs := cavp.ReadValues()
 
 		if cs.ContainsKey("PRF") {
-			if cs.ContainsValue("NO COUNTER") {
+			if cs.ContainsValue("[NO COUNTER]") {
 				rlen = 0
 			} else {
 				rlen = cs.Int("RLEN")
@@ -111,7 +111,7 @@ func processKBKDF_CMAC(cavp *cavpProcessor, newCipher funcNewBlockCipher, fn fun
 		cs := cavp.ReadValues()
 
 		if cs.ContainsKey("PRF") {
-			if cs.ContainsValue("NO COUNTER") {
+			if cs.ContainsValue("[NO COUNTER]") {
 				rlen = 0
 			} else {
 				rlen = cs.Int("RLEN")

@@ -46,12 +46,15 @@ func GetSecurityStrengthBits(requested_strength int) int {
 // 참고로 갱신 함수는 인스턴스 생성 함수와 리시드 함수에서
 // 시드 생성을 위한 유도 함수(derivation function)의 역할도 수행한다.
 func (state *State) Update(providedData ...[]byte) {
+	providedDataLen := 0
+
 	// 1: Key ← HMAC(Key, V ‖ 0x00 ‖ provided_data )
 	h := hmac.New(state.New, state.Key)
 	h.Write(state.V)
 	h.Write([]byte{0x00})
 	for _, v := range providedData {
-		h.Write(v)
+		n, _ := h.Write(v)
+		providedDataLen += n
 	}
 	copy(state.Key, h.Sum(state.sum[:0]))
 
@@ -63,7 +66,7 @@ func (state *State) Update(providedData ...[]byte) {
 	// 3: if (provided_data = Null) then
 	// 4:     return (Key, V )
 	// 5: end if
-	if len(providedData) == 0 {
+	if providedDataLen == 0 {
 		return
 	}
 
@@ -269,7 +272,7 @@ func (state *State) Generate(
 	// 33: end if
 
 	// 34: if (additional_input ≠ Null) then
-	if additionalInput != nil {
+	if len(additionalInput) > 0 {
 		// 35:     (Key, V ) ← HMAC_DRBG_Update(additional_input, Key, V )
 		state.Update(additionalInput)
 	}
@@ -291,11 +294,7 @@ func (state *State) Generate(
 	// 42: pseudorandom_bits ← leftmost(temp, requested_no_of_bits )
 
 	// 43: (Key, V ) ← HMAC_DRBG_Update(additional_input, Key, V )
-	if additionalInput != nil {
-		state.Update(additionalInput)
-	} else {
-		state.Update()
-	}
+	state.Update(additionalInput)
 
 	// 44: state(state_handle).V ← V
 	// 45: state(state_handle).Key ← Key
