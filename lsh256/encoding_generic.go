@@ -51,13 +51,13 @@ func (ctx *lsh256ContextGo) UnmarshalBinary(b []byte) error {
 
 	b = b[len(magic):]
 	for i := range ctx.cv {
-		b, ctx.cv[i] = internal.ConsumeUint32(b)
+		b, ctx.cv[i] = internal.ConsumeBigU32(b)
 	}
 	for i := range ctx.tcv {
-		b, ctx.tcv[i] = internal.ConsumeUint32(b)
+		b, ctx.tcv[i] = internal.ConsumeBigU32(b)
 	}
 	for i := range ctx.msg {
-		b, ctx.msg[i] = internal.ConsumeUint32(b)
+		b, ctx.msg[i] = internal.ConsumeBigU32(b)
 	}
 	b = b[copy(ctx.block[:], b[:BlockSize]):]
 	ctx.boff = int(b[0])
