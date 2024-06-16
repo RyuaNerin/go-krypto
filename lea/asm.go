@@ -11,6 +11,6 @@ import (
 
 func toAsmFunc(f func(ctx *leaContext, dst, src *byte)) func(ctx *leaContext, dst, src []byte) {
 	return func(ctx *leaContext, dst, src []byte) {
-		f(ctx, memory.PByte(dst), memory.PByte(src))
+		f(ctx, memory.P8(dst), memory.P8(src))
 	}
 }

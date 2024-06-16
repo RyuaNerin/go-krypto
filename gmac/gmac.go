@@ -5,14 +5,11 @@ package gmac
 
 import (
 	"crypto/cipher"
-	"encoding/binary"
 	"errors"
 	"hash"
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
-	"github.com/RyuaNerin/go-krypto/internal/memory"
-	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
 var defaultIV [ikipher.GCMStandardNonceSize]byte
@@ -29,18 +26,21 @@ func NewGMAC(b cipher.Block, iv []byte) (hash.Hash, error) {
 		iv = defaultIV[:]
 	}
 
-	g := &ghash{}
-	ikipher.Init(&g.gcm, kb)
+	g := &ghash{
+		cipher: kb,
+	}
+	g.gcm.Init(kb)
 
 	var counter [ikipher.GCMBlockSize]byte
 	g.gcm.DeriveCounter(&counter, iv)
-	g.gcm.Cipher.Encrypt(g.tagMask[:], counter[:])
+	kb.Encrypt(g.tagMask[:], counter[:])
 
 	return g, nil
 }
 
 type ghash struct {
-	gcm ikipher.GCM
+	gcm    ikipher.GCM
+	cipher ikipher.Block
 
 	tagMask [ikipher.GCMBlockSize]byte
 
@@ -75,15 +75,17 @@ func (g *ghash) Write(b []byte) (n int, err error) {
 		}
 		b = b[n:]
 
-		g.gcm.UpdateBlocks(&g.y, g.remains[:])
+		g.gcm.Update(&g.y, g.remains[:])
 		g.remainIdx = 0
 	}
 
 	fullBlocks := (len(b) / ikipher.GCMBlockSize) * ikipher.GCMBlockSize
-	g.gcm.UpdateBlocks(&g.y, b[:fullBlocks])
-	n += fullBlocks
-	g.written += fullBlocks
-	b = b[fullBlocks:]
+	if fullBlocks > 0 {
+		g.gcm.Update(&g.y, b[:fullBlocks])
+		n += fullBlocks
+		g.written += fullBlocks
+		b = b[fullBlocks:]
+	}
 
 	if len(b) > 0 {
 		g.remainIdx = copy(g.remains[:], b)
@@ -98,23 +100,12 @@ func (g *ghash) Sum(b []byte) []byte {
 
 	written := g.written + g.remainIdx
 
-	var block [ikipher.GCMBlockSize]byte
-
 	if g.remainIdx > 0 {
-		n := copy(block[:], g.remains[:g.remainIdx])
-		g.gcm.UpdateBlocks(&yy, block[:])
-
-		memory.Memclr(block[:n])
+		g.gcm.Update(&yy, g.remains[:g.remainIdx])
 	}
 
-	yy.Low ^= uint64(written) * 8
-	g.gcm.Mul(&yy)
-
 	ret, out := internal.SliceForAppend(b, len(b)+ikipher.GCMBlockSize)
-	binary.BigEndian.PutUint64(out, yy.Low)
-	binary.BigEndian.PutUint64(out[8:], yy.High)
-
-	subtle.XORBytes(out, out, g.tagMask[:])
+	g.gcm.Finish(out, &yy, 0, written, &g.tagMask)
 
 	return ret
 }

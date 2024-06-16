@@ -16,6 +16,7 @@ func initOptions() {
 		{Name: "avx", Feature: &X86.HasAVX},
 		{Name: "avx2", Feature: &X86.HasAVX2},
 		{Name: "osxsave", Feature: &X86.HasOSXSAVE},
+		{Name: "pclmulqdq", Feature: &X86.HasPCLMULQDQ},
 		{Name: "ssse3", Feature: &X86.HasSSSE3},
 
 		// These capabilities should always be enabled on amd64:
@@ -36,6 +37,7 @@ func archInit() {
 	X86.HasSSE2 = isSet(26, edx1)
 
 	X86.HasSSSE3 = isSet(9, ecx1)
+	X86.HasPCLMULQDQ = isSet(1, ecx1)
 	X86.HasOSXSAVE = isSet(27, ecx1)
 
 	var osSupportsAVX bool

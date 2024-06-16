@@ -31,13 +31,14 @@ type CacheLinePad struct{ _ [cacheLineSize]byte }
 // and HasAVX2 are only set if the OS supports XMM and YMM
 // registers in addition to the CPUID feature bit being set.
 var X86 struct {
-	_          CacheLinePad
-	HasAVX     bool // Advanced vector extension
-	HasAVX2    bool // Advanced vector extension 2
-	HasOSXSAVE bool // OS supports XSAVE/XRESTOR for saving/restoring XMM registers.
-	HasSSE2    bool // Streaming SIMD extension 2 (always available on amd64)
-	HasSSSE3   bool // Supplemental streaming SIMD extension 3
-	_          CacheLinePad
+	_            CacheLinePad
+	HasAVX       bool // Advanced vector extension
+	HasAVX2      bool // Advanced vector extension 2
+	HasOSXSAVE   bool // OS supports XSAVE/XRESTOR for saving/restoring XMM registers.
+	HasPCLMULQDQ bool // PCLMULQDQ instruction - most often used for AES-GCM
+	HasSSE2      bool // Streaming SIMD extension 2 (always available on amd64)
+	HasSSSE3     bool // Supplemental streaming SIMD extension 3
+	_            CacheLinePad
 }
 
 // ARM64 contains the supported CPU features of the

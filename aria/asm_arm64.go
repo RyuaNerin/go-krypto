@@ -10,14 +10,14 @@ import "github.com/RyuaNerin/go-krypto/internal/memory"
 var hasNEON = true
 
 func (ctx *ariaContextAsm) initRoundKey(key []byte) {
-	__encKeySetup_NEON(memory.PByte(ctx.ctx.ek[:]), memory.PByte(key), uint64(len(key)))
+	__encKeySetup_NEON(memory.P8(ctx.ctx.ek[:]), memory.P8(key), uint64(len(key)))
 
 	ctx.ctx.dk = ctx.ctx.ek
-	__decKeySetup_NEON(memory.PByte(ctx.ctx.dk[:]), uint64(ctx.ctx.rounds))
+	__decKeySetup_NEON(memory.P8(ctx.ctx.dk[:]), uint64(ctx.ctx.rounds))
 }
 
 func (ctx *ariaContextAsm) process(dst, src, rk []byte) {
-	__process_NEON(memory.PByte(dst), memory.PByte(src), memory.PByte(rk), uint64(ctx.ctx.rounds))
+	__process_NEON(memory.P8(dst), memory.P8(src), memory.P8(rk), uint64(ctx.ctx.rounds))
 }
 
 //go:noescape

@@ -17,7 +17,7 @@ func (ctx *ariaContextAsm) initRoundKey(key []byte) {
 }
 
 func (ctx *ariaContextAsm) process(dst, src, rk []byte) {
-	__process_SSSE3(memory.PByte(dst), memory.PByte(src), memory.PByte(rk), uint64(ctx.ctx.rounds))
+	__process_SSSE3(memory.P8(dst), memory.P8(src), memory.P8(rk), uint64(ctx.ctx.rounds))
 }
 
 //go:noescape

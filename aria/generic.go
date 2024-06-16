@@ -288,7 +288,7 @@ func encKeySetup(rk []byte, mk []byte) {
 }
 
 func decKeySetup(rk []byte, rValue int) {
-	a := memory.PUint32(rk)
+	a := memory.ConvertU32S(rk)
 	z := a
 
 	aIdx := 0
