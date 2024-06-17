@@ -12,8 +12,8 @@ import (
 )
 
 func TestGCMAuthAsm(t *testing.T) {
-	if !hasX86PCLMULQDQ {
-		t.Skip("PCLMULQDQ not available")
+	if !supportsGFMUL {
+		t.Skip("PCLMULQDQ or PMULL not available")
 		return
 	}
 
@@ -49,8 +49,8 @@ func TestGCMAuthAsm(t *testing.T) {
 }
 
 func BenchmarkGCMAuthAsm(b *testing.B) {
-	if !hasX86PCLMULQDQ {
-		b.Skip("PCLMULQDQ not available")
+	if !supportsGFMUL {
+		b.Skip("PCLMULQDQ or PMULL not available")
 		return
 	}
 

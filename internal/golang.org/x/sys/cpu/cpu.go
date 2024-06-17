@@ -45,8 +45,9 @@ var X86 struct {
 // current ARMv8(aarch64) platform. If the current platform
 // is not arm64 then all feature flags are false.
 var ARM64 struct {
-	_ CacheLinePad
-	_ CacheLinePad
+	_        CacheLinePad
+	HasPMULL bool // Polynomial multiplication instruction set
+	_        CacheLinePad
 }
 
 // ARM contains the supported CPU features of the current ARM (32-bit) platform.
@@ -54,9 +55,10 @@ var ARM64 struct {
 //  1. the current platform is not arm, or
 //  2. the current operating system is not Linux.
 var ARM struct {
-	_       CacheLinePad
-	HasNEON bool // NEON instruction set
-	_       CacheLinePad
+	_        CacheLinePad
+	HasNEON  bool // NEON instruction set
+	HasPMULL bool // Polynomial multiplication instruction set
+	_        CacheLinePad
 }
 
 func init() {

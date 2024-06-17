@@ -12,10 +12,10 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
-var hasX86PCLMULQDQ = cpu.X86.HasPCLMULQDQ
+var supportsGFMUL = cpu.X86.HasPCLMULQDQ || cpu.ARM64.HasPMULL
 
 func init() {
-	if hasX86PCLMULQDQ {
+	if supportsGFMUL {
 		gcmInit = gcmInitAsm
 		gcmDeriveCounter = gcmDeriveCounterAsm
 		gcmUpdate = gcmUpdateAsm

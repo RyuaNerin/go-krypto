@@ -10,10 +10,13 @@ const cacheLineSize = 32
 // These are specific to Linux.
 const (
 	hwcap_NEON = 1 << 12
+
+	hwcap2_PMULL = 1 << 1
 )
 
 func initOptions() {
 	options = []option{
+		{Name: "pmull", Feature: &ARM.HasPMULL},
 		{Name: "neon", Feature: &ARM.HasNEON},
 	}
 }
