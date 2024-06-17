@@ -9,6 +9,7 @@ import (
 
 	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
 	"github.com/RyuaNerin/go-krypto/kipher"
+	"github.com/RyuaNerin/go-krypto/lea"
 
 	. "github.com/RyuaNerin/testingutil"
 )
@@ -76,4 +77,60 @@ func TestCBCDecrypterWitStd(t *testing.T) {
 		func(data interface{}, dst, src []byte) { data.(*ctr).k.CryptBlocks(dst, src) },
 		false,
 	)
+}
+
+func BenchmarkCBCDEcryptor(b *testing.B) {
+	bench := func(
+		newCipher func([]byte) (cipher.Block, error),
+		blocks int,
+		useKipher bool,
+	) func(b *testing.B) {
+		const keySize = 16
+
+		b, _ := newCipher(make([]byte, keySize))
+		blockSize := b.BlockSize()
+
+		return func(b *testing.B) {
+			BBD(
+				b,
+				keySize*8,
+				blockSize,
+				blocks*blockSize,
+				func(key, iv []byte) (interface{}, error) {
+					block, err := newCipher(key)
+					if err != nil {
+						return nil, err
+					}
+
+					if useKipher {
+						return kipher.NewCBCDecrypter(ikipher.WrapKipher(block), iv), nil
+					} else {
+						return cipher.NewCBCDecrypter(ikipher.WrapCipher(block), iv), nil
+					}
+				},
+				func(c interface{}, dst, src []byte) {
+					c.(cipher.BlockMode).CryptBlocks(dst, src)
+				},
+				false,
+			)
+		}
+	}
+
+	b.Run("AES/1/Std", bench(aes.NewCipher, 1, false))
+	b.Run("AES/1/Krypto", bench(aes.NewCipher, 1, true))
+	b.Run("AES/4/Std", bench(aes.NewCipher, 4, false))
+	b.Run("AES/4/Krypto", bench(aes.NewCipher, 4, true))
+	b.Run("AES/8/Std", bench(aes.NewCipher, 8, false))
+	b.Run("AES/8/Krypto", bench(aes.NewCipher, 8, true))
+	b.Run("AES/64/Std", bench(aes.NewCipher, 64, false))
+	b.Run("AES/64/Krypto", bench(aes.NewCipher, 64, true))
+
+	b.Run("LEA/1/Std", bench(lea.NewCipher, 1, false))
+	b.Run("LEA/1/Krypto", bench(lea.NewCipher, 1, true))
+	b.Run("LEA/4/Std", bench(lea.NewCipher, 4, false))
+	b.Run("LEA/4/Krypto", bench(lea.NewCipher, 4, true))
+	b.Run("LEA/8/Std", bench(lea.NewCipher, 8, false))
+	b.Run("LEA/8/Krypto", bench(lea.NewCipher, 8, true))
+	b.Run("LEA/64/Std", bench(lea.NewCipher, 64, false))
+	b.Run("LEA/64/Krypto", bench(lea.NewCipher, 64, true))
 }
