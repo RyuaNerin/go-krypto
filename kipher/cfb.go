@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 
 	"github.com/RyuaNerin/go-krypto/internal/alias"
+	"github.com/RyuaNerin/go-krypto/internal/kipher"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
@@ -30,6 +31,9 @@ func NewCFBDecrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher
 		panic(msgInvalidIVLength)
 	}
 	if block.BlockSize() == cfbBlockByteSize {
+		if kb, ok := block.(kipher.Block); ok {
+			return newCFBFullDec(kb, iv)
+		}
 		return cipher.NewCFBDecrypter(block, iv)
 	}
 	return newCFB(block, iv, true, cfbBlockByteSize)
@@ -37,15 +41,33 @@ func NewCFBDecrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher
 
 func newCFB(block cipher.Block, iv []byte, decrypt bool, cfbBlockByteSize int) cipher.Stream {
 	blockSize := block.BlockSize()
+
+	on := make([]byte, blockSize*2)
 	x := &cfb{
 		b:       block,
-		out:     make([]byte, blockSize),
-		next:    make([]byte, blockSize),
+		out:     on[:blockSize],
+		next:    on[blockSize:],
 		outUsed: cfbBlockByteSize,
 		bytes:   cfbBlockByteSize,
 		decrypt: decrypt,
 	}
 	copy(x.next, iv)
+
+	return x
+}
+
+func newCFBFullDec(block kipher.Block, iv []byte) cipher.Stream {
+	blockSize := block.BlockSize()
+
+	on := make([]byte, blockSize*(8+9))
+	x := &cfbFullDec{
+		b:       block,
+		bs:      blockSize,
+		out:     on[:8*blockSize],
+		next:    on[8*blockSize:],
+		outUsed: 0,
+	}
+	x.b.Encrypt(x.out, iv)
 
 	return x
 }
@@ -85,6 +107,81 @@ func (x *cfb) XORKeyStream(dst, src []byte) {
 		if !x.decrypt {
 			copy(x.next[len(x.next)-x.bytes+x.outUsed:], dst)
 		}
+		dst = dst[n:]
+		src = src[n:]
+		x.outUsed += n
+	}
+}
+
+type cfbFullDec struct {
+	b  kipher.Block
+	bs int
+
+	next    []byte
+	out     []byte
+	outUsed int
+}
+
+func (x *cfbFullDec) XORKeyStream(dst, src []byte) {
+	if len(dst) < len(src) {
+		panic(msgSmallDst)
+	}
+	if alias.InexactOverlap(dst[:len(src)], src) {
+		panic(msgBufferOverlap)
+	}
+
+	var (
+		bs1 = x.bs * 1
+		bs4 = x.bs * 4
+		bs5 = x.bs * 5
+		bs8 = x.bs * 8
+	)
+
+	// Align
+	if x.outUsed < bs1 {
+		copy(x.next[bs8+x.outUsed:], src)
+		n := subtle.XORBytes(dst, src, x.out[x.outUsed:bs1])
+		dst = dst[n:]
+		src = src[n:]
+		x.outUsed += n
+
+		if x.outUsed < bs1 {
+			return
+		}
+	}
+
+	// 8 Blocks
+	for len(src) >= bs8 {
+		copy(x.next, x.next[bs8:])
+		copy(x.next[bs1:], src)
+		x.b.Encrypt8(x.out, x.next)
+
+		subtle.XORBytes(dst, src, x.out)
+		dst = dst[bs8:]
+		src = src[bs8:]
+	}
+
+	// 4 Blocks
+	for len(src) >= bs4 {
+		copy(x.next[bs4:], x.next[bs8:])
+		copy(x.next[bs5:], src)
+		x.b.Encrypt4(x.out[bs4:], x.next[bs4:])
+
+		subtle.XORBytes(dst, src, x.out[bs4:])
+		dst = dst[bs4:]
+		src = src[bs4:]
+	}
+
+	// remains
+	for len(src) > 0 {
+		if x.outUsed == bs1 {
+			copy(x.next, x.next[bs8:])
+			x.b.Encrypt(x.out, x.next)
+			x.outUsed = 0
+		}
+
+		copy(x.next[bs8+x.outUsed:], src)
+		n := subtle.XORBytes(dst, src, x.out[x.outUsed:bs1])
 		dst = dst[n:]
 		src = src[n:]
 		x.outUsed += n
