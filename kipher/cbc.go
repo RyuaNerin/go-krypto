@@ -16,6 +16,11 @@ func NewCBCEncrypter(b cipher.Block, iv []byte) cipher.BlockMode {
 	if len(iv) != b.BlockSize() {
 		panic(msgInvalidIVLength)
 	}
+
+	if cbc, ok := b.(ikipher.CBCEncAble); ok {
+		return cbc.NewCBCEncrypter(iv)
+	}
+
 	return cipher.NewCBCEncrypter(b, iv)
 }
 

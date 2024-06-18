@@ -32,8 +32,8 @@ func TestCFB(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			enc := kipher.NewCFBEncrypter(c, iv, blockSize)
-			dec := kipher.NewCFBDecrypter(c, iv, blockSize)
+			enc := kipher.NewCFBEncrypterWithBlockSize(c, iv, blockSize)
+			dec := kipher.NewCFBDecrypterWithBlockSize(c, iv, blockSize)
 
 			for i := 0; i < iter; i++ {
 				dataSize := 1 + rand.Intn(blocks-1)
@@ -54,6 +54,43 @@ func TestCFB(t *testing.T) {
 	t.Run("CFB32", test(4))
 	t.Run("CFB64", test(8))
 	t.Run("CFB128", test(16))
+}
+
+func TestCFBDecrypterWithStd(t *testing.T) {
+	const bs = lea.BlockSize
+	const srcSizeMax = 128 * bs
+
+	key := make([]byte, 16)
+
+	iv := make([]byte, bs)
+
+	src := make([]byte, srcSizeMax)
+	dstN := make([]byte, srcSizeMax)
+	dstF := make([]byte, srcSizeMax)
+
+	for i := 0; i < 256; i++ {
+		rnd.Read(key)
+		rnd.Read(iv)
+
+		b, _ := lea.NewCipher(key)
+
+		cfbN := cipher.NewCFBDecrypter(b, iv)
+		cfbF := kipher.NewCFBDecrypter(ikipher.WrapKipher(b), iv)
+
+		for j := 0; j < 1024; j++ {
+			l := 1 + rand.Intn(srcSizeMax-1)
+
+			rnd.Read(src[:l])
+
+			cfbN.XORKeyStream(dstN[:l], src[:l])
+			cfbF.XORKeyStream(dstF[:l], src[:l])
+
+			if !bytes.Equal(dstN[:l], dstF[:l]) {
+				t.Errorf("CFB: \nexpect: %x,\nactual: %x", dstN[:l], dstF[:l])
+				return
+			}
+		}
+	}
 }
 
 func TestCFBWithStd(t *testing.T) {
@@ -79,10 +116,10 @@ func TestCFBWithStd(t *testing.T) {
 					data := &ctr{}
 					if encrypt {
 						data.c = cipher.NewCFBEncrypter(bc, iv)
-						data.k = kipher.NewCFBEncrypter(bk, iv, bk.BlockSize())
+						data.k = kipher.NewCFBEncrypter(bk, iv)
 					} else {
 						data.c = cipher.NewCFBDecrypter(bc, iv)
-						data.k = kipher.NewCFBDecrypter(bk, iv, bk.BlockSize())
+						data.k = kipher.NewCFBDecrypter(bk, iv)
 					}
 
 					return data, nil
@@ -96,79 +133,4 @@ func TestCFBWithStd(t *testing.T) {
 
 	t.Run("Encrypt", test(true))
 	t.Run("Decrypt", test(false))
-}
-
-func BenchmarkCFB128Encrypter(b *testing.B) {
-	b.Run("AES/std", benchCFB(aes.NewCipher, aes.BlockSize, true, false))
-	b.Run("AES/krypto", benchCFB(aes.NewCipher, aes.BlockSize, true, true))
-	b.Run("LEA/std", benchCFB(lea.NewCipher, lea.BlockSize, true, false))
-	b.Run("LEA/krypto", benchCFB(lea.NewCipher, lea.BlockSize, true, true))
-}
-
-func BenchmarkCFB128Decrypter(b *testing.B) {
-	b.Run("AES/std", benchCFB(aes.NewCipher, aes.BlockSize, false, false))
-	b.Run("AES/krypto", benchCFB(aes.NewCipher, aes.BlockSize, false, true))
-	b.Run("LEA/std", benchCFB(lea.NewCipher, lea.BlockSize, false, false))
-	b.Run("LEA/krypto", benchCFB(lea.NewCipher, lea.BlockSize, false, true))
-}
-
-func BenchmarkCFB64(b *testing.B) {
-	b.Run("LEA/Encrypt", benchCFB(lea.NewCipher, 8, true, true))
-	b.Run("LEA/Decrypt", benchCFB(lea.NewCipher, 8, false, true))
-}
-
-func BenchmarkCFB32(b *testing.B) {
-	b.Run("LEA/Encrypt", benchCFB(lea.NewCipher, 4, true, true))
-	b.Run("LEA/Decrypt", benchCFB(lea.NewCipher, 4, false, true))
-}
-
-func BenchmarkCFB8(b *testing.B) {
-	b.Run("LEA/Encrypt", benchCFB(lea.NewCipher, 1, true, true))
-	b.Run("LEA/Decrypt", benchCFB(lea.NewCipher, 1, false, true))
-}
-
-func benchCFB(
-	newCipher func([]byte) (cipher.Block, error),
-	cfbBlockSize int,
-	encryptMode bool,
-	useKipher bool,
-) func(b *testing.B) {
-	const keySize = 16
-	const blocks = 8 + 4 + 1
-
-	b, _ := newCipher(make([]byte, keySize))
-	blockSize := b.BlockSize()
-
-	return func(b *testing.B) {
-		BBD(
-			b,
-			keySize*8,
-			blockSize,
-			blocks*blockSize,
-			func(key, iv []byte) (interface{}, error) {
-				block, err := newCipher(key)
-				if err != nil {
-					return nil, err
-				}
-
-				if useKipher {
-					if encryptMode {
-						return kipher.NewCFBEncrypter(ikipher.WrapKipher(block), iv, cfbBlockSize), nil
-					} else {
-						return kipher.NewCFBDecrypter(ikipher.WrapKipher(block), iv, cfbBlockSize), nil
-					}
-				} else {
-					if encryptMode {
-						return cipher.NewCFBEncrypter(ikipher.WrapCipher(block), iv), nil
-					} else {
-						return cipher.NewCFBDecrypter(ikipher.WrapCipher(block), iv), nil
-					}
-				}
-			},
-			func(c interface{}, dst, src []byte) {
-				c.(cipher.Stream).XORKeyStream(dst, src)
-			},
-			false,
-		)
-	}
 }

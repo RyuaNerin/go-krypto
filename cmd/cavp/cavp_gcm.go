@@ -53,7 +53,7 @@ func processGCM_AE(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 				panic(err)
 			}
 
-			aead, err := kipher.NewGCM(b, ivLen/8, tagLen/8)
+			aead, err := kipher.NewGCMWithSize(b, ivLen/8, tagLen/8)
 			if err != nil {
 				panic(err)
 			}
@@ -110,7 +110,7 @@ func processGCM_AD(cavp *cavpProcessor, newCipher funcNewBlockCipher) {
 				panic(err)
 			}
 
-			aead, err := kipher.NewGCM(b, ivLen/8, tagLen/8)
+			aead, err := kipher.NewGCMWithSize(b, ivLen/8, tagLen/8)
 			if err != nil {
 				panic(err)
 			}

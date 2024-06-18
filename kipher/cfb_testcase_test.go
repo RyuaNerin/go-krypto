@@ -18,9 +18,9 @@ func newCFB(encrypt bool, size int) BI {
 		}
 
 		if encrypt {
-			return kipher.NewCFBEncrypter(b, additional, size), nil
+			return kipher.NewCFBEncrypterWithBlockSize(b, additional, size), nil
 		} else {
-			return kipher.NewCFBDecrypter(b, additional, size), nil
+			return kipher.NewCFBDecrypterWithBlockSize(b, additional, size), nil
 		}
 	}
 }

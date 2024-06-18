@@ -49,7 +49,7 @@ func Benchmark_Encrypt_1Block(b *testing.B) {
 	BBDA(b, as, 0, BlockSize, BIW(NewCipher), bb(leaEnc1Go), false)
 }
 
-func Benchmark_Decrypt_1Blocks(b *testing.B) {
+func Benchmark_Decrypt_1Block(b *testing.B) {
 	BBDA(b, as, 0, BlockSize, BIW(NewCipher), bb(leaDec1Go), false)
 }
 

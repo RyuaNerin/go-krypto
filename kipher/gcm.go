@@ -30,10 +30,43 @@ type gcm struct {
 // In general, the GHASH operation performed by this implementation of GCM is not constant-time.
 // An exception is when the underlying Block was created by aes.NewCipher
 // on systems with hardware support for AES. See the crypto/aes package documentation for details.
+func NewGCM(b cipher.Block) (cipher.AEAD, error) {
+	return NewGCMWithSize(b, kipher.GCMStandardNonceSize, kipher.GCMTagSize)
+}
+
+// NewGCMWithNonceSize returns the given 128-bit, block cipher wrapped in Galois
+// Counter Mode, which accepts nonces of the given length. The length must not
+// be zero.
+//
+// Only use this function if you require compatibility with an existing
+// cryptosystem that uses non-standard nonce lengths. All other users should use
+// NewGCM, which is faster and more resistant to misuse.
+func NewGCMWithNonceSize(b cipher.Block, size int) (cipher.AEAD, error) {
+	return NewGCMWithSize(b, size, kipher.GCMTagSize)
+}
+
+// NewGCMWithTagSize returns the given 128-bit, block cipher wrapped in Galois
+// Counter Mode, which generates tags with the given length.
+//
+// Tag sizes between 1 and 16 bytes are allowed.
+//
+// Only use this function if you require compatibility with an existing
+// cryptosystem that uses non-standard tag lengths. All other users should use
+// NewGCM, which is more resistant to misuse.
+func NewGCMWithTagSize(b cipher.Block, tagSize int) (cipher.AEAD, error) {
+	return NewGCMWithSize(b, kipher.GCMStandardNonceSize, tagSize)
+}
+
+// NewGCM returns the given 128-bit, block cipher wrapped in Galois Counter Mode
+// with the standard nonce length.
+//
+// In general, the GHASH operation performed by this implementation of GCM is not constant-time.
+// An exception is when the underlying Block was created by aes.NewCipher
+// on systems with hardware support for AES. See the crypto/aes package documentation for details.
 //
 // if nonceSize = 0, nonceSize = 12
 // if tagSize = 0, tagSize = 16
-func NewGCM(b cipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
+func NewGCMWithSize(b cipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
 	if nonceSize == 0 {
 		nonceSize = kipher.GCMStandardNonceSize
 	}
@@ -61,39 +94,6 @@ func NewGCM(b cipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
 	}
 
 	return newGCMWithNonceAndTagSize(kb, nonceSize, tagSize)
-}
-
-// NewGCM returns the given 128-bit, block cipher wrapped in Galois Counter Mode
-// with the standard nonce length.
-//
-// In general, the GHASH operation performed by this implementation of GCM is not constant-time.
-// An exception is when the underlying Block was created by aes.NewCipher
-// on systems with hardware support for AES. See the crypto/aes package documentation for details.
-func NewGCMWithDefaultSize(b cipher.Block) (cipher.AEAD, error) {
-	return NewGCM(b, kipher.GCMStandardNonceSize, kipher.GCMTagSize)
-}
-
-// NewGCMWithNonceSize returns the given 128-bit, block cipher wrapped in Galois
-// Counter Mode, which accepts nonces of the given length. The length must not
-// be zero.
-//
-// Only use this function if you require compatibility with an existing
-// cryptosystem that uses non-standard nonce lengths. All other users should use
-// NewGCM, which is faster and more resistant to misuse.
-func NewGCMWithNonceSize(b cipher.Block, size int) (cipher.AEAD, error) {
-	return NewGCM(b, size, kipher.GCMTagSize)
-}
-
-// NewGCMWithTagSize returns the given 128-bit, block cipher wrapped in Galois
-// Counter Mode, which generates tags with the given length.
-//
-// Tag sizes between 1 and 16 bytes are allowed.
-//
-// Only use this function if you require compatibility with an existing
-// cryptosystem that uses non-standard tag lengths. All other users should use
-// NewGCM, which is more resistant to misuse.
-func NewGCMWithTagSize(b cipher.Block, tagSize int) (cipher.AEAD, error) {
-	return NewGCM(b, kipher.GCMStandardNonceSize, tagSize)
 }
 
 func newGCMWithNonceAndTagSize(b kipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {

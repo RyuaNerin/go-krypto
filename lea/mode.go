@@ -30,5 +30,5 @@ func (ctx *leaContext) NewCTR(iv []byte) cipher.Stream {
 
 // for crypto/cipher
 func (ctx *leaContext) NewGCM(nonceSize, tagSize int) (cipher.AEAD, error) {
-	return kipher.NewGCM(ctx, nonceSize, tagSize)
+	return kipher.NewGCMWithSize(ctx, nonceSize, tagSize)
 }

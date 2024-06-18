@@ -13,7 +13,14 @@ import (
 // NewCFBEncrypter returns a Stream which encrypts with cipher feedback mode,
 // using the given Block. The iv must be the same length as the Block's block
 // size.
-func NewCFBEncrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
+func NewCFBEncrypter(block cipher.Block, iv []byte) cipher.Stream {
+	if len(iv) != block.BlockSize() {
+		panic(msgInvalidIVLength)
+	}
+	return cipher.NewCFBEncrypter(block, iv)
+}
+
+func NewCFBEncrypterWithBlockSize(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
 	if len(iv) != block.BlockSize() {
 		panic(msgInvalidIVLength)
 	}
@@ -26,7 +33,18 @@ func NewCFBEncrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher
 // NewCFB8Decrypter returns a Stream which decrypts with cipher feedback mode,
 // using the given Block. The iv must be the same length as the Block's block
 // size.
-func NewCFBDecrypter(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
+func NewCFBDecrypter(block cipher.Block, iv []byte) cipher.Stream {
+	if len(iv) != block.BlockSize() {
+		panic(msgInvalidIVLength)
+	}
+
+	if kb, ok := block.(kipher.Block); ok {
+		return newCFBFullDec(kb, iv)
+	}
+	return cipher.NewCFBDecrypter(block, iv)
+}
+
+func NewCFBDecrypterWithBlockSize(block cipher.Block, iv []byte, cfbBlockByteSize int) cipher.Stream {
 	if len(iv) != block.BlockSize() {
 		panic(msgInvalidIVLength)
 	}

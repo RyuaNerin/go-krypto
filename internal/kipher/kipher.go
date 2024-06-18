@@ -4,6 +4,14 @@ import (
 	"crypto/cipher"
 )
 
+// cbcEncAble is an interface implemented by ciphers that have a specific
+// optimized implementation of CBC encryption, like crypto/aes.
+// NewCBCEncrypter will check for this interface and return the specific
+// BlockMode if found.
+type CBCEncAble interface {
+	NewCBCEncrypter(iv []byte) cipher.BlockMode
+}
+
 // cbcDecAble is an interface implemented by ciphers that have a specific
 // optimized implementation of CBC decryption, like crypto/aes.
 // NewCBCDecrypter will check for this interface and return the specific

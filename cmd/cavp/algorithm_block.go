@@ -37,8 +37,8 @@ func blockCFB(blockBits int) func(c cipher.Block, iv []byte) funcProcessBlock {
 	blockBits /= 8
 
 	return func(c cipher.Block, iv []byte) funcProcessBlock {
-		cbcEnc := kipher.NewCFBEncrypter(c, iv, blockBits)
-		cbcDec := kipher.NewCFBDecrypter(c, iv, blockBits)
+		cbcEnc := kipher.NewCFBEncrypterWithBlockSize(c, iv, blockBits)
+		cbcDec := kipher.NewCFBDecrypterWithBlockSize(c, iv, blockBits)
 
 		return func(dst, src []byte, encrypt bool) {
 			if encrypt {

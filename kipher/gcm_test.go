@@ -10,7 +10,6 @@ import (
 
 	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
 	"github.com/RyuaNerin/go-krypto/kipher"
-	"github.com/RyuaNerin/go-krypto/lea"
 )
 
 func TestGCM(t *testing.T) {
@@ -39,7 +38,7 @@ func TestGCM(t *testing.T) {
 
 				b, _ := aes.NewCipher(key)
 
-				gcm, err := kipher.NewGCM(ikipher.WrapCipher(b), nonceSize, tagSize)
+				gcm, err := kipher.NewGCMWithSize(ikipher.WrapCipher(b), nonceSize, tagSize)
 				if err != nil {
 					t.Error(err)
 					return
@@ -119,7 +118,7 @@ func TestGCMWithStd(t *testing.T) {
 	t.Run("Default", test(
 		ikipher.GCMStandardNonceSize,
 		cipher.NewGCM,
-		func(b ikipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(b, 0, 0) }),
+		func(b ikipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(b) }),
 	)
 	t.Run("Nonce=14", test(
 		14,
@@ -131,53 +130,4 @@ func TestGCMWithStd(t *testing.T) {
 		func(b cipher.Block) (cipher.AEAD, error) { return cipher.NewGCMWithTagSize(b, 14) },
 		func(b ikipher.Block) (cipher.AEAD, error) { return kipher.NewGCMWithTagSize(b, 14) },
 	))
-}
-
-func BenchmarkGCMSeal(b *testing.B) {
-	bench := func(
-		blockSize int,
-		newCipher func([]byte) (cipher.Block, error),
-		nonceSize int,
-		newGCM func(cipher.Block) (cipher.AEAD, error),
-	) func(b *testing.B) {
-		return func(b *testing.B) {
-			key := make([]byte, keySize)
-
-			block, _ := newCipher(key)
-			gcm, err := newGCM(block)
-			if err != nil {
-				b.Error(err)
-				return
-			}
-
-			nonce := make([]byte, nonceSize)
-			input := make([]byte, blockSize)
-			sealed := make([]byte, blockSize+ikipher.GCMBlockSize)
-
-			rnd.Read(nonce)
-			rnd.Read(input)
-
-			b.SetBytes(int64(blockSize))
-			b.ReportAllocs()
-			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
-				sealed = gcm.Seal(sealed[:0], nonce, input, nil)
-				copy(input, sealed)
-				copy(nonce, sealed[4:])
-			}
-		}
-	}
-
-	b.Run("AES/Std-8", bench(8, aes.NewCipher, ikipher.GCMStandardNonceSize, cipher.NewGCM))
-	b.Run("AES/Std-1K", bench(1024, aes.NewCipher, ikipher.GCMStandardNonceSize, cipher.NewGCM))
-	b.Run("AES/Std-8K", bench(8196, aes.NewCipher, ikipher.GCMStandardNonceSize, cipher.NewGCM))
-	b.Run("AES/krypto-8", bench(8, aes.NewCipher, ikipher.GCMStandardNonceSize, func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(ikipher.WrapKipher(b), 0, 0) }))
-	b.Run("AES/krypto-1K", bench(1024, aes.NewCipher, ikipher.GCMStandardNonceSize, func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(ikipher.WrapKipher(b), 0, 0) }))
-	b.Run("AES/krypto-8K", bench(8196, aes.NewCipher, ikipher.GCMStandardNonceSize, func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(ikipher.WrapKipher(b), 0, 0) }))
-	b.Run("LEA/Std-8", bench(8, lea.NewCipher, ikipher.GCMStandardNonceSize, cipher.NewGCM))
-	b.Run("LEA/Std-1K", bench(1024, lea.NewCipher, ikipher.GCMStandardNonceSize, cipher.NewGCM))
-	b.Run("LEA/Std-8K", bench(8196, lea.NewCipher, ikipher.GCMStandardNonceSize, cipher.NewGCM))
-	b.Run("LEA/krypto-8", bench(8, lea.NewCipher, ikipher.GCMStandardNonceSize, func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(ikipher.WrapKipher(b), 0, 0) }))
-	b.Run("LEA/krypto-1K", bench(1024, lea.NewCipher, ikipher.GCMStandardNonceSize, func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(ikipher.WrapKipher(b), 0, 0) }))
-	b.Run("LEA/krypto-8K", bench(8196, lea.NewCipher, ikipher.GCMStandardNonceSize, func(b cipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(ikipher.WrapKipher(b), 0, 0) }))
 }

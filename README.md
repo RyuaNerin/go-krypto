@@ -6,7 +6,7 @@
 
 - It is intended for compatibility with go's `crypto` package.
 
-- `krypto` provides SIMD for some algorithms.
+- `krypto` supports SIMD for some algorithms.
 
 ## [LICNESE](/LICENSE)
 
@@ -37,19 +37,24 @@ import (
 | ARIA      | `krypto/aria`  | KS X 1213-1        | O   | O   | O   | arm64(NEON), amd64(SSSE3)      |
 | LEA       | `krypto/lea`   | TTAK.KO-12.0223    | O   | O   | O   | arm64(NEON), amd64(SSE2, AVX2) |
 
+- package `lea` supports 4-block(SSE2) and 8-block(AVX2) ECB processing.
+    - Supports high performance processing when 4 or more blocks in ECB, CBC, CFB(decryption), and CTR.
+
 #### Block Cipher Mode Supports
 
-- `crypto/cipher` package is available too.
+- pakcage `krypto/kipher` support block cipher mode.
 
-| Mode  | Name                        | Reference       | Comment                     |
-|:-----:|:---------------------------:|:---------------:|-----------------------------|
-| Block | ECB (Electronic Codebook)   | NIST SP 800-38A |                             |
-| Block | CBC (Cipher-Block Chaining) | NIST SP 800-38A |                             |
-| Block | CFB (Cipher Feedback)       | NIST SP 800-38A | Supports CFB-8, CFG-32, ... |
-| Block | OFB (Output Feedback)       | NIST SP 800-38A |                             |
-| Block | CTR (Counter)               | NIST SP 800-38A |                             |
-| AEAD  | CCM (Counter with CBC-MAC)  | NIST SP 800-38C |                             |
-| AEAD  | GCM (Galois/Counter Mode)   | NIST SP 800-38D |                             |
+    - `crypto/cipher` package is available too.
+
+| Mode  | Name                        | Reference       | SIMD Supports                  | Comment                     |
+|:-----:|:---------------------------:|:---------------:|--------------------------------|-----------------------------|
+| Block | ECB (Electronic Codebook)   | NIST SP 800-38A | `krypto/lea`                   |                             |
+| Block | CBC (Cipher-Block Chaining) | NIST SP 800-38A |                                | same with `crypto/cipher`   |
+| Block | CFB (Cipher Feedback)       | NIST SP 800-38A | `krypto/lea` (decrypt)         | Supports CFB-8, CFG-32, ... |
+| Block | OFB (Output Feedback)       | NIST SP 800-38A | `krypto/lea`                   | same with `crypto/cipher`   |
+| Block | CTR (Counter)               | NIST SP 800-38A |                                |                             |
+| AEAD  | CCM (Counter with CBC-MAC)  | NIST SP 800-38C |                                |                             |
+| AEAD  | GCM (Galois/Counter Mode)   | NIST SP 800-38D | arm64(PMULL), amd64(PCLMULQDQ) |                             |
 
 ### Hash Function Supports
 
@@ -73,7 +78,6 @@ import (
     | KCDSA     | PKIX, PKCS#8          | NO NORMATIVE | Compatibility tested with [jCastle](http://www.jcastle.net/)    |
     | EC-KCDSA  | PKIX, PKCS#8          | NO NORMATIVE | Compatibility tested with [botan](https://botan.randombit.net/) |
     | EC-KCDSA  | SEC 1, ASN.1 DER form | NO NORMATIVE |                                                                 |
-
 
 ### Message Authentication Code Supports
 
@@ -100,7 +104,7 @@ import (
 | KBKDF (HMAC)  | `krypto/kbkdf`  | TTAK.KO-12.0333, NIST SP 800-108                    |
 | PBKDF2 (HMAC) | `krypto/pbkdf2` | TTAK.KO-12.0334, NIST SP 800-132, RFC 2898(PKCS #5) |
 
-### SIMD Support
+## Referernces
 
 | Algorithm | SIMD Supports                         | Reference                                                   |
 |:---------:|---------------------------------------|:-----------------------------------------------------------:|
@@ -108,6 +112,9 @@ import (
 | LEA       | arm64(NEON), amd64(SSE2, AVX2)        | [KISA](https://seed.kisa.or.kr/kisa/Board/20/detailView.do) |
 | LSH-256   | arm64(NEON), amd64(SSE2, SSSE3, AVX2) | [KISA](https://seed.kisa.or.kr/kisa/Board/22/detailView.do) |
 | LSH-512   | arm64(NEON), amd64(SSE2, SSSE3, AVX2) | [KISA](https://seed.kisa.or.kr/kisa/Board/22/detailView.do) |
+| GCM       | arm64(PMULL), amd64(PCLMULQDQ)        | [package `crypto/aes`](https://github.com/golang/go/tree/go1.22.4/src/crypto/aes) |
+| `krypto/internal/golang.org/x/crypto/cryptobyte` | | [package `x/crypto/cryptobyte`](https://cs.opensource.google/go/x/crypto/) |
+| `krypto/internal/golang.org/x/sys/cpu`           | | [package `x/sys`](https://cs.opensource.google/go/x/sys/:)|
 
 - The draft of the assembly code was created by clang and modifying verseion of the program below on MacMini M1.
 

@@ -52,9 +52,26 @@ func TestCMAC_SEED(t *testing.T) {
 		panic(err)
 	}
 
+	h := New(b)
+
 	var dst []byte
 	for length := 1; length < len(M); length++ {
-		h := New(b)
+		// full write
+		h.Reset()
+		h.Write(M[:length])
+		dst = h.Sum(dst[:0])
+
+		if !bytes.Equal(dst, T[length]) {
+			t.Errorf("FAILED %d\n", length)
+			return
+		}
+
+		// partial write
+		h.Reset()
+		for idx := range M[:length] {
+			h.Write(M[idx : idx+1])
+		}
+		h.Reset()
 		h.Write(M[:length])
 		dst = h.Sum(dst[:0])
 
