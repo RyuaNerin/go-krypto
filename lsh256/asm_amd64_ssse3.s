@@ -23,7 +23,7 @@ DATA LCDATA2<>+0x050(SB)/8, $0x1359621b185fe69e
 DATA LCDATA2<>+0x058(SB)/8, $0x1a116870263fccb2
 GLOBL LCDATA2<>(SB), RODATA|NOPTR, $96
 
-TEXT ·__lsh256_ssse3_update(SB), NOSPLIT, $32
+TEXT ·__lsh256_ssse3_update(SB), NOSPLIT, $0-32
 	MOVQ ctx+0(FP), DI
 	MOVQ data_base+8(FP), SI
 	MOVQ data_len+16(FP), DX
@@ -708,7 +708,7 @@ LBB1_34:
 	JMP  LBB1_36
 
 
-TEXT ·__lsh256_ssse3_final(SB), NOSPLIT, $16
+TEXT ·__lsh256_ssse3_final(SB), NOSPLIT, $0-16
 	MOVQ ctx+0(FP), DI
 	MOVQ hashval_base+8(FP), SI
 

@@ -9,7 +9,7 @@
 
 #include "textflag.h"
 
-TEXT ·__lsh256_sse2_init(SB), NOSPLIT, $16
+TEXT ·__lsh256_sse2_init(SB), NOSPLIT, $0-16
 	MOVQ	ctx+0(FP), DI
 	MOVQ	algtype+8(FP), SI
 
@@ -56,17 +56,13 @@ DATA LCDATA2<>+0x070(SB)/8, $0x0000000000000000
 DATA LCDATA2<>+0x078(SB)/8, $0x0000000000000000
 GLOBL LCDATA2<>(SB), RODATA|NOPTR, $128
 
-TEXT ·__lsh256_sse2_update(SB), NOSPLIT, $128-32
+// stacksize 96
+TEXT ·__lsh256_sse2_update(SB), NOSPLIT, $96-32
 	MOVQ ctx+0(FP), DI
 	MOVQ data_base+8(FP), SI
 	MOVQ data_len+16(FP), DX
 	//   data_cap+24
 
-	// stack 96
-	MOVQ SP, BP
-	ADDQ $16, SP
-	ANDQ $-16, SP
-	MOVQ BP, 96(SP)
 	LEAQ LCDATA2<>(SB), BP
 
 	WORD $0x4f8b; BYTE $0x10 // mov    ecx, dword [rdi + 16]
@@ -1040,7 +1036,6 @@ LBB1_68:
 	WORD $0x4f89; BYTE $0x10 // mov    dword [rdi + 16], ecx
 
 LBB1_69:
-	MOVQ 96(SP), SP
 	RET
 
 LBB1_12:
@@ -1169,15 +1164,11 @@ LBB1_34:
 	JMP  LBB1_36
 
 
-TEXT ·__lsh256_sse2_final(SB), NOSPLIT, $80-16
+// stacksize 64
+TEXT ·__lsh256_sse2_final(SB), NOSPLIT, $64-16
 	MOVQ ctx+0(FP), DI
 	MOVQ hashval+8(FP), SI
 
-	// stack size: 64
-	MOVQ SP, BP
-	ADDQ $16, SP
-	ANDQ $-16, SP
-	MOVQ BP, 64(SP)
 	LEAQ LCDATA2<>(SB), BP
 
 	LONG $0x10478b44               // mov    r8d, dword [rdi + 16]
@@ -1633,6 +1624,4 @@ LBB2_14:
 	LONG $0xef0f4166; BYTE $0xc5               // pxor    xmm0, xmm13
 	LONG $0x0e7f0ff3                           // movdqu    oword [rsi], xmm1
 	LONG $0x467f0ff3; BYTE $0x10               // movdqu    oword [rsi + 16], xmm0
-
-	MOVQ 64(SP), SP
 	RET

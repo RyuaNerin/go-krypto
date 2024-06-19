@@ -9,7 +9,7 @@
 
 #include "textflag.h"
 
-TEXT ·__lsh256_avx2_init(SB), NOSPLIT, $16
+TEXT ·__lsh256_avx2_init(SB), NOSPLIT, $0-16
 	MOVQ	ctx+0(FP), DI
 	MOVQ	algtype+8(FP), SI
 
@@ -54,7 +54,7 @@ DATA LCDATA2<>+0x070(SB)/8, $0x0000000400000007
 DATA LCDATA2<>+0x078(SB)/8, $0x0000000600000005
 GLOBL LCDATA2<>(SB), RODATA|NOPTR, $128
 
-TEXT ·__lsh256_avx2_update(SB), NOSPLIT, $32
+TEXT ·__lsh256_avx2_update(SB), NOSPLIT, $0-32
 	MOVQ ctx+0(FP), DI
 	MOVQ data_base+8(FP), SI
 	MOVQ data_len+16(FP), DX
@@ -543,7 +543,7 @@ LBB1_34:
 	JE   LBB1_41
 	JMP  LBB1_36
 
-TEXT ·__lsh256_avx2_final(SB), NOSPLIT, $16
+TEXT ·__lsh256_avx2_final(SB), NOSPLIT, $0-16
 	MOVQ ctx+0(FP), DI
 	MOVQ hashval+8(FP), SI
 

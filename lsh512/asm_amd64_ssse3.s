@@ -31,17 +31,13 @@ DATA LCDATA2<>+0x090(SB)/8, $0x6cc37895f4ad9e70
 DATA LCDATA2<>+0x098(SB)/8, $0x448304c8d7f3f4d5
 GLOBL LCDATA2<>(SB), RODATA|NOPTR, $160
 
-TEXT ·__lsh512_ssse3_update(SB), NOSPLIT, $320-32
+// stack size: 288
+TEXT ·__lsh512_ssse3_update(SB), NOSPLIT, $288-32
 	MOVQ ctx+0(FP), DI
 	MOVQ data_base+8(FP), SI
 	MOVQ data_len+16(FP), DX
 	//   data_cap+24
 
-	// stack size: 288
-	MOVQ SP, BP
-	ADDQ $16, SP
-	ANDQ $-16, SP
-	MOVQ BP, 288(SP)
 	LEAQ LCDATA2<>(SB), BP
 
 	WORD $0x4f8b; BYTE $0x10                   // mov    ecx, dword [rdi + 16]
@@ -1138,7 +1134,6 @@ LBB1_69:
 	WORD $0x4f89; BYTE $0x10 // mov    dword [rdi + 16], ecx
 
 LBB1_70:
-	MOVQ 288(SP), SP
 	RET
 
 LBB1_14:
@@ -1266,15 +1261,11 @@ LBB1_36:
 	JE   LBB1_43
 	JMP  LBB1_38
 
-TEXT ·__lsh512_ssse3_final(SB), NOSPLIT, $288-16
+// Stack size: 272
+TEXT ·__lsh512_ssse3_final(SB), NOSPLIT, $272-16
 	MOVQ ctx+0(FP), DI
 	MOVQ hashval+8(FP), SI
 
-	// Stack size: 272
-	MOVQ SP, BP
-	ADDQ $16, SP
-	ANDQ $-16, SP
-	MOVQ BP, 272(SP)
 	LEAQ LCDATA2<>(SB), BP
 
 	LONG $0x10478b44                     // mov    r8d, dword [rdi + 16]
@@ -1785,6 +1776,4 @@ LBB2_14:
 	LONG $0x5e7f0ff3; BYTE $0x10               // movdqu    oword [rsi + 16], xmm3
 	LONG $0x6e7f0ff3; BYTE $0x20               // movdqu    oword [rsi + 32], xmm5
 	LONG $0x7f0f44f3; WORD $0x3066             // movdqu    oword [rsi + 48], xmm12
-
-	MOVQ 272(SP), SP
 	RET

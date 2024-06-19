@@ -9,7 +9,7 @@
 
 #include "textflag.h"
 
-TEXT ·__lsh512_avx2_init(SB), NOSPLIT, $16
+TEXT ·__lsh512_avx2_init(SB), NOSPLIT, $0-16
 	MOVQ	ctx+0(FP), DI
 	MOVQ	algtype+8(FP), SI
 
@@ -84,17 +84,13 @@ DATA LCDATA2<>+0x0e0(SB)/8, $0x0605040302010007
 DATA LCDATA2<>+0x0e8(SB)/8, $0x080f0e0d0c0b0a09
 GLOBL LCDATA2<>(SB), RODATA|NOPTR, $240
 
-TEXT ·__lsh512_avx2_update(SB), NOSPLIT, $224-32
+	// stack size: 192
+TEXT ·__lsh512_avx2_update(SB), NOSPLIT, $192-32
 	MOVQ ctx+0(FP), DI
 	MOVQ data_base+8(FP), SI
 	MOVQ data_len+16(FP), DX
 	//   data_cap+24
 
-	// stack size: 192
-	MOVQ SP, BP
-	ADDQ $32, SP
-	ANDQ $-32, SP
-	MOVQ BP, 192(SP)
 	LEAQ LCDATA2<>(SB), BP
 
 	WORD $0x4f8b; BYTE $0x10                   // mov    ecx, dword [rdi + 16]
@@ -648,7 +644,6 @@ LBB1_68:
 	WORD $0x4f89; BYTE $0x10 // mov    dword [rdi + 16], ecx
 
 LBB1_69:
-	MOVQ 192(SP), SP
 	VZEROUPPER
 	RET
 
@@ -789,7 +784,7 @@ LBB1_34:
 	JE   LBB1_41
 	JMP  LBB1_36
 
-TEXT ·__lsh512_avx2_final(SB), NOSPLIT, $16
+TEXT ·__lsh512_avx2_final(SB), NOSPLIT, $0-16
 	MOVQ ctx+0(FP), DI
 	MOVQ hashval+8(FP), SI
 
