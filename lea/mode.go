@@ -13,22 +13,22 @@ import (
 )
 
 var (
-	_ ikipher.CBCDecAble = (*leaContext)(nil)
-	_ ikipher.CTRAble    = (*leaContext)(nil)
-	_ ikipher.GCMAble    = (*leaContext)(nil)
+	_ ikipher.CBCDecAble = (*leaContextAsm)(nil)
+	_ ikipher.CTRAble    = (*leaContextAsm)(nil)
+	_ ikipher.GCMAble    = (*leaContextAsm)(nil)
 )
 
 // for crypto/cipher
-func (ctx *leaContext) NewCBCDecrypter(iv []byte) cipher.BlockMode {
+func (ctx *leaContextAsm) NewCBCDecrypter(iv []byte) cipher.BlockMode {
 	return kipher.NewCBCDecrypter(ctx, iv)
 }
 
 // for crypto/cipher
-func (ctx *leaContext) NewCTR(iv []byte) cipher.Stream {
+func (ctx *leaContextAsm) NewCTR(iv []byte) cipher.Stream {
 	return kipher.NewCTR(ctx, iv)
 }
 
 // for crypto/cipher
-func (ctx *leaContext) NewGCM(nonceSize, tagSize int) (cipher.AEAD, error) {
+func (ctx *leaContextAsm) NewGCM(nonceSize, tagSize int) (cipher.AEAD, error) {
 	return kipher.NewGCMWithSize(ctx, nonceSize, tagSize)
 }

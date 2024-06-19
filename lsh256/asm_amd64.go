@@ -29,6 +29,19 @@ var (
 	}
 )
 
+func init() {
+	switch {
+	case hasAVX2:
+		defaultSimd = simdSetAVX2
+
+	case hasSSSE3:
+		defaultSimd = simdSetSSSE3
+
+	default:
+		defaultSimd = simdSetSSE2
+	}
+}
+
 //go:noescape
 func __lsh256_sse2_init(ctx *lsh256ContextAsm, algtype uint64)
 

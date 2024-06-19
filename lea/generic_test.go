@@ -31,8 +31,7 @@ func tb(blocks int, funcGo, funcAsm funcBlock) func(t *testing.T, keySize int) {
 			blocks*BlockSize,
 			0,
 			func(key, additional []byte) (interface{}, error) {
-				var ctx leaContext
-				return &ctx, ctx.initContext(key)
+				return newCipherGo(key)
 			},
 			func(ctx interface{}, dst, src []byte) { funcGo(ctx.(*leaContext), dst, src) },
 			func(ctx interface{}, dst, src []byte) { funcAsm(ctx.(*leaContext), dst, src) },
@@ -46,15 +45,9 @@ func tb(blocks int, funcGo, funcAsm funcBlock) func(t *testing.T, keySize int) {
 func Benchmark_New(b *testing.B) { BBNA(b, as, 0, BIW(NewCipher), false) }
 
 func Benchmark_Encrypt_1Block(b *testing.B) {
-	BBDA(b, as, 0, BlockSize, BIW(NewCipher), bb(leaEnc1Go), false)
+	BBDA(b, as, 0, BlockSize, BIW(NewCipher), CE, false)
 }
 
 func Benchmark_Decrypt_1Block(b *testing.B) {
-	BBDA(b, as, 0, BlockSize, BIW(NewCipher), bb(leaDec1Go), false)
-}
-
-func bb(f funcBlock) func(c interface{}, dst, src []byte) {
-	return func(c interface{}, dst, src []byte) {
-		f(c.(*leaContext), dst, src)
-	}
+	BBDA(b, as, 0, BlockSize, BIW(NewCipher), CD, false)
 }

@@ -1,6 +1,3 @@
-//go:build !(arm64 || amd64) || purego || (gccgo && !go1.18)
-// +build !arm64,!amd64 purego gccgo,!go1.18
-
 package lsh512
 
 import (
@@ -20,7 +17,7 @@ func newContextGo(size int) hash.Hash {
 	return ctx
 }
 
-func sumGo(size int, data []byte) [Size]byte {
+func sumGo(size int, data []byte) [Size]byte { //nolint:unused
 	ctx := lsh512ContextGo{
 		outlenbytes: size,
 	}

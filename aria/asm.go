@@ -11,19 +11,12 @@ import (
 )
 
 type ariaContextAsm struct {
-	ctx ariaContext
+	ariaContext
 }
-
-var _ interface {
-	initRoundKey(key []byte)
-	process(rk []byte, dst, src []byte)
-} = (*ariaContextAsm)(nil)
 
 func newCipherAsm(key []byte) (cipher.Block, error) {
 	ctx := new(ariaContextAsm)
-	ctx.ctx.rounds = (len(key) + 32) / 4
-
-	ctx.initRoundKey(key)
+	initRoundKeyAsm(ctx, key)
 	return ctx, nil
 }
 
@@ -39,7 +32,7 @@ func (ctx *ariaContextAsm) Encrypt(dst, src []byte) {
 		panic(fmt.Sprintf(msgFormatInvalidBlockSizeDst, len(dst)))
 	}
 
-	ctx.process(dst, src, ctx.ctx.ek[:])
+	processAsm(dst, src, ctx.ek[:], ctx.rounds)
 }
 
 func (ctx *ariaContextAsm) Decrypt(dst, src []byte) {
@@ -50,5 +43,5 @@ func (ctx *ariaContextAsm) Decrypt(dst, src []byte) {
 		panic(fmt.Sprintf(msgFormatInvalidBlockSizeDst, len(dst)))
 	}
 
-	ctx.process(dst, src, ctx.ctx.dk[:])
+	processAsm(dst, src, ctx.dk[:], ctx.rounds)
 }

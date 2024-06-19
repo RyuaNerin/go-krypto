@@ -12,12 +12,20 @@ import (
 
 var hasSSSE3 = cpu.X86.HasSSSE3
 
-func (ctx *ariaContextAsm) initRoundKey(key []byte) {
-	ctx.ctx.initRoundKey(key)
+var processAsm = processGo
+
+func init() {
+	if hasSSSE3 {
+		processAsm = processSSSE3
+	}
 }
 
-func (ctx *ariaContextAsm) process(dst, src, rk []byte) {
-	__process_SSSE3(memory.P8(dst), memory.P8(src), memory.P8(rk), uint64(ctx.ctx.rounds))
+func initRoundKeyAsm(ctx *ariaContextAsm, key []byte) {
+	initRoundKeyGo(&ctx.ariaContext, key)
+}
+
+func processSSSE3(dst, src, rk []byte, rounds int) {
+	__process_SSSE3(memory.P8(dst), memory.P8(src), memory.P8(rk), uint64(rounds))
 }
 
 //go:noescape

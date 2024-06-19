@@ -1,6 +1,3 @@
-//go:build amd64 || (!amd64 && !arm64) || purego
-// +build amd64 !amd64,!arm64 purego
-
 package aria
 
 import (

@@ -15,6 +15,10 @@ var (
 	}
 )
 
+func init() {
+	defaultSimd = simdSetNEON
+}
+
 //go:noescape
 func __lsh256_neon_init(ctx *lsh256ContextAsm, algtype uint64)
 

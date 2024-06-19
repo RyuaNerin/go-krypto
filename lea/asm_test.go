@@ -44,3 +44,9 @@ func leaDec8Go(ctx *leaContext, dst, src []byte) {
 	leaDec1Go(ctx, dst[BlockSize*6:], src[BlockSize*6:])
 	leaDec1Go(ctx, dst[BlockSize*7:], src[BlockSize*7:])
 }
+
+func bb(f funcBlock) func(c interface{}, dst, src []byte) {
+	return func(c interface{}, dst, src []byte) {
+		f(&c.(*leaContextAsm).leaContext, dst, src)
+	}
+}

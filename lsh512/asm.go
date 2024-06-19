@@ -17,6 +17,16 @@ type simdSet struct {
 	final  func(ctx *lsh512ContextAsm, hashval *byte)
 }
 
+var defaultSimd simdSet
+
+func newContextAsm(size int) hash.Hash {
+	return defaultSimd.NewContext(size)
+}
+
+func sumAsm(size int, data []byte) [Size]byte {
+	return defaultSimd.Sum(size, data)
+}
+
 func (simd *simdSet) NewContext(size int) hash.Hash {
 	ctx := &lsh512ContextAsm{
 		simd:    simd,

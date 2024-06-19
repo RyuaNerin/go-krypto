@@ -1,7 +1,7 @@
-//go:build !(arm64 || amd64) || purego || (gccgo && !go1.18)
+//go:build !((arm64 || amd64) && !purego && (!gccgo || go1.18))
 // +build !arm64,!amd64 purego gccgo,!go1.18
 
-package aria
+package lea
 
 import "crypto/cipher"
 

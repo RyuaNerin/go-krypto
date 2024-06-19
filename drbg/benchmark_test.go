@@ -15,8 +15,6 @@ import (
 
 var rnd = bufio.NewReaderSize(rand.Reader, 1<<10)
 
-const benchDstLength = 256
-
 func BenchmarkCTRDRBG(b *testing.B) {
 	b.Run("LEA-128_DF0_PR0_PS0_AI0", benchCTRDRBG(lea.NewCipher, 128/8, 0, 0, 0, 0))
 	b.Run("LEA-128_DF0_PR0_PS0_AI1", benchCTRDRBG(lea.NewCipher, 128/8, 0, 0, 0, 1))
@@ -75,7 +73,7 @@ func benchCTRDRBG(
 	blockSize := c.BlockSize()
 
 	return func(b *testing.B) {
-		dst := make([]byte, benchDstLength)
+		dst := make([]byte, blockSize)
 
 		var opts []drbg.Option
 		{
@@ -105,9 +103,9 @@ func benchCTRDRBG(
 			return
 		}
 
-		b.ResetTimer()
+		b.SetBytes(int64(len(dst)))
 		b.ReportAllocs()
-		b.SetBytes(benchDstLength)
+		b.ResetTimer()
 		if useAI == 1 {
 			for i := 0; i < b.N; i++ {
 				_, err = state.Read(dst)
@@ -164,9 +162,9 @@ func benchHashDRBG(
 			return
 		}
 
-		b.ResetTimer()
+		b.SetBytes(int64(len(dst)))
 		b.ReportAllocs()
-		b.SetBytes(benchDstLength)
+		b.ResetTimer()
 		if useAI == 1 {
 			for i := 0; i < b.N; i++ {
 				_, err = state.Read(dst)
@@ -223,9 +221,9 @@ func benchHmacDRBG(
 			return
 		}
 
-		b.ResetTimer()
+		b.SetBytes(int64(len(dst)))
 		b.ReportAllocs()
-		b.SetBytes(benchDstLength)
+		b.ResetTimer()
 		if useAI == 1 {
 			for i := 0; i < b.N; i++ {
 				_, err = state.Read(dst)
