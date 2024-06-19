@@ -9,7 +9,7 @@
 
 #include "textflag.h"
 
-TEXT ·__lsh256_neon_init(SB), NOSPLIT, $16
+TEXT ·__lsh256_neon_init(SB), NOSPLIT, $0-16
 	MOVD	ctx+0(FP), R0
 	MOVD	algtype+8(FP), R1
 
@@ -58,7 +58,7 @@ DATA ·lCPI1_0<>+0x038(SB)/4, $0xffffffe8
 DATA ·lCPI1_0<>+0x03C(SB)/4, $0xffffffe0
 GLOBL ·lCPI1_0<>(SB), NOPTR|RODATA, $64
 
-TEXT ·__lsh256_neon_update(SB), NOSPLIT, $32
+TEXT ·__lsh256_neon_update(SB), NOSPLIT, $0-32
 	MOVD	ctx+0(FP), R0
 	MOVD	data_base+8(FP), R1
 	MOVD	data_len+16(FP), R2
@@ -562,7 +562,7 @@ LBB1_56:								// LBB1_56:                                ; =>This Inner Loop H
 	CBNZ	R17, LBB1_13				//     cbnz	x17, LBB1_13
 	B		LBB1_15						//     b	LBB1_15
 
-TEXT ·__lsh256_neon_final(SB), NOSPLIT, $16
+TEXT ·__lsh256_neon_final(SB), NOSPLIT, $0-16
 	MOVD ctx+0(FP), R0
 	MOVD hashval+8(FP), R1
 

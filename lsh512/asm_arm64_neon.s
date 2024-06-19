@@ -9,7 +9,7 @@
 
 #include "textflag.h"
 
-TEXT ·__lsh512_neon_init(SB), NOSPLIT, $16
+TEXT ·__lsh512_neon_init(SB), NOSPLIT, $0-16
 	MOVD	ctx+0(FP), R0
 	MOVD	algtype+8(FP), R1
 
@@ -80,23 +80,14 @@ DATA ·lCPI1_0<>+0x070(SB)/8, $0xffffffffffffffe8
 DATA ·lCPI1_0<>+0x078(SB)/8, $0xfffffffffffffff8
 GLOBL ·lCPI1_0<>(SB), RODATA|NOPTR, $128
 
-TEXT ·__lsh512_neon_update(SB), NOSPLIT, $144-32
+// sub	x9, sp, #176
+TEXT ·__lsh512_neon_update(SB), NOSPLIT, $176-32
 	MOVD	ctx+0(FP), R0
 	MOVD	data_base+8(FP), R1
 	MOVD	data_len+16(FP), R2
 	//		data_len+24
 
 										// ; %bb.0:
-	WORD	$0x6db93bef					//     stp	d15, d14, [sp, #-112]!          ; 16-byte Folded Spill
-	WORD	$0x6d0133ed					//     stp	d13, d12, [sp, #16]             ; 16-byte Folded Spill
-	WORD	$0x6d022beb					//     stp	d11, d10, [sp, #32]             ; 16-byte Folded Spill
-	WORD	$0x6d0323e9					//     stp	d9, d8, [sp, #48]               ; 16-byte Folded Spill
-	WORD	$0xa9046ffc					//     stp	x28, x27, [sp, #64]             ; 16-byte Folded Spill
-	WORD	$0xa9054ff4					//     stp	x20, x19, [sp, #80]             ; 16-byte Folded Spill
-	WORD	$0xa9067bfd					//     stp	x29, x30, [sp, #96]             ; 16-byte Folded Spill
-	WORD	$0x910183fd					//     add	x29, sp, #96
-	WORD	$0xd102c3e9					//     sub	x9, sp, #176
-	WORD	$0x927ced3f					//     and	sp, x9, #0xfffffffffffffff0
 	WORD	$0xb9401003					//     ldr	w3, [x0, #16]
 	WORD	$0x8b020068					//     add	x8, x3, x2
 	WORD	$0xf103fd1f					//     cmp	x8, #255
@@ -114,23 +105,23 @@ TEXT ·__lsh512_neon_update(SB), NOSPLIT, $144-32
 	WORD	$0x91028129					//     add	x9, x9, #160
 	WORD	$0xf101013f					//     cmp	x9, #64
 	BHS		LBB1_31						//     b.hs	LBB1_31
-LBB1_4:								// LBB1_4:
+LBB1_4:									// LBB1_4:
 	WORD	$0xd2800009					//     mov	x9, #0                          ; =0x0
-LBB1_5:								// LBB1_5:
+LBB1_5:									// LBB1_5:
 	WORD	$0xcb090108					//     sub	x8, x8, x9
 	WORD	$0x8b03012a					//     add	x10, x9, x3
 	WORD	$0x8b00014a					//     add	x10, x10, x0
 	WORD	$0x9102814a					//     add	x10, x10, #160
 	WORD	$0x8b090029					//     add	x9, x1, x9
-LBB1_6:								// LBB1_6:                                 ; =>This Inner Loop Header: Depth=1
+LBB1_6:									// LBB1_6:                                 ; =>This Inner Loop Header: Depth=1
 	WORD	$0x3840152b					//     ldrb	w11, [x9], #1
 	WORD	$0x3800154b					//     strb	w11, [x10], #1
 	WORD	$0xf1000508					//     subs	x8, x8, #1
 	BNE		LBB1_6						//     b.ne	LBB1_6
-LBB1_7:								// LBB1_7:
+LBB1_7:									// LBB1_7:
 	WORD	$0x0b020062					//     add	w2, w3, w2
 	B		LBB1_29						//     b	LBB1_29
-LBB1_8:								// LBB1_8:
+LBB1_8:									// LBB1_8:
 	MOVD	$·lCPI1_0<>(SB), R9			//     adrp	x9, lCPI1_0@PAGE
 										//     adrp	x10, lCPI1_1@PAGE
 										//     adrp	x11, lCPI1_2@PAGE
@@ -672,14 +663,6 @@ LBB1_28:								// LBB1_28:                                ; =>This Inner Loop H
 LBB1_29:								// LBB1_29:
 	WORD	$0xb9001002					//     str	w2, [x0, #16]
 LBB1_30:								// LBB1_30:
-	WORD	$0xd10183bf					//     sub	sp, x29, #96
-	WORD	$0xa9467bfd					//     ldp	x29, x30, [sp, #96]             ; 16-byte Folded Reload
-	WORD	$0xa9454ff4					//     ldp	x20, x19, [sp, #80]             ; 16-byte Folded Reload
-	WORD	$0xa9446ffc					//     ldp	x28, x27, [sp, #64]             ; 16-byte Folded Reload
-	WORD	$0x6d4323e9					//     ldp	d9, d8, [sp, #48]               ; 16-byte Folded Reload
-	WORD	$0x6d422beb					//     ldp	d11, d10, [sp, #32]             ; 16-byte Folded Reload
-	WORD	$0x6d4133ed					//     ldp	d13, d12, [sp, #16]             ; 16-byte Folded Reload
-	WORD	$0x6cc73bef					//     ldp	d15, d14, [sp], #112            ; 16-byte Folded Reload
 	RET									//     ret
 LBB1_31:								// LBB1_31:
 	WORD	$0xf101011f					//     cmp	x8, #64
@@ -811,19 +794,12 @@ LBB1_56:								// LBB1_56:                                ; =>This Inner Loop H
 	CBNZ	R6, LBB1_13					//     cbnz	x6, LBB1_13
 	B		LBB1_15						//     b	LBB1_15
 
-TEXT ·__lsh512_neon_final(SB), NOSPLIT, $96-16
+// sub	x9, sp, #176
+TEXT ·__lsh512_neon_final(SB), NOSPLIT, $176-16
 	MOVD ctx+0(FP), R0
 	MOVD hashval+8(FP), R1
 
 										// ; %bb.0:
-	WORD	$0x6dbb3bef					//     stp	d15, d14, [sp, #-80]!           ; 16-byte Folded Spill
-	WORD	$0x6d0133ed					//     stp	d13, d12, [sp, #16]             ; 16-byte Folded Spill
-	WORD	$0x6d022beb					//     stp	d11, d10, [sp, #32]             ; 16-byte Folded Spill
-	WORD	$0x6d0323e9					//     stp	d9, d8, [sp, #48]               ; 16-byte Folded Spill
-	WORD	$0xa9047bfd					//     stp	x29, x30, [sp, #64]             ; 16-byte Folded Spill
-	WORD	$0x910103fd					//     add	x29, sp, #64
-	WORD	$0xd102c3e9					//     sub	x9, sp, #176
-	WORD	$0x927ced3f					//     and	sp, x9, #0xfffffffffffffff0
 	WORD	$0xb9401009					//     ldr	w9, [x0, #16]
 	WORD	$0x8b090008					//     add	x8, x0, x9
 	WORD	$0x5280100a					//     mov	w10, #128                       ; =0x80
@@ -1129,11 +1105,4 @@ LBB2_15:								// LBB2_15:                                ; =>This Inner Loop H
 	WORD	$0x3d800820					//     str	q0, [x1, #32]
 	WORD	$0x3dc01400					//     ldr	q0, [x0, #80]
 	WORD	$0x3d800c20					//     str	q0, [x1, #48]
-	WORD	$0xd10103bf					//     sub	sp, x29, #64
-	WORD	$0xa9447bfd					//     ldp	x29, x30, [sp, #64]             ; 16-byte Folded Reload
-	WORD	$0x6d4323e9					//     ldp	d9, d8, [sp, #48]               ; 16-byte Folded Reload
-	WORD	$0x6d422beb					//     ldp	d11, d10, [sp, #32]             ; 16-byte Folded Reload
-	WORD	$0x6d4133ed					//     ldp	d13, d12, [sp, #16]             ; 16-byte Folded Reload
-	WORD	$0x6cc53bef					//     ldp	d15, d14, [sp], #80             ; 16-byte Folded Reload
-	RET 			      				//     ret
-
+	RET 				  				//     ret
