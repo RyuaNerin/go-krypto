@@ -7,8 +7,6 @@ import (
 	"math/bits"
 )
 
-type funcBlock func(ctx *leaContext, dst, src []byte)
-
 type leaContext struct {
 	rk    [192]uint32
 	round uint8

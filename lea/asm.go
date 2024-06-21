@@ -12,6 +12,8 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
+type funcBlock func(ctx *leaContext, dst, src []byte)
+
 func newCipherAsm(key []byte) (cipher.Block, error) {
 	ctx := new(leaContextAsm)
 	setKeyGo(&ctx.leaContext, key)

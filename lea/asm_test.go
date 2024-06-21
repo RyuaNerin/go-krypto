@@ -5,6 +5,12 @@
 
 package lea
 
+import (
+	"testing"
+
+	. "github.com/RyuaNerin/testingutil"
+)
+
 //nolint:unused
 func leaEnc4Go(ctx *leaContext, dst, src []byte) {
 	leaEnc1Go(ctx, dst[BlockSize*0:], src[BlockSize*0:])
@@ -48,5 +54,23 @@ func leaDec8Go(ctx *leaContext, dst, src []byte) {
 func bb(f funcBlock) func(c interface{}, dst, src []byte) {
 	return func(c interface{}, dst, src []byte) {
 		f(&c.(*leaContextAsm).leaContext, dst, src)
+	}
+}
+
+func tb(blocks int, funcGo, funcAsm funcBlock) func(t *testing.T, keySize int) {
+	return func(t *testing.T, keySize int) {
+		BTTC(
+			t,
+			keySize,
+			0,
+			blocks*BlockSize,
+			0,
+			func(key, additional []byte) (interface{}, error) {
+				return newCipherGo(key)
+			},
+			func(ctx interface{}, dst, src []byte) { funcGo(ctx.(*leaContext), dst, src) },
+			func(ctx interface{}, dst, src []byte) { funcAsm(ctx.(*leaContext), dst, src) },
+			false,
+		)
 	}
 }
