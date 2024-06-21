@@ -84,12 +84,18 @@ DATA LCDATA2<>+0x0e0(SB)/8, $0x0605040302010007
 DATA LCDATA2<>+0x0e8(SB)/8, $0x080f0e0d0c0b0a09
 GLOBL LCDATA2<>(SB), RODATA|NOPTR, $240
 
-	// stack size: 192
-TEXT ·__lsh512_avx2_update(SB), NOSPLIT, $192-32
+// stack size: 192
+TEXT ·__lsh512_avx2_update(SB), NOSPLIT, $224-32
 	MOVQ ctx+0(FP), DI
 	MOVQ data_base+8(FP), SI
 	MOVQ data_len+16(FP), DX
 	//   data_cap+24
+
+	// stack 192
+	MOVQ SP, BP
+	ADDQ $32, SP
+	ANDQ $-32, SP
+	MOVQ BP, 192(SP)
 
 	LEAQ LCDATA2<>(SB), BP
 
@@ -644,6 +650,7 @@ LBB1_68:
 	WORD $0x4f89; BYTE $0x10 // mov    dword [rdi + 16], ecx
 
 LBB1_69:
+	MOVQ 192(SP), SP
 	VZEROUPPER
 	RET
 
