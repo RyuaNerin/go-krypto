@@ -25,11 +25,13 @@ jobs:
 
         runs-on:
           - ubuntu-latest
-          - [ 'macOS', 'self-hosted', 'lint' ]
+          - macos-14
+          #- [ 'macOS', 'self-hosted', 'lint' ]
           - windows-latest
 
         exclude:
-          - runs-on: [ 'macOS', 'self-hosted', 'lint' ]
+          #- runs-on: [ 'macOS', 'self-hosted', 'lint' ]
+          - runs-on: macos-14
             go-version: '1.15'
 
     runs-on: ${{ matrix.runs-on }}
