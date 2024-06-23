@@ -9,6 +9,7 @@ import (
 	"syscall"
 )
 
+// HWCAP/HWCAP2 bits. These are exposed by Linux.
 const (
 	hwcap_PMULL = 1 << 4
 )

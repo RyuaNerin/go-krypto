@@ -48,5 +48,16 @@ func sysctlUint64(mib []uint32) (uint64, bool) {
 }
 
 func doinit() {
+	// Get ID_AA64ISAR0 and ID_AA64ISAR1 from sysctl.
+	isar0, ok := sysctlUint64([]uint32{_CTL_MACHDEP, _CPU_ID_AA64ISAR0})
+	if !ok {
+		return
+	}
+	isar1, ok := sysctlUint64([]uint32{_CTL_MACHDEP, _CPU_ID_AA64ISAR1})
+	if !ok {
+		return
+	}
+	parseARM64SystemRegisters(isar0, isar1, 0)
+
 	Initialized = true
 }
