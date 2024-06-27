@@ -1,14 +1,20 @@
-package cmac
+package cmac_test
 
 import (
 	"bytes"
 	"crypto/aes"
+	"crypto/cipher"
+	"hash"
 	"testing"
 
+	"github.com/RyuaNerin/go-krypto/cmac"
 	"github.com/RyuaNerin/go-krypto/internal"
+	"github.com/RyuaNerin/go-krypto/lea"
+
+	. "github.com/RyuaNerin/testingutil"
 )
 
-func TestCMAC_SEED(t *testing.T) {
+func TestCMAC_AES256(t *testing.T) {
 	K := internal.HB(`00112233445566778899aabbccddeeff`)
 	M := internal.HB(`000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f`)
 	T := [][]byte{
@@ -52,7 +58,7 @@ func TestCMAC_SEED(t *testing.T) {
 		panic(err)
 	}
 
-	h := New(b)
+	h := cmac.New(b)
 
 	var dst []byte
 	for length := 1; length < len(M); length++ {
@@ -80,4 +86,50 @@ func TestCMAC_SEED(t *testing.T) {
 			return
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var (
+	aes128, _ = aes.NewCipher(make([]byte, 16))
+	aes192, _ = aes.NewCipher(make([]byte, 24))
+	aes256, _ = aes.NewCipher(make([]byte, 32))
+
+	lea128, _ = lea.NewCipher(make([]byte, 16))
+	lea192, _ = lea.NewCipher(make([]byte, 24))
+	lea256, _ = lea.NewCipher(make([]byte, 32))
+)
+
+func newHash(b cipher.Block) hash.Hash {
+	return cmac.New(b)
+}
+
+func Benchmark_Hash_8(b *testing.B) {
+	b.Run("AES-128", func(b *testing.B) { HB(b, newHash(aes128), 8, false) })
+	b.Run("AES-192", func(b *testing.B) { HB(b, newHash(aes192), 8, false) })
+	b.Run("AES-256", func(b *testing.B) { HB(b, newHash(aes256), 8, false) })
+
+	b.Run("LEA-128", func(b *testing.B) { HB(b, newHash(lea128), 8, false) })
+	b.Run("LEA-192", func(b *testing.B) { HB(b, newHash(lea192), 8, false) })
+	b.Run("LEA-256", func(b *testing.B) { HB(b, newHash(lea256), 8, false) })
+}
+
+func Benchmark_Hash_1K(b *testing.B) {
+	b.Run("AES-128", func(b *testing.B) { HB(b, newHash(aes128), 1024, false) })
+	b.Run("AES-192", func(b *testing.B) { HB(b, newHash(aes192), 1024, false) })
+	b.Run("AES-256", func(b *testing.B) { HB(b, newHash(aes256), 1024, false) })
+
+	b.Run("LEA-128", func(b *testing.B) { HB(b, newHash(lea128), 1024, false) })
+	b.Run("LEA-192", func(b *testing.B) { HB(b, newHash(lea192), 1024, false) })
+	b.Run("LEA-256", func(b *testing.B) { HB(b, newHash(lea256), 1024, false) })
+}
+
+func Benchmark_Hash_8K(b *testing.B) {
+	b.Run("AES-128", func(b *testing.B) { HB(b, newHash(aes128), 8192, false) })
+	b.Run("AES-192", func(b *testing.B) { HB(b, newHash(aes192), 8192, false) })
+	b.Run("AES-256", func(b *testing.B) { HB(b, newHash(aes256), 8192, false) })
+
+	b.Run("LEA-128", func(b *testing.B) { HB(b, newHash(lea128), 8192, false) })
+	b.Run("LEA-192", func(b *testing.B) { HB(b, newHash(lea192), 8192, false) })
+	b.Run("LEA-256", func(b *testing.B) { HB(b, newHash(lea256), 8192, false) })
 }

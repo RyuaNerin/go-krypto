@@ -44,6 +44,11 @@ func TestHAS160(t *testing.T) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const (
+	almost1K = 1024 - 5
+	almost8K = 8*1024 - 5
+)
+
 func Benchmark_Hash_8(b *testing.B)  { HB(b, New(), 8, false) }
-func Benchmark_Hash_1K(b *testing.B) { HB(b, New(), 1024, false) }
-func Benchmark_Hash_8K(b *testing.B) { HB(b, New(), 8192, false) }
+func Benchmark_Hash_1K(b *testing.B) { HB(b, New(), almost1K, false) }
+func Benchmark_Hash_8K(b *testing.B) { HB(b, New(), almost8K, false) }

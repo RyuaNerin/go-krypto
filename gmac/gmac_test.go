@@ -1,11 +1,15 @@
-package gmac
+package gmac_test
 
 import (
 	"bytes"
 	"crypto/aes"
+	"crypto/cipher"
+	"hash"
 	"testing"
 
+	"github.com/RyuaNerin/go-krypto/gmac"
 	"github.com/RyuaNerin/go-krypto/internal"
+	"github.com/RyuaNerin/go-krypto/lea"
 
 	. "github.com/RyuaNerin/testingutil"
 )
@@ -16,7 +20,7 @@ func Test_GMAC_ShortWrite(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h, err := NewGMAC(c, nil)
+	h, err := gmac.NewGMAC(c, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +35,7 @@ func Test_GMAC(t *testing.T) {
 
 		$ ./test.exe
 		Key: 00000000000000000000000000000000
-		 IV: 00000000000000000000000000000000
+		IV:  00000000000000000000000000000000
 		Message: Yoda said, do or do not. There is no try.
 		GMAC: E7EE2C63B4DC328EED4A86B3FB3490AF
 		*/
@@ -46,7 +50,7 @@ func Test_GMAC(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h, err := NewGMAC(c, iv)
+	h, err := gmac.NewGMAC(c, iv)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,4 +69,51 @@ func Test_GMAC(t *testing.T) {
 		t.Errorf("expect: %x, actual: %x", expect, actual)
 		return
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var (
+	aes128, _ = aes.NewCipher(make([]byte, 16))
+	aes192, _ = aes.NewCipher(make([]byte, 24))
+	aes256, _ = aes.NewCipher(make([]byte, 32))
+
+	lea128, _ = lea.NewCipher(make([]byte, 16))
+	lea192, _ = lea.NewCipher(make([]byte, 24))
+	lea256, _ = lea.NewCipher(make([]byte, 32))
+)
+
+func newHash(b cipher.Block) hash.Hash {
+	h, _ := gmac.NewGMAC(b, make([]byte, 16))
+	return h
+}
+
+func Benchmark_Hash_8(b *testing.B) {
+	b.Run("AES-128", func(b *testing.B) { HB(b, newHash(aes128), 8, false) })
+	b.Run("AES-192", func(b *testing.B) { HB(b, newHash(aes192), 8, false) })
+	b.Run("AES-256", func(b *testing.B) { HB(b, newHash(aes256), 8, false) })
+
+	b.Run("LEA-128", func(b *testing.B) { HB(b, newHash(lea128), 8, false) })
+	b.Run("LEA-192", func(b *testing.B) { HB(b, newHash(lea192), 8, false) })
+	b.Run("LEA-256", func(b *testing.B) { HB(b, newHash(lea256), 8, false) })
+}
+
+func Benchmark_Hash_1K(b *testing.B) {
+	b.Run("AES-128", func(b *testing.B) { HB(b, newHash(aes128), 1024, false) })
+	b.Run("AES-192", func(b *testing.B) { HB(b, newHash(aes192), 1024, false) })
+	b.Run("AES-256", func(b *testing.B) { HB(b, newHash(aes256), 1024, false) })
+
+	b.Run("LEA-128", func(b *testing.B) { HB(b, newHash(lea128), 1024, false) })
+	b.Run("LEA-192", func(b *testing.B) { HB(b, newHash(lea192), 1024, false) })
+	b.Run("LEA-256", func(b *testing.B) { HB(b, newHash(lea256), 1024, false) })
+}
+
+func Benchmark_Hash_8K(b *testing.B) {
+	b.Run("AES-128", func(b *testing.B) { HB(b, newHash(aes128), 8192, false) })
+	b.Run("AES-192", func(b *testing.B) { HB(b, newHash(aes192), 8192, false) })
+	b.Run("AES-256", func(b *testing.B) { HB(b, newHash(aes256), 8192, false) })
+
+	b.Run("LEA-128", func(b *testing.B) { HB(b, newHash(lea128), 8192, false) })
+	b.Run("LEA-192", func(b *testing.B) { HB(b, newHash(lea192), 8192, false) })
+	b.Run("LEA-256", func(b *testing.B) { HB(b, newHash(lea256), 8192, false) })
 }
