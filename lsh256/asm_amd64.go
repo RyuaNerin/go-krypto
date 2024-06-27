@@ -31,8 +31,9 @@ var (
 
 func init() {
 	switch {
-	case hasAVX2:
-		defaultSimd = simdSetAVX2
+	// avx2 is slower than ssse3
+	// case hasAVX2:
+	//	defaultSimd = simdSetAVX2
 
 	case hasSSSE3:
 		defaultSimd = simdSetSSSE3
