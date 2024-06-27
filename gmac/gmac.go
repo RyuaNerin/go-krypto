@@ -26,9 +26,7 @@ func NewGMAC(b cipher.Block, iv []byte) (hash.Hash, error) {
 		iv = defaultIV[:]
 	}
 
-	g := &ghash{
-		cipher: kb,
-	}
+	g := new(ghash)
 	g.gcm.Init(kb)
 
 	var counter [ikipher.GCMBlockSize]byte
@@ -39,8 +37,7 @@ func NewGMAC(b cipher.Block, iv []byte) (hash.Hash, error) {
 }
 
 type ghash struct {
-	gcm    ikipher.GCM
-	cipher ikipher.Block
+	gcm ikipher.GCM
 
 	tagMask [ikipher.GCMBlockSize]byte
 
