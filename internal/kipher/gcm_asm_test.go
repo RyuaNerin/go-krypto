@@ -6,6 +6,7 @@
 package kipher
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/rand"
 	"testing"
@@ -34,17 +35,15 @@ func TestGCMAuthAsm(t *testing.T) {
 	var gcmA GCM
 	var gcmG GCM
 
-	gcmA.Init(kb)
-	gcmG.Init(kb)
+	gcmInitGo(&gcmA, kb)
+	gcmInitAsm(&gcmG, kb)
 
-	gcmA.Auth(outA, ciphertext, additionalData, &tagMaskA)
-	gcmG.Auth(outG, ciphertext, additionalData, &tagMaskB)
+	gcmAuthGo(&gcmA, outA, ciphertext, additionalData, &tagMaskA)
+	gcmAuthAsm(&gcmG, outG, ciphertext, additionalData, &tagMaskB)
 
-	for idx := range outA {
-		if outA[idx] != outG[idx] {
-			t.Fail()
-			return
-		}
+	if !bytes.Equal(outA, outG) {
+		t.Fail()
+		return
 	}
 }
 

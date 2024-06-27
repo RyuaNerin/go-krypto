@@ -1,4 +1,4 @@
-// https://github.com/golang/go/blob/go1.22.4/src/crypto/aes/asm_arm64.s
+// https://github.com/golang/go/blob/go1.22.4/src/crypto/aes/gcm_arm64.s
 
 //go:build arm64 && !purego && (!gccgo || go1.18)
 // +build arm64
@@ -121,7 +121,6 @@ TEXT ·_gcmFinish(SB),NOSPLIT,$0
 TEXT ·_gcmInit(SB),NOSPLIT,$0
 #define pTbl R0
 #define KS R1
-#define NR R2
 #define I R3
 	MOVD	productTable+0(FP), pTbl
 	MOVD	ks_base+8(FP), KS
@@ -133,7 +132,10 @@ TEXT ·_gcmInit(SB),NOSPLIT,$0
 	VMOV	I, POLY.D[1]
 	VEOR	ZERO.B16, ZERO.B16, ZERO.B16
 
-    VLD1    (KS), [B0.B16]
+	VLD1    (KS), [B0.B16]
+
+	VREV64	B0.B16, B0.B16
+
 
 	// Multiply by 2 modulo P
 	VMOV	B0.D[0], I
