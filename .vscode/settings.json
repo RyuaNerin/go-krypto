@@ -1,5 +1,0 @@
-{
-    "go.toolsEnvVars": {
-        "GOARCH": "amd64",
-    },
-}
