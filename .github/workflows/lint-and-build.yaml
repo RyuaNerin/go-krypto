@@ -2,7 +2,17 @@ name: Lint
 
 on:
   push:
+    paths:
+      - '**/*.go'
+      - '**/*.s'
+      - 'go.mod'
+      - 'go.sum'
   pull_request:
+    paths:
+      - '**/*.go'
+      - '**/*.s'
+      - 'go.mod'
+      - 'go.sum'
 
 permissions:
   contents: read
