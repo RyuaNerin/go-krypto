@@ -48,7 +48,7 @@ func TestXOR(t *testing.T) {
 	}
 }
 
-func min(a, b []byte) int {
+func min(a, b []byte) int { //nolint:predeclared
 	n := len(a)
 	if len(b) < n {
 		n = len(b)

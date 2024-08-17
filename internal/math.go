@@ -33,7 +33,7 @@ func CeilDiv(a, b int) int {
 }
 
 // [0, max)
-func ReadInt(r io.Reader, max int) (int, error) {
+func ReadInt(r io.Reader, max int) (int, error) { //nolint:predeclared
 	var buf [8]byte
 
 	bitSize := uint(bits.Len64(uint64(max)))
@@ -55,7 +55,7 @@ func ReadInt(r io.Reader, max int) (int, error) {
 }
 
 // ReadBigInt returns a uniform random value in [0, max). It panics if max <= 0.
-func ReadBigInt(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bufNew []byte, err error) {
+func ReadBigInt(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bufNew []byte, err error) { //nolint:predeclared
 	if max.Sign() <= 0 {
 		panic("crypto/rand: argument to Int is <= 0")
 	}

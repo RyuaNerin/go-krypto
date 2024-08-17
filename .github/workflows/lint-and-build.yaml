@@ -54,12 +54,12 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.59.0
+          version: v1.60.1
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.59.0
+          version: v1.60.1
           args: --build-tags purego
 
   go-test:
