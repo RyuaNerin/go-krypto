@@ -1,5 +1,9 @@
 name: cross-arch-test
 
+on:
+  push:
+  workflow_dispatch:
+
 permissions:
   contents: read
   pull-requests: read
