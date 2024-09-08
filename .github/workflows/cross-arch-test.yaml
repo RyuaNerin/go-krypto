@@ -1,0 +1,65 @@
+name: cross-arch-test
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+jobs:
+  cross-arch-test:
+    strategy:
+      matrix:
+        go-version:
+          - '1.15'
+          - '1.16'
+          - '1.17'
+          - '1.18'
+          - '1.19'
+          - '1.20'
+          - '1.21'
+          - '1.22'
+          - '1.23'
+
+        platform:
+          - amd64/golang
+          - arm32v6/golang
+          - arm32v7/golang
+          - arm64v8/golang
+          - i386/golang
+          - mips64le/golang
+          - ppc64le/golang
+          - riscv64/golang
+          - s390x/golang
+          - windows-amd64/golang
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set git to use LF
+        run: |
+          git config core.autocrlf false
+          git rm --cached -r .
+          git reset --hard
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Test (purego)
+        run: |
+          docker run                                        \
+            --rm                                            \
+            --volume    ${{ github.workspace }}:/src        \
+            --workdir   /go/src/app                         \
+            ${{ matrix.platform }}:${{ matrix.go-version }} \
+            go test --tags=purego ./...
+
+      - name: Test
+        run: |
+          docker run                                        \
+            --rm                                            \
+            --volume    ${{ github.workspace }}:/src        \
+            --workdir   /go/src/app                         \
+            ${{ matrix.platform }}:${{ matrix.go-version }} \
+            go test -v ./...
