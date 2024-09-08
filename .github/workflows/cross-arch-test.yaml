@@ -196,7 +196,7 @@ jobs:
           docker run                                  \
             --rm                                      \
             --volume    ${{ github.workspace }}:/src  \
-            --workdir   /go/src/app                   \
+            --workdir   /src                          \
             --platform  ${{ matrix.platform }}        \
             ${{ matrix.image }}                       \
             go test --tags=purego ./...
@@ -206,7 +206,7 @@ jobs:
           docker run                                  \
             --rm                                      \
             --volume    ${{ github.workspace }}:/src  \
-            --workdir   /go/src/app                   \
+            --workdir   /src                          \
             --platform  ${{ matrix.platform }}        \
             ${{ matrix.image }}                       \
             go test -v ./...
