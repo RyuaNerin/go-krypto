@@ -14,152 +14,168 @@ jobs:
     strategy:
       matrix:
         include:
-        - go-version: 1.15-alpine
-          platform: arm32v6/golang
-        - go-version: 1.16-alpine
-          platform: arm32v6/golang
-        - go-version: 1.17-alpine
-          platform: arm32v6/golang
-        - go-version: 1.18-alpine
-          platform: arm32v6/golang
-        - go-version: 1.19-alpine
-          platform: arm32v6/golang
-        - go-version: 1.20-alpine
-          platform: arm32v6/golang
-        - go-version: 1.21-alpine
-          platform: arm32v6/golang
-        - go-version: 1.22-alpine
-          platform: arm32v6/golang
-        - go-version: 1.23-alpine
-          platform: arm32v6/golang
-        - go-version: 1.15-buster
-          platform: arm32v7/golang
-        - go-version: 1.16-buster
-          platform: arm32v7/golang
-        - go-version: 1.17-buster
-          platform: arm32v7/golang
-        - go-version: 1.18-buster
-          platform: arm32v7/golang
-        - go-version: 1.19-buster
-          platform: arm32v7/golang
-        - go-version: 1.20-buster
-          platform: arm32v7/golang
-        - go-version: 1.21-bullseye
-          platform: arm32v7/golang
-        - go-version: 1.22-bullseye
-          platform: arm32v7/golang
-        - go-version: 1.23-bullseye
-          platform: arm32v7/golang
-        - go-version: 1.15-buster
-          platform: arm64v8/golang
-        - go-version: 1.16-buster
-          platform: arm64v8/golang
-        - go-version: 1.17-buster
-          platform: arm64v8/golang
-        - go-version: 1.18-buster
-          platform: arm64v8/golang
-        - go-version: 1.19-buster
-          platform: arm64v8/golang
-        - go-version: 1.20-buster
-          platform: arm64v8/golang
-        - go-version: 1.21-bullseye
-          platform: arm64v8/golang
-        - go-version: 1.22-bullseye
-          platform: arm64v8/golang
-        - go-version: 1.23-bullseye
-          platform: arm64v8/golang
-        - go-version: 1.15-buster
-          platform: amd64/golang
-        - go-version: 1.16-buster
-          platform: amd64/golang
-        - go-version: 1.17-buster
-          platform: amd64/golang
-        - go-version: 1.18-buster
-          platform: amd64/golang
-        - go-version: 1.19-buster
-          platform: amd64/golang
-        - go-version: 1.20-buster
-          platform: amd64/golang
-        - go-version: 1.21-bullseye
-          platform: amd64/golang
-        - go-version: 1.22-bullseye
-          platform: amd64/golang
-        - go-version: 1.23-bullseye
-          platform: amd64/golang
-        - go-version: '1.15'
-          platform: winamd64/golang
-        - go-version: '1.16'
-          platform: winamd64/golang
-        - go-version: '1.17'
-          platform: winamd64/golang
-        - go-version: '1.18'
-          platform: winamd64/golang
-        - go-version: '1.19'
-          platform: winamd64/golang
-        - go-version: '1.20'
-          platform: winamd64/golang
-        - go-version: '1.21'
-          platform: winamd64/golang
-        - go-version: '1.22'
-          platform: winamd64/golang
-        - go-version: '1.23'
-          platform: winamd64/golang
-        - go-version: 1.21-bullseye
-          platform: arm32v5/golang
-        - go-version: 1.21-bullseye
-          platform: ppc64le/golang
-        - go-version: 1.22-bullseye
-          platform: ppc64le/golang
-        - go-version: 1.23-bullseye
-          platform: ppc64le/golang
-        - go-version: 1.21-bullseye
-          platform: s390x/golang
-        - go-version: 1.22-bullseye
-          platform: s390x/golang
-        - go-version: 1.23-bullseye
-          platform: s390x/golang
-        - go-version: 1.15-buster
-          platform: mips64le/golang
-        - go-version: 1.16-buster
-          platform: mips64le/golang
-        - go-version: 1.17-buster
-          platform: mips64le/golang
-        - go-version: 1.18-buster
-          platform: mips64le/golang
-        - go-version: 1.19-buster
-          platform: mips64le/golang
-        - go-version: 1.20-bullseye
-          platform: mips64le/golang
-        - go-version: 1.21-bullseye
-          platform: mips64le/golang
-        - go-version: 1.22-bullseye
-          platform: mips64le/golang
-        - go-version: 1.23-bullseye
-          platform: mips64le/golang
-        - go-version: 1.21-alpine
-          platform: riscv64/golang
-        - go-version: 1.22-alpine
-          platform: riscv64/golang
-        - go-version: 1.23-alpine
-          platform: riscv64/golang
-        - go-version: 1.15-alpine
-          platform: i386/golang
-        - go-version: 1.16-alpine
-          platform: i386/golang
-        - go-version: 1.17-alpine
-          platform: i386/golang
-        - go-version: 1.18-alpine
-          platform: i386/golang
-        - go-version: 1.19-alpine
-          platform: i386/golang
-        - go-version: 1.20-buster
-          platform: i386/golang
-        - go-version: 1.21-bullseye
-          platform: i386/golang
-        - go-version: 1.22-bullseye
-          platform: i386/golang
-        - go-version: 1.23-bullseye
-          platform: i386/golang
+        - image: arm32v6/golang:1.15-alpine
+          platform: linux/arm/v6
+        - image: arm32v6/golang:1.16-alpine
+          platform: linux/arm/v6
+        - image: arm32v6/golang:1.17-alpine
+          platform: linux/arm/v6
+        - image: arm32v6/golang:1.18-alpine
+          platform: linux/arm/v6
+        - image: arm32v6/golang:1.19-alpine
+          platform: linux/arm/v6
+        - image: arm32v6/golang:1.20-alpine
+          platform: linux/arm/v6
+        - image: arm32v6/golang:1.21-alpine
+          platform: linux/arm/v6
+        - image: arm32v6/golang:1.22-alpine
+          platform: linux/arm/v6
+        - image: arm32v6/golang:1.23-alpine
+          platform: linux/arm/v6
+        - image: arm32v7/golang:1.15-alpine
+          platform: linux/arm/v7
+        - image: arm32v7/golang:1.16-alpine
+          platform: linux/arm/v7
+        - image: arm32v7/golang:1.17-alpine
+          platform: linux/arm/v7
+        - image: arm32v7/golang:1.18-alpine
+          platform: linux/arm/v7
+        - image: arm32v7/golang:1.19-alpine
+          platform: linux/arm/v7
+        - image: arm32v7/golang:1.20-alpine
+          platform: linux/arm/v7
+        - image: arm32v7/golang:1.21-alpine
+          platform: linux/arm/v7
+        - image: arm32v7/golang:1.22-alpine
+          platform: linux/arm/v7
+        - image: arm32v7/golang:1.23-alpine
+          platform: linux/arm/v7
+        - image: arm64v8/golang:1.15-alpine
+          platform: linux/arm64
+        - image: arm64v8/golang:1.16-alpine
+          platform: linux/arm64
+        - image: arm64v8/golang:1.17-alpine
+          platform: linux/arm64
+        - image: arm64v8/golang:1.18-alpine
+          platform: linux/arm64
+        - image: arm64v8/golang:1.19-alpine
+          platform: linux/arm64
+        - image: arm64v8/golang:1.20-alpine
+          platform: linux/arm64
+        - image: arm64v8/golang:1.21-alpine
+          platform: linux/arm64
+        - image: arm64v8/golang:1.22-alpine
+          platform: linux/arm64
+        - image: arm64v8/golang:1.23-alpine
+          platform: linux/arm64
+        - image: amd64/golang:1.15-alpine
+          platform: linux/amd64
+        - image: amd64/golang:1.16-alpine
+          platform: linux/amd64
+        - image: amd64/golang:1.17-alpine
+          platform: linux/amd64
+        - image: amd64/golang:1.18-alpine
+          platform: linux/amd64
+        - image: amd64/golang:1.19-alpine
+          platform: linux/amd64
+        - image: amd64/golang:1.20-alpine
+          platform: linux/amd64
+        - image: amd64/golang:1.21-alpine
+          platform: linux/amd64
+        - image: amd64/golang:1.22-alpine
+          platform: linux/amd64
+        - image: amd64/golang:1.23-alpine
+          platform: linux/amd64
+        - image: amd64/golang:1.15-alpine
+          platform: linux/amd64/v2
+        - image: amd64/golang:1.16-alpine
+          platform: linux/amd64/v2
+        - image: amd64/golang:1.17-alpine
+          platform: linux/amd64/v2
+        - image: amd64/golang:1.18-alpine
+          platform: linux/amd64/v2
+        - image: amd64/golang:1.19-alpine
+          platform: linux/amd64/v2
+        - image: amd64/golang:1.20-alpine
+          platform: linux/amd64/v2
+        - image: amd64/golang:1.21-alpine
+          platform: linux/amd64/v2
+        - image: amd64/golang:1.22-alpine
+          platform: linux/amd64/v2
+        - image: amd64/golang:1.23-alpine
+          platform: linux/amd64/v2
+        - image: amd64/golang:1.15-alpine
+          platform: linux/amd64/v3
+        - image: amd64/golang:1.16-alpine
+          platform: linux/amd64/v3
+        - image: amd64/golang:1.17-alpine
+          platform: linux/amd64/v3
+        - image: amd64/golang:1.18-alpine
+          platform: linux/amd64/v3
+        - image: amd64/golang:1.19-alpine
+          platform: linux/amd64/v3
+        - image: amd64/golang:1.20-alpine
+          platform: linux/amd64/v3
+        - image: amd64/golang:1.21-alpine
+          platform: linux/amd64/v3
+        - image: amd64/golang:1.22-alpine
+          platform: linux/amd64/v3
+        - image: amd64/golang:1.23-alpine
+          platform: linux/amd64/v3
+        - image: ppc64le/golang:1.21-alpine
+          platform: linux/ppc64le
+        - image: ppc64le/golang:1.22-alpine
+          platform: linux/ppc64le
+        - image: ppc64le/golang:1.23-alpine
+          platform: linux/ppc64le
+        - image: s390x/golang:1.21-alpine
+          platform: linux/s390x
+        - image: s390x/golang:1.22-alpine
+          platform: linux/s390x
+        - image: s390x/golang:1.23-alpine
+          platform: linux/s390x
+        - image: mips64le/golang:1.15-buster
+          platform: linux/mips64le
+        - image: mips64le/golang:1.16-bullseye
+          platform: linux/mips64le
+        - image: mips64le/golang:1.17-bullseye
+          platform: linux/mips64le
+        - image: mips64le/golang:1.18-bullseye
+          platform: linux/mips64le
+        - image: mips64le/golang:1.19-bookworm
+          platform: linux/mips64le
+        - image: mips64le/golang:1.20-bookworm
+          platform: linux/mips64le
+        - image: mips64le/golang:1.21-bookworm
+          platform: linux/mips64le
+        - image: mips64le/golang:1.22-bookworm
+          platform: linux/mips64le
+        - image: mips64le/golang:1.23-bookworm
+          platform: linux/mips64le
+        - image: riscv64/golang:1.21-alpine
+          platform: linux/riscv64
+        - image: riscv64/golang:1.22-alpine
+          platform: linux/riscv64
+        - image: riscv64/golang:1.23-alpine
+          platform: linux/riscv64
+        - image: i386/golang:1.15-alpine
+          platform: linux/386
+        - image: i386/golang:1.16-alpine
+          platform: linux/386
+        - image: i386/golang:1.17-alpine
+          platform: linux/386
+        - image: i386/golang:1.18-alpine
+          platform: linux/386
+        - image: i386/golang:1.19-alpine
+          platform: linux/386
+        - image: i386/golang:1.20-alpine
+          platform: linux/386
+        - image: i386/golang:1.21-alpine
+          platform: linux/386
+        - image: i386/golang:1.22-alpine
+          platform: linux/386
+        - image: i386/golang:1.23-alpine
+          platform: linux/386
 
     runs-on: ubuntu-latest
 
@@ -177,18 +193,20 @@ jobs:
 
       - name: Test (purego)
         run: |
-          docker run                                        \
-            --rm                                            \
-            --volume    ${{ github.workspace }}:/src        \
-            --workdir   /go/src/app                         \
-            ${{ matrix.platform }}:${{ matrix.go-version }} \
+          docker run                                  \
+            --rm                                      \
+            --volume    ${{ github.workspace }}:/src  \
+            --workdir   /go/src/app                   \
+            --platform  ${{ matrix.platform }}        \
+            ${{ matrix.image }}                       \
             go test --tags=purego ./...
 
       - name: Test
         run: |
-          docker run                                        \
-            --rm                                            \
-            --volume    ${{ github.workspace }}:/src        \
-            --workdir   /go/src/app                         \
-            ${{ matrix.platform }}:${{ matrix.go-version }} \
+          docker run                                  \
+            --rm                                      \
+            --volume    ${{ github.workspace }}:/src  \
+            --workdir   /go/src/app                   \
+            --platform  ${{ matrix.platform }}        \
+            ${{ matrix.image }}                       \
             go test -v ./...
