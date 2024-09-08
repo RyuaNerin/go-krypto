@@ -9,28 +9,153 @@ jobs:
   cross-arch-test:
     strategy:
       matrix:
-        go-version:
-          - '1.15'
-          - '1.16'
-          - '1.17'
-          - '1.18'
-          - '1.19'
-          - '1.20'
-          - '1.21'
-          - '1.22'
-          - '1.23'
-
-        platform:
-          - amd64/golang
-          - arm32v6/golang
-          - arm32v7/golang
-          - arm64v8/golang
-          - i386/golang
-          - mips64le/golang
-          - ppc64le/golang
-          - riscv64/golang
-          - s390x/golang
-          - windows-amd64/golang
+        include:
+        - go-version: 1.15-alpine
+          platform: arm32v6/golang
+        - go-version: 1.16-alpine
+          platform: arm32v6/golang
+        - go-version: 1.17-alpine
+          platform: arm32v6/golang
+        - go-version: 1.18-alpine
+          platform: arm32v6/golang
+        - go-version: 1.19-alpine
+          platform: arm32v6/golang
+        - go-version: 1.20-alpine
+          platform: arm32v6/golang
+        - go-version: 1.21-alpine
+          platform: arm32v6/golang
+        - go-version: 1.22-alpine
+          platform: arm32v6/golang
+        - go-version: 1.23-alpine
+          platform: arm32v6/golang
+        - go-version: 1.15-buster
+          platform: arm32v7/golang
+        - go-version: 1.16-buster
+          platform: arm32v7/golang
+        - go-version: 1.17-buster
+          platform: arm32v7/golang
+        - go-version: 1.18-buster
+          platform: arm32v7/golang
+        - go-version: 1.19-buster
+          platform: arm32v7/golang
+        - go-version: 1.20-buster
+          platform: arm32v7/golang
+        - go-version: 1.21-bullseye
+          platform: arm32v7/golang
+        - go-version: 1.22-bullseye
+          platform: arm32v7/golang
+        - go-version: 1.23-bullseye
+          platform: arm32v7/golang
+        - go-version: 1.15-buster
+          platform: arm64v8/golang
+        - go-version: 1.16-buster
+          platform: arm64v8/golang
+        - go-version: 1.17-buster
+          platform: arm64v8/golang
+        - go-version: 1.18-buster
+          platform: arm64v8/golang
+        - go-version: 1.19-buster
+          platform: arm64v8/golang
+        - go-version: 1.20-buster
+          platform: arm64v8/golang
+        - go-version: 1.21-bullseye
+          platform: arm64v8/golang
+        - go-version: 1.22-bullseye
+          platform: arm64v8/golang
+        - go-version: 1.23-bullseye
+          platform: arm64v8/golang
+        - go-version: 1.15-buster
+          platform: amd64/golang
+        - go-version: 1.16-buster
+          platform: amd64/golang
+        - go-version: 1.17-buster
+          platform: amd64/golang
+        - go-version: 1.18-buster
+          platform: amd64/golang
+        - go-version: 1.19-buster
+          platform: amd64/golang
+        - go-version: 1.20-buster
+          platform: amd64/golang
+        - go-version: 1.21-bullseye
+          platform: amd64/golang
+        - go-version: 1.22-bullseye
+          platform: amd64/golang
+        - go-version: 1.23-bullseye
+          platform: amd64/golang
+        - go-version: '1.15'
+          platform: winamd64/golang
+        - go-version: '1.16'
+          platform: winamd64/golang
+        - go-version: '1.17'
+          platform: winamd64/golang
+        - go-version: '1.18'
+          platform: winamd64/golang
+        - go-version: '1.19'
+          platform: winamd64/golang
+        - go-version: '1.20'
+          platform: winamd64/golang
+        - go-version: '1.21'
+          platform: winamd64/golang
+        - go-version: '1.22'
+          platform: winamd64/golang
+        - go-version: '1.23'
+          platform: winamd64/golang
+        - go-version: 1.21-bullseye
+          platform: arm32v5/golang
+        - go-version: 1.21-bullseye
+          platform: ppc64le/golang
+        - go-version: 1.22-bullseye
+          platform: ppc64le/golang
+        - go-version: 1.23-bullseye
+          platform: ppc64le/golang
+        - go-version: 1.21-bullseye
+          platform: s390x/golang
+        - go-version: 1.22-bullseye
+          platform: s390x/golang
+        - go-version: 1.23-bullseye
+          platform: s390x/golang
+        - go-version: 1.15-buster
+          platform: mips64le/golang
+        - go-version: 1.16-buster
+          platform: mips64le/golang
+        - go-version: 1.17-buster
+          platform: mips64le/golang
+        - go-version: 1.18-buster
+          platform: mips64le/golang
+        - go-version: 1.19-buster
+          platform: mips64le/golang
+        - go-version: 1.20-bullseye
+          platform: mips64le/golang
+        - go-version: 1.21-bullseye
+          platform: mips64le/golang
+        - go-version: 1.22-bullseye
+          platform: mips64le/golang
+        - go-version: 1.23-bullseye
+          platform: mips64le/golang
+        - go-version: 1.21-alpine
+          platform: riscv64/golang
+        - go-version: 1.22-alpine
+          platform: riscv64/golang
+        - go-version: 1.23-alpine
+          platform: riscv64/golang
+        - go-version: 1.15-alpine
+          platform: i386/golang
+        - go-version: 1.16-alpine
+          platform: i386/golang
+        - go-version: 1.17-alpine
+          platform: i386/golang
+        - go-version: 1.18-alpine
+          platform: i386/golang
+        - go-version: 1.19-alpine
+          platform: i386/golang
+        - go-version: 1.20-buster
+          platform: i386/golang
+        - go-version: 1.21-bullseye
+          platform: i386/golang
+        - go-version: 1.22-bullseye
+          platform: i386/golang
+        - go-version: 1.23-bullseye
+          platform: i386/golang
 
     runs-on: ubuntu-latest
 
