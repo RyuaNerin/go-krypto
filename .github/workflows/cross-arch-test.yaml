@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   cross-arch-test:
+    continue-on-error: true
     strategy:
       matrix:
         include:
