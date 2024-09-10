@@ -69,6 +69,9 @@ func (b *cbc) CryptBlocks(dst, src []byte) {
 	if alias.InexactOverlap(dst[:len(src)], src) {
 		panic(msgBufferOverlap)
 	}
+	if len(src) == 0 {
+		return
+	}
 
 	var (
 		bs0 = 0 * b.blockSize

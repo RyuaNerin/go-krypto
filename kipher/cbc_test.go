@@ -50,6 +50,28 @@ func TestCBC(t *testing.T) {
 	}
 }
 
+func TestCBCZero(t *testing.T) {
+	key := make([]byte, 16)
+	iv := make([]byte, 16)
+
+	b, err := aes.NewCipher(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	enc := kipher.NewCBCEncrypter(ikipher.WrapKipher(b), iv)
+	dec := kipher.NewCBCDecrypter(ikipher.WrapKipher(b), iv)
+
+	rnd.Read(key)
+	rnd.Read(iv)
+
+	src := make([]byte, 0)
+	dst := make([]byte, 0)
+
+	enc.CryptBlocks(dst, src)
+	dec.CryptBlocks(dst, src)
+}
+
 func TestCBCDecrypterWitStd(t *testing.T) {
 	type ctr struct {
 		c, k cipher.BlockMode
