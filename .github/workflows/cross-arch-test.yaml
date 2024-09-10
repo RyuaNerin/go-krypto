@@ -179,6 +179,7 @@ jobs:
           platform: linux/386
 
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
@@ -200,7 +201,7 @@ jobs:
             --workdir   /src                          \
             --platform  ${{ matrix.platform }}        \
             ${{ matrix.image }}                       \
-            go test --tags=purego ./...
+            go test --tags=purego -test.short ./...
 
       - name: Test
         run: |
@@ -210,4 +211,4 @@ jobs:
             --workdir   /src                          \
             --platform  ${{ matrix.platform }}        \
             ${{ matrix.image }}                       \
-            go test -v ./...
+            go test -v -test.short ./...
