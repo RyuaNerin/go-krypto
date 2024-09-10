@@ -200,6 +200,7 @@ jobs:
             --volume    ${{ github.workspace }}:/src  \
             --workdir   /src                          \
             --platform  ${{ matrix.platform }}        \
+            --env       CGO_ENABLED=0                 \
             ${{ matrix.image }}                       \
             go test --tags=purego -test.short ./...
 
@@ -210,5 +211,6 @@ jobs:
             --volume    ${{ github.workspace }}:/src  \
             --workdir   /src                          \
             --platform  ${{ matrix.platform }}        \
+            --env       CGO_ENABLED=0                 \
             ${{ matrix.image }}                       \
             go test -v -test.short ./...
