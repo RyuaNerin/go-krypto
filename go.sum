@@ -1,4 +1,4 @@
 github.com/RyuaNerin/elliptic2 v1.0.0 h1:xuqrsvIXvT35maN5uiQV56TPZ/RQ+UhDF+fRFToDeJg=
 github.com/RyuaNerin/elliptic2 v1.0.0/go.mod h1:wWB8fWrJI/6EPJkyV/r1Rj0hxUgrusmqSj8JN6yNf/A=
-github.com/RyuaNerin/testingutil v0.1.1 h1:pdhXyITzVpkBMhhT1HBiG4JwtS8Ms7McgJIli8rJAQs=
-github.com/RyuaNerin/testingutil v0.1.1/go.mod h1:yTqj6Ta/ycHMPJHRyO12Mz3VrvTloWOsy23WOZH19AA=
+github.com/RyuaNerin/testingutil v0.1.2 h1:H4mO89A6XSjmkYtf+1dHJmsm0T3evSITRWO1RTog9Ts=
+github.com/RyuaNerin/testingutil v0.1.2/go.mod h1:yTqj6Ta/ycHMPJHRyO12Mz3VrvTloWOsy23WOZH19AA=
