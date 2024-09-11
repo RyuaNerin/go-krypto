@@ -1,5 +1,5 @@
-//go:build !((amd64 || arm64) && !purego && !gccgo)
-// +build !amd64,!arm64 purego gccgo
+//go:build !(gc && (arm64 || amd64) && !purego)
+// +build !gc !arm64,!amd64 purego
 
 package memory
 

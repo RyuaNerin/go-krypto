@@ -1,5 +1,5 @@
-//go:build !go1.20
-// +build !go1.20
+//go:build !gc || !go1.20
+// +build !gc !go1.20
 
 package memory
 
