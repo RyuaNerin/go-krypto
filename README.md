@@ -1,4 +1,4 @@
-# [krypto](https://pkg.go.dev/github.com/RyuaNerin/go-krypto)
+# 🔒 [go-krypto](https://pkg.go.dev/github.com/RyuaNerin/go-krypto)
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/RyuaNerin/go-krypto)](https://pkg.go.dev/github.com/RyuaNerin/go-krypto)
 
@@ -6,9 +6,24 @@
 
 - It is intended for compatibility with go's `crypto` package.
 
-- `krypto` supports SIMD for some algorithms.
+- `go-krypto` supports SIMD for some algorithms.
 
 ## [LICNESE](/LICENSE)
+
+## Reporting a Vulnerability
+
+- Please send a mail to [`admin@ryuar.in`](mailto:RyuaNerin<admin@ryuar.in>) when you found ***a potential security issue in go-krypto***.
+
+## Requirements
+
+- `go-krypto` requires **`Go 1.17 or later`**.
+
+- or **`gccgo 11 or later`**.
+    - ***! IMPORTANT ! gccgo is still under testing - SIMD does not work, and it may be slower than Go.***
+
+- `go-krypto` requires only two external packages.
+    - [`github.com/RyuaNerin/testingutil`](https://github.com/RyuaNerin/testingutil) for testing.
+    - [`github.com/RyuaNerin/elliptic2`](https://github.com/RyuaNerin/elliptic2) for Elliptic curves over binary fields (e.g. sect233k1, sect233r1, K-233, ...).
 
 ## Installation
 
