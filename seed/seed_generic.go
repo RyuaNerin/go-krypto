@@ -4,19 +4,7 @@ import (
 	"crypto/cipher"
 	"encoding/binary"
 	"fmt"
-
-	"github.com/RyuaNerin/go-krypto/internal/golang.org/x/sys/cpu"
 )
-
-var byteOrder binary.ByteOrder
-
-func init() {
-	if cpu.IsBigEndian {
-		byteOrder = binary.LittleEndian
-	} else {
-		byteOrder = binary.BigEndian
-	}
-}
 
 type seed128 struct {
 	pdwRoundKey [32]uint32
@@ -34,10 +22,10 @@ func (s *seed128) BlockSize() int {
 
 func (s *seed128) keySchedKey(key []byte) {
 	var T0, T1 uint32
-	A := byteOrder.Uint32(key[0:])
-	B := byteOrder.Uint32(key[4:])
-	C := byteOrder.Uint32(key[8:])
-	D := byteOrder.Uint32(key[12:])
+	A := binary.BigEndian.Uint32(key[0:])
+	B := binary.BigEndian.Uint32(key[4:])
+	C := binary.BigEndian.Uint32(key[8:])
+	D := binary.BigEndian.Uint32(key[12:])
 
 	// RoundKeyUpdate0(K+0, A, B, C, D, KC0)
 	{
@@ -191,7 +179,7 @@ func (s *seed128) keySchedKey(key []byte) {
 	}
 
 	T0 = A + C - kc[15]
-	T1 = B + kc[15] - D
+	T1 = B - D + kc[15]
 	s.pdwRoundKey[30] = ss0[getB0(T0)] ^ ss1[getB1(T0)] ^ ss2[getB2(T0)] ^ ss3[getB3(T0)]
 	s.pdwRoundKey[31] = ss0[getB0(T1)] ^ ss1[getB1(T1)] ^ ss2[getB2(T1)] ^ ss3[getB3(T1)]
 }
@@ -205,10 +193,10 @@ func (s *seed128) Encrypt(dst, src []byte) {
 	}
 
 	var T0, T1 uint32
-	L0 := byteOrder.Uint32(src[0:])
-	L1 := byteOrder.Uint32(src[4:])
-	R0 := byteOrder.Uint32(src[8:])
-	R1 := byteOrder.Uint32(src[12:])
+	L0 := binary.BigEndian.Uint32(src[0:])
+	L1 := binary.BigEndian.Uint32(src[4:])
+	R0 := binary.BigEndian.Uint32(src[8:])
+	R1 := binary.BigEndian.Uint32(src[12:])
 
 	// SEED_KeySched(L0, L1, R0, R1, K+0)
 	{
@@ -435,10 +423,10 @@ func (s *seed128) Encrypt(dst, src []byte) {
 		R1 ^= T1
 	}
 
-	byteOrder.PutUint32(dst[0:], R0)
-	byteOrder.PutUint32(dst[4:], R1)
-	byteOrder.PutUint32(dst[8:], L0)
-	byteOrder.PutUint32(dst[12:], L1)
+	binary.BigEndian.PutUint32(dst[0:], R0)
+	binary.BigEndian.PutUint32(dst[4:], R1)
+	binary.BigEndian.PutUint32(dst[8:], L0)
+	binary.BigEndian.PutUint32(dst[12:], L1)
 }
 
 func (s *seed128) Decrypt(dst, src []byte) {
@@ -450,10 +438,10 @@ func (s *seed128) Decrypt(dst, src []byte) {
 	}
 
 	var T0, T1 uint32
-	L0 := byteOrder.Uint32(src[0:])
-	L1 := byteOrder.Uint32(src[4:])
-	R0 := byteOrder.Uint32(src[8:])
-	R1 := byteOrder.Uint32(src[12:])
+	L0 := binary.BigEndian.Uint32(src[0:])
+	L1 := binary.BigEndian.Uint32(src[4:])
+	R0 := binary.BigEndian.Uint32(src[8:])
+	R1 := binary.BigEndian.Uint32(src[12:])
 
 	// SEED_KeySched(L0, L1, R0, R1, K+30)
 	{
@@ -680,10 +668,10 @@ func (s *seed128) Decrypt(dst, src []byte) {
 		R1 ^= T1
 	}
 
-	byteOrder.PutUint32(dst[0:], R0)
-	byteOrder.PutUint32(dst[4:], R1)
-	byteOrder.PutUint32(dst[8:], L0)
-	byteOrder.PutUint32(dst[12:], L1)
+	binary.BigEndian.PutUint32(dst[0:], R0)
+	binary.BigEndian.PutUint32(dst[4:], R1)
+	binary.BigEndian.PutUint32(dst[8:], L0)
+	binary.BigEndian.PutUint32(dst[12:], L1)
 }
 
 func getB0(aa uint32) int { return int(byte(aa >> 0)) }

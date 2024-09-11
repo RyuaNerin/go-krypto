@@ -1,9 +1,7 @@
 // https://github.com/golang/go/blob/go1.22.4/src/crypto/aes/gcm_amd64.s
 
-//go:build amd64 && !purego && (!gccgo || go1.18)
-// +build amd64
-// +build !purego
-// +build !gccgo go1.18
+//go:build gc && amd64 && !purego && go1.18
+// +build gc,amd64,!purego,go1.18
 
 // Copyright 2015 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style

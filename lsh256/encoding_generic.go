@@ -1,5 +1,5 @@
-//go:build !(arm64 || amd64) || purego || (gccgo && !go1.18)
-// +build !arm64,!amd64 purego gccgo,!go1.18
+//go:build !(gc && (arm64 || amd64) && !purego && go1.18)
+// +build !gc !arm64,!amd64 purego !go1.18
 
 package lsh256
 

@@ -1,7 +1,8 @@
-//go:build (arm64 || amd64) && !purego && (!gccgo || go1.18)
+//go:build gc && (arm64 || amd64) && !purego && go1.18
+// +build gc
 // +build arm64 amd64
 // +build !purego
-// +build !gccgo go1.18
+// +build go1.18
 
 package aria
 
