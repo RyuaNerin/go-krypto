@@ -4,11 +4,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build gc && !go1.20 && !purego && go1.18 && (ppc64 || ppc64le)
+//go:build gc && !go1.20 && go1.18 && !purego && (ppc64 || ppc64le)
 // +build gc
 // +build !go1.20
-// +build !purego
 // +build go1.18
+// +build !purego
 // +build ppc64 ppc64le
 
 #include "textflag.h"
@@ -61,7 +61,8 @@ loop64:
 	ADD	$64, R10
 	ADD	$64, R14
 	ADD	$64, R15
-	BDNZ	loop64
+
+	BC	32, 0, loop64 // BDNZ	loop64 // go1.18 did not have BDNZ
 	BC	12,2,LR		// BEQLR
 	MOVD	R9, R6
 	CMP	R6, $8

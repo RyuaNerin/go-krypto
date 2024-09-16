@@ -1,11 +1,11 @@
 // https://github.com/golang/go/blob/release-branch.go1.21/src/crypto/subtle/xor_arm64.go
 
-//go:build gc && !go1.20 && !purego && go1.18 && (amd64 || arm64 || ppc64 || ppc64le)
+//go:build gc && !go1.20 && go1.18 && !purego && (amd64 || arm64 || ppc64 || ppc64le || loong64)
 // +build gc
 // +build !go1.20
-// +build !purego
 // +build go1.18
-// +build amd64 arm64 ppc64 ppc64le
+// +build !purego
+// +build amd64 arm64 ppc64 ppc64le loong64
 
 package subtle
 

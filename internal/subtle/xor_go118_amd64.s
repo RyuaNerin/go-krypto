@@ -4,8 +4,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build gc && !go1.20 && !purego && go1.18 && amd64
-// +build gc,!go1.20,!purego,go1.18,amd64
+//go:build gc && !go1.20 && go1.18 && !purego && amd64
+// +build gc,!go1.20,go1.18,!purego,amd64
 
 #include "textflag.h"
 

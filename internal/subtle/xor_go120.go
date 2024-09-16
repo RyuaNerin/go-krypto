@@ -1,5 +1,5 @@
-//go:build gc && go1.20
-// +build gc,go1.20
+//go:build (gc && go1.20) || (gc && go1.20 && !purego && !loong64)
+// +build gc,go1.20 gc,go1.20,!purego,!loong64
 
 package subtle
 

@@ -1,7 +1,7 @@
 // based on https://github.com/golang/go/blob/go1.15.15/src/crypto/cipher/xor_generic.go
 
-//go:build (gc && !go1.17 && purego) || !gc
-// +build gc,!go1.17,purego !gc
+//go:build !gc || (gc && !go1.17)
+// +build !gc gc,!go1.17
 
 package subtle
 

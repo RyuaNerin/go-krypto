@@ -4,11 +4,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build gc && !go1.20 && !purego && go1.18 && (ppc64 || ppc64le)
+//go:build gc && !go1.20 && go1.18 && !purego && (ppc64 || ppc64le)
 // +build gc
 // +build !go1.20
-// +build !purego
 // +build go1.18
+// +build !purego
 // +build ppc64 ppc64le
 
 package subtle
