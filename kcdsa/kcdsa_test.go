@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-	"github.com/RyuaNerin/go-krypto/internal/kcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/kcdsaimpl"
 
 	. "github.com/RyuaNerin/testingutil"
 )
@@ -109,7 +109,7 @@ func Test_KCDSA(t *testing.T) {
 
 func testKCDSA(sizes ParameterSizes) func(*testing.T) {
 	return func(t *testing.T) {
-		d, ok := kcdsa.GetDomain(int(sizes))
+		d, ok := kcdsaimpl.GetDomain(int(sizes))
 		if !ok {
 			t.Errorf("domain not found")
 			return

@@ -9,7 +9,7 @@ import (
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
-	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/kcdsaimpl"
 	"github.com/RyuaNerin/go-krypto/kcdsa"
 )
 
@@ -88,7 +88,7 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 		}
 
 		priv.Y = new(big.Int)
-		kcdsainternal.GenerateY(priv.Y, priv.P, priv.Q, priv.G, priv.X)
+		kcdsaimpl.GenerateY(priv.Y, priv.P, priv.Q, priv.G, priv.X)
 
 		return priv, nil
 

@@ -4,7 +4,7 @@
 // +build !purego
 // +build go1.18
 
-package kipher
+package kipherimpl
 
 import (
 	"unsafe"

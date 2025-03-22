@@ -1,4 +1,4 @@
-package kipher
+package kipherimpl
 
 // Based on https://github.com/golang/go/blob/go1.21.6/src/crypto/cipher/gcm.go
 

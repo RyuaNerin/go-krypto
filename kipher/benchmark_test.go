@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"testing"
 
-	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
 	"github.com/RyuaNerin/go-krypto/kipher"
 	"github.com/RyuaNerin/go-krypto/lea"
 )
@@ -64,24 +64,24 @@ func benchmarkGCMOpen(
 }
 
 func wrapKipher(b cipher.Block) cipher.Block {
-	return ikipher.WrapKipher(b)
+	return kipherimpl.WrapKipher(b)
 }
 
 func BenchmarkGCMStd(b *testing.B) {
 	for _, length := range []int{64, 1350, 8 * 1024} {
-		b.Run("AES/Open-128-"+strconv.Itoa(length), benchmarkGCMOpen(aes.NewCipher, ikipher.WrapCipher, cipher.NewGCM, make([]byte, length), 128/8))
-		b.Run("AES/Seal-128-"+strconv.Itoa(length), benchmarkGCMSeal(aes.NewCipher, ikipher.WrapCipher, cipher.NewGCM, make([]byte, length), 128/8))
+		b.Run("AES/Open-128-"+strconv.Itoa(length), benchmarkGCMOpen(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewGCM, make([]byte, length), 128/8))
+		b.Run("AES/Seal-128-"+strconv.Itoa(length), benchmarkGCMSeal(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewGCM, make([]byte, length), 128/8))
 
-		b.Run("AES/Open-256-"+strconv.Itoa(length), benchmarkGCMOpen(aes.NewCipher, ikipher.WrapCipher, cipher.NewGCM, make([]byte, length), 256/8))
-		b.Run("AES/Seal-256-"+strconv.Itoa(length), benchmarkGCMSeal(aes.NewCipher, ikipher.WrapCipher, cipher.NewGCM, make([]byte, length), 256/8))
+		b.Run("AES/Open-256-"+strconv.Itoa(length), benchmarkGCMOpen(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewGCM, make([]byte, length), 256/8))
+		b.Run("AES/Seal-256-"+strconv.Itoa(length), benchmarkGCMSeal(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewGCM, make([]byte, length), 256/8))
 	}
 
 	for _, length := range []int{64, 1350, 8 * 1024} {
-		b.Run("LEA/Open-128-"+strconv.Itoa(length), benchmarkGCMOpen(lea.NewCipher, ikipher.WrapCipher, cipher.NewGCM, make([]byte, length), 128/8))
-		b.Run("LEA/Seal-128-"+strconv.Itoa(length), benchmarkGCMSeal(lea.NewCipher, ikipher.WrapCipher, cipher.NewGCM, make([]byte, length), 128/8))
+		b.Run("LEA/Open-128-"+strconv.Itoa(length), benchmarkGCMOpen(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewGCM, make([]byte, length), 128/8))
+		b.Run("LEA/Seal-128-"+strconv.Itoa(length), benchmarkGCMSeal(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewGCM, make([]byte, length), 128/8))
 
-		b.Run("LEA/Open-256-"+strconv.Itoa(length), benchmarkGCMOpen(lea.NewCipher, ikipher.WrapCipher, cipher.NewGCM, make([]byte, length), 256/8))
-		b.Run("LEA/Seal-256-"+strconv.Itoa(length), benchmarkGCMSeal(lea.NewCipher, ikipher.WrapCipher, cipher.NewGCM, make([]byte, length), 256/8))
+		b.Run("LEA/Open-256-"+strconv.Itoa(length), benchmarkGCMOpen(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewGCM, make([]byte, length), 256/8))
+		b.Run("LEA/Seal-256-"+strconv.Itoa(length), benchmarkGCMSeal(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewGCM, make([]byte, length), 256/8))
 	}
 }
 
@@ -134,44 +134,44 @@ const (
 )
 
 func BenchmarkCFBEncrypt1K(b *testing.B) {
-	b.Run("AES/Std", benchmarkStream(aes.NewCipher, ikipher.WrapCipher, cipher.NewCFBEncrypter, make([]byte, almost1K)))
+	b.Run("AES/Std", benchmarkStream(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewCFBEncrypter, make([]byte, almost1K)))
 	b.Run("AES/Kipher", benchmarkStream(aes.NewCipher, wrapKipher, kipher.NewCFBEncrypter, make([]byte, almost1K)))
-	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, ikipher.WrapCipher, cipher.NewCFBEncrypter, make([]byte, almost1K)))
+	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewCFBEncrypter, make([]byte, almost1K)))
 	b.Run("LEA/Kipher", benchmarkStream(lea.NewCipher, wrapKipher, kipher.NewCFBEncrypter, make([]byte, almost1K)))
 }
 
 func BenchmarkCFBDecrypt1K(b *testing.B) {
-	b.Run("AES/Std", benchmarkStream(aes.NewCipher, ikipher.WrapCipher, cipher.NewCFBDecrypter, make([]byte, almost1K)))
+	b.Run("AES/Std", benchmarkStream(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewCFBDecrypter, make([]byte, almost1K)))
 	b.Run("AES/Kipher", benchmarkStream(aes.NewCipher, wrapKipher, kipher.NewCFBDecrypter, make([]byte, almost1K)))
-	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, ikipher.WrapCipher, cipher.NewCFBDecrypter, make([]byte, almost1K)))
+	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewCFBDecrypter, make([]byte, almost1K)))
 	b.Run("LEA/Kipher", benchmarkStream(lea.NewCipher, wrapKipher, kipher.NewCFBDecrypter, make([]byte, almost1K)))
 }
 
 func BenchmarkCFBDecrypt8K(b *testing.B) {
-	b.Run("AES/Std", benchmarkStream(aes.NewCipher, ikipher.WrapCipher, cipher.NewCFBDecrypter, make([]byte, almost8K)))
+	b.Run("AES/Std", benchmarkStream(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewCFBDecrypter, make([]byte, almost8K)))
 	b.Run("AES/Kipher", benchmarkStream(aes.NewCipher, wrapKipher, kipher.NewCFBDecrypter, make([]byte, almost8K)))
-	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, ikipher.WrapCipher, cipher.NewCFBDecrypter, make([]byte, almost8K)))
+	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewCFBDecrypter, make([]byte, almost8K)))
 	b.Run("LEA/Kipher", benchmarkStream(lea.NewCipher, wrapKipher, kipher.NewCFBDecrypter, make([]byte, almost8K)))
 }
 
 func BenchmarkOFB1K(b *testing.B) {
-	b.Run("AES/Std", benchmarkStream(aes.NewCipher, ikipher.WrapCipher, cipher.NewOFB, make([]byte, almost1K)))
+	b.Run("AES/Std", benchmarkStream(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewOFB, make([]byte, almost1K)))
 	b.Run("AES/Kipher", benchmarkStream(aes.NewCipher, wrapKipher, kipher.NewOFB, make([]byte, almost1K)))
-	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, ikipher.WrapCipher, cipher.NewOFB, make([]byte, almost1K)))
+	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewOFB, make([]byte, almost1K)))
 	b.Run("LEA/Kipher", benchmarkStream(lea.NewCipher, wrapKipher, kipher.NewOFB, make([]byte, almost1K)))
 }
 
 func BenchmarkCTR1K(b *testing.B) {
-	b.Run("AES/Std", benchmarkStream(aes.NewCipher, ikipher.WrapCipher, cipher.NewCTR, make([]byte, almost8K)))
+	b.Run("AES/Std", benchmarkStream(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewCTR, make([]byte, almost8K)))
 	b.Run("AES/Kipher", benchmarkStream(aes.NewCipher, wrapKipher, kipher.NewCTR, make([]byte, almost8K)))
-	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, ikipher.WrapCipher, cipher.NewCTR, make([]byte, almost8K)))
+	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewCTR, make([]byte, almost8K)))
 	b.Run("LEA/Kipher", benchmarkStream(lea.NewCipher, wrapKipher, kipher.NewCTR, make([]byte, almost8K)))
 }
 
 func BenchmarkCTR8K(b *testing.B) {
-	b.Run("AES/Std", benchmarkStream(aes.NewCipher, ikipher.WrapCipher, cipher.NewCTR, make([]byte, almost8K)))
+	b.Run("AES/Std", benchmarkStream(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewCTR, make([]byte, almost8K)))
 	b.Run("AES/Kipher", benchmarkStream(aes.NewCipher, wrapKipher, kipher.NewCTR, make([]byte, almost8K)))
-	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, ikipher.WrapCipher, cipher.NewCTR, make([]byte, almost8K)))
+	b.Run("LEA/Std", benchmarkStream(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewCTR, make([]byte, almost8K)))
 	b.Run("LEA/Kipher", benchmarkStream(lea.NewCipher, wrapKipher, kipher.NewCTR, make([]byte, almost8K)))
 }
 
@@ -197,15 +197,15 @@ func benchmarkBlock(
 }
 
 func BenchmarkCBCEncrypt1K(b *testing.B) {
-	b.Run("AES/Std", benchmarkBlock(aes.NewCipher, ikipher.WrapCipher, cipher.NewCBCEncrypter, make([]byte, 1*1024)))
+	b.Run("AES/Std", benchmarkBlock(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewCBCEncrypter, make([]byte, 1*1024)))
 	b.Run("AES/Kipher", benchmarkBlock(aes.NewCipher, wrapKipher, kipher.NewCBCEncrypter, make([]byte, 1*1024)))
-	b.Run("LEA/Std", benchmarkBlock(lea.NewCipher, ikipher.WrapCipher, cipher.NewCBCEncrypter, make([]byte, 1*1024)))
+	b.Run("LEA/Std", benchmarkBlock(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewCBCEncrypter, make([]byte, 1*1024)))
 	b.Run("LEA/Kipher", benchmarkBlock(lea.NewCipher, wrapKipher, kipher.NewCBCEncrypter, make([]byte, 1*1024)))
 }
 
 func BenchmarkCBCDecrypt1K(b *testing.B) {
-	b.Run("AES/Std", benchmarkBlock(aes.NewCipher, ikipher.WrapCipher, cipher.NewCBCDecrypter, make([]byte, 1*1024)))
+	b.Run("AES/Std", benchmarkBlock(aes.NewCipher, kipherimpl.WrapCipher, cipher.NewCBCDecrypter, make([]byte, 1*1024)))
 	b.Run("AES/Kipher", benchmarkBlock(aes.NewCipher, wrapKipher, kipher.NewCBCDecrypter, make([]byte, 1*1024)))
-	b.Run("LEA/Std", benchmarkBlock(lea.NewCipher, ikipher.WrapCipher, cipher.NewCBCDecrypter, make([]byte, 1*1024)))
+	b.Run("LEA/Std", benchmarkBlock(lea.NewCipher, kipherimpl.WrapCipher, cipher.NewCBCDecrypter, make([]byte, 1*1024)))
 	b.Run("LEA/Kipher", benchmarkBlock(lea.NewCipher, wrapKipher, kipher.NewCBCDecrypter, make([]byte, 1*1024)))
 }

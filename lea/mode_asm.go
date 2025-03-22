@@ -9,14 +9,14 @@ package lea
 import (
 	"crypto/cipher"
 
-	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
 	"github.com/RyuaNerin/go-krypto/kipher"
 )
 
 var (
-	_ ikipher.CBCDecAble = (*leaContextAsm)(nil)
-	_ ikipher.CTRAble    = (*leaContextAsm)(nil)
-	_ ikipher.GCMAble    = (*leaContextAsm)(nil)
+	_ kipherimpl.CBCDecAble = (*leaContextAsm)(nil)
+	_ kipherimpl.CTRAble    = (*leaContextAsm)(nil)
+	_ kipherimpl.GCMAble    = (*leaContextAsm)(nil)
 )
 
 // for crypto/cipher

@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"testing"
 
-	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
 	"github.com/RyuaNerin/go-krypto/kipher"
 	"github.com/RyuaNerin/go-krypto/lea"
 
@@ -75,7 +75,7 @@ func TestCFBDecrypterWithStd(t *testing.T) {
 		b, _ := lea.NewCipher(key)
 
 		cfbN := cipher.NewCFBDecrypter(b, iv)
-		cfbF := kipher.NewCFBDecrypter(ikipher.WrapKipher(b), iv)
+		cfbF := kipher.NewCFBDecrypter(kipherimpl.WrapKipher(b), iv)
 
 		for j := 0; j < 1024; j++ {
 			l := 1 + rand.Intn(srcSizeMax-1)
@@ -111,7 +111,7 @@ func TestCFBWithStd(t *testing.T) {
 					if err != nil {
 						return nil, err
 					}
-					bk := ikipher.WrapKipher(bc)
+					bk := kipherimpl.WrapKipher(bc)
 
 					data := &ctr{}
 					if encrypt {

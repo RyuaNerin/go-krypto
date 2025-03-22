@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/kcdsaimpl"
 	"github.com/RyuaNerin/go-krypto/kcdsa"
 )
 
@@ -70,7 +70,7 @@ func processKCDSA_KPG(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 
 		...
 	*/
-	domain, _ := kcdsainternal.GetDomain(int(sz))
+	domain, _ := kcdsaimpl.GetDomain(int(sz))
 
 	bitsP := domain.A
 	bitsQ := domain.B
@@ -99,9 +99,9 @@ func processKCDSA_KPG(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 	}
 
 	for i := 0; i < 10; i++ {
-		domain, _ := kcdsainternal.GetDomain(int(sz))
+		domain, _ := kcdsaimpl.GetDomain(int(sz))
 
-		generated, err := kcdsainternal.GenerateParametersTTAK(rnd, domain)
+		generated, err := kcdsaimpl.GenerateParametersTTAK(rnd, domain)
 		if err != nil {
 			panic(err)
 		}
@@ -181,7 +181,7 @@ func processKCDSA_SGT(cavp *cavpProcessor, sz kcdsa.ParameterSizes) {
 		...
 	*/
 
-	domain, _ := kcdsainternal.GetDomain(int(sz))
+	domain, _ := kcdsaimpl.GetDomain(int(sz))
 
 	bitsP := domain.A
 	bitsQ := domain.B

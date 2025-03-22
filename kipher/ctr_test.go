@@ -5,7 +5,7 @@ import (
 	"crypto/cipher"
 	"testing"
 
-	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
 	"github.com/RyuaNerin/go-krypto/kipher"
 
 	. "github.com/RyuaNerin/testingutil"
@@ -29,8 +29,8 @@ func TestCTRWithStd(t *testing.T) {
 			}
 
 			data := &ctr{
-				c: cipher.NewCTR(ikipher.WrapCipher(b), iv),
-				k: kipher.NewCTR(ikipher.WrapKipher(b), iv),
+				c: cipher.NewCTR(kipherimpl.WrapCipher(b), iv),
+				k: kipher.NewCTR(kipherimpl.WrapKipher(b), iv),
 			}
 			return data, nil
 		},

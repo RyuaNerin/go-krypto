@@ -9,7 +9,7 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/internal"
-	eckcdsainternal "github.com/RyuaNerin/go-krypto/internal/eckcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/eckcdsaimpl"
 )
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L27-L32
@@ -111,7 +111,7 @@ func parseECKCPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key 
 	copy(privateKey[len(privateKey)-len(privKey.PrivateKey):], privKey.PrivateKey)
 
 	d := new(big.Int).SetBytes(privateKey)
-	priv.PublicKey.X, priv.PublicKey.Y = eckcdsainternal.XY(d, curve)
+	priv.PublicKey.X, priv.PublicKey.Y = eckcdsaimpl.XY(d, curve)
 
 	return priv, nil
 }

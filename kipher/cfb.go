@@ -6,7 +6,7 @@ import (
 	"crypto/cipher"
 
 	"github.com/RyuaNerin/go-krypto/internal/alias"
-	"github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
 	"github.com/RyuaNerin/go-krypto/internal/subtle"
 )
 
@@ -38,7 +38,7 @@ func NewCFBDecrypter(block cipher.Block, iv []byte) cipher.Stream {
 		panic(msgInvalidIVLength)
 	}
 
-	if kb, ok := block.(kipher.Block); ok {
+	if kb, ok := block.(kipherimpl.Block); ok {
 		return newCFBFullDec(kb, iv)
 	}
 	return cipher.NewCFBDecrypter(block, iv)
@@ -49,7 +49,7 @@ func NewCFBDecrypterWithBlockSize(block cipher.Block, iv []byte, cfbBlockByteSiz
 		panic(msgInvalidIVLength)
 	}
 	if block.BlockSize() == cfbBlockByteSize {
-		if kb, ok := block.(kipher.Block); ok {
+		if kb, ok := block.(kipherimpl.Block); ok {
 			return newCFBFullDec(kb, iv)
 		}
 		return cipher.NewCFBDecrypter(block, iv)
@@ -74,7 +74,7 @@ func newCFB(block cipher.Block, iv []byte, decrypt bool, cfbBlockByteSize int) c
 	return x
 }
 
-func newCFBFullDec(block kipher.Block, iv []byte) cipher.Stream {
+func newCFBFullDec(block kipherimpl.Block, iv []byte) cipher.Stream {
 	blockSize := block.BlockSize()
 
 	on := make([]byte, blockSize*(8+9))
@@ -132,7 +132,7 @@ func (x *cfb) XORKeyStream(dst, src []byte) {
 }
 
 type cfbFullDec struct {
-	b  kipher.Block
+	b  kipherimpl.Block
 	bs int
 
 	next    []byte
