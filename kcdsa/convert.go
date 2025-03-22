@@ -4,7 +4,7 @@ import (
 	"crypto/dsa" //nolint:staticcheck
 	"math/big"
 
-	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/kcdsaimpl"
 )
 
 /**
@@ -25,7 +25,7 @@ func FromDSA(dpk *dsa.PrivateKey) *PrivateKey {
 	}
 
 	kpk.PublicKey.Y = new(big.Int)
-	kcdsainternal.GenerateY(kpk.PublicKey.Y, kpk.P, kpk.Q, kpk.G, kpk.X)
+	kcdsaimpl.GenerateY(kpk.PublicKey.Y, kpk.P, kpk.Q, kpk.G, kpk.X)
 
 	return kpk
 }

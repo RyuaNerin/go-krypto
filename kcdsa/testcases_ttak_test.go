@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/kcdsaimpl"
 )
 
 func Test_Verify_TestVectors(t *testing.T) {
@@ -33,10 +33,10 @@ func Test_Sign_Verify_TestVectors(t *testing.T) {
 			X: tc.X,
 		}
 
-		domain, _ := kcdsainternal.GetDomain(int(tc.Sizes))
+		domain, _ := kcdsaimpl.GetDomain(int(tc.Sizes))
 
 		var ok bool
-		tmpBuf, ok = kcdsainternal.Sign(
+		tmpBuf, ok = kcdsaimpl.Sign(
 			R, S,
 			priv.P, priv.Q, priv.G, priv.Y, priv.X,
 			domain, K, tc.M,
@@ -72,8 +72,8 @@ func Test_TTAK_GenerateJ(t *testing.T) {
 
 	J := new(big.Int)
 	for _, tc := range testCaseTTAK {
-		d, _ := kcdsainternal.GetDomain(int(tc.Sizes))
-		buf, ok = kcdsainternal.GenerateJ(J, buf, tc.Seedb, d.NewHash(), d)
+		d, _ := kcdsaimpl.GetDomain(int(tc.Sizes))
+		buf, ok = kcdsaimpl.GenerateJ(J, buf, tc.Seedb, d.NewHash(), d)
 		if !ok {
 			t.Fail()
 			return
@@ -98,13 +98,13 @@ func Test_TTAK_GeneratePQ(t *testing.T) {
 	Q := new(big.Int)
 
 	for _, tc := range testCaseTTAK {
-		d, ok := kcdsainternal.GetDomain(int(tc.Sizes))
+		d, ok := kcdsaimpl.GetDomain(int(tc.Sizes))
 		if !ok {
 			t.Errorf("domain not found")
 			return
 		}
 
-		buf, count, ok = kcdsainternal.GeneratePQ(P, Q, buf, tc.J, tc.Seedb, d.NewHash(), d)
+		buf, count, ok = kcdsaimpl.GeneratePQ(P, Q, buf, tc.J, tc.Seedb, d.NewHash(), d)
 		if !ok {
 			t.Fail()
 			return
@@ -129,7 +129,7 @@ func Test_GenerateHG(t *testing.T) {
 	G := new(big.Int)
 
 	for _, tc := range testCaseTTAK {
-		buf, err = kcdsainternal.GenerateHG(H, G, buf, rand.Reader, tc.P, tc.J)
+		buf, err = kcdsaimpl.GenerateHG(H, G, buf, rand.Reader, tc.P, tc.J)
 		if err != nil {
 			t.Error(err)
 			return
@@ -145,7 +145,7 @@ func Test_GenerateG(t *testing.T) {
 
 	G := new(big.Int)
 	for _, tc := range testCaseTTAK {
-		ok := kcdsainternal.GenerateG(G, tc.P, tc.J, new(big.Int).SetBytes(tc.H))
+		ok := kcdsaimpl.GenerateG(G, tc.P, tc.J, new(big.Int).SetBytes(tc.H))
 		if !ok {
 			t.Fail()
 			return

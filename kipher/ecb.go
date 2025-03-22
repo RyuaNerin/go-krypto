@@ -4,11 +4,11 @@ import (
 	"crypto/cipher"
 
 	"github.com/RyuaNerin/go-krypto/internal/alias"
-	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
 )
 
 func NewECBEncryptor(b cipher.Block) cipher.BlockMode {
-	kb := ikipher.WrapKipher(b)
+	kb := kipherimpl.WrapKipher(b)
 	bs := kb.BlockSize()
 
 	return &ecb{
@@ -23,7 +23,7 @@ func NewECBEncryptor(b cipher.Block) cipher.BlockMode {
 }
 
 func NewECBDecryptor(b cipher.Block) cipher.BlockMode {
-	kb := ikipher.WrapKipher(b)
+	kb := kipherimpl.WrapKipher(b)
 	bs := kb.BlockSize()
 
 	return &ecb{
@@ -38,7 +38,7 @@ func NewECBDecryptor(b cipher.Block) cipher.BlockMode {
 }
 
 type ecb struct {
-	b             ikipher.Block
+	b             kipherimpl.Block
 	bs1, bs4, bs8 int
 	process1      func(dst, src []byte)
 	process4      func(dst, src []byte)

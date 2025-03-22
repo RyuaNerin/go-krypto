@@ -1,4 +1,4 @@
-package kcdsa
+package kcdsaimpl
 
 import (
 	"encoding/binary"

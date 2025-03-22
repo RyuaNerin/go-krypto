@@ -1,4 +1,4 @@
-package kipher
+package kipherimpl
 
 import (
 	"crypto/cipher"

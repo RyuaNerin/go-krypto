@@ -4,15 +4,15 @@ import (
 	"crypto/cipher"
 
 	"github.com/RyuaNerin/go-krypto/internal/alias"
-	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
 )
 
 // NewCTR returns a Stream which encrypts/decrypts using the given Block in
 // counter mode. The length of iv must be the same as the Block's block size.
 func NewCTR(block cipher.Block, iv []byte) cipher.Stream {
-	kb, ok := block.(ikipher.Block)
+	kb, ok := block.(kipherimpl.Block)
 	if !ok {
-		if ctr, ok := block.(ikipher.CTRAble); ok {
+		if ctr, ok := block.(kipherimpl.CTRAble); ok {
 			return ctr.NewCTR(iv)
 		}
 	}
@@ -26,7 +26,7 @@ func NewCTR(block cipher.Block, iv []byte) cipher.Stream {
 	return cipher.NewCTR(block, iv)
 }
 
-func newCTR(kb ikipher.Block, iv []byte) cipher.Stream {
+func newCTR(kb kipherimpl.Block, iv []byte) cipher.Stream {
 	ctr := new(ctr)
 	ctr.ctr.Init(kb, iv, 0)
 
@@ -34,7 +34,7 @@ func newCTR(kb ikipher.Block, iv []byte) cipher.Stream {
 }
 
 type ctr struct {
-	ctr ikipher.CTR
+	ctr kipherimpl.CTR
 }
 
 func (x *ctr) XORKeyStream(dst, src []byte) {

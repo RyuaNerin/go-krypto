@@ -4,7 +4,7 @@ import (
 	"crypto/ecdsa"
 	"math/big"
 
-	eckcdsainternal "github.com/RyuaNerin/go-krypto/internal/eckcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/eckcdsaimpl"
 )
 
 /**
@@ -20,7 +20,7 @@ func FromECDSA(dpk *ecdsa.PrivateKey) *PrivateKey {
 		},
 	}
 
-	kpk.X, kpk.Y = eckcdsainternal.XY(kpk.D, kpk.Curve)
+	kpk.X, kpk.Y = eckcdsaimpl.XY(kpk.D, kpk.Curve)
 	return kpk
 }
 

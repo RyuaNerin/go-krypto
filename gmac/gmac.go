@@ -9,16 +9,16 @@ import (
 	"hash"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
 )
 
-var defaultIV [ikipher.GCMStandardNonceSize]byte
+var defaultIV [kipherimpl.GCMStandardNonceSize]byte
 
 // new MAC using GMAC by only passing additional data(aad data).
 func NewGMAC(b cipher.Block, iv []byte) (hash.Hash, error) {
-	kb := ikipher.WrapKipher(b)
+	kb := kipherimpl.WrapKipher(b)
 
-	if kb.BlockSize() != ikipher.GCMBlockSize {
+	if kb.BlockSize() != kipherimpl.GCMBlockSize {
 		return nil, errors.New(msgRequired128BitBlockCipher)
 	}
 
@@ -29,7 +29,7 @@ func NewGMAC(b cipher.Block, iv []byte) (hash.Hash, error) {
 	g := new(ghash)
 	g.gcm.Init(kb)
 
-	var counter [ikipher.GCMBlockSize]byte
+	var counter [kipherimpl.GCMBlockSize]byte
 	g.gcm.DeriveCounter(&counter, iv)
 	kb.Encrypt(g.tagMask[:], counter[:])
 
@@ -37,26 +37,26 @@ func NewGMAC(b cipher.Block, iv []byte) (hash.Hash, error) {
 }
 
 type ghash struct {
-	gcm ikipher.GCM
+	gcm kipherimpl.GCM
 
-	tagMask [ikipher.GCMBlockSize]byte
+	tagMask [kipherimpl.GCMBlockSize]byte
 
-	y         ikipher.GCMFieldElement
-	remains   [ikipher.GCMBlockSize]byte
+	y         kipherimpl.GCMFieldElement
+	remains   [kipherimpl.GCMBlockSize]byte
 	remainIdx int
 	written   int
 }
 
 func (g ghash) Size() int {
-	return ikipher.GCMBlockSize
+	return kipherimpl.GCMBlockSize
 }
 
 func (g ghash) BlockSize() int {
-	return ikipher.GCMBlockSize
+	return kipherimpl.GCMBlockSize
 }
 
 func (g *ghash) Reset() {
-	g.y = ikipher.GCMFieldElement{}
+	g.y = kipherimpl.GCMFieldElement{}
 	g.remainIdx = 0
 	g.written = 0
 }
@@ -67,7 +67,7 @@ func (g *ghash) Write(b []byte) (n int, err error) {
 		g.written += n
 		g.remainIdx += n
 
-		if g.remainIdx < ikipher.GCMBlockSize {
+		if g.remainIdx < kipherimpl.GCMBlockSize {
 			return n, nil
 		}
 		b = b[n:]
@@ -76,7 +76,7 @@ func (g *ghash) Write(b []byte) (n int, err error) {
 		g.remainIdx = 0
 	}
 
-	fullBlocks := (len(b) / ikipher.GCMBlockSize) * ikipher.GCMBlockSize
+	fullBlocks := (len(b) / kipherimpl.GCMBlockSize) * kipherimpl.GCMBlockSize
 	if fullBlocks > 0 {
 		g.gcm.Update(&g.y, b[:fullBlocks])
 		n += fullBlocks
@@ -101,7 +101,7 @@ func (g *ghash) Sum(b []byte) []byte {
 		g.gcm.Update(&yy, g.remains[:g.remainIdx])
 	}
 
-	ret, out := internal.SliceForAppend(b, len(b)+ikipher.GCMBlockSize)
+	ret, out := internal.SliceForAppend(b, len(b)+kipherimpl.GCMBlockSize)
 	g.gcm.Finish(out, &yy, 0, written, &g.tagMask)
 
 	return ret

@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"testing"
 
-	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
 	"github.com/RyuaNerin/go-krypto/kipher"
 	"github.com/RyuaNerin/go-krypto/lea"
 
@@ -29,8 +29,8 @@ func TestCBC(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	enc := kipher.NewCBCEncrypter(ikipher.WrapKipher(b), iv)
-	dec := kipher.NewCBCDecrypter(ikipher.WrapKipher(b), iv)
+	enc := kipher.NewCBCEncrypter(kipherimpl.WrapKipher(b), iv)
+	dec := kipher.NewCBCDecrypter(kipherimpl.WrapKipher(b), iv)
 
 	rnd.Read(key)
 	rnd.Read(iv)
@@ -59,8 +59,8 @@ func TestCBCZero(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	enc := kipher.NewCBCEncrypter(ikipher.WrapKipher(b), iv)
-	dec := kipher.NewCBCDecrypter(ikipher.WrapKipher(b), iv)
+	enc := kipher.NewCBCEncrypter(kipherimpl.WrapKipher(b), iv)
+	dec := kipher.NewCBCDecrypter(kipherimpl.WrapKipher(b), iv)
 
 	rnd.Read(key)
 	rnd.Read(iv)
@@ -90,8 +90,8 @@ func TestCBCDecrypterWitStd(t *testing.T) {
 			}
 
 			data := &ctr{
-				c: cipher.NewCBCDecrypter(ikipher.WrapCipher(bc), iv),
-				k: kipher.NewCBCDecrypter(ikipher.WrapKipher(bc), iv),
+				c: cipher.NewCBCDecrypter(kipherimpl.WrapCipher(bc), iv),
+				k: kipher.NewCBCDecrypter(kipherimpl.WrapKipher(bc), iv),
 			}
 			return data, nil
 		},
@@ -125,9 +125,9 @@ func BenchmarkCBCDEcryptor(b *testing.B) {
 					}
 
 					if useKipher {
-						return kipher.NewCBCDecrypter(ikipher.WrapKipher(block), iv), nil
+						return kipher.NewCBCDecrypter(kipherimpl.WrapKipher(block), iv), nil
 					} else {
-						return cipher.NewCBCDecrypter(ikipher.WrapCipher(block), iv), nil
+						return cipher.NewCBCDecrypter(kipherimpl.WrapCipher(block), iv), nil
 					}
 				},
 				func(c interface{}, dst, src []byte) {

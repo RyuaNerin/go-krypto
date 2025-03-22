@@ -9,7 +9,7 @@ import (
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-	eckcdsainternal "github.com/RyuaNerin/go-krypto/internal/eckcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/eckcdsaimpl"
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
 )
 
@@ -30,7 +30,7 @@ func GenerateKey(c elliptic.Curve, randReader io.Reader) (*PrivateKey, error) {
 			Curve: c,
 		},
 	}
-	priv.PublicKey.X, priv.PublicKey.Y = eckcdsainternal.XY(D, c)
+	priv.PublicKey.X, priv.PublicKey.Y = eckcdsaimpl.XY(D, c)
 
 	return priv, nil
 }

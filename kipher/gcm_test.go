@@ -8,13 +8,13 @@ import (
 	"math/rand"
 	"testing"
 
-	ikipher "github.com/RyuaNerin/go-krypto/internal/kipher"
+	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
 	"github.com/RyuaNerin/go-krypto/kipher"
 )
 
 func TestGCM(t *testing.T) {
 	const iter = 64 * 1024
-	const maxLen = 16 * ikipher.GCMBlockSize
+	const maxLen = 16 * kipherimpl.GCMBlockSize
 
 	test := func(nonceSize, tagSize int) func(t *testing.T) {
 		return func(t *testing.T) {
@@ -24,7 +24,7 @@ func TestGCM(t *testing.T) {
 			input := make([]byte, maxLen)
 			additional := make([]byte, maxLen)
 
-			sealed := make([]byte, maxLen+ikipher.GCMBlockSize)
+			sealed := make([]byte, maxLen+kipherimpl.GCMBlockSize)
 			opened := make([]byte, maxLen)
 
 			for i := 0; i < iter; i++ {
@@ -38,7 +38,7 @@ func TestGCM(t *testing.T) {
 
 				b, _ := aes.NewCipher(key)
 
-				gcm, err := kipher.NewGCMWithSize(ikipher.WrapCipher(b), nonceSize, tagSize)
+				gcm, err := kipher.NewGCMWithSize(kipherimpl.WrapCipher(b), nonceSize, tagSize)
 				if err != nil {
 					t.Error(err)
 					return
@@ -58,19 +58,19 @@ func TestGCM(t *testing.T) {
 		}
 	}
 
-	t.Run("Default", test(ikipher.GCMStandardNonceSize, ikipher.GCMTagSize))
-	t.Run("Nonce=14", test(14, ikipher.GCMTagSize))
-	t.Run("Tag=14", test(ikipher.GCMStandardNonceSize, 14))
+	t.Run("Default", test(kipherimpl.GCMStandardNonceSize, kipherimpl.GCMTagSize))
+	t.Run("Nonce=14", test(14, kipherimpl.GCMTagSize))
+	t.Run("Tag=14", test(kipherimpl.GCMStandardNonceSize, 14))
 	t.Run("Nonce=14/Tag=14", test(14, 14))
 }
 
 func TestGCMWithStd(t *testing.T) {
-	const maxLen = blocks * ikipher.GCMBlockSize
+	const maxLen = blocks * kipherimpl.GCMBlockSize
 
 	test := func(
 		nonceSize int,
 		newCipher func(cipher.Block) (cipher.AEAD, error),
-		newKipher func(ikipher.Block) (cipher.AEAD, error),
+		newKipher func(kipherimpl.Block) (cipher.AEAD, error),
 	) func(t *testing.T) {
 		return func(t *testing.T) {
 			key := make([]byte, keySize)
@@ -79,8 +79,8 @@ func TestGCMWithStd(t *testing.T) {
 			input := make([]byte, maxLen)
 			additional := make([]byte, maxLen)
 
-			dstCipher := make([]byte, maxLen+ikipher.GCMBlockSize)
-			dstKipher := make([]byte, maxLen+ikipher.GCMBlockSize)
+			dstCipher := make([]byte, maxLen+kipherimpl.GCMBlockSize)
+			dstKipher := make([]byte, maxLen+kipherimpl.GCMBlockSize)
 
 			for i := 0; i < iter; i++ {
 				inputSize := 1 + rand.Intn(maxLen-1)
@@ -93,12 +93,12 @@ func TestGCMWithStd(t *testing.T) {
 
 				b, _ := aes.NewCipher(key)
 
-				gcmCipher, err := newCipher(ikipher.WrapCipher(b))
+				gcmCipher, err := newCipher(kipherimpl.WrapCipher(b))
 				if err != nil {
 					t.Error(err)
 					return
 				}
-				gcmKipher, err := newKipher(ikipher.WrapKipher(b))
+				gcmKipher, err := newKipher(kipherimpl.WrapKipher(b))
 				if err != nil {
 					t.Error(err)
 					return
@@ -116,18 +116,18 @@ func TestGCMWithStd(t *testing.T) {
 	}
 
 	t.Run("Default", test(
-		ikipher.GCMStandardNonceSize,
+		kipherimpl.GCMStandardNonceSize,
 		cipher.NewGCM,
-		func(b ikipher.Block) (cipher.AEAD, error) { return kipher.NewGCM(b) }),
+		func(b kipherimpl.Block) (cipher.AEAD, error) { return kipher.NewGCM(b) }),
 	)
 	t.Run("Nonce=14", test(
 		14,
 		func(b cipher.Block) (cipher.AEAD, error) { return cipher.NewGCMWithNonceSize(b, 14) },
-		func(b ikipher.Block) (cipher.AEAD, error) { return kipher.NewGCMWithNonceSize(b, 14) },
+		func(b kipherimpl.Block) (cipher.AEAD, error) { return kipher.NewGCMWithNonceSize(b, 14) },
 	))
 	t.Run("Tag=14", test(
-		ikipher.GCMStandardNonceSize,
+		kipherimpl.GCMStandardNonceSize,
 		func(b cipher.Block) (cipher.AEAD, error) { return cipher.NewGCMWithTagSize(b, 14) },
-		func(b ikipher.Block) (cipher.AEAD, error) { return kipher.NewGCMWithTagSize(b, 14) },
+		func(b kipherimpl.Block) (cipher.AEAD, error) { return kipher.NewGCMWithTagSize(b, 14) },
 	))
 }

@@ -8,29 +8,29 @@ import (
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-	kcdsainternal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/kcdsaimpl"
 	"github.com/RyuaNerin/go-krypto/internal/randutil"
 )
 
 type ParameterSizes int
 
 const (
-	A2048B224SHA224 ParameterSizes = kcdsainternal.A2048B224SHA224 // len(P) = 2048, len(Q) = 224, SHA-224, Recommended
-	A2048B224SHA256 ParameterSizes = kcdsainternal.A2048B224SHA256 // len(P) = 2048, len(Q) = 256, SHA-256
-	A2048B256SHA256 ParameterSizes = kcdsainternal.A2048B256SHA256 // len(P) = 2048, len(Q) = 256, SHA-256
-	A3072B256SHA256 ParameterSizes = kcdsainternal.A3072B256SHA256 // len(P) = 3072, len(Q) = 256, SHA-256, Recommended
-	A1024B160HAS160 ParameterSizes = kcdsainternal.A1024B160HAS160 // Deprecated: unsafe. lagacy use only
+	A2048B224SHA224 ParameterSizes = kcdsaimpl.A2048B224SHA224 // len(P) = 2048, len(Q) = 224, SHA-224, Recommended
+	A2048B224SHA256 ParameterSizes = kcdsaimpl.A2048B224SHA256 // len(P) = 2048, len(Q) = 256, SHA-256
+	A2048B256SHA256 ParameterSizes = kcdsaimpl.A2048B256SHA256 // len(P) = 2048, len(Q) = 256, SHA-256
+	A3072B256SHA256 ParameterSizes = kcdsaimpl.A3072B256SHA256 // len(P) = 3072, len(Q) = 256, SHA-256, Recommended
+	A1024B160HAS160 ParameterSizes = kcdsaimpl.A1024B160HAS160 // Deprecated: unsafe. lagacy use only
 )
 
 const (
-	L2048N224SHA224 ParameterSizes = kcdsainternal.A2048B224SHA224 // Deprecated: use A2048B224SHA224
-	L2048N224SHA256 ParameterSizes = kcdsainternal.A2048B224SHA256 // Deprecated: use A2048B224SHA256
-	L2048N256SHA256 ParameterSizes = kcdsainternal.A2048B256SHA256 // Deprecated: use A2048B256SHA256
-	L3072N256SHA256 ParameterSizes = kcdsainternal.A3072B256SHA256 // Deprecated: use A3072B256SHA256
+	L2048N224SHA224 ParameterSizes = kcdsaimpl.A2048B224SHA224 // Deprecated: use A2048B224SHA224
+	L2048N224SHA256 ParameterSizes = kcdsaimpl.A2048B224SHA256 // Deprecated: use A2048B224SHA256
+	L2048N256SHA256 ParameterSizes = kcdsaimpl.A2048B256SHA256 // Deprecated: use A2048B256SHA256
+	L3072N256SHA256 ParameterSizes = kcdsaimpl.A3072B256SHA256 // Deprecated: use A3072B256SHA256
 )
 
 func (ps ParameterSizes) Hash() hash.Hash {
-	domain, ok := kcdsainternal.GetDomain(int(ps))
+	domain, ok := kcdsaimpl.GetDomain(int(ps))
 	if !ok {
 		panic(msgInvalidParameterSizes)
 	}
@@ -40,12 +40,12 @@ func (ps ParameterSizes) Hash() hash.Hash {
 
 // Generate the parameters without Key Generation Parameters (J, Seed, Count)
 func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
-	d, ok := kcdsainternal.GetDomain(int(sizes))
+	d, ok := kcdsaimpl.GetDomain(int(sizes))
 	if !ok {
 		return errors.New(msgInvalidParameterSizes)
 	}
 
-	generated, err := kcdsainternal.GenerateParametersFast(rand, d)
+	generated, err := kcdsaimpl.GenerateParametersFast(rand, d)
 	if err != nil {
 		return err
 	}
@@ -59,12 +59,12 @@ func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes
 
 // Generate the parameters using Key Generation Parameters (J, Seed, Count)
 func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error) {
-	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	domain, ok := kcdsaimpl.GetDomain(int(sizes))
 	if !ok {
 		return errors.New(msgInvalidParameterSizes)
 	}
 
-	generated, err := kcdsainternal.GenerateParametersTTAK(rand, domain)
+	generated, err := kcdsaimpl.GenerateParametersTTAK(rand, domain)
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func GenerateParametersTTAK(params *Parameters, rand io.Reader, sizes ParameterS
 
 // TTAKParameters -> P, Q, G(randomly)
 func RegenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) error {
-	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	domain, ok := kcdsaimpl.GetDomain(int(sizes))
 	if !ok {
 		return errors.New(msgInvalidParameterSizes)
 	}
@@ -96,7 +96,7 @@ func RegenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSiz
 		return errors.New(msgInvalidGenerationParameters)
 	}
 
-	P, Q, ok := kcdsainternal.RegeneratePQ(
+	P, Q, ok := kcdsaimpl.RegeneratePQ(
 		domain,
 		params.GenParameters.J,
 		params.GenParameters.Seed,
@@ -107,7 +107,7 @@ func RegenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSiz
 	}
 
 	H, G := new(big.Int), new(big.Int)
-	_, err := kcdsainternal.GenerateHG(H, G, nil, rand, P, params.GenParameters.J)
+	_, err := kcdsaimpl.GenerateHG(H, G, nil, rand, P, params.GenParameters.J)
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 			break
 		}
 	}
-	kcdsainternal.GenerateY(Y, priv.P, priv.Q, priv.G, X)
+	kcdsaimpl.GenerateY(Y, priv.P, priv.Q, priv.G, X)
 
 	priv.Y = Y
 	priv.X = X
@@ -147,7 +147,7 @@ func GenerateKey(priv *PrivateKey, rand io.Reader) error {
 }
 
 func GenerateKeyWithSeed(priv *PrivateKey, rand io.Reader, xkey, upri []byte, sizes ParameterSizes) (xkeyOut, upriOut []byte, err error) {
-	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	domain, ok := kcdsaimpl.GetDomain(int(sizes))
 	if !ok {
 		return nil, nil, errors.New(msgInvalidParameterSizes)
 	}
@@ -174,14 +174,14 @@ func GenerateKeyWithSeed(priv *PrivateKey, rand io.Reader, xkey, upri []byte, si
 	h := domain.NewHash()
 
 	priv.X, priv.Y = new(big.Int), new(big.Int)
-	kcdsainternal.GenerateX(priv.X, priv.Q, upri, xkey, h, domain)
-	kcdsainternal.GenerateY(priv.Y, priv.P, priv.Q, priv.G, priv.X)
+	kcdsaimpl.GenerateX(priv.X, priv.Q, upri, xkey, h, domain)
+	kcdsaimpl.GenerateY(priv.Y, priv.P, priv.Q, priv.G, priv.X)
 
 	return xkey, upri, nil
 }
 
 func Sign(rand io.Reader, priv *PrivateKey, sizes ParameterSizes, data []byte) (r, s *big.Int, err error) {
-	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	domain, ok := kcdsaimpl.GetDomain(int(sizes))
 	if !ok {
 		return nil, nil, errors.New(msgInvalidParameterSizes)
 	}
@@ -219,7 +219,7 @@ func Sign(rand io.Reader, priv *PrivateKey, sizes ParameterSizes, data []byte) (
 			}
 		}
 
-		tmpBuf, ok = kcdsainternal.Sign(
+		tmpBuf, ok = kcdsaimpl.Sign(
 			r, s,
 			priv.P, priv.Q, priv.G, priv.Y, priv.X,
 			domain,
@@ -242,7 +242,7 @@ func Sign(rand io.Reader, priv *PrivateKey, sizes ParameterSizes, data []byte) (
 }
 
 func Verify(pub *PublicKey, sizes ParameterSizes, data []byte, R, S *big.Int) bool {
-	domain, ok := kcdsainternal.GetDomain(int(sizes))
+	domain, ok := kcdsaimpl.GetDomain(int(sizes))
 	if !ok {
 		return false
 	}
@@ -259,5 +259,5 @@ func Verify(pub *PublicKey, sizes ParameterSizes, data []byte, R, S *big.Int) bo
 		return false
 	}
 
-	return kcdsainternal.Verify(pub.P, pub.Q, pub.G, pub.Y, domain, data, R, S)
+	return kcdsaimpl.Verify(pub.P, pub.Q, pub.G, pub.Y, domain, data, R, S)
 }
