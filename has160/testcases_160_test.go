@@ -1,16 +1,37 @@
-package has160
+package has160_test
 
 import (
 	"strings"
 	"testing"
 
-	. "github.com/RyuaNerin/testingutil"
+	"github.com/RyuaNerin/go-krypto/has160"
+	"github.com/RyuaNerin/go-krypto/internal"
+
+	"github.com/stretchr/testify/require"
 )
 
-func Test_HAS160(t *testing.T) { HT(t, New(), testCases, false) }
+func Test_HAS160_TTAK_Testcases(t *testing.T) {
+	h := has160.New()
+
+	var sum [has160.Size]byte
+
+	for _, tc := range testCases {
+		want := internal.HB(tc.MD)
+
+		h.Reset()
+		_, err := h.Write(tc.MsgBytes)
+		require.NoError(t, err)
+
+		h.Sum(sum[:0])
+		require.Equal(t, want, sum[:], "msg=%q", tc.MsgBytes)
+	}
+}
 
 // TTAS.KO-12.0011/R2
-var testCases = []HashTestCase{
+var testCases = []struct {
+	MsgBytes []byte
+	MD       string
+}{
 	{
 		MsgBytes: []byte(``),
 		MD:       `30 79 64 ef 34 15 1d 37 c8 04 7a de c7 ab 50 f4 ff 89 76 2d`,

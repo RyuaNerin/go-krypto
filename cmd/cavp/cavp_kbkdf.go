@@ -1,137 +1,48 @@
 package main
 
 import (
-	"log"
 	"strings"
 
+	"github.com/RyuaNerin/go-krypto/internal/cavp"
 	"github.com/RyuaNerin/go-krypto/kbkdf"
 )
 
-type funcKBKDF func(dst []byte, prf kbkdf.PRF, key, label, context, iv []byte, r, length int) []byte
-
-func processKBKDF(path, filename string) {
-	cavp := NewCavp(path, filename)
-	defer cavp.Close()
-
-	counterMode := func(dst []byte, prf kbkdf.PRF, key, label, context, _ []byte, r, length int) []byte {
-		return kbkdf.CounterMode(dst, prf, key, label, context, r, length)
+func processKBKDF(path, filename string) error {
+	mode, ok := getKBKDFMode(filename)
+	if !ok {
+		return unknownAlgorithm(filename)
 	}
-	doublePipeMode := func(dst []byte, prf kbkdf.PRF, key, label, context, _ []byte, r, length int) []byte {
-		return kbkdf.DoublePipeMode(dst, prf, key, label, context, r, length)
-	}
-	feedbackMode := kbkdf.FeedbackMode
 
+	var prf kbkdf.PRF
 	switch {
 	case strings.Contains(filename, "HMAC"):
-		hashInfo := getHash(cavp.filename)
+		hashInfo := getHash(filename)
 		if hashInfo == nil {
-			log.Println("Unknown algorithm: ", cavp.filename)
-			return
+			return unknownAlgorithm(filename)
 		}
-
-		switch {
-		case strings.Contains(filename, "(CTR)") || strings.Contains(filename, "-CTR"):
-			processKBKDF_HMAC(cavp, hashInfo, counterMode)
-
-		case strings.Contains(filename, "(DP)") || strings.Contains(filename, "-DP"):
-			processKBKDF_HMAC(cavp, hashInfo, doublePipeMode)
-
-		case strings.Contains(filename, "(FB)") || strings.Contains(filename, "-FB"):
-			processKBKDF_HMAC(cavp, hashInfo, feedbackMode)
-
-		default:
-			log.Println("Unknown algorithm: ", filename)
-		}
-
+		prf = kbkdf.NewHMACPRF(hashInfo.New)
 	case strings.Contains(filename, "CMAC"):
-		newCipher := getBlock(cavp.filename)
+		newCipher := getBlock(filename)
 		if newCipher == nil {
-			log.Println("Unknown algorithm: ", cavp.filename)
-			return
+			return unknownAlgorithm(filename)
 		}
-
-		switch {
-		case strings.Contains(filename, "(CTR)") || strings.Contains(filename, "-CTR"):
-			processKBKDF_CMAC(cavp, newCipher, counterMode)
-
-		case strings.Contains(filename, "(DP)") || strings.Contains(filename, "-DP"):
-			processKBKDF_CMAC(cavp, newCipher, doublePipeMode)
-
-		case strings.Contains(filename, "(FB)") || strings.Contains(filename, "-FB"):
-			processKBKDF_CMAC(cavp, newCipher, feedbackMode)
-
-		default:
-			log.Println("Unknown algorithm: ", filename)
-		}
-
+		prf = kbkdf.NewCMACPRF(newCipher)
 	default:
-		log.Println("Unknown algorithm: ", filename)
+		return unknownAlgorithm(filename)
 	}
+
+	return cavp.ProcessKbkdfKat(path, responsePath(path), mode, prf)
 }
 
-func processKBKDF_HMAC(cavp *cavpProcessor, hashInfo *HashInfo, fn funcKBKDF) {
-	prf := kbkdf.NewHMACPRF(hashInfo.New)
-
-	var rlen int
-	var dst []byte
-
-	for cavp.Next() {
-		cs := cavp.ReadValues()
-
-		if cs.ContainsKey("PRF") {
-			if cs.ContainsValue("[NO COUNTER]") {
-				rlen = 0
-			} else {
-				rlen = cs.Int("RLEN")
-			}
-		} else if cs.ContainsKey("COUNT") {
-			L := cs.Int("L")
-			KI := cs.Hex("KI")
-			Label := cs.Hex("Label")
-			Context := cs.Hex("Context")
-
-			var IV []byte
-			if cs.ContainsKey("IV") {
-				IV = cs.Hex("IV")
-			}
-
-			dst = fn(dst[:0], prf, KI, Label, Context, IV, rlen/8, L/8)
-			cs = append(cs, cavpRow{"KO", hexStr(dst), false})
-		}
-
-		cavp.WriteValues(cs)
-	}
-}
-
-func processKBKDF_CMAC(cavp *cavpProcessor, newCipher funcNewBlockCipher, fn funcKBKDF) {
-	var rlen int
-	var dst []byte
-
-	for cavp.Next() {
-		cs := cavp.ReadValues()
-
-		if cs.ContainsKey("PRF") {
-			if cs.ContainsValue("[NO COUNTER]") {
-				rlen = 0
-			} else {
-				rlen = cs.Int("RLEN")
-			}
-		} else if cs.ContainsKey("COUNT") {
-			L := cs.Int("L")
-			KI := cs.Hex("KI")
-			Label := cs.Hex("Label")
-			Context := cs.Hex("Context")
-
-			var IV []byte
-			if cs.ContainsKey("IV") {
-				IV = cs.Hex("IV")
-			}
-
-			prf := kbkdf.NewCMACPRF(newCipher)
-			dst = fn(dst[:0], prf, KI, Label, Context, IV, rlen/8, L/8)
-			cs = append(cs, cavpRow{"KO", hexStr(dst), false})
-		}
-
-		cavp.WriteValues(cs)
+func getKBKDFMode(filename string) (cavp.KBKDFMode, bool) {
+	switch {
+	case strings.Contains(filename, "(CTR)"), strings.Contains(filename, "-CTR"):
+		return cavp.KBKDFModeCounter, true
+	case strings.Contains(filename, "(DP)"), strings.Contains(filename, "-DP"):
+		return cavp.KBKDFModeDoublePipeline, true
+	case strings.Contains(filename, "(FB)"), strings.Contains(filename, "-FB"):
+		return cavp.KBKDFModeFeedback, true
+	default:
+		return 0, false
 	}
 }

@@ -1,136 +1,116 @@
 package kipher_test
 
 import (
-	"bytes"
-	"crypto/aes"
 	"crypto/cipher"
-	"math/rand"
+	"strconv"
 	"testing"
 
-	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
+	"github.com/RyuaNerin/go-krypto/internal/testing/tblockmode"
 	"github.com/RyuaNerin/go-krypto/kipher"
-	"github.com/RyuaNerin/go-krypto/lea"
 
-	. "github.com/RyuaNerin/testingutil"
+	"github.com/stretchr/testify/require"
 )
 
-func TestCFB(t *testing.T) {
-	test := func(blockSize int) func(t *testing.T) {
-		return func(t *testing.T) {
-			key := make([]byte, 16)
-			iv := make([]byte, 16)
+var (
+	newCFBE = kipher.NewCFBEncrypterWithBlockSize
+	newCFBD = kipher.NewCFBDecrypterWithBlockSize
+)
 
-			src := make([]byte, blocks)
-			dstEnc := make([]byte, len(src))
-			dstDec := make([]byte, len(src))
+func newCFB8E(iv []byte) cipher.Stream   { return newCFBE(newLEABlock(), iv, 1) }
+func newCFB8D(iv []byte) cipher.Stream   { return newCFBD(newLEABlock(), iv, 1) }
+func newCFB32E(iv []byte) cipher.Stream  { return newCFBE(newLEABlock(), iv, 4) }
+func newCFB32D(iv []byte) cipher.Stream  { return newCFBD(newLEABlock(), iv, 4) }
+func newCFB64E(iv []byte) cipher.Stream  { return newCFBE(newLEABlock(), iv, 8) }
+func newCFB64D(iv []byte) cipher.Stream  { return newCFBD(newLEABlock(), iv, 8) }
+func newCFB128E(iv []byte) cipher.Stream { return kipher.NewCFBEncrypter(newLEABlock(), iv) }
+func newCFB128D(iv []byte) cipher.Stream { return kipher.NewCFBDecrypter(newLEABlock(), iv) }
 
-			rnd.Read(key)
-			rnd.Read(iv)
+func newCipherCFB128E(iv []byte) cipher.Stream { return cipher.NewCFBEncrypter(newLEABlock(), iv) }
+func newCipherCFB128D(iv []byte) cipher.Stream { return cipher.NewCFBDecrypter(newLEABlock(), iv) }
 
-			c, err := aes.NewCipher(key)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			enc := kipher.NewCFBEncrypterWithBlockSize(c, iv, blockSize)
-			dec := kipher.NewCFBDecrypterWithBlockSize(c, iv, blockSize)
-
-			for i := 0; i < iter; i++ {
-				dataSize := 1 + rand.Intn(blocks-1)
-				rnd.Read(src[:dataSize])
-
-				enc.XORKeyStream(dstEnc[:dataSize], src[:dataSize])
-				dec.XORKeyStream(dstDec[:dataSize], dstEnc[:dataSize])
-
-				if !bytes.Equal(src[:dataSize], dstDec[:dataSize]) {
-					t.Errorf("CFB: expected %x, got %x", src[:dataSize], dstDec[:dataSize])
-					return
-				}
-			}
-		}
+var (
+	cfbInfo   = tblockmode.StreamInfo{IVSize: blockSize}
+	cfbBlocks = []struct {
+		Name  string
+		Size  int
+		fnEnc func(iv []byte) cipher.Stream
+		fnDec func(iv []byte) cipher.Stream
+	}{
+		{Name: "CFB8", Size: 1, fnEnc: newCFB8E, fnDec: newCFB8D},
+		{Name: "CFB32", Size: 4, fnEnc: newCFB32E, fnDec: newCFB32D},
+		{Name: "CFB64", Size: 8, fnEnc: newCFB64E, fnDec: newCFB64D},
+		{Name: "CFB128", Size: 16, fnEnc: newCFB128E, fnDec: newCFB128D},
 	}
+)
 
-	t.Run("CFB8", test(1))
-	t.Run("CFB32", test(4))
-	t.Run("CFB64", test(8))
-	t.Run("CFB128", test(16))
-}
-
-func TestCFBDecrypterWithStd(t *testing.T) {
-	const bs = lea.BlockSize
-	const srcSizeMax = 128 * bs
-
-	key := make([]byte, 16)
-
-	iv := make([]byte, bs)
-
-	src := make([]byte, srcSizeMax)
-	dstN := make([]byte, srcSizeMax)
-	dstF := make([]byte, srcSizeMax)
-
-	for i := 0; i < 256; i++ {
-		rnd.Read(key)
-		rnd.Read(iv)
-
-		b, _ := lea.NewCipher(key)
-
-		cfbN := cipher.NewCFBDecrypter(b, iv)
-		cfbF := kipher.NewCFBDecrypter(kipherimpl.WrapKipher(b), iv)
-
-		for j := 0; j < 1024; j++ {
-			l := 1 + rand.Intn(srcSizeMax-1)
-
-			rnd.Read(src[:l])
-
-			cfbN.XORKeyStream(dstN[:l], src[:l])
-			cfbF.XORKeyStream(dstF[:l], src[:l])
-
-			if !bytes.Equal(dstN[:l], dstF[:l]) {
-				t.Errorf("CFB: \nexpect: %x,\nactual: %x", dstN[:l], dstF[:l])
-				return
-			}
-		}
+func Test_CFB_New(t *testing.T) {
+	for _, block := range cfbBlocks {
+		t.Run(block.Name, func(t *testing.T) {
+			cfbInfo.TestNew(t, block.fnEnc, block.fnDec, false)
+		})
 	}
 }
 
-func TestCFBWithStd(t *testing.T) {
-	type ctr struct {
-		c, k cipher.Stream
+func Test_CFB_InvalidSegmentSize(t *testing.T) {
+	iv := make([]byte, blockSize)
+
+	for _, size := range []int{-1, 0, blockSize + 1} {
+		t.Run("encrypt/"+strconv.Itoa(size), func(t *testing.T) {
+			require.Panics(t, func() {
+				kipher.NewCFBEncrypterWithBlockSize(newLEABlock(), iv, size)
+			})
+		})
+		t.Run("decrypt/"+strconv.Itoa(size), func(t *testing.T) {
+			require.Panics(t, func() {
+				kipher.NewCFBDecrypterWithBlockSize(newLEABlock(), iv, size)
+			})
+		})
 	}
+}
 
-	test := func(encrypt bool) func(t *testing.T) {
-		return func(t *testing.T) {
-			BTTC(
-				t,
-				128,
-				aes.BlockSize, // iv
-				aes.BlockSize*16,
-				1,
-				func(key, iv []byte) (interface{}, error) {
-					bc, err := aes.NewCipher(key)
-					if err != nil {
-						return nil, err
-					}
-					bk := kipherimpl.WrapKipher(bc)
-
-					data := &ctr{}
-					if encrypt {
-						data.c = cipher.NewCFBEncrypter(bc, iv)
-						data.k = kipher.NewCFBEncrypter(bk, iv)
-					} else {
-						data.c = cipher.NewCFBDecrypter(bc, iv)
-						data.k = kipher.NewCFBDecrypter(bk, iv)
-					}
-
-					return data, nil
-				},
-				func(data interface{}, dst, src []byte) { data.(*ctr).c.XORKeyStream(dst, src) },
-				func(data interface{}, dst, src []byte) { data.(*ctr).k.XORKeyStream(dst, src) },
-				false,
-			)
-		}
+func Test_CFB_Stream(t *testing.T) {
+	for _, block := range cfbBlocks {
+		t.Run(block.Name, func(t *testing.T) {
+			cfbInfo.TestStream(t, block.fnEnc, block.fnDec, false)
+		})
 	}
+}
 
-	t.Run("Encrypt", test(true))
-	t.Run("Decrypt", test(false))
+func Test_CFB_Compare(t *testing.T) {
+	cfbInfo.TestCompare(t, newCFB128E, newCFB128D, newCipherCFB128E, newCipherCFB128D, false)
+}
+
+func Fuzz_CFB8_New(f *testing.F)          { cfbInfo.FuzzNew(f, newCFB8E, newCFB8D, false) }
+func Fuzz_CFB64_New(f *testing.F)         { cfbInfo.FuzzNew(f, newCFB64E, newCFB64D, false) }
+func Fuzz_CFB32_New(f *testing.F)         { cfbInfo.FuzzNew(f, newCFB32E, newCFB32D, false) }
+func Fuzz_CFB128_New(f *testing.F)        { cfbInfo.FuzzNew(f, newCFB128E, newCFB128D, false) }
+func Fuzz_CFB8_Stream(f *testing.F)       { cfbInfo.FuzzStream(f, newCFB8E, newCFB8D, false) }
+func Fuzz_CFB64_Stream(f *testing.F)      { cfbInfo.FuzzStream(f, newCFB64E, newCFB64D, false) }
+func Fuzz_CFB32_Stream(f *testing.F)      { cfbInfo.FuzzStream(f, newCFB32E, newCFB32D, false) }
+func Fuzz_CFB128_Stream(f *testing.F)     { cfbInfo.FuzzStream(f, newCFB128E, newCFB128D, false) }
+func Fuzz_CFB8_ShortBuffer(f *testing.F)  { cfbInfo.FuzzShortBuffer(f, newCFB8E, newCFB8D, false) }
+func Fuzz_CFB64_ShortBuffer(f *testing.F) { cfbInfo.FuzzShortBuffer(f, newCFB64E, newCFB64D, false) }
+
+func Fuzz_CFB32_ShortBuffer(f *testing.F) { cfbInfo.FuzzShortBuffer(f, newCFB32E, newCFB32D, false) }
+
+func Fuzz_CFB128_ShortBuffer(f *testing.F) { cfbInfo.FuzzShortBuffer(f, newCFB128E, newCFB128D, false) }
+
+func Benchmark_CFB_New(b *testing.B) {
+	for _, block := range cfbBlocks {
+		b.Run(block.Name, func(b *testing.B) {
+			cfbInfo.BenchNew(b, block.fnEnc, block.fnDec, false)
+		})
+	}
+}
+
+func Benchmark_CFB_Stream(b *testing.B) {
+	for _, block := range cfbBlocks {
+		b.Run(block.Name, func(b *testing.B) {
+			if block.Size == 16 {
+				cfbInfo.BenchStreamCompare(b, newCFB128E, newCFB128D, newCipherCFB128E, newCipherCFB128D, false)
+			} else {
+				cfbInfo.BenchStream(b, block.fnEnc, block.fnDec, false)
+			}
+		})
+	}
 }

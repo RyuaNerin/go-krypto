@@ -1,12 +1,11 @@
 package internal
 
 import (
-	"encoding/binary"
+	"crypto/subtle"
 	"io"
 	"math/big"
-	"math/bits"
 
-	"github.com/RyuaNerin/go-krypto/internal/subtle"
+	"github.com/RyuaNerin/go-krypto/internal/zeroize"
 )
 
 const NumMRTests = 64
@@ -32,39 +31,17 @@ func CeilDiv(a, b int) int {
 	return (a + b - 1) / b
 }
 
-// [0, max)
-func ReadInt(r io.Reader, max int) (int, error) { //nolint:predeclared
-	var buf [8]byte
-
-	bitSize := uint(bits.Len64(uint64(max)))
-
-	var randomValue uint64
-	for {
-		if _, err := io.ReadFull(r, buf[:]); err != nil {
-			return 0, err
-		}
-		buf[0] &= 0x7F
-
-		randomValue = binary.BigEndian.Uint64(buf[:])
-		randomValue >>= 64 - bitSize
-
-		if randomValue < uint64(max) {
-			return int(randomValue), nil
-		}
-	}
-}
-
 // ReadBigInt returns a uniform random value in [0, max). It panics if max <= 0.
 func ReadBigInt(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bufNew []byte, err error) { //nolint:predeclared
 	if max.Sign() <= 0 {
-		panic("crypto/rand: argument to Int is <= 0")
+		panic(msgInvalidIntArgument)
 	}
 	dst.Sub(max, dst.SetUint64(1))
 	// bitLen is the maximum bit length needed to encode a value < max.
 	bitLen := dst.BitLen()
 	if bitLen == 0 {
 		// the only valid result is 0
-		return
+		return buf, nil
 	}
 	// k is the maximum byte length needed to encode a value < max.
 	k := BitsToBytes(bitLen)
@@ -90,45 +67,35 @@ func ReadBigInt(dst *big.Int, rand io.Reader, buf []byte, max *big.Int) (bufNew 
 
 		dst.SetBytes(bufNew)
 		if dst.Cmp(max) < 0 {
-			return
+			return bufNew, nil
 		}
 	}
 }
 
-// https://cs.opensource.google/go/go/+/refs/tags/go1.18:src/crypto/dsa/dsa.go;l=188-192
+// https://github.com/golang/go/blob/go1.27.0/src/crypto/dsa/dsa.go#L197-L201
 // fermatInverse calculates the inverse of k in GF(P) using Fermat's method.
 // This has better constant-time properties than Euclid's method (implemented
 // in math/big.Int.ModInverse) although math/big itself isn't strictly
 // constant-time so it's not perfect.
 func FermatInverse(k, P *big.Int) *big.Int {
-	tmp := new(big.Int).Sub(P, Two)
-	return tmp.Exp(k, tmp, P)
+	pMinus2 := new(big.Int).Sub(P, Two)
+	return new(big.Int).Exp(k, pMinus2, P)
 }
 
 func BigEqual(a, b *big.Int) bool {
-	return subtle.ConstantTimeCompare(a.Bytes(), b.Bytes()) == 1
-}
-
-// log(n) / log(2)
-func BigLog2(n *big.Int) int {
-	return n.BitLen() - 1
-}
-
-// log(n) / log(2 ** e)
-func BigLog2e(n *big.Int, e int) int {
-	return (n.BitLen() - 1) / e
+	if a == nil || b == nil {
+		return a == b
+	}
+	return a.Sign() == b.Sign() && subtle.ConstantTimeCompare(a.Bytes(), b.Bytes()) == 1
 }
 
 // = ceil(log(n) / log(2 ** e))
-func BigCeilLog2(n *big.Int, e int) int {
-	x := BigLog2e(n, e)
-	var c big.Int
-	c.Lsh(One, uint(x)*uint(e))
+func DigitLen(n *big.Int) int {
+	const e = 8
 
-	// if n > c, return x+1
-	// else return x
-	if n.Cmp(&c) > 0 {
-		return x + 1
-	}
-	return x
+	var b big.Int
+	defer zeroize.Zeroize(&b)
+
+	b.Sub(n, One)
+	return (b.BitLen() + e - 1) / e
 }

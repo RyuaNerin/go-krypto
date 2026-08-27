@@ -1,94 +1,72 @@
-package eckcdsa
+package eckcdsa_test
 
 import (
 	"crypto/elliptic"
-	"crypto/sha256"
 	"hash"
 	"testing"
+
+	"github.com/RyuaNerin/go-krypto/eckcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/randutil"
+
+	"github.com/stretchr/testify/require"
 )
 
 func Benchmark_GenerateKey(b *testing.B) {
-	tests := []struct {
-		name  string
-		curve elliptic.Curve
-	}{
-		{"P224", elliptic.P224()},
-		{"P256", elliptic.P256()},
-	}
-	for _, test := range tests {
-		test := test
-		b.Run(test.name, func(b *testing.B) {
+	rnd, _ := randutil.NewBenchRand()
+
+	for _, c := range curves {
+		b.Run(c.Params().Name, func(b *testing.B) {
 			b.ReportAllocs()
-			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
-				if _, err := GenerateKey(test.curve, rnd); err != nil {
-					b.Error(err)
-				}
+			for b.Loop() {
+				_, err := eckcdsa.GenerateKey(c, rnd)
+				require.NoError(b, err)
 			}
 		})
 	}
 }
 
 func benchmarkAllSizes(b *testing.B, f func(*testing.B, elliptic.Curve, hash.Hash)) {
-	tests := []struct {
-		name  string
-		curve elliptic.Curve
-		h     hash.Hash
-	}{
-		{"P224_SHA224", elliptic.P224(), sha256.New224()},
-		{"P224_SHA256", elliptic.P224(), sha256.New()},
-		{"P256_SHA224", elliptic.P256(), sha256.New224()},
-		{"P256_SHA256", elliptic.P256(), sha256.New()},
-	}
-	for _, test := range tests {
-		test := test
+	for _, test := range curveAndHashPairs {
 		b.Run(test.name, func(b *testing.B) {
-			f(b, test.curve, test.h)
+			f(b, test.curve, test.hash)
 		})
 	}
 }
 
 func Benchmark_Sign(b *testing.B) {
-	benchmarkAllSizes(b, func(b *testing.B, c elliptic.Curve, h hash.Hash) {
-		data := []byte(`text`)
+	data := []byte(`text`)
 
-		key, err := GenerateKey(c, rnd)
-		if err != nil {
-			b.Error(err)
-		}
+	benchmarkAllSizes(b, func(b *testing.B, c elliptic.Curve, h hash.Hash) {
+		rnd, _ := randutil.NewBenchRand()
+
+		key, err := eckcdsa.GenerateKey(c, rnd)
+		require.NoError(b, err)
 
 		b.ReportAllocs()
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			r, _, err := Sign(rnd, key, h, data)
-			if err != nil {
-				b.Error(err)
-			}
+		for b.Loop() {
+			r, _, err := eckcdsa.Sign(rnd, key, h, data)
+			require.NoError(b, err)
 			data = r.Bytes()
 		}
 	})
 }
 
 func Benchmark_Verify(b *testing.B) {
-	benchmarkAllSizes(b, func(b *testing.B, c elliptic.Curve, h hash.Hash) {
-		data := []byte(`text`)
+	data := []byte(`text`)
 
-		key, err := GenerateKey(c, rnd)
-		if err != nil {
-			b.Error(err)
-		}
-		r, s, err := Sign(rnd, key, h, data)
-		if err != nil {
-			b.Error(err)
-		}
+	benchmarkAllSizes(b, func(b *testing.B, c elliptic.Curve, h hash.Hash) {
+		rnd, _ := randutil.NewBenchRand()
+
+		key, err := eckcdsa.GenerateKey(c, rnd)
+		require.NoError(b, err)
+
+		r, s, err := eckcdsa.Sign(rnd, key, h, data)
+		require.NoError(b, err)
 
 		b.ReportAllocs()
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			ok := Verify(&key.PublicKey, h, data, r, s)
-			if !ok {
-				b.Errorf("%d: Verify failed", i)
-			}
+		for b.Loop() {
+			ok := eckcdsa.Verify(&key.PublicKey, h, data, r, s)
+			require.True(b, ok)
 		}
 	})
 }

@@ -1,5 +1,3 @@
-// https://github.com/golang/go/blob/release-branch.go1.21/src/crypto/internal/randutil/randutil.go
-
 // Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -8,33 +6,23 @@
 // crypto packages.
 package randutil
 
+// https://github.com/golang/go/blob/go1.27.0/src/crypto/internal/randutil/randutil.go
+
 import (
 	"io"
-	"sync"
+	"math/rand/v2"
 )
 
-var (
-	closedChanOnce sync.Once
-	closedChan     chan struct{}
-)
-
-// MaybeReadByte reads a single byte from r with ~50% probability. This is used
+// MaybeReadByte reads a single byte from r with 50% probability. This is used
 // to ensure that callers do not depend on non-guaranteed behaviour, e.g.
 // assuming that rsa.GenerateKey is deterministic w.r.t. a given random stream.
 //
 // This does not affect tests that pass a stream of fixed bytes as the random
 // source (e.g. a zeroReader).
 func MaybeReadByte(r io.Reader) {
-	closedChanOnce.Do(func() {
-		closedChan = make(chan struct{})
-		close(closedChan)
-	})
-
-	select {
-	case <-closedChan:
+	if rand.Uint64()&1 == 1 {
 		return
-	case <-closedChan:
-		var buf [1]byte
-		r.Read(buf[:])
 	}
+	var buf [1]byte
+	r.Read(buf[:])
 }

@@ -2,6 +2,7 @@ package hight
 
 import "fmt"
 
+// KeySizeError is returned when an invalid HIGHT key size is supplied.
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
@@ -9,6 +10,6 @@ func (k KeySizeError) Error() string {
 }
 
 const (
-	msgInvalidBlockSizeSrcFormat = "krypto/hight: invalid block size %d (src)"
-	msgInvalidBlockSizeDstFormat = "krypto/hight: invalid block size %d (dst)"
+	msgNotFullBlock  = "krypto/hight: not full block"
+	msgBufferOverlap = "krypto/hight: invalid buffer overlap"
 )

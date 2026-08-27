@@ -1,24 +1,29 @@
 package memory
 
 import (
-	"reflect"
-	"testing"
+	"unsafe"
 )
 
-func TestFieldIsAligned(t *testing.T, align uintptr, raw interface{}, fieldName string) {
-	v := reflect.ValueOf(raw)
-	for v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-	vt := v.Type()
+func IsAlignedPtr(p unsafe.Pointer, align uintptr) bool {
+	return uintptr(p)%align == 0
+}
 
-	vtf, ok := vt.FieldByName(fieldName)
-	if !ok {
-		t.Errorf("%s.%s not found", vt.Name(), fieldName)
-		return
-	}
+func IsAligned[T any](ptr *T, align uintptr) bool {
+	return uintptr(unsafe.Pointer(ptr))%align == 0
+}
 
-	if vtf.Offset&(align-1) != 0 {
-		t.Errorf("%s.%s is not Aligned. offset=%d", vt.Name(), fieldName, vtf.Offset)
-	}
+type Aligned16[T any] struct {
+	data      T
+	alignment [15]byte // alignment
+}
+
+func (a *Aligned16[T]) Zeroize() {
+	var zero T
+	a.data = zero
+	clear(a.alignment[:])
+}
+
+func (a *Aligned16[T]) Aligned() *T {
+	base := unsafe.Pointer(&a.data)
+	return (*T)(unsafe.Add(base, (-uintptr(base))&15))
 }

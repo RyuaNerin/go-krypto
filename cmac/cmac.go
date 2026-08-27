@@ -3,42 +3,65 @@ package cmac
 
 import (
 	"crypto/cipher"
+	"crypto/subtle"
 	"hash"
 
-	"github.com/RyuaNerin/go-krypto/internal/memory"
-	"github.com/RyuaNerin/go-krypto/internal/subtle"
+	"github.com/RyuaNerin/go-krypto"
+	"github.com/RyuaNerin/go-krypto/internal/zeroize"
 )
 
+const (
+	// the standard tag size of CMAC, in bytes.
+	StandardTagSize = 16
+)
+
+const maxBlockSize = 16
+
+// Equal reports whether mac1 and mac2 are identical, comparing them in constant time.
 func Equal(mac1, mac2 []byte) bool {
 	return subtle.ConstantTimeCompare(mac1, mac2) == 1
 }
 
+// [New] returns a new hash.Hash computing the CMAC checksum.
+//
+// The returned value is a [krypto.Hash] and therefore implements Zeroize(): call it
+// to erase the derived subkeys (k1, k2) and accumulator when the MAC is no longer
+// needed. After Zeroize() further use returns krypto.ErrStateCleared. NewWithSize is
+// the same.
 func New(b cipher.Block) hash.Hash {
-	blockSize := b.BlockSize()
+	return newCMAC(b, b.BlockSize())
+}
 
-	arr := make([]byte, 4*blockSize)
-	var (
-		k1   = arr[0*blockSize : 1*blockSize]
-		k2   = arr[1*blockSize : 2*blockSize]
-		ciph = arr[2*blockSize : 3*blockSize]
-		m    = arr[3*blockSize : 4*blockSize]
-	)
+func NewWithSize(b cipher.Block, tagSize int) krypto.Hash {
+	return newCMAC(b, tagSize)
+}
+
+func newCMAC(b cipher.Block, tagSize int) *cmac {
+	blockSize := b.BlockSize()
+	switch blockSize {
+	case 8:
+	case 16:
+	default:
+		panic(msgUnsupportedBlockCipher)
+	}
+	if tagSize <= 0 || tagSize > blockSize {
+		panic(msgInvalidTagSize)
+	}
+
+	c := &cmac{
+		block:   b,
+		tagSize: byte(tagSize),
+	}
 
 	// k1
-	b.Encrypt(k1, k1)
-	makeCMACSubkey(k1)
+	b.Encrypt(c.k1[:blockSize], c.k1[:blockSize])
+	makeCMACSubkey(c.k1[:blockSize])
 
 	// k2
-	copy(k2, k1)
-	makeCMACSubkey(k2)
+	c.k2 = c.k1
+	makeCMACSubkey(c.k2[:blockSize])
 
-	return &cmac{
-		block: b,
-		k1:    k1,
-		k2:    k2,
-		ciph:  ciph,
-		m:     m,
-	}
+	return c
 }
 
 func makeCMACSubkey(k []byte) {
@@ -50,91 +73,126 @@ func makeCMACSubkey(k []byte) {
 		carry = k[i-1] >> 7
 		k[i-1] += k[i-1] + carry2
 	}
-	if carry > 0 {
-		switch len(k) {
-		case 8:
-			k[7] ^= 0x1b
-		case 16:
-			k[15] ^= 0x87
-		case 32:
-			k[30] ^= 4
-			k[31] ^= 0x25
-		case 64:
-			k[62] ^= 1
-			k[63] ^= 0x25
-		case 128:
-			k[125] ^= 8
-			k[126] ^= 0x00
-			k[127] ^= 0x43
-		default:
-			panic(msgUnsupportedCipher)
-		}
+	mask := -carry
+	switch len(k) {
+	case 8:
+		k[7] ^= 0x1b & mask
+	case 16:
+		k[15] ^= 0x87 & mask
 	}
 }
 
 type cmac struct {
+	z zeroize.ZeroizedFlag
+
 	block cipher.Block
 
-	k1, k2 []byte
-	ciph   []byte
-	m      []byte
-	mIdx   int
+	k1, k2  [maxBlockSize]byte
+	ciph    [maxBlockSize]byte
+	m       [maxBlockSize]byte
+	mIdx    byte
+	tagSize byte
 }
 
-func (c *cmac) Size() int { return c.block.BlockSize() }
+var _ krypto.Hash = (*cmac)(nil)
+
+func (ctx *cmac) Zeroize() {
+	ctx.z.SetInvalid()
+
+	zeroize.Zeroize(ctx.block)
+	ctx.block = nil
+
+	clear(ctx.k1[:])
+	clear(ctx.k2[:])
+	clear(ctx.ciph[:])
+	clear(ctx.m[:])
+	ctx.mIdx = 0
+	ctx.tagSize = 0
+}
+
+func (c *cmac) Size() int { return int(c.tagSize) }
 
 func (c *cmac) BlockSize() int { return c.block.BlockSize() }
 
 func (c *cmac) Reset() {
-	memory.Memclr(c.ciph)
+	clear(c.ciph[:])
 	c.mIdx = 0
 }
 
 func (c *cmac) Write(p []byte) (n int, err error) {
-	if len(p) == 0 {
-		return
+	if err = c.z.ReturnIfZeroized(); err != nil {
+		return 0, err
 	}
 
-	blockSize := c.block.BlockSize()
+	n = len(p)
+	if n == 0 {
+		return 0, nil
+	}
 
-	if c.mIdx > 0 && c.mIdx+len(p) > blockSize {
-		copied := copy(c.m[c.mIdx:], p)
-		subtle.XORBytes(c.ciph, c.ciph, c.m)
-		c.block.Encrypt(c.ciph, c.ciph)
+	blockSize := int(c.block.BlockSize())
+	switch blockSize {
+	case 8:
+	case 16:
+	default:
+		panic(msgInvalidInternalState)
+	}
 
-		p = p[copied:]
+	ciph, m := c.ciph[:blockSize], c.m[:blockSize]
+
+	mIdx := int(c.mIdx)
+	if mIdx > blockSize {
+		panic(msgInvalidInternalState)
+	}
+	if mIdx > 0 {
+		if mIdx+len(p) <= blockSize {
+			c.mIdx += byte(copy(m[mIdx:blockSize], p))
+			return n, nil
+		}
+		p = p[copy(m[mIdx:blockSize], p):]
 		c.mIdx = 0
+
+		subtle.XORBytes(ciph, ciph, m[:blockSize])
+		c.block.Encrypt(ciph, ciph)
 	}
 
-	for len(p) > blockSize { // 마지막 블록 저장을 위해서
-		subtle.XORBytes(c.ciph, c.ciph, p)
-		c.block.Encrypt(c.ciph, c.ciph)
-
+	for len(p) > blockSize {
+		subtle.XORBytes(ciph, ciph, p[:blockSize])
+		c.block.Encrypt(ciph, ciph)
 		p = p[blockSize:]
 	}
 
-	if len(p) > 0 {
-		copy(c.m[c.mIdx:], p)
-		c.mIdx += len(p)
-	}
-
-	return len(p), nil
+	c.mIdx = byte(copy(m[:], p))
+	return n, nil
 }
 
 func (c *cmac) Sum(b []byte) []byte {
-	blockSize := c.block.BlockSize()
+	c.z.ThrowIfZeroized()
 
-	mac := make([]byte, blockSize)
-
-	if c.mIdx == blockSize {
-		subtle.XORBytes(mac, c.ciph, c.k1) // CIPH ^ K1
-		subtle.XORBytes(mac, mac, c.m)     // CIPH ^ K1 ^ M
-	} else {
-		subtle.XORBytes(mac, c.ciph, c.k2)      // CIPH ^ K2
-		subtle.XORBytes(mac, mac, c.m[:c.mIdx]) // CIPH ^ K2 ^ M
-		mac[c.mIdx] ^= 0x80
+	blockSize, mIdx, tagSize := int(c.block.BlockSize()), int(c.mIdx), int(c.tagSize)
+	switch blockSize {
+	case 8:
+	case 16:
+	default:
+		panic(msgInvalidInternalState)
 	}
-	c.block.Encrypt(mac, mac)
+	if mIdx > blockSize || tagSize < 1 || tagSize > blockSize {
+		panic(msgInvalidInternalState)
+	}
 
-	return append(b, mac...)
+	k1, k2, ciph, m := c.k1[:blockSize], c.k2[:blockSize], c.ciph[:blockSize], c.m[:blockSize]
+
+	var mac [maxBlockSize]byte
+	defer clear(mac[:])
+
+	if mIdx == blockSize {
+		subtle.XORBytes(mac[:], ciph[:], k1[:]) // CIPH ^ K1
+		subtle.XORBytes(mac[:], mac[:], m[:])   // CIPH ^ K1 ^ M
+	} else {
+		subtle.XORBytes(mac[:], c.ciph[:], k2[:]) // CIPH ^ K2
+		subtle.XORBytes(mac[:], mac[:], m[:mIdx]) // CIPH ^ K2 ^ M
+		mac[mIdx] ^= 0x80
+	}
+	c.block.Encrypt(mac[:blockSize], mac[:blockSize])
+
+	return append(b, mac[:tagSize]...)
 }

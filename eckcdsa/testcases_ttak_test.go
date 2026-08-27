@@ -1,14 +1,87 @@
-package eckcdsa
+package eckcdsa_test
 
 import (
+	"crypto/elliptic"
+	"crypto/sha256"
+	"hash"
+	"math/big"
 	"testing"
 
+	"github.com/RyuaNerin/go-krypto/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/internal"
+	eckcdsa_internal "github.com/RyuaNerin/go-krypto/internal/eckcdsa"
+
+	"github.com/RyuaNerin/elliptic2/secg"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_Sign_Verify_TTAK(t *testing.T) {
-	testSignVerify(t, testCase_TTAK)
+	R, S, tmp := new(big.Int), new(big.Int), new(big.Int)
+	var buf []byte
+
+	for idx, tc := range testCase_TTAK {
+		key := eckcdsa.PrivateKey{
+			PublicKey: eckcdsa.PublicKey{
+				Curve: tc.curve,
+				X:     tc.Qx,
+				Y:     tc.Qy,
+			},
+			D: tc.D,
+		}
+
+		ok := tc.curve.IsOnCurve(key.X, key.Y)
+		require.Truef(t, ok, "%d: Verify failed: public key is not on curve", idx)
+
+		gotX, gotY := eckcdsa_internal.GenerateXY(key.D, key.Curve)
+		require.Equalf(t, tc.Qx.Text(16), gotX.Text(16), "%d: Verify failed: public key X mismatch", idx)
+		require.Equalf(t, tc.Qy.Text(16), gotY.Text(16), "%d: Verify failed: public key Y mismatch", idx)
+
+		buf, ok = eckcdsa_internal.SignUsingK(
+			tc.K, R, S,
+			key.Curve, key.D, key.X, key.Y,
+			tc.hash,
+			tc.M, buf,
+			tmp,
+		)
+		require.Truef(t, ok, "%d: error signing: invalid K", idx)
+		require.Equalf(t, tc.R.Text(16), R.Text(16), "%d: error signing: R mismatch", idx)
+		require.Equalf(t, tc.S.Text(16), S.Text(16), "%d: error signing: S mismatch", idx)
+
+		ok = eckcdsa.Verify(&key.PublicKey, tc.hash, tc.M, tc.R, tc.S)
+		if tc.Fail {
+			require.Falsef(t, ok, "%d: Verify failed", idx)
+		} else {
+			require.Truef(t, ok, "%d: Verify failed", idx)
+		}
+	}
 }
+
+type testCase struct {
+	curve elliptic.Curve
+	hash  hash.Hash
+
+	D  *big.Int
+	Qx *big.Int
+	Qy *big.Int
+
+	K *big.Int
+
+	M []byte
+	R *big.Int
+	S *big.Int
+
+	Fail bool
+}
+
+var (
+	secp224r = elliptic.P224()
+	secp256r = elliptic.P256()
+
+	sect233r = secg.Sect233r1()
+	sect233k = secg.Sect233k1()
+	sect283r = secg.Sect283r1()
+	sect283k = secg.Sect283k1()
+)
 
 var (
 	UserProvidedRandomInput = internal.HB(`
@@ -28,7 +101,7 @@ var (
 		{
 			M:     M,
 			curve: secp224r,
-			hash:  hashSHA256_224,
+			hash:  sha256.New224(),
 			D:     internal.HI(`562A6F64 E162FFCB 51CD4707 774AE366 81B6CEF2 05FE5D43 912956A2`),
 			Qx:    internal.HI(`B574169E 4FCEF1AF 3429D8BB 5481FF7D FA978690 492E1098 B80A5579`),
 			Qy:    internal.HI(`1576819B D9F0B685 19EE844A FE88CCFB 2AD574A5 6472D954 1461AE7E`),
@@ -41,7 +114,7 @@ var (
 		{
 			M:     M,
 			curve: secp224r,
-			hash:  hashSHA256,
+			hash:  sha256.New(),
 			D:     internal.HI(`61585827 449DBC0E C161B2CF 8575C9DF 149F41DD 0289BE4F F110773D`),
 			Qx:    internal.HI(`CFA3A0C1 F4A0903E 84F314B0 70FB3EFA 531DB6D3 86739E01 2609557C`),
 			Qy:    internal.HI(`FDB53330 B727A7B3 D40E332B 59AF060C 957D908D 18862159 F92B26B3`),
@@ -54,7 +127,7 @@ var (
 		{
 			M:     M,
 			curve: secp256r,
-			hash:  hashSHA256,
+			hash:  sha256.New(),
 			D:     internal.HI(`9051A275 AA4D9843 9EDDED13 FA1C6CBB CCE775D8 CC9433DE E69C5984 8B3594DF`),
 			Qx:    internal.HI(`148EDDD3 734FD5F1 5987579F 516089A8 C9FEF4AB 76B59D7B 8A01CDC5 6C4EDFDF`),
 			Qy:    internal.HI(`A4E2E42C B4372A6F 2F3F71A1 49481549 F68D2963 539C853E 46B94696 569E8D61`),
@@ -66,8 +139,8 @@ var (
 		// p. 45
 		{
 			M:     M,
-			curve: sect233r, // sect233r, Also known as: B-233, wap-wsg-idm-ecid-wtls11, ansit233r1
-			hash:  hashSHA256_224,
+			curve: sect233r,
+			hash:  sha256.New224(),
 			D:     internal.HI(`00BF 83825505 3DBF499C BE190DE3 5BC14AFC 1EA142F3 5EE69838 5B48D688`),
 			Qx:    internal.HI(`01F4 85A65E59 B336E140 1C8A311F 01C92626 C663E69F 12A627E5 3E8F0675`),
 			Qy:    internal.HI(`01BF 338CE75A DFB07DEB D962E1D8 0C101587 269AC995 1B40422B 12E9DA3E`),
@@ -80,7 +153,7 @@ var (
 		{
 			M:     M,
 			curve: sect233r,
-			hash:  hashSHA256,
+			hash:  sha256.New(),
 			D:     internal.HI(`000E D21C5C28 5F2B454A 0FE5D97C 6A86AA3F 7CB14FFD D35EB089 BE11F031`),
 			Qx:    internal.HI(`0068 A50FAF91 43203612 1C5B6D2C 9307EA20 1FFE6F74 E09EF223 0AEC930F`),
 			Qy:    internal.HI(`0052 67430AF3 EF4FB190 A4430F26 9521D7FC E007E221 245F5D14 C7541963`),
@@ -93,7 +166,7 @@ var (
 		{
 			M:     M,
 			curve: sect233k,
-			hash:  hashSHA256_224,
+			hash:  sha256.New224(),
 			D:     internal.HI(`0073 6439374F 72B1C723 AE611CB3 DFBCA0A8 E2C5096B DB9C2D37 21167B49`),
 			Qx:    internal.HI(`01E9 1DEFBD41 AE655105 E046E03E C13E3860 0E9A2C9A 920B8E75 53721605`),
 			Qy:    internal.HI(`0112 9C2706D1 9D134891 C7BAD84A 5600C2AF F86068C4 7497F5BD 498D0B76`),
@@ -106,7 +179,7 @@ var (
 		{
 			M:     M,
 			curve: sect233k,
-			hash:  hashSHA256,
+			hash:  sha256.New(),
 			D:     internal.HI(`0028 13E18571 44BE8611 A7B93256 4EB3603D B08406A6 90D8185D EFE6EC5F`),
 			Qx:    internal.HI(`00CF 66347977 26F04185 BC953B3D DB4B9375 9D074522 0938DA29 DD7FA585`),
 			Qy:    internal.HI(`01E0 00F206CE D0896589 2BCFA3E7 B459CED4 7188EBDA 7A74B03E 2ECB66FC`),
@@ -119,7 +192,7 @@ var (
 		{
 			M:     M,
 			curve: sect283r,
-			hash:  hashSHA256,
+			hash:  sha256.New(),
 			D:     internal.HI(`00D64BEC 51F1ADA0 5BBD4F2B 53405B0C E8A1B99C D8DB6309 76A47F76 F08F205E EFC3FBD8`),
 			Qx:    internal.HI(`04313C7E 9C4F80D2 6A287B37 FE7FAA96 BE31F116 2E18BDB4 70CF43D4 DB28DE10 8B007E9F`),
 			Qy:    internal.HI(`0342CCF6 F502F9DF EC208170 24326C26 E867E1FB EC6634CB 17023CA0 222D6112 E0BFA106`),
@@ -133,7 +206,7 @@ var (
 		{
 			M:     M,
 			curve: sect283k,
-			hash:  hashSHA256,
+			hash:  sha256.New(),
 			D:     internal.HI(`014930E6 6B51F09F EEBBAFFC 9111C5CF 8AE406C9 35AC9618 F0A613B9 6D97F7DB 8F6EBA74`),
 			Qx:    internal.HI(`078A6ACD D5F779F2 5E8AB413 965E217F E6B1E63D 4717EEF5 0DC8C59D F7B1A095 BC3027AE`),
 			Qy:    internal.HI(`07B6D962 5F2D9DDF 516B5037 E1E7B115 26E12AC4 E65AD498 CD85D65A 9E915D58 6976C00F`),

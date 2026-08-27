@@ -1,10 +1,12 @@
-//go:build gc && arm64 && !purego && go1.18
-// +build gc,arm64,!purego,go1.18
+//go:build !noasm && !noasm_krypto && !noasm_krypto_lea && arm64
 
 package lea
 
-//go:noescape
-func __lea_encrypt_4block(ctx *leaContext, ct, pt *byte)
+import "crypto/cipher"
 
-//go:noescape
-func __lea_decrypt_4block(ctx *leaContext, pt, ct *byte)
+func newCipherAsm(key []byte) (cipher.Block, error) {
+	ctx := new(leaContextAsm)
+	ctx.round = setKeyGo(&ctx.rk, key)
+
+	return ctx, nil
+}

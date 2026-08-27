@@ -1,0 +1,196 @@
+name: Go Test
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - '**/go.mod'
+      - '**/go.sum'
+      - '**/*.go'
+      - '**/*.s'
+      - '**/*.c'
+      - '**/*.h'
+      - 'internal/cavp/testdata/**'
+      - '.github/workflows/**'
+      - '.golangci.yml'
+      - 'bin/*.sh'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - '**/go.mod'
+      - '**/go.sum'
+      - '**/*.go'
+      - '**/*.s'
+      - '**/*.c'
+      - '**/*.h'
+      - 'internal/cavp/testdata/**'
+      - '.github/workflows/**'
+      - '.golangci.yml'
+      - 'bin/*.sh'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint-and-test:
+    strategy:
+      matrix:
+        go-version:
+          - '1.25'
+          - '1.26'
+          - '1.27'
+        os:
+          - ubuntu-latest
+          - ubuntu-26.04-arm
+          - windows-latest
+          - windows-11-arm
+          - macos-latest
+
+    runs-on: ${{ matrix.os }}
+    name: Lint and Test - Go ${{ matrix.go-version }} on ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache-dependency-path: go.sum
+
+      - name: Set up gotestfmt
+        run: go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@v2.5.0
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.15.0
+
+      - name: golangci-lint (noasm)
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.15.0
+          args: --build-tags noasm
+
+      - name: Build
+        run: |
+          go build -v ./...
+
+      - name: Test
+        run: |
+          set -euo pipefail
+          go test -json -v             ./... 2>&1 | tee "${{ runner.temp }}/gotest.log"       | gotestfmt
+          go test -json -v -tags noasm ./... 2>&1 | tee "${{ runner.temp }}/gotest-noasm.log" | gotestfmt
+
+      - name: Test generator module
+        if: matrix.go-version == '1.27'
+        working-directory: internal/generators/goat_fmt
+        run: go test ./...
+
+      - name: Test QEMU failure propagation
+        if: runner.os == 'Linux'
+        run: bash bin/docker-qemu_test.sh
+
+      - name: Race test
+        if: runner.os == 'Linux' && runner.arch == 'X64'
+        run: go test -race ./...
+
+      - name: Build
+        run: |
+          go build -v -tags noasm                     ./... 2>&1 | tee "${{ runner.temp }}/gobuild-noasm.log"
+          go build -v -tags noasm_krypto              ./... 2>&1 | tee "${{ runner.temp }}/gobuild-noasm_krypto.log"
+          go build -v -tags noasm_krypto_lea          ./... 2>&1 | tee "${{ runner.temp }}/gobuild-noasm_krypto_lea.log"
+          go build -v -tags noasm_krypto_lsh256       ./... 2>&1 | tee "${{ runner.temp }}/gobuild-noasm_krypto_lsh256.log"
+          go build -v -tags krypto_enable_lsh256_avx2 ./... 2>&1 | tee "${{ runner.temp }}/gobuild-krypto_enable_lsh256_avx2.log"
+          go build -v -tags noasm_krypto_lsh512       ./... 2>&1 | tee "${{ runner.temp }}/gobuild-noasm_krypto_lsh512.log"
+          go build -v -tags noasm_krypto_kipher       ./... 2>&1 | tee "${{ runner.temp }}/gobuild-noasm_krypto_kipher.log"
+          go build -v -tags noasm_krypto_lea,noasm_krypto_lsh256,noasm_krypto_lsh512,noasm_krypto_kipher ./... 2>&1 | tee "${{ runner.temp }}/gobuild-noasm_krypto_xxx.log"
+
+      - name: Cross-arch vet
+        if: runner.os == 'Linux' && runner.arch == 'X64'
+        run: |
+          set -euo pipefail
+          for arch in 386 arm arm64 s390x ppc64le riscv64 loong64 mips mips64le; do
+            echo "== GOARCH=$arch"
+            GOOS=linux GOARCH=$arch go vet ./...
+          done
+          echo "== GOOS=js GOARCH=wasm"
+          GOOS=js GOARCH=wasm go vet ./...
+
+      - name: Upload test log
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-log-${{ matrix.os }}-go${{ matrix.go-version }}
+          path: |
+            ${{ runner.temp }}/gotest.log
+            ${{ runner.temp }}/gotest-noasm.log
+          if-no-files-found: error
+
+  cross-arch-test:
+    needs: lint-and-test
+    strategy:
+      matrix:
+        include:
+        - platform: linux/arm/v6
+          image: arm32v6/golang:1.27-alpine
+        - platform: linux/arm/v6
+          image: arm32v6/golang:1.26-alpine
+        - platform: linux/arm/v6
+          image: arm32v6/golang:1.25-alpine
+        - platform: linux/arm/v7
+          image: arm32v7/golang:1.27-alpine
+        - platform: linux/arm/v7
+          image: arm32v7/golang:1.26-alpine
+        - platform: linux/arm/v7
+          image: arm32v7/golang:1.25-alpine
+        - platform: linux/ppc64le
+          image: ppc64le/golang:1.27-alpine
+        - platform: linux/ppc64le
+          image: ppc64le/golang:1.26-alpine
+        - platform: linux/ppc64le
+          image: ppc64le/golang:1.25-alpine
+        - platform: linux/s390x
+          image: s390x/golang:1.27-alpine
+        - platform: linux/s390x
+          image: s390x/golang:1.26-alpine
+        - platform: linux/s390x
+          image: s390x/golang:1.25-alpine
+        # - platform: linux/mips64le
+        #   image: mips64le/golang:1.27-bookworm
+        - platform: linux/mips64le
+          image: mips64le/golang:1.26-bookworm
+        - platform: linux/mips64le
+          image: mips64le/golang:1.25-bookworm
+        - platform: linux/riscv64
+          image: riscv64/golang:1.27-alpine
+        - platform: linux/riscv64
+          image: riscv64/golang:1.26-alpine
+        - platform: linux/riscv64
+          image: riscv64/golang:1.25-alpine
+        - platform: linux/386
+          image: i386/golang:1.27-alpine
+        - platform: linux/386
+          image: i386/golang:1.26-alpine
+        - platform: linux/386
+          image: i386/golang:1.25-alpine
+        - platform: linux/loong64
+          image: ghcr.io/loong64/golang:1.27-alpine
+        - platform: linux/loong64
+          image: ghcr.io/loong64/golang:1.26-alpine
+        - platform: linux/loong64
+          image: ghcr.io/loong64/golang:1.25-alpine
+
+    runs-on: [ "self-hosted", "linux" ]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Test
+        run: |
+          cd bin/
+          bash ./docker-qemu.sh "${{ matrix.platform }}" "${{ matrix.image }}"

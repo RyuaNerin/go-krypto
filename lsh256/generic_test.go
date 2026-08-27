@@ -1,18 +1,34 @@
 package lsh256
 
 import (
+	"hash"
 	"testing"
 
-	. "github.com/RyuaNerin/testingutil"
+	"github.com/RyuaNerin/go-krypto/internal/testing/thash"
 )
 
-func Test_ShortWrite_Go(t *testing.T) { HTSWA(t, as, newContextGo, false) }
+var htGo = thash.HashTest{
+	HashInfo: hi,
+	New: map[int]func() hash.Hash{
+		Size224: func() hash.Hash { return newContextGo(Size224) },
+		Size:    func() hash.Hash { return newContextGo(Size) },
+	},
+	Sum: map[int]any{
+		Size224: func(b []byte) (o [Size224]byte) {
+			s := sumGo(Size224, b)
+			copy(o[:], s[:Size224])
+			return o
+		},
+		Size: sumGo,
+	},
+}
 
-func Test_LSH224_Go(t *testing.T) { HT(t, newContextGo(Size224), testCases224, false) }
-func Test_LSH256_Go(t *testing.T) { HT(t, newContextGo(Size), testCases256, false) }
+func Test_LSH256_Hash_Go(t *testing.T)    { htGo.TestHash(t, false) }
+func Test_LSH256_SMT_Go(t *testing.T)     { htGo.TestSMT(t, false) }
+func Test_LSH256_SMT_Sum_Go(t *testing.T) { htGo.TestSMTSum(t, false) }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+func Fuzz_LSH256_Hash_Go(f *testing.F) { htGo.FuzzHash(f, false) }
+func Fuzz_LSH256_Sum_Go(f *testing.F)  { htGo.FuzzSum(f, false) }
 
-func Benchmark_Hash_8_Go(b *testing.B)  { HBA(b, as, newContextGo, 8, false) }
-func Benchmark_Hash_1K_Go(b *testing.B) { HBA(b, as, newContextGo, 1024, false) }
-func Benchmark_Hash_8K_Go(b *testing.B) { HBA(b, as, newContextGo, 8196, false) }
+func Benchmark_LSH256_Hash_Go(b *testing.B) { htGo.BenchHash(b, false) }
+func Benchmark_LSH256_Sum_Go(b *testing.B)  { htGo.BenchSum(b, false) }

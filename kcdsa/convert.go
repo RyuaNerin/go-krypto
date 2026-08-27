@@ -1,10 +1,10 @@
 package kcdsa
 
 import (
-	"crypto/dsa" //nolint:staticcheck
+	"crypto/dsa"
 	"math/big"
 
-	"github.com/RyuaNerin/go-krypto/internal/kcdsaimpl"
+	"github.com/RyuaNerin/go-krypto/internal/kcdsa"
 )
 
 /**
@@ -25,7 +25,7 @@ func FromDSA(dpk *dsa.PrivateKey) *PrivateKey {
 	}
 
 	kpk.PublicKey.Y = new(big.Int)
-	kcdsaimpl.GenerateY(kpk.PublicKey.Y, kpk.P, kpk.Q, kpk.G, kpk.X)
+	kcdsa.GenerateY(kpk.PublicKey.Y, kpk.P, kpk.Q, kpk.G, kpk.X)
 
 	return kpk
 }

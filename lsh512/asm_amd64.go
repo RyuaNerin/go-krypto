@@ -1,68 +1,92 @@
-//go:build gc && amd64 && !purego && go1.18
-// +build gc,amd64,!purego,go1.18
+//go:build !noasm && !noasm_krypto && !noasm_krypto_lsh512 && amd64
 
 package lsh512
 
-import "github.com/RyuaNerin/go-krypto/internal/golang.org/x/sys/cpu"
+import (
+	"unsafe"
+
+	"golang.org/x/sys/cpu"
+)
 
 var (
-	hasSSE2  = true
-	hasSSSE3 = cpu.X86.HasSSSE3
-	hasAVX2  = cpu.X86.HasSSSE3 && cpu.X86.HasAVX && cpu.X86.HasAVX2
-
-	simdSetSSE2 = simdSet{
-		init:   __lsh512_sse2_init,
-		update: __lsh512_sse2_update,
-		final:  __lsh512_sse2_final,
-	}
-	simdSetSSSE3 = simdSet{
-		init:   __lsh512_sse2_init,
-		update: __lsh512_ssse3_update,
-		final:  __lsh512_ssse3_final,
-	}
-	simdSetAVX2 = simdSet{
-		init:   __lsh512_avx2_init,
-		update: __lsh512_avx2_update,
-		final:  __lsh512_avx2_final,
-	}
+	hasSSSE3  = cpu.X86.HasSSE2 && cpu.X86.HasSSSE3
+	hasAVX2   = cpu.X86.HasAVX2 && cpu.X86.HasAVX && hasSSSE3
+	hasAVX512 = cpu.X86.HasAVX512F && cpu.X86.HasAVX512VL && hasAVX2
 )
 
 func init() {
 	switch {
+	case hasAVX512:
+		defaultSimd = simdAVX512{}
+
 	case hasAVX2:
-		defaultSimd = simdSetAVX2
+		defaultSimd = simdAVX2{}
 
 	case hasSSSE3:
-		defaultSimd = simdSetSSSE3
+		defaultSimd = simdSSSE3{}
 
 	default:
-		defaultSimd = simdSetSSE2
+		defaultSimd = simdSSSE2{}
 	}
 }
 
-//go:noescape
-func __lsh512_sse2_init(ctx *lsh512ContextAsm, algtype uint64)
+type (
+	simdSSSE2  struct{}
+	simdSSSE3  struct{}
+	simdAVX2   struct{}
+	simdAVX512 struct{}
+)
 
-//go:noescape
-func __lsh512_sse2_update(ctx *lsh512ContextAsm, data []byte)
+var (
+	_ simdSet = (*simdSSSE2)(nil)
+	_ simdSet = (*simdSSSE3)(nil)
+	_ simdSet = (*simdAVX2)(nil)
+	_ simdSet = (*simdAVX512)(nil)
+)
 
-//go:noescape
-func __lsh512_sse2_final(ctx *lsh512ContextAsm, hashval *byte)
+func (s simdSSSE2) update(c, d unsafe.Pointer, n int64) { __lsh512_sse2_update(c, d, n) }
+func (s simdSSSE2) final(c *lsh512ContextData) (sum [Size]byte) {
+	__lsh512_sse2_final(unsafe.Pointer(c), unsafe.Pointer(&sum[0]))
+	return sum
+}
 
-//go:noescape
-//func __lsh512_ssse3_init(ctx *lsh512Context, algtype uint64)
+func (s simdSSSE3) update(c, d unsafe.Pointer, n int64) { __lsh512_ssse3_update(c, d, n) }
+func (s simdSSSE3) final(c *lsh512ContextData) (sum [Size]byte) {
+	__lsh512_sse2_final(unsafe.Pointer(c), unsafe.Pointer(&sum[0]))
+	return sum
+}
 
-//go:noescape
-func __lsh512_ssse3_update(ctx *lsh512ContextAsm, data []byte)
+func (s simdAVX2) update(c, d unsafe.Pointer, n int64) { __lsh512_avx2_update(c, d, n) }
+func (s simdAVX2) final(c *lsh512ContextData) (sum [Size]byte) {
+	__lsh512_sse2_final(unsafe.Pointer(c), unsafe.Pointer(&sum[0]))
+	return sum
+}
 
-//go:noescape
-func __lsh512_ssse3_final(ctx *lsh512ContextAsm, hashval *byte)
+func (s simdAVX512) update(c, d unsafe.Pointer, n int64) { __lsh512_avx512_update(c, d, n) }
+func (s simdAVX512) final(c *lsh512ContextData) (sum [Size]byte) {
+	__lsh512_avx512_final(unsafe.Pointer(c), unsafe.Pointer(&sum[0]))
+	return sum
+}
 
-//go:noescape
-func __lsh512_avx2_init(ctx *lsh512ContextAsm, algtype uint64)
+// constants for SIMD implementation
 
-//go:noescape
-func __lsh512_avx2_update(ctx *lsh512ContextAsm, data []byte)
+var (
+	bytePermInfoSSSE3 = [...]uint64{
+		0x0706050403020100, 0x0d0c0b0a09080f0e, 0x0302010007060504, 0x09080f0e0d0c0b0a,
+		0x0605040302010007, 0x0c0b0a09080f0e0d, 0x0201000706050403, 0x080f0e0d0c0b0a09,
+	}
+	bytePermInfoAVX2 = [...]uint64{
+		0x0706050403020100, 0x0d0c0b0a09080f0e, 0x1312111017161514, 0x19181f1e1d1c1b1a,
+		0x0605040302010007, 0x0c0b0a09080f0e0d, 0x1211101716151413, 0x181f1e1d1c1b1a19,
+	}
+	msgWordPermInfo = [...]uint64{
+		// ssse3, avx2
+		0x0706050403020100, 0x0f0e0d0c0b0a0908, 0x1716151413121110, 0x1f1e1d1c1b1a1918,
+	}
+)
 
-//go:noescape
-func __lsh512_avx2_final(ctx *lsh512ContextAsm, hashval *byte)
+func init() {
+	_ = bytePermInfoSSSE3
+	_ = bytePermInfoAVX2
+	_ = msgWordPermInfo
+}

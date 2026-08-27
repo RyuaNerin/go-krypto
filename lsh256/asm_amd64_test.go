@@ -1,54 +1,48 @@
-//go:build gc && amd64 && !purego && go1.18
-// +build gc,amd64,!purego,go1.18
+//go:build !noasm && !noasm_krypto && !noasm_krypto_lsh256 && amd64
 
 package lsh256
 
 import (
 	"testing"
-
-	"github.com/RyuaNerin/go-krypto/internal/memory"
-
-	. "github.com/RyuaNerin/testingutil"
 )
 
 var (
-	newSSE2  = simdSetSSE2.NewContext
-	newSSSE3 = simdSetSSSE3.NewContext
-	newAVX2  = simdSetAVX2.NewContext
+	htSSE2   = newHashTest(simdSSSE2{})
+	htSSSE3  = newHashTest(simdSSSE3{})
+	htAVX2   = newHashTest(simdAVX2{})
+	htAVX512 = newHashTest(simdAVX512{})
 )
 
-func Test_Aligned(t *testing.T) {
-	var ctx lsh256ContextAsm
-	memory.TestFieldIsAligned(t, 16, &ctx, "algType")
-	memory.TestFieldIsAligned(t, 16, &ctx, "remainDataByteLen")
-	memory.TestFieldIsAligned(t, 16, &ctx, "cvL")
-	memory.TestFieldIsAligned(t, 16, &ctx, "cvR")
-	memory.TestFieldIsAligned(t, 16, &ctx, "lastBlock")
-}
+func Test_LSH256_Hash_SSE2(t *testing.T)   { htSSE2.TestHash(t, false) }
+func Test_LSH256_Hash_SSSE3(t *testing.T)  { htSSSE3.TestHash(t, !hasSSSE3) }
+func Test_LSH256_Hash_AVX2(t *testing.T)   { htAVX2.TestHash(t, !hasAVX2) }
+func Test_LSH256_Hash_AVX512(t *testing.T) { htAVX512.TestHash(t, !hasAVX512) }
 
-func Test_ShortWrite_SSE2(t *testing.T)  { HTSWA(t, as, newSSE2, !hasSSE2) }
-func Test_ShortWrite_SSSE3(t *testing.T) { HTSWA(t, as, newSSSE3, !hasSSSE3) }
-func Test_ShortWrite_AVX2(t *testing.T)  { HTSWA(t, as, newAVX2, !hasAVX2) }
+func Test_LSH256_SMT_SSE2(t *testing.T)       { htSSE2.TestSMT(t, false) }
+func Test_LSH256_SMT_Sum_SSE2(t *testing.T)   { htSSE2.TestSMTSum(t, false) }
+func Test_LSH256_SMT_SSSE3(t *testing.T)      { htSSSE3.TestSMT(t, !hasSSSE3) }
+func Test_LSH256_SMT_Sum_SSSE3(t *testing.T)  { htSSSE3.TestSMTSum(t, !hasSSSE3) }
+func Test_LSH256_SMT_AVX2(t *testing.T)       { htAVX2.TestSMT(t, !hasAVX2) }
+func Test_LSH256_SMT_Sum_AVX2(t *testing.T)   { htAVX2.TestSMTSum(t, !hasAVX2) }
+func Test_LSH256_SMT_AVX512(t *testing.T)     { htAVX512.TestSMT(t, !hasAVX512) }
+func Test_LSH256_SMT_Sum_AVX512(t *testing.T) { htAVX512.TestSMTSum(t, !hasAVX512) }
 
-func Test_LSH224_SSE2(t *testing.T) { HT(t, newSSE2(Size224), testCases224, !hasSSE2) }
-func Test_LSH256_SSE2(t *testing.T) { HT(t, newSSE2(Size), testCases256, !hasSSE2) }
+func Fuzz_LSH256_Hash_SSE2(f *testing.F)   { htSSE2.FuzzHash(f, false) }
+func Fuzz_LSH256_Hash_SSSE3(f *testing.F)  { htSSSE3.FuzzHash(f, !hasSSSE3) }
+func Fuzz_LSH256_Hash_AVX2(f *testing.F)   { htAVX2.FuzzHash(f, !hasAVX2) }
+func Fuzz_LSH256_Hash_AVX512(f *testing.F) { htAVX512.FuzzHash(f, !hasAVX512) }
 
-func Test_LSH224_SSSE3(t *testing.T) { HT(t, newSSSE3(Size224), testCases224, !hasSSSE3) }
-func Test_LSH256_SSSE3(t *testing.T) { HT(t, newSSSE3(Size), testCases256, !hasSSSE3) }
+func Fuzz_LSH256_Sum_SSE2(f *testing.F)   { htSSE2.FuzzSum(f, false) }
+func Fuzz_LSH256_Sum_SSSE3(f *testing.F)  { htSSSE3.FuzzSum(f, !hasSSSE3) }
+func Fuzz_LSH256_Sum_AVX2(f *testing.F)   { htAVX2.FuzzSum(f, !hasAVX2) }
+func Fuzz_LSH256_Sum_AVX512(f *testing.F) { htAVX512.FuzzSum(f, !hasAVX512) }
 
-func Test_LSH224_AVX2(t *testing.T) { HT(t, newAVX2(Size224), testCases224, !hasAVX2) }
-func Test_LSH256_AVX2(t *testing.T) { HT(t, newAVX2(Size), testCases256, !hasAVX2) }
+func Benchmark_LSH256_Hash_SSE2(b *testing.B)   { htSSE2.BenchHash(b, false) }
+func Benchmark_LSH256_Hash_SSSE3(b *testing.B)  { htSSSE3.BenchHash(b, !hasSSSE3) }
+func Benchmark_LSH256_Hash_AVX2(b *testing.B)   { htAVX2.BenchHash(b, !hasAVX2) }
+func Benchmark_LSH256_Hash_AVX512(b *testing.B) { htAVX512.BenchHash(b, !hasAVX512) }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func Benchmark_Hash_8_SSE2(b *testing.B)  { HBA(b, as, newSSE2, 8, !hasSSE2) }
-func Benchmark_Hash_1K_SSE2(b *testing.B) { HBA(b, as, newSSE2, 1024, !hasSSE2) }
-func Benchmark_Hash_8K_SSE2(b *testing.B) { HBA(b, as, newSSE2, 8192, !hasSSE2) }
-
-func Benchmark_Hash_8_SSSE3(b *testing.B)  { HBA(b, as, newSSSE3, 8, !hasSSSE3) }
-func Benchmark_Hash_1K_SSSE3(b *testing.B) { HBA(b, as, newSSSE3, 1024, !hasSSSE3) }
-func Benchmark_Hash_8K_SSSE3(b *testing.B) { HBA(b, as, newSSSE3, 8192, !hasSSSE3) }
-
-func Benchmark_Hash_8_AVX2(b *testing.B)  { HBA(b, as, newAVX2, 8, !hasAVX2) }
-func Benchmark_Hash_1K_AVX2(b *testing.B) { HBA(b, as, newAVX2, 1024, !hasAVX2) }
-func Benchmark_Hash_8K_AVX2(b *testing.B) { HBA(b, as, newAVX2, 8192, !hasAVX2) }
+func Benchmark_LSH256_Sum_SSE2(b *testing.B)   { htSSE2.BenchSum(b, false) }
+func Benchmark_LSH256_Sum_SSSE3(b *testing.B)  { htSSSE3.BenchSum(b, !hasSSSE3) }
+func Benchmark_LSH256_Sum_AVX2(b *testing.B)   { htAVX2.BenchSum(b, !hasAVX2) }
+func Benchmark_LSH256_Sum_AVX512(b *testing.B) { htAVX512.BenchSum(b, !hasAVX512) }

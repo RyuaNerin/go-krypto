@@ -1,3 +1,5 @@
 *.req
 *.sam
 *.rsp
+*.zip
+*_CAVP_*

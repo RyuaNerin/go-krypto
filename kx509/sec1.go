@@ -3,17 +3,14 @@ package kx509
 import (
 	"crypto/elliptic"
 	"encoding/asn1"
-	"errors"
-	"fmt"
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
-	"github.com/RyuaNerin/go-krypto/internal"
-	"github.com/RyuaNerin/go-krypto/internal/eckcdsaimpl"
+	eckcdsa1 "github.com/RyuaNerin/go-krypto/internal/eckcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/zeroize"
 )
 
-// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L27-L32
-type eckcPrivateKey struct {
+type eckcdsaPrivateKey struct {
 	Version       int
 	PrivateKey    []byte
 	NamedCurveOID asn1.ObjectIdentifier `asn1:"optional,explicit,tag:0"`
@@ -25,8 +22,10 @@ type eckcPrivateKey struct {
 // This kind of key is commonly encoded in PEM blocks of type "EC PRIVATE KEY".
 //
 // warning: this is non-normative
+//
+// The returned *eckcdsa.PrivateKey implements Zeroize(): call it to erase the
+// private key when it is no longer needed.
 func ParseECKCPrivateKey(der []byte) (*eckcdsa.PrivateKey, error) {
-	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L37-L39
 	return parseECKCPrivateKey(nil, der)
 }
 
@@ -38,10 +37,13 @@ func ParseECKCPrivateKey(der []byte) (*eckcdsa.PrivateKey, error) {
 //
 // warning: this is non-normative
 func MarshalECKCPrivateKey(key *eckcdsa.PrivateKey) ([]byte, error) {
+	if key == nil || key.Curve == nil {
+		return nil, ErrUnknownEllipticCurve
+	}
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L46-L53
 	oid, ok := oidFromNamedCurve(key.Curve)
 	if !ok {
-		return nil, errors.New(msgUnknownEllipticCurve)
+		return nil, ErrUnknownEllipticCurve
 	}
 
 	return marshalECKCPrivateKeyWithOID(key, oid)
@@ -49,29 +51,42 @@ func MarshalECKCPrivateKey(key *eckcdsa.PrivateKey) ([]byte, error) {
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L55-L68
 func marshalECKCPrivateKeyWithOID(key *eckcdsa.PrivateKey, oid asn1.ObjectIdentifier) ([]byte, error) {
-	if !key.Curve.IsOnCurve(key.X, key.Y) {
-		return nil, errors.New(msgInvalidPublicKey)
+	if key == nil || key.Curve == nil || key.D == nil {
+		return nil, ErrInvalidPrivateKeyValue
 	}
-	privateKey := make([]byte, internal.BitsToBytes(key.D.BitLen()))
-	return asn1.Marshal(eckcPrivateKey{
-		Version:       1,
+	curveOrder := key.Curve.Params().N
+	if key.D.Sign() <= 0 || key.D.Cmp(curveOrder) >= 0 {
+		return nil, ErrInvalidPrivateKeyValue
+	}
+	if key.X == nil || key.Y == nil || !key.Curve.IsOnCurve(key.X, key.Y) {
+		return nil, ErrInvalidPublicKey
+	}
+	privateKey := make([]byte, (curveOrder.BitLen()+7)/8)
+	return asn1.Marshal(eckcdsaPrivateKey{
+		Version:       ecPrivKeyVersion,
 		PrivateKey:    key.D.FillBytes(privateKey),
 		NamedCurveOID: oid,
-		PublicKey:     asn1.BitString{Bytes: elliptic.Marshal(key.Curve, key.X, key.Y)}, //nolint:staticcheck
+		PublicKey:     asn1.BitString{Bytes: elliptic.Marshal(key.Curve, key.X, key.Y)},
 	})
 }
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/sec1.go#L84-L136
 func parseECKCPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key *eckcdsa.PrivateKey, err error) {
-	var privKey eckcPrivateKey
-	if _, err := asn1.Unmarshal(der, &privKey); err != nil {
-		if _, err := asn1.Unmarshal(der, &pkcs8{}); err == nil {
-			return nil, errors.New(msgUseParsePKCS8PrivateKey)
+	var privKey eckcdsaPrivateKey
+	// privKey.PrivateKey is only set by Unmarshal, so defer a closure.
+	defer func() { clear(privKey.PrivateKey) }()
+	rest, err := asn1.Unmarshal(der, &privKey)
+	if err != nil || len(rest) != 0 {
+		if rest, pkcs8Err := asn1.Unmarshal(der, &pkcds8PrivateKey{}); pkcs8Err == nil && len(rest) == 0 {
+			return nil, ErrUseParsePKCS8PrivateKey
 		}
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+		return nil, ErrInvalidECPrivateKey
 	}
 	if privKey.Version != ecPrivKeyVersion {
-		return nil, fmt.Errorf(msgUnknownECPrivateKeyVersionFormat, privKey.Version)
+		return nil, UnknownECPrivateKeyVersionError(privKey.Version)
 	}
 
 	var curve elliptic.Curve
@@ -81,13 +96,13 @@ func parseECKCPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key 
 		curve = namedCurveFromOID(privKey.NamedCurveOID)
 	}
 	if curve == nil {
-		return nil, errors.New(msgUnknownEllipticCurve)
+		return nil, ErrUnknownEllipticCurve
 	}
 
 	k := new(big.Int).SetBytes(privKey.PrivateKey)
 	curveOrder := curve.Params().N
-	if k.Cmp(curveOrder) >= 0 {
-		return nil, errors.New(msgInvalidPrivateKeyValue)
+	if k.Sign() <= 0 || k.Cmp(curveOrder) >= 0 {
+		return nil, ErrInvalidPrivateKeyValue
 	}
 
 	priv := new(eckcdsa.PrivateKey)
@@ -95,12 +110,14 @@ func parseECKCPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key 
 	priv.D = k
 
 	privateKey := make([]byte, (curveOrder.BitLen()+7)/8)
+	defer zeroize.Zeroize(privateKey)
 
 	// Some private keys have leading zero padding. This is invalid
 	// according to [SEC1], but this code will ignore it.
 	for len(privKey.PrivateKey) > len(privateKey) {
 		if privKey.PrivateKey[0] != 0 {
-			return nil, errors.New(msgInvalidPrivateKeyLength)
+			priv.Zeroize()
+			return nil, ErrInvalidPrivateKeyLength
 		}
 		privKey.PrivateKey = privKey.PrivateKey[1:]
 	}
@@ -111,7 +128,8 @@ func parseECKCPrivateKey(namedCurveOID *asn1.ObjectIdentifier, der []byte) (key 
 	copy(privateKey[len(privateKey)-len(privKey.PrivateKey):], privKey.PrivateKey)
 
 	d := new(big.Int).SetBytes(privateKey)
-	priv.PublicKey.X, priv.PublicKey.Y = eckcdsaimpl.XY(d, curve)
+	defer zeroize.Zeroize(d)
+	priv.PublicKey.X, priv.PublicKey.Y = eckcdsa1.GenerateXY(d, curve)
 
 	return priv, nil
 }

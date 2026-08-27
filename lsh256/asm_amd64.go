@@ -1,69 +1,105 @@
-//go:build gc && amd64 && !purego && go1.18
-// +build gc,amd64,!purego,go1.18
+//go:build !noasm && !noasm_krypto && !noasm_krypto_lsh256 && amd64
 
 package lsh256
 
-import "github.com/RyuaNerin/go-krypto/internal/golang.org/x/sys/cpu"
+import (
+	"unsafe"
+
+	"golang.org/x/sys/cpu"
+)
 
 var (
-	hasSSE2  = true
-	hasSSSE3 = cpu.X86.HasSSSE3
-	hasAVX2  = cpu.X86.HasSSSE3 && cpu.X86.HasAVX && cpu.X86.HasAVX2
-
-	simdSetSSE2 = simdSet{
-		init:   __lsh256_sse2_init,
-		update: __lsh256_sse2_update,
-		final:  __lsh256_sse2_final,
-	}
-	simdSetSSSE3 = simdSet{
-		init:   __lsh256_sse2_init,
-		update: __lsh256_ssse3_update,
-		final:  __lsh256_ssse3_final,
-	}
-	simdSetAVX2 = simdSet{
-		init:   __lsh256_avx2_init,
-		update: __lsh256_avx2_update,
-		final:  __lsh256_avx2_final,
-	}
+	hasSSSE3  = cpu.X86.HasSSE2 && cpu.X86.HasSSSE3
+	hasAVX2   = cpu.X86.HasAVX2 && cpu.X86.HasAVX && hasSSSE3
+	hasAVX512 = cpu.X86.HasAVX512F && cpu.X86.HasAVX512VL && hasAVX2
 )
 
 func init() {
 	switch {
-	// avx2 is slower than ssse3
-	// case hasAVX2:
-	//	defaultSimd = simdSetAVX2
+	case hasAVX512:
+		defaultSimd = simdAVX512{}
+
+	case hasAVX2 && enableAVX2: // avx2 is slower than ssse3
+		defaultSimd = simdAVX2{}
 
 	case hasSSSE3:
-		defaultSimd = simdSetSSSE3
+		defaultSimd = simdSSSE3{}
 
 	default:
-		defaultSimd = simdSetSSE2
+		defaultSimd = simdSSSE2{}
 	}
 }
 
-//go:noescape
-func __lsh256_sse2_init(ctx *lsh256ContextAsm, algtype uint64)
+type (
+	simdSSSE2  struct{}
+	simdSSSE3  struct{}
+	simdAVX2   struct{}
+	simdAVX512 struct{}
+)
 
-//go:noescape
-func __lsh256_sse2_update(ctx *lsh256ContextAsm, data []byte)
+var (
+	_ simdSet = (*simdSSSE2)(nil)
+	_ simdSet = (*simdSSSE3)(nil)
+	_ simdSet = (*simdAVX2)(nil)
+	_ simdSet = (*simdAVX512)(nil)
+)
 
-//go:noescape
-func __lsh256_sse2_final(ctx *lsh256ContextAsm, hashval *byte)
+func (s simdSSSE2) update(c, d unsafe.Pointer, n int64) { __lsh256_sse2_update(c, d, n) }
+func (s simdSSSE2) final(c *lsh256ContextData) (sum [Size]byte) {
+	__lsh256_sse2_final(unsafe.Pointer(c), unsafe.Pointer(&sum[0]))
+	return sum
+}
 
-//go:noescape
-//func __lsh256_ssse3_init(ctx *lsh256Context, algtype uint64)
+func (s simdSSSE3) update(c, d unsafe.Pointer, n int64) { __lsh256_ssse3_update(c, d, n) }
+func (s simdSSSE3) final(c *lsh256ContextData) (sum [Size]byte) {
+	__lsh256_ssse3_final(unsafe.Pointer(c), unsafe.Pointer(&sum[0]))
+	return sum
+}
 
-//go:noescape
-func __lsh256_ssse3_update(ctx *lsh256ContextAsm, data []byte)
+func (s simdAVX2) update(c, d unsafe.Pointer, n int64) { __lsh256_avx2_update(c, d, n) }
+func (s simdAVX2) final(c *lsh256ContextData) (sum [Size]byte) {
+	__lsh256_avx2_final(unsafe.Pointer(c), unsafe.Pointer(&sum[0]))
+	return sum
+}
 
-//go:noescape
-func __lsh256_ssse3_final(ctx *lsh256ContextAsm, hashval *byte)
+func (s simdAVX512) update(c, d unsafe.Pointer, n int64) { __lsh256_avx512_update(c, d, n) }
+func (s simdAVX512) final(c *lsh256ContextData) (sum [Size]byte) {
+	__lsh256_avx512_final(unsafe.Pointer(c), unsafe.Pointer(&sum[0]))
+	return sum
+}
 
-//go:noescape
-func __lsh256_avx2_init(ctx *lsh256ContextAsm, algtype uint64)
+// constants for SIMD implementation
 
-//go:noescape
-func __lsh256_avx2_update(ctx *lsh256ContextAsm, data []byte)
+var (
+	bytePermInfo = [...]uint32{
+		0x03020100, 0x06050407, 0x09080b0a, 0x0c0f0e0d, // ssse3,
+		0x10131211, 0x15141716, 0x1a19181b, 0x1f1e1d1c, // avx2
+	}
+	bytePermInfoR = [...]uint32{
+		0x00030201, 0x05040706, 0x0a09080b, 0x0f0e0d0c, // ssse3,
+	}
+	msgWordPermInfo = [...]uint32{
+		// ssse3, avx2
+		0x0f0e0d0c, 0x0b0a0908, 0x03020100, 0x07060504, 0x1f1e1d1c, 0x13121110, 0x17161514, 0x1b1a1918,
+	}
 
-//go:noescape
-func __lsh256_avx2_final(ctx *lsh256ContextAsm, hashval *byte)
+	// sse2
+	gammaMask0 = [...]uint32{0x00000000, 0xffffffff, 0xffffffff, 0xffffffff}
+	gammaMask1 = [...]uint32{0xffffffff, 0x00000000, 0x00000000, 0x00000000}
+	gammaMask2 = [...]uint32{0x00000000, 0x00000000, 0xffffffff, 0xffffffff}
+	gammaMask3 = [...]uint32{0xffffffff, 0xffffffff, 0x00000000, 0x00000000}
+	gammaMask4 = [...]uint32{0x00000000, 0x00000000, 0x00000000, 0xffffffff}
+	gammaMask5 = [...]uint32{0xffffffff, 0xffffffff, 0xffffffff, 0x00000000}
+)
+
+func init() {
+	_ = bytePermInfo
+	_ = bytePermInfoR
+	_ = msgWordPermInfo
+	_ = gammaMask0
+	_ = gammaMask1
+	_ = gammaMask2
+	_ = gammaMask3
+	_ = gammaMask4
+	_ = gammaMask5
+}

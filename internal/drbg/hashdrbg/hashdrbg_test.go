@@ -9,6 +9,8 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/internal/drbg/hashdrbg"
+
+	"github.com/stretchr/testify/require"
 )
 
 type testInput struct {
@@ -31,66 +33,51 @@ type testcase struct {
 // TTAK.KO-12.0331-Part2
 
 func TestHashDRBG(t *testing.T) {
-	var dst []byte
-	var err error
-
 	input := hashInput
 
-	for idx, tc := range testcaseList {
-		expect1 := internal.HB(tc.exp1)
-		expect2 := internal.HB(tc.exp2)
-		dst = internal.Grow(dst, len(expect1))
+	for _, tc := range testcaseList {
+		t.Run(tc.name, func(t *testing.T) {
+			var entropyBuffer bytes.Buffer
 
-		ps := input.personal
-		if tc.ps != 1 {
-			ps = nil
-		}
+			expect1 := internal.HB(tc.exp1)
+			expect2 := internal.HB(tc.exp2)
+			dst := internal.Grow(nil, len(expect1))
+			require.Len(t, expect2, len(dst))
 
-		state := hashdrbg.Instantiate(
-			tc.hash(),
-			input.entropy[0],
-			input.nonce,
-			ps,
-			tc.pr == 1,
-			tc.ri,
-		)
+			ps := input.personal
+			if tc.ps != 1 {
+				ps = nil
+			}
 
-		eidx := 1
-		e := func() func() ([]byte, error) {
-			return func() ([]byte, error) {
+			var state hashdrbg.State
+			state.Instantiate(tc.hash(), input.entropy[0], input.nonce, ps, tc.pr == 1, tc.ri)
+
+			eidx := 1
+			fnEntropy := func() ([]byte, error) {
 				b := input.entropy[eidx]
 				eidx++
-				return b, nil
+				entropyBuffer.Reset()
+				entropyBuffer.Write(b)
+				return entropyBuffer.Bytes(), nil
 			}
-		}
 
-		if tc.ai == 1 {
-			err = state.Generate(dst, e(), input.additional[0])
-		} else {
-			err = state.Generate(dst, e(), nil)
-		}
-		if err != nil {
-			t.Errorf("Test case %d (%s, PR=%d, RI=%d, PS=%d, AI=%d): %v", idx, tc.name, tc.pr, tc.ri, tc.ps, tc.ai, err)
-			continue
-		}
-		if !bytes.Equal(expect1, dst) {
-			t.Errorf("Test case %d (%s, PR=%d, RI=%d, PS=%d, AI=%d): \nexpect: %x,\n   got: %x", idx, tc.name, tc.pr, tc.ri, tc.ps, tc.ai, expect1, dst)
-			continue
-		}
+			var err error
+			if tc.ai == 1 {
+				err = state.Generate(dst, fnEntropy, input.additional[0])
+			} else {
+				err = state.Generate(dst, fnEntropy, nil)
+			}
+			require.NoError(t, err)
+			require.Equal(t, expect1, dst)
 
-		if tc.ai == 1 {
-			err = state.Generate(dst, e(), input.additional[1])
-		} else {
-			err = state.Generate(dst, e(), nil)
-		}
-		if err != nil {
-			t.Errorf("Test case %d (%s, PR=%d, RI=%d, PS=%d, AI=%d): %v", idx, tc.name, tc.pr, tc.ri, tc.ps, tc.ai, err)
-			continue
-		}
-		if !bytes.Equal(expect2, dst) {
-			t.Errorf("Test case %d (%s, PR=%d, RI=%d, PS=%d, AI=%d): \nexpect: %x,\n   got: %x", idx, tc.name, tc.pr, tc.ri, tc.ps, tc.ai, expect2, dst)
-			continue
-		}
+			if tc.ai == 1 {
+				err = state.Generate(dst, fnEntropy, input.additional[1])
+			} else {
+				err = state.Generate(dst, fnEntropy, nil)
+			}
+			require.NoError(t, err)
+			require.Equal(t, expect2, dst)
+		})
 	}
 }
 

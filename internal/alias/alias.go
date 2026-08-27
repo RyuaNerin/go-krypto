@@ -1,13 +1,9 @@
-// https://github.com/golang/go/blob/release-branch.go1.21/src/crypto/internal/alias/alias.go
-
 // Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !purego && !appengine
-// +build !purego,!appengine
-
 // Package alias implements memory aliasing tests.
+// This code also exists as golang.org/x/crypto/internal/alias.
 package alias
 
 import "unsafe"

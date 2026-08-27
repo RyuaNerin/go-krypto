@@ -237,3 +237,7 @@ $RECYCLE.BIN/
 *.txt
 !benchmark_*.txt
 .vscode/settings.json
+
+**/src/*
+!**/src/*.c
+!**/src/*.h

@@ -1,105 +1,90 @@
-package eckcdsa
+package eckcdsa_test
 
 import (
-	"bufio"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/hex"
+	"crypto/sha512"
 	"hash"
+	"io"
 	"math/big"
+	"slices"
 	"testing"
 
+	"github.com/RyuaNerin/go-krypto/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/internal"
+	"github.com/RyuaNerin/go-krypto/internal/cavp"
+	"github.com/RyuaNerin/go-krypto/internal/randutil"
 
 	"github.com/RyuaNerin/elliptic2/nist"
+	"github.com/stretchr/testify/require"
 )
 
-var rnd = bufio.NewReaderSize(rand.Reader, 1<<15)
+const (
+	svtP224SHA224 = "15. EC-KCDSA/EC-KCDSA_(P-224)(SHA-224)_SVT"
+	svtP224SHA256 = "" // "15. EC-KCDSA/EC-KCDSA_(P-224)(SHA-256)_SVT" // invalid test vector file
+	svtP256SHA224 = "15. EC-KCDSA/EC-KCDSA_(P-256)(SHA-224)_SVT"
+	svtP256SHA256 = "15. EC-KCDSA/EC-KCDSA_(P-256)(SHA-256)_SVT"
 
-type testCase struct {
-	curve elliptic.Curve
-	hash  hash.Hash
+	svtB233SHA224 = "15. EC-KCDSA/EC-KCDSA_(B-233)(SHA-224)_SVT"
+	svtB233SHA256 = "" //  "15. EC-KCDSA/EC-KCDSA_(B-233)(SHA-256)_SVT" // invalid test vector file
+	svtB283SHA224 = "15. EC-KCDSA/EC-KCDSA_(B-283)(SHA-224)_SVT"
+	svtB283SHA256 = "15. EC-KCDSA/EC-KCDSA_(B-283)(SHA-256)_SVT"
 
-	D  *big.Int
-	Qx *big.Int
-	Qy *big.Int
+	svtK233SHA224 = "15. EC-KCDSA/EC-KCDSA_(K-233)(SHA-224)_SVT"
+	svtK233SHA256 = "" // "15. EC-KCDSA/EC-KCDSA_(K-233)(SHA-256)_SVT" // invalid test vector file
+	svtK283SHA224 = "15. EC-KCDSA/EC-KCDSA_(K-283)(SHA-224)_SVT"
+	svtK283SHA256 = "15. EC-KCDSA/EC-KCDSA_(K-283)(SHA-256)_SVT"
+)
 
-	K *big.Int
-
-	M []byte
-	R *big.Int
-	S *big.Int
-
-	Fail bool
+type curveAndHashPair struct {
+	name        string
+	curve       elliptic.Curve
+	hash        hash.Hash
+	svtFilename string
 }
 
 var (
-	p224     = elliptic.P224()
-	p256     = elliptic.P256()
-	secp224r = elliptic.P224()
-	secp256r = elliptic.P256()
+	curves = []elliptic.Curve{
+		elliptic.P224(),
+		elliptic.P256(),
+		elliptic.P384(),
+		elliptic.P521(),
+		nist.B233(),
+		nist.B283(),
+		nist.K233(),
+		nist.K283(),
+	}
+	curveAndHashPairs = []curveAndHashPair{
+		{"P224_SHA224", elliptic.P224(), sha256.New224(), svtP224SHA224},
+		{"P224_SHA256", elliptic.P224(), sha256.New(), svtP224SHA256},
+		{"P256_SHA224", elliptic.P256(), sha256.New224(), svtP256SHA224},
+		{"P256_SHA256", elliptic.P256(), sha256.New(), svtP256SHA256},
 
-	b233     = nist.B233()
-	k233     = nist.K233()
-	b283     = nist.B283()
-	k283     = nist.K283()
-	sect233r = nist.B233()
-	sect233k = nist.K233()
-	sect283r = nist.B283()
-	sect283k = nist.K283()
+		{"B233_SHA224", nist.B233(), sha256.New224(), svtB233SHA224},
+		{"B233_SHA256", nist.B233(), sha256.New(), svtB233SHA256},
+		{"B283_SHA224", nist.B283(), sha256.New224(), svtB283SHA224},
+		{"B283_SHA256", nist.B283(), sha256.New(), svtB283SHA256},
 
-	hashSHA256     = sha256.New()
-	hashSHA256_224 = sha256.New224()
+		{"K233_SHA224", nist.K233(), sha256.New224(), svtK233SHA224},
+		{"K233_SHA256", nist.K233(), sha256.New(), svtK233SHA256},
+		{"K283_SHA224", nist.K283(), sha256.New224(), svtK283SHA224},
+		{"K283_SHA256", nist.K283(), sha256.New(), svtK283SHA256},
+	}
 )
 
-func testVerify(t *testing.T, testCases []testCase, curve elliptic.Curve, hash hash.Hash) {
-	for idx, tc := range testCases {
-		key := PublicKey{
-			Curve: curve,
-			X:     tc.Qx,
-			Y:     tc.Qy,
-		}
-
-		ok := Verify(&key, hash, tc.M, tc.R, tc.S)
-		if ok == tc.Fail {
-			t.Errorf("%d: Verify failed, got:%v want:%v\nM=%s", idx, ok, !tc.Fail, hex.EncodeToString(tc.M))
-			return
+func Test_ECKCDSA_SVT(t *testing.T) {
+	test := func(pair curveAndHashPair) func(t *testing.T) {
+		return func(t *testing.T) {
+			if pair.svtFilename == "" {
+				t.Skipf("no SVT file for %s", pair.name)
+			}
+			cavp.TestECKCDSASvt(t, pair.svtFilename, pair.curve, pair.hash)
 		}
 	}
-}
 
-func testSignVerify(t *testing.T, testCases []testCase) {
-	R, S, tmp := new(big.Int), new(big.Int), new(big.Int)
-	var buf []byte
-	var ok bool
-
-	for idx, tc := range testCases {
-		key := PrivateKey{
-			PublicKey: PublicKey{
-				Curve: tc.curve,
-				X:     tc.Qx,
-				Y:     tc.Qy,
-			},
-			D: tc.D,
-		}
-
-		buf, ok = signUsingK(tc.K, R, S, &key, tc.hash, tc.M, buf, tmp)
-		if !ok {
-			t.Errorf("%d: error signing: invalid K", idx)
-			return
-		}
-
-		if R.Cmp(tc.R) != 0 || S.Cmp(tc.S) != 0 {
-			t.Errorf("%d: error signing: (r, s)", idx)
-			return
-		}
-
-		ok = Verify(&key.PublicKey, tc.hash, tc.M, tc.R, tc.S)
-		if ok == tc.Fail {
-			t.Errorf("%d: Verify failed, got:%v want:%v\nM=%s", idx, ok, !tc.Fail, hex.EncodeToString(tc.M))
-			return
-		}
+	for _, pair := range curveAndHashPairs {
+		t.Run(pair.name, test(pair))
 	}
 }
 
@@ -107,17 +92,14 @@ func Test_SignVerify_With_BadPublicKey(t *testing.T) {
 	for idx, tc := range testCase_TTAK {
 		tc2 := testCase_TTAK[(idx+1)%len(testCase_TTAK)]
 
-		key := PublicKey{
+		key := eckcdsa.PublicKey{
 			Curve: tc2.curve,
 			X:     tc2.Qx,
 			Y:     tc2.Qy,
 		}
 
-		ok := Verify(&key, tc.hash, tc.M, tc.R, tc.S)
-		if ok {
-			t.Errorf("%d: Verify unexpected success with non-existent mod inverse of Q", idx)
-			return
-		}
+		ok := eckcdsa.Verify(&key, tc.hash, tc.M, tc.R, tc.S)
+		require.Falsef(t, ok, "%d: Verify unexpected success with bad public key", idx)
 	}
 }
 
@@ -126,27 +108,9 @@ func Test_ECKCDSA(t *testing.T) {
 		t.Skip("skipping parameter generation test in short mode")
 	}
 
-	t.Run("P224_SHA256_224", testKCDSA(p224, hashSHA256_224))
-	t.Run("P224_SHA256_256", testKCDSA(p224, hashSHA256))
-
-	t.Run("P256_SHA256_224", testKCDSA(p256, hashSHA256_224))
-	t.Run("P256_SHA256_256", testKCDSA(p256, hashSHA256))
-
-	if testing.Short() {
-		return
+	for _, pair := range curveAndHashPairs {
+		t.Run(pair.name, testKCDSA(pair.curve, pair.hash))
 	}
-
-	t.Run("B233_SHA256_224", testKCDSA(b233, hashSHA256_224))
-	t.Run("B233_SHA256_256", testKCDSA(b233, hashSHA256))
-
-	t.Run("B283_SHA256_224", testKCDSA(b283, hashSHA256_224))
-	t.Run("B283_SHA256_256", testKCDSA(b283, hashSHA256))
-
-	t.Run("K233_SHA256_224", testKCDSA(k233, hashSHA256_224))
-	t.Run("K233_SHA256_256", testKCDSA(k233, hashSHA256))
-
-	t.Run("K283_SHA256_224", testKCDSA(k283, hashSHA256_224))
-	t.Run("K283_SHA256_256", testKCDSA(k283, hashSHA256))
 }
 
 func Test_Signing_With_DegenerateKeys(t *testing.T) {
@@ -160,9 +124,9 @@ func Test_Signing_With_DegenerateKeys(t *testing.T) {
 	}
 
 	for i, test := range badKeys {
-		priv := PrivateKey{
-			PublicKey: PublicKey{
-				Curve: secp224r,
+		priv := eckcdsa.PrivateKey{
+			PublicKey: eckcdsa.PublicKey{
+				Curve: elliptic.P256(),
 				X:     internal.HI(test.x),
 				Y:     internal.HI(test.y),
 			},
@@ -170,10 +134,39 @@ func Test_Signing_With_DegenerateKeys(t *testing.T) {
 		}
 
 		data := []byte("testing")
-		if _, _, err := Sign(rand.Reader, &priv, sha256.New(), data); err == nil {
-			t.Errorf("#%d: unexpected success", i)
-			return
-		}
+		_, _, err := eckcdsa.Sign(rand.Reader, &priv, sha256.New(), data)
+		require.Error(t, err, "#%d: expected error signing with degenerate key", i)
+	}
+}
+
+func Test_Signing_With_ZeroPrivateKey(t *testing.T) {
+	invalidD := []*big.Int{
+		new(big.Int),
+		new(big.Int).Set(elliptic.P256().Params().N),
+	}
+
+	priv, err := eckcdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	require.NoError(t, err)
+
+	for _, d := range invalidD {
+		priv.D = d
+
+		_, _, err = eckcdsa.Sign(rand.Reader, priv, sha256.New(), []byte("input"))
+		require.ErrorIs(t, err, eckcdsa.ErrInvalidPrivateKey)
+	}
+}
+
+func Test_SignVerify_HashLongerThanTwoCoordinates(t *testing.T) {
+	// SHA-512 output (64 bytes) is longer than xQ ‖ yQ of P-224 (56 bytes) and
+	// B-233/K-233 (60 bytes), so cQ is zero-padded.
+	for _, curve := range []elliptic.Curve{elliptic.P224(), nist.B233(), nist.K233()} {
+		priv, err := eckcdsa.GenerateKey(curve, rand.Reader)
+		require.NoError(t, err)
+
+		data := []byte("testing")
+		r, s, err := eckcdsa.Sign(rand.Reader, priv, sha512.New(), data)
+		require.NoError(t, err)
+		require.True(t, eckcdsa.Verify(&priv.PublicKey, sha512.New(), data, r, s), curve.Params().Name)
 	}
 }
 
@@ -182,55 +175,53 @@ func testKCDSA(
 	h hash.Hash,
 ) func(t *testing.T) {
 	return func(t *testing.T) {
-		priv, err := GenerateKey(curve, rand.Reader)
-		if err != nil {
-			t.Errorf("error generating key: %s", err)
-			return
-		}
+		rnd, _ := randutil.NewTestRand()
 
-		testSignAndVerify(t, priv, h)
-		testSignAndVerifyASN1(t, priv, h)
+		priv, err := eckcdsa.GenerateKey(curve, rnd)
+		require.NoError(t, err)
+
+		testSignAndVerify(t, priv, h, rnd)
+		testSignAndVerifyASN1(t, priv, h, rnd)
 	}
 }
 
 func testSignAndVerify(
 	t *testing.T,
-	priv *PrivateKey,
+	priv *eckcdsa.PrivateKey,
 	h hash.Hash,
+	rnd io.Reader,
 ) {
 	data := []byte("testing")
-	r, s, err := Sign(rand.Reader, priv, h, data)
-	if err != nil {
-		t.Errorf("error signing: %s", err)
-		return
-	}
+	dataClone := slices.Clone(data)
+	privClone := priv.Clone()
+	r, s, err := eckcdsa.Sign(rnd, priv, h, data)
+	require.NoError(t, err)
+	require.Equal(t, dataClone, data, "Sign modified the input data")
+	require.True(t, privClone.Equal(priv), "Sign modified the private key")
 
-	ok := Verify(&priv.PublicKey, h, data, r, s)
-	if !ok {
-		t.Errorf("Verify failed")
-		return
-	}
+	rClone := new(big.Int).Set(r)
+	sClone := new(big.Int).Set(s)
+	ok := eckcdsa.Verify(&priv.PublicKey, h, data, r, s)
+	require.True(t, ok, "Verify failed")
+	require.Equal(t, rClone.Text(16), r.Text(16), "Verify modified the signature R")
+	require.Equal(t, sClone.Text(16), s.Text(16), "Verify modified the signature S")
+	require.True(t, privClone.PublicKey.Equal(&priv.PublicKey), "Verify modified the public key")
 
 	data[0] ^= 0xff
-	if Verify(&priv.PublicKey, h, data, r, s) {
-		t.Errorf("Verify always works!")
-	}
+	ok = eckcdsa.Verify(&priv.PublicKey, h, data, r, s)
+	require.False(t, ok, "Verify always works!")
 }
 
-func testSignAndVerifyASN1(t *testing.T, priv *PrivateKey, h hash.Hash) {
+func testSignAndVerifyASN1(t *testing.T, priv *eckcdsa.PrivateKey, h hash.Hash, rnd io.Reader) {
 	data := []byte("testing")
-	sig, err := SignASN1(rand.Reader, priv, h, data)
-	if err != nil {
-		t.Errorf("error signing: %s", err)
-		return
-	}
 
-	if !VerifyASN1(&priv.PublicKey, h, data, sig) {
-		t.Errorf("VerifyASN1 failed")
-	}
+	sig, err := eckcdsa.SignASN1(rnd, priv, h, data)
+	require.NoError(t, err, "error signing")
+
+	ok := eckcdsa.VerifyASN1(&priv.PublicKey, h, data, sig)
+	require.True(t, ok, "VerifyASN1 failed")
 
 	data[0] ^= 0xff
-	if VerifyASN1(&priv.PublicKey, h, data, sig) {
-		t.Errorf("VerifyASN1 always works!")
-	}
+	ok = eckcdsa.VerifyASN1(&priv.PublicKey, h, data, sig)
+	require.False(t, ok, "VerifyASN1 always works!")
 }

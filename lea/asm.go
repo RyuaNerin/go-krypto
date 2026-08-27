@@ -1,88 +1,84 @@
-//go:build gc && (arm64 || amd64) && !purego && go1.18
-// +build gc
-// +build arm64 amd64
-// +build !purego
-// +build go1.18
+//go:build !noasm && !noasm_krypto && !noasm_krypto_lea && (amd64 || arm64)
 
 package lea
 
 import (
-	"crypto/cipher"
-	"fmt"
+	"unsafe"
 
-	"github.com/RyuaNerin/go-krypto/internal/memory"
+	"github.com/RyuaNerin/go-krypto"
+	"github.com/RyuaNerin/go-krypto/internal/alias"
 )
 
-type funcBlock func(ctx *leaContext, dst, src []byte)
+type leaContextAsm struct{ leaContext }
 
-func newCipherAsm(key []byte) (cipher.Block, error) {
-	ctx := new(leaContextAsm)
-	setKeyGo(&ctx.leaContext, key)
+var _ krypto.Block4 = (*leaContextAsm)(nil)
 
-	return ctx, nil
+func (ctx *leaContextAsm) Encrypt(dst, src []byte) {
+	ctx.z.ThrowIfZeroized()
+
+	if len(src) < BlockSize {
+		panic(msgNotFullBlock)
+	}
+	if len(dst) < BlockSize {
+		panic(msgNotFullBlock)
+	}
+	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
+		panic(msgBufferOverlap)
+	}
+
+	_ = dst[BlockSize-1]
+	_ = src[BlockSize-1]
+
+	leaEnc1Go(&ctx.rk, ctx.round, (*[BlockSize]byte)(dst), (*[BlockSize]byte)(src))
 }
 
-func toAsmFunc(f func(ctx *leaContext, dst, src *byte)) func(ctx *leaContext, dst, src []byte) {
-	return func(ctx *leaContext, dst, src []byte) {
-		f(ctx, memory.P8(dst), memory.P8(src))
-	}
-}
+func (ctx *leaContextAsm) Decrypt(dst, src []byte) {
+	ctx.z.ThrowIfZeroized()
 
-var (
-	leaEnc8 funcBlock = func(ctx *leaContext, dst, src []byte) {
-		__lea_encrypt_4block(ctx, memory.P8(dst[:BlockSize*4]), memory.P8(src[:BlockSize*4]))
-		__lea_encrypt_4block(ctx, memory.P8(dst[BlockSize*4:]), memory.P8(src[BlockSize*4:]))
+	if len(src) < BlockSize {
+		panic(msgNotFullBlock)
 	}
-	leaDec8 funcBlock = func(ctx *leaContext, dst, src []byte) {
-		__lea_decrypt_4block(ctx, memory.P8(dst[:BlockSize*4]), memory.P8(src[:BlockSize*4]))
-		__lea_decrypt_4block(ctx, memory.P8(dst[BlockSize*4:]), memory.P8(src[BlockSize*4:]))
+	if len(dst) < BlockSize {
+		panic(msgNotFullBlock)
 	}
-)
+	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
+		panic(msgBufferOverlap)
+	}
 
-type leaContextAsm struct {
-	leaContext
+	_ = dst[BlockSize-1]
+	_ = src[BlockSize-1]
+
+	leaDec1Go(&ctx.rk, ctx.round, (*[BlockSize]byte)(dst), (*[BlockSize]byte)(src))
 }
 
 func (ctx *leaContextAsm) Encrypt4(dst, src []byte) {
+	ctx.z.ThrowIfZeroized()
+
 	if len(src) < BlockSize*4 {
-		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
+		panic(msgNotFullBlock)
 	}
 	if len(dst) < BlockSize*4 {
-		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
+		panic(msgNotFullBlock)
+	}
+	if alias.InexactOverlap(dst[:4*BlockSize], src[:4*BlockSize]) {
+		panic(msgBufferOverlap)
 	}
 
-	__lea_encrypt_4block(&ctx.leaContext, memory.P8(dst), memory.P8(src))
+	__lea_encrypt_4block(unsafe.Pointer(&ctx.rk), int64(ctx.round), unsafe.Pointer(&dst[0]), unsafe.Pointer(&src[0]))
 }
 
 func (ctx *leaContextAsm) Decrypt4(dst, src []byte) {
+	ctx.z.ThrowIfZeroized()
+
 	if len(src) < BlockSize*4 {
-		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
+		panic(msgNotFullBlock)
 	}
 	if len(dst) < BlockSize*4 {
-		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
+		panic(msgNotFullBlock)
+	}
+	if alias.InexactOverlap(dst[:4*BlockSize], src[:4*BlockSize]) {
+		panic(msgBufferOverlap)
 	}
 
-	__lea_decrypt_4block(&ctx.leaContext, memory.P8(dst), memory.P8(src))
-}
-
-func (ctx *leaContextAsm) Encrypt8(dst, src []byte) {
-	if len(src) < BlockSize*8 {
-		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
-	}
-	if len(dst) < BlockSize*8 {
-		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
-	}
-
-	leaEnc8(&ctx.leaContext, dst, src)
-}
-
-func (ctx *leaContextAsm) Decrypt8(dst, src []byte) {
-	if len(src) < BlockSize*8 {
-		panic(fmt.Sprintf(msgInvalidBlockSizeSrcFormat, len(src)))
-	}
-	if len(dst) < BlockSize*8 {
-		panic(fmt.Sprintf(msgInvalidBlockSizeDstFormat, len(dst)))
-	}
-
-	leaDec8(&ctx.leaContext, dst, src)
+	__lea_decrypt_4block(unsafe.Pointer(&ctx.rk), int64(ctx.round), unsafe.Pointer(&dst[0]), unsafe.Pointer(&src[0]))
 }

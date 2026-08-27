@@ -1,94 +1,109 @@
-//go:build gc && (arm64 || amd64) && !purego && go1.18
-// +build gc
-// +build arm64 amd64
-// +build !purego
-// +build go1.18
+//go:build !noasm && !noasm_krypto && !noasm_krypto_lsh256 && (arm64 || amd64)
 
 package lsh256
 
 import (
+	"encoding"
 	"hash"
+	"unsafe"
 
+	"github.com/RyuaNerin/go-krypto"
 	"github.com/RyuaNerin/go-krypto/internal/memory"
 )
 
-type simdSet struct {
-	init   func(ctx *lsh256ContextAsm, algtype uint64)
-	update func(ctx *lsh256ContextAsm, data []byte)
-	final  func(ctx *lsh256ContextAsm, hashval *byte)
+type simdSet interface {
+	update(ctx, data unsafe.Pointer, databytelen int64)
+	final(ctx *lsh256ContextData) (sum [Size]byte)
 }
 
 var defaultSimd simdSet
 
 func newContextAsm(size int) hash.Hash {
-	return defaultSimd.NewContext(size)
+	return newContextWith(size, defaultSimd)
 }
 
 func sumAsm(size int, data []byte) [Size]byte {
-	return defaultSimd.Sum(size, data)
+	return sumWith(size, data, defaultSimd)
 }
 
-func (simd *simdSet) NewContext(size int) hash.Hash {
+func newContextWith(size int, simd simdSet) hash.Hash {
 	ctx := &lsh256ContextAsm{
-		simd:    simd,
-		algType: size,
+		lsh256Context: lsh256Context{
+			lsh256ContextData: lsh256ContextData{
+				algType: uint64(size),
+			},
+		},
+		backend: simd,
 	}
 	ctx.Reset()
 	return ctx
 }
 
-func (simd *simdSet) Sum(size int, data []byte) [Size]byte {
+func sumWith(size int, data []byte, simd simdSet) (sum [Size]byte) {
 	ctx := lsh256ContextAsm{
-		simd:    simd,
-		algType: size,
+		lsh256Context: lsh256Context{
+			lsh256ContextData: lsh256ContextData{
+				algType: uint64(size),
+			},
+		},
+		backend: simd,
 	}
+	defer ctx.Zeroize()
+
 	ctx.Reset()
 	ctx.Write(data)
-
-	return ctx.checkSum()
+	return ctx.backend.final(&ctx.lsh256ContextData)
 }
 
 type lsh256ContextAsm struct {
-	// 16 bytes aligned
-	algType           int
-	_                 uintptr
-	remainDataByteLen int
-	_                 uintptr
-	cvL               [4]uint64
-	cvR               [4]uint64
-	lastBlock         [BlockSize]byte
+	lsh256Context
 
-	simd *simdSet
+	backend simdSet
+}
+
+var (
+	_ krypto.Hash                = (*lsh256ContextAsm)(nil)
+	_ encoding.BinaryMarshaler   = (*lsh256ContextAsm)(nil)
+	_ encoding.BinaryUnmarshaler = (*lsh256ContextAsm)(nil)
+	_ encoding.BinaryAppender    = (*lsh256ContextAsm)(nil)
+)
+
+func (ctx *lsh256ContextAsm) Zeroize() {
+	ctx.backend = nil
+	ctx.lsh256Context.Zeroize()
 }
 
 func (ctx *lsh256ContextAsm) Size() int {
-	return ctx.algType
+	return int(ctx.algType)
 }
 
 func (ctx *lsh256ContextAsm) BlockSize() int {
 	return BlockSize
 }
 
-func (ctx *lsh256ContextAsm) Reset() {
-	ctx.simd.init(ctx, uint64(ctx.algType))
-}
-
 func (ctx *lsh256ContextAsm) Write(data []byte) (n int, err error) {
+	if err = ctx.z.ReturnIfZeroized(); err != nil {
+		return 0, err
+	}
+
 	if len(data) == 0 {
 		return 0, nil
 	}
-	ctx.simd.update(ctx, data)
+	ctx.backend.update(unsafe.Pointer(ctx), memory.Pointer(data), int64(len(data)))
 
 	return len(data), nil
 }
 
 func (ctx *lsh256ContextAsm) Sum(p []byte) []byte {
-	ctx0 := *ctx
-	hash := ctx0.checkSum()
-	return append(p, hash[:ctx.algType]...)
-}
+	ctx.z.ThrowIfZeroized()
 
-func (ctx *lsh256ContextAsm) checkSum() (hash [Size]byte) {
-	ctx.simd.final(ctx, memory.P8(hash[:]))
-	return
+	ctx2 := ctx.lsh256ContextData
+	defer ctx2.Zeroize()
+
+	sum := ctx.backend.final(&ctx2)
+	size := int(ctx.algType)
+	if size < 0 || uint64(size) != ctx.algType || size > len(sum) {
+		panic(msgInvalidInternalState)
+	}
+	return append(p, sum[:size]...)
 }

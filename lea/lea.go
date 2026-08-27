@@ -12,6 +12,9 @@ const (
 
 // NewCipher creates and returns a new cipher.Block.
 // The key argument should be the LEA key, either 16, 24, or 32 bytes to select LEA-128, LEA-192, or LEA-256.
+//
+// The returned value is a [krypto.Block] and therefore implements Zeroize():
+// call it to erase the round-key schedule when the cipher is no longer needed.
 func NewCipher(key []byte) (cipher.Block, error) {
 	l := len(key)
 	switch l {
@@ -24,3 +27,7 @@ func NewCipher(key []byte) (cipher.Block, error) {
 
 	return newCipher(key)
 }
+
+type (
+	roundKey [192]uint32
+)

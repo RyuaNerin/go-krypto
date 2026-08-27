@@ -11,6 +11,8 @@ import (
 	"github.com/RyuaNerin/go-krypto/internal/drbg/ctrdrbg"
 	"github.com/RyuaNerin/go-krypto/lea"
 	"github.com/RyuaNerin/go-krypto/seed"
+
+	"github.com/stretchr/testify/require"
 )
 
 type testInput struct {
@@ -65,8 +67,9 @@ func TestCTRDRBG_B1(t *testing.T) {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// a) 초기화 함수
-	state := ctrdrbg.Instantiate(
-		seed.NewCipher,
+	var state ctrdrbg.State
+	require.NoError(t, state.Instantiate(
+		internal.ToBlock8Fn(seed.NewCipher),
 		128/8,
 		1,
 		0,
@@ -75,16 +78,13 @@ func TestCTRDRBG_B1(t *testing.T) {
 		internal.HB(`40414243 44454647 48494A4B 4C4D4E4F 50515253 54555657 58595A5B 5C5D5E5F`),
 		true,
 		false,
-	)
+	))
 
 	keySize := 128 / 8
 	blockSize := seed.BlockSize
 
-	if !bytes.Equal(state.Key[:keySize], internal.HB(`6EEB8C7D A6047793 F4554882 35A9A6B2`)) ||
-		!bytes.Equal(state.V[:blockSize], internal.HB(`96E22D00 A182179A CDDBE18A 7D1A8559`)) {
-		t.Fail()
-		return
-	}
+	require.Equal(t, state.Key[:keySize], internal.HB(`6EEB8C7D A6047793 F4554882 35A9A6B2`), "Key mismatch after Instantiate")
+	require.Equal(t, state.V[:blockSize], internal.HB(`96E22D00 A182179A CDDBE18A 7D1A8559`), "V mismatch after Instantiate")
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// b) 첫 번째 출력 생성
@@ -96,21 +96,14 @@ func TestCTRDRBG_B1(t *testing.T) {
 		nil,
 		internal.HB(`60616263 64656667 68696A6B 6C6D6E6F 70717273 74757677 78797A7B 7C7D7E7F`),
 	)
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	require.NoError(t, err, "failed to generate random")
+
 	// 3) 첫 번째 출력
-	if !bytes.Equal(dst, internal.HB(`E6150AB3 97A9E74B B4235730 FFE40CFB 7B6A1E97 A9B934A0 D6FBC0CA 83371B72`)) {
-		t.Fail()
-		return
-	}
+	require.Equal(t, dst, internal.HB(`E6150AB3 97A9E74B B4235730 FFE40CFB 7B6A1E97 A9B934A0 D6FBC0CA 83371B72`), "first output mismatch")
+
 	// 4) 갱신 함수
-	if !bytes.Equal(state.Key[:keySize], internal.HB(`DCB95524 A9264141 7D1880C1 688680C0`)) ||
-		!bytes.Equal(state.V[:blockSize], internal.HB(`9F1DA519 64CE39E7 E59A6C6A 60BACB95`)) {
-		t.Fail()
-		return
-	}
+	require.Equal(t, state.Key[:keySize], internal.HB(`DCB95524 A9264141 7D1880C1 688680C0`), "Key mismatch after first Generate")
+	require.Equal(t, state.V[:blockSize], internal.HB(`9F1DA519 64CE39E7 E59A6C6A 60BACB95`), "V mismatch after first Generate")
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// c) 두 번째 출력 생성
@@ -124,87 +117,71 @@ func TestCTRDRBG_B1(t *testing.T) {
 		},
 		internal.HB(`A0A1A2A3 A4A5A6A7 A8A9AAAB ACADAEAF B0B1B2B3 B4B5B6B7 B8B9BABB BCBDBEBF`),
 	)
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	require.NoError(t, err, "failed to generate random")
+
 	// 2) 두 번째 출력
-	if !bytes.Equal(dst, internal.HB(`F09F73FB C00D7EED C8DB54A6 1314DE17 0D167246 D93FE1D4 AAA075E2 B0F73703`)) {
-		t.Fail()
-		return
-	}
+	require.Equal(t, dst, internal.HB(`F09F73FB C00D7EED C8DB54A6 1314DE17 0D167246 D93FE1D4 AAA075E2 B0F73703`), "second output mismatch")
+
 	// 3) 갱신 함수
-	if !bytes.Equal(state.Key[:keySize], internal.HB(`40EC068E B8A93E05 C920861F 5C6ACB98`)) ||
-		!bytes.Equal(state.V[:blockSize], internal.HB(`67A8DE4B 8B171A62 8B19504F 170775D9`)) {
-		t.Fail()
-		return
-	}
+	require.Equal(t, state.Key[:keySize], internal.HB(`40EC068E B8A93E05 C920861F 5C6ACB98`), "Key mismatch after second Generate")
+	require.Equal(t, state.V[:blockSize], internal.HB(`67A8DE4B 8B171A62 8B19504F 170775D9`), "V mismatch after second Generate")
 }
 
 func TestCTRDRBG(t *testing.T) {
-	var dst []byte
-	var err error
+	for _, tc := range testcaseList {
+		t.Run(tc.name, func(t *testing.T) {
+			var entropyBuffer bytes.Buffer
 
-	for idx, tc := range testcaseList {
-		input := testcaseInputList[tc.idx]
+			input := testcaseInputList[tc.idx]
+			expect1 := internal.HB(tc.out1)
+			expect2 := internal.HB(tc.out2)
+			dst := internal.Grow(nil, len(expect1))
+			require.Len(t, expect2, len(dst))
 
-		expect1 := internal.HB(tc.out1)
-		expect2 := internal.HB(tc.out2)
-		dst = internal.Grow(dst, len(expect1))
+			ps := input.personal
+			if tc.ps != 1 {
+				ps = nil
+			}
 
-		ps := input.personal
-		if tc.ps != 1 {
-			ps = nil
-		}
+			var state ctrdrbg.State
+			require.NoError(t, state.Instantiate(
+				internal.ToBlock8Fn(tc.cipher),
+				input.KeySize,
+				tc.ri,
+				0,
+				input.entropy[0],
+				input.nonce,
+				ps,
+				tc.df == 1,
+				tc.pr == 1,
+			))
 
-		state := ctrdrbg.Instantiate(
-			tc.cipher,
-			input.KeySize,
-			tc.ri,
-			0,
-			input.entropy[0],
-			input.nonce,
-			ps,
-			tc.df == 1,
-			tc.pr == 1,
-		)
-
-		eidx := 1
-		e := func() func() ([]byte, error) {
-			return func() ([]byte, error) {
+			eidx := 1
+			fnEntropy := func() ([]byte, error) {
 				b := input.entropy[eidx]
 				eidx++
-				return b, nil
+				entropyBuffer.Reset()
+				entropyBuffer.Write(b)
+				return entropyBuffer.Bytes(), nil
 			}
-		}
 
-		if tc.ai == 1 {
-			err = state.Generate(dst, e(), input.additional[0])
-		} else {
-			err = state.Generate(dst, e(), nil)
-		}
-		if err != nil {
-			t.Errorf("Test case %d (%s, PR=%d, RI=%d, PS=%d, AI=%d): %v", idx, tc.name, tc.pr, tc.ri, tc.ps, tc.ai, err)
-			continue
-		}
-		if !bytes.Equal(expect1, dst) {
-			t.Errorf("Test case %d (%s, PR=%d, RI=%d, PS=%d, AI=%d): \nexpect: %x,\n   got: %x", idx, tc.name, tc.pr, tc.ri, tc.ps, tc.ai, expect1, dst)
-			continue
-		}
+			var err error
+			if tc.ai == 1 {
+				err = state.Generate(dst, fnEntropy, input.additional[0])
+			} else {
+				err = state.Generate(dst, fnEntropy, nil)
+			}
+			require.NoError(t, err)
+			require.Equal(t, expect1, dst)
 
-		if tc.ai == 1 {
-			err = state.Generate(dst, e(), input.additional[1])
-		} else {
-			err = state.Generate(dst, e(), nil)
-		}
-		if err != nil {
-			t.Errorf("Test case %d (%s, PR=%d, RI=%d, PS=%d, AI=%d): %v", idx, tc.name, tc.pr, tc.ri, tc.ps, tc.ai, err)
-			continue
-		}
-		if !bytes.Equal(expect2, dst) {
-			t.Errorf("Test case %d (%s, PR=%d, RI=%d, PS=%d, AI=%d): \nexpect: %x,\n   got: %x", idx, tc.name, tc.pr, tc.ri, tc.ps, tc.ai, expect2, dst)
-			continue
-		}
+			if tc.ai == 1 {
+				err = state.Generate(dst, fnEntropy, input.additional[1])
+			} else {
+				err = state.Generate(dst, fnEntropy, nil)
+			}
+			require.NoError(t, err)
+			require.Equal(t, expect2, dst)
+		})
 	}
 }
 

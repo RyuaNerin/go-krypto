@@ -1,10 +1,13 @@
-package kcdsa
+package kcdsa_test
 
 import (
-	"crypto/dsa" //nolint:staticcheck
+	"crypto/dsa"
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
+	"github.com/RyuaNerin/go-krypto/kcdsa"
+
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -18,9 +21,9 @@ var (
 )
 
 func TestPrivateKeyConversion(t *testing.T) {
-	privKCDSA := PrivateKey{
-		PublicKey: PublicKey{
-			Parameters: Parameters{
+	privKCDSA := kcdsa.PrivateKey{
+		PublicKey: kcdsa.PublicKey{
+			Parameters: kcdsa.Parameters{
 				P: testPrivateKeyP,
 				Q: testPrivateKeyQ,
 				G: testPrivateKeyG,
@@ -42,20 +45,16 @@ func TestPrivateKeyConversion(t *testing.T) {
 	}
 
 	toDSA := privKCDSA.ToDSA()
-	if toDSA.X.Cmp(privDSA.X) != 0 ||
-		toDSA.Y.Cmp(privDSA.Y) != 0 ||
-		toDSA.P.Cmp(privDSA.P) != 0 ||
-		toDSA.Q.Cmp(privDSA.Q) != 0 ||
-		toDSA.G.Cmp(privDSA.G) != 0 {
-		t.Fail()
-	}
+	require.Equal(t, privDSA.X.Text(16), toDSA.X.Text(16), "X values are not equal")
+	require.Equal(t, privDSA.Y.Text(16), toDSA.Y.Text(16), "Y values are not equal")
+	require.Equal(t, privDSA.P.Text(16), toDSA.P.Text(16), "P values are not equal")
+	require.Equal(t, privDSA.Q.Text(16), toDSA.Q.Text(16), "Q values are not equal")
+	require.Equal(t, privDSA.G.Text(16), toDSA.G.Text(16), "G values are not equal")
 
-	toKCDSA := FromDSA(&privDSA)
-	if toKCDSA.X.Cmp(privKCDSA.X) != 0 ||
-		toKCDSA.Y.Cmp(privKCDSA.Y) != 0 ||
-		toKCDSA.P.Cmp(privKCDSA.P) != 0 ||
-		toKCDSA.Q.Cmp(privKCDSA.Q) != 0 ||
-		toKCDSA.G.Cmp(privKCDSA.G) != 0 {
-		t.Fail()
-	}
+	toKCDSA := kcdsa.FromDSA(&privDSA)
+	require.Equal(t, privKCDSA.X.Text(16), toKCDSA.X.Text(16), "X values are not equal")
+	require.Equal(t, privKCDSA.Y.Text(16), toKCDSA.Y.Text(16), "Y values are not equal")
+	require.Equal(t, privKCDSA.P.Text(16), toKCDSA.P.Text(16), "P values are not equal")
+	require.Equal(t, privKCDSA.Q.Text(16), toKCDSA.Q.Text(16), "Q values are not equal")
+	require.Equal(t, privKCDSA.G.Text(16), toKCDSA.G.Text(16), "G values are not equal")
 }

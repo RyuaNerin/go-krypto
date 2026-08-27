@@ -1,36 +1,20 @@
-//go:build gc && arm64 && !purego && go1.18
-// +build gc,arm64,!purego,go1.18
+//go:build !noasm && !noasm_krypto && !noasm_krypto_lsh512 && arm64
 
 package lsh512
 
 import (
 	"testing"
-
-	"github.com/RyuaNerin/go-krypto/internal/memory"
-
-	. "github.com/RyuaNerin/testingutil"
 )
 
-var newNEON = simdSetNEON.NewContext
+var htNEON = newHashTest(simdNEON{})
 
-func Test_Aligned(t *testing.T) {
-	var ctx lsh512ContextAsm
-	memory.TestFieldIsAligned(t, 16, &ctx, "algType")
-	memory.TestFieldIsAligned(t, 16, &ctx, "remainDataByteLen")
-	memory.TestFieldIsAligned(t, 16, &ctx, "cvL")
-	memory.TestFieldIsAligned(t, 16, &ctx, "cvR")
-	memory.TestFieldIsAligned(t, 16, &ctx, "lastBlock")
-}
+func Test_LSH512_Hash_NEON(t *testing.T) { htNEON.TestHash(t, false) }
 
-func Test_ShortWrite_NEON(t *testing.T) { HTSWA(t, as, newNEON, !hasNEON) }
+func Test_LSH512_SMT_NEON(t *testing.T)     { htNEON.TestSMT(t, false) }
+func Test_LSH512_SMT_Sum_NEON(t *testing.T) { htNEON.TestSMTSum(t, false) }
 
-func Test_LSH512_224_NEON(t *testing.T) { HT(t, newNEON(Size224), testCases224, !hasNEON) }
-func Test_LSH512_256_NEON(t *testing.T) { HT(t, newNEON(Size256), testCases256, !hasNEON) }
-func Test_LSH512_384_NEON(t *testing.T) { HT(t, newNEON(Size384), testCases384, !hasNEON) }
-func Test_LSH512_512_NEON(t *testing.T) { HT(t, newNEON(Size), testCases512, !hasNEON) }
+func Fuzz_LSH512_Hash_NEON(f *testing.F) { htNEON.FuzzHash(f, false) }
+func Fuzz_LSH512_Sum_NEON(f *testing.F)  { htNEON.FuzzSum(f, false) }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func Benchmark_Hash_8_NEON(b *testing.B)  { HBA(b, as, newNEON, 8, !hasNEON) }
-func Benchmark_Hash_1K_NEON(b *testing.B) { HBA(b, as, newNEON, 1024, !hasNEON) }
-func Benchmark_Hash_8K_NEON(b *testing.B) { HBA(b, as, newNEON, 8192, !hasNEON) }
+func Benchmark_LSH512_Hash_NEON(b *testing.B) { htNEON.BenchHash(b, false) }
+func Benchmark_LSH512_Sum_NEON(b *testing.B)  { htNEON.BenchSum(b, false) }

@@ -1,41 +1,30 @@
+//nolint:dupl
 package kipher_test
 
 import (
-	"crypto/aes"
 	"crypto/cipher"
 	"testing"
 
-	"github.com/RyuaNerin/go-krypto/internal/kipherimpl"
+	"github.com/RyuaNerin/go-krypto/internal/testing/tblockmode"
 	"github.com/RyuaNerin/go-krypto/kipher"
-
-	. "github.com/RyuaNerin/testingutil"
 )
 
-func TestCTRWithStd(t *testing.T) {
-	type ctr struct {
-		c, k cipher.Stream
-	}
+var ctrInfo = tblockmode.StreamInfo{IVSize: blockSize}
 
-	BTTC(
-		t,
-		128,
-		aes.BlockSize, // iv
-		aes.BlockSize*16,
-		1,
-		func(key, iv []byte) (interface{}, error) {
-			b, err := aes.NewCipher(key)
-			if err != nil {
-				return nil, err
-			}
+func newCTR(iv []byte) cipher.Stream       { return kipher.NewCTR(newLEABlock(), iv) }
+func newCipherCTR(iv []byte) cipher.Stream { return cipher.NewCTR(newLEABlock(), iv) }
 
-			data := &ctr{
-				c: cipher.NewCTR(kipherimpl.WrapCipher(b), iv),
-				k: kipher.NewCTR(kipherimpl.WrapKipher(b), iv),
-			}
-			return data, nil
-		},
-		func(data interface{}, dst, src []byte) { data.(*ctr).c.XORKeyStream(dst, src) },
-		func(data interface{}, dst, src []byte) { data.(*ctr).k.XORKeyStream(dst, src) },
-		false,
-	)
+func Test_CTR_New(t *testing.T)    { ctrInfo.TestNew(t, newCTR, newCTR, false) }
+func Test_CTR_Stream(t *testing.T) { ctrInfo.TestStream(t, newCTR, newCTR, false) }
+func Test_CTR_Compare(t *testing.T) {
+	ctrInfo.TestCompare(t, newCTR, newCTR, newCipherCTR, newCipherCTR, false)
+}
+
+func Fuzz_CTR_New(f *testing.F)         { ctrInfo.FuzzNew(f, newCTR, newCTR, false) }
+func Fuzz_CTR_Stream(f *testing.F)      { ctrInfo.FuzzStream(f, newCTR, newCTR, false) }
+func Fuzz_CTR_ShortBuffer(f *testing.F) { ctrInfo.FuzzShortBuffer(f, newCTR, newCTR, false) }
+
+func Benchmark_CTR_New(b *testing.B) { ctrInfo.BenchNew(b, newCTR, newCTR, false) }
+func Benchmark_CTR_Stream(b *testing.B) {
+	ctrInfo.BenchStreamCompare(b, newCTR, newCTR, newCipherCTR, newCipherCTR, false)
 }

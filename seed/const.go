@@ -1,5 +1,6 @@
 package seed
 
+//nolint:dupl
 var (
 	kc = [...]uint32{
 		0x9e3779b9, 0x3c6ef373, 0x78dde6e6, 0xf1bbcdcc, 0xe3779b99, 0xc6ef3733, 0x8dde6e67, 0x1bbcdccf,

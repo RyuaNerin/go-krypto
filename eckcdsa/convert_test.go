@@ -1,4 +1,4 @@
-package eckcdsa
+package eckcdsa_test
 
 import (
 	"crypto/ecdsa"
@@ -6,9 +6,11 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/RyuaNerin/go-krypto/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/internal"
 
 	"github.com/RyuaNerin/elliptic2/nist"
+	"github.com/stretchr/testify/require"
 )
 
 var convertTestCases = []struct {
@@ -71,8 +73,8 @@ func Test_ECDSA_TO_ECKCDSA(t *testing.T) {
 			},
 			D: tc.D,
 		}
-		expect := &PrivateKey{
-			PublicKey: PublicKey{
+		expect := &eckcdsa.PrivateKey{
+			PublicKey: eckcdsa.PublicKey{
 				Curve: tc.curve,
 				X:     tc.Xk,
 				Y:     tc.Yk,
@@ -80,18 +82,15 @@ func Test_ECDSA_TO_ECKCDSA(t *testing.T) {
 			D: tc.D,
 		}
 
-		answer := FromECDSA(input)
-
-		if !answer.Equal(expect) {
-			t.Fail()
-		}
+		answer := eckcdsa.FromECDSA(input)
+		require.True(t, answer.Equal(expect), "ECDSA to ECKCDSA conversion failed")
 	}
 }
 
 func Test_ECKCDSA_TO_ECDSA(t *testing.T) {
 	for _, tc := range convertTestCases {
-		input := &PrivateKey{
-			PublicKey: PublicKey{
+		input := &eckcdsa.PrivateKey{
+			PublicKey: eckcdsa.PublicKey{
 				Curve: tc.curve,
 				X:     tc.Xk,
 				Y:     tc.Yk,
@@ -108,9 +107,6 @@ func Test_ECKCDSA_TO_ECDSA(t *testing.T) {
 		}
 
 		answer := input.ToECDSA()
-
-		if !answer.Equal(expect) {
-			t.Fail()
-		}
+		require.True(t, answer.Equal(expect), "ECKCDSA to ECDSA conversion failed")
 	}
 }

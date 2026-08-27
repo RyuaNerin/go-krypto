@@ -1,54 +1,40 @@
 package has160
 
 import (
-	"bytes"
+	"hash"
 	"testing"
 
-	"github.com/RyuaNerin/go-krypto/internal"
-
-	. "github.com/RyuaNerin/testingutil"
+	"github.com/RyuaNerin/go-krypto/internal/testing/thash"
 )
 
-func Test_HAS160_ShortWrite(t *testing.T) { HTSW(t, New(), false) }
-
-func TestHAS160(t *testing.T) {
-	var sum []byte
-	for tcIdx, tc := range testCases {
-		expect := internal.HB(tc.MD)
-
-		h := New()
-
-		written := 0
-		for n := 1; written < len(tc.MsgBytes); n++ {
-			k := written + n
-			if k > len(tc.MsgBytes) {
-				k = len(tc.MsgBytes)
-			}
-
-			part := tc.MsgBytes[written:k]
-			h.Write(part)
-			written += n
-		}
-
-		sum = h.Sum(sum[:0])
-		if !bytes.Equal(sum, expect) {
-			t.Errorf("failed idx: %d\nexpect: %x\nactual: %x", tcIdx, expect, sum)
-		}
-
-		sum := Sum(tc.MsgBytes)
-		if !bytes.Equal(sum[:], expect) {
-			t.Errorf("failed idx: %d\nexpect: %x\nactual: %x", tcIdx, expect, sum)
-		}
+var (
+	hi = thash.HashInfo{
+		BlockSize: BlockSize,
+		Sizes: []thash.CipherSize{
+			{Name: "HAS-160", DigestSize: Size},
+		},
 	}
-}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const (
-	almost1K = 1024 - 5
-	almost8K = 8*1024 - 5
+	ht = thash.HashTest{
+		HashInfo: hi,
+		New: map[int]func() hash.Hash{
+			Size: New,
+		},
+		Sum: map[int]any{
+			Size: Sum,
+		},
+	}
 )
 
-func Benchmark_Hash_8(b *testing.B)  { HB(b, New(), 8, false) }
-func Benchmark_Hash_1K(b *testing.B) { HB(b, New(), almost1K, false) }
-func Benchmark_Hash_8K(b *testing.B) { HB(b, New(), almost8K, false) }
+func Test_HAS160_New(t *testing.T)  { ht.TestNew(t, false) }
+func Test_HAS160_Hash(t *testing.T) { ht.TestHash(t, false) }
+
+func Fuzz_HAS160_New(f *testing.F)       { ht.FuzzNew(f, false) }
+func Fuzz_HAS160_Hash(f *testing.F)      { ht.FuzzHash(f, false) }
+func Fuzz_HAS160_Sum(f *testing.F)       { ht.FuzzSum(f, false) }
+func Fuzz_HAS160_Marshal(f *testing.F)   { ht.FuzzMarshal(f, false) }
+func Fuzz_HAS160_Unmarshal(f *testing.F) { ht.FuzzUnmarshal(f, false) }
+
+func Benchmark_HAS160_New(b *testing.B)  { ht.BenchNew(b, false) }
+func Benchmark_HAS160_Hash(b *testing.B) { ht.BenchHash(b, false) }
+func Benchmark_HAS160_Sum(b *testing.B)  { ht.BenchSum(b, false) }

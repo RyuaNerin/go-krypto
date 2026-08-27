@@ -6,7 +6,9 @@ import (
 	"io"
 	"math/big"
 
+	"github.com/RyuaNerin/go-krypto"
 	"github.com/RyuaNerin/go-krypto/internal"
+	"github.com/RyuaNerin/go-krypto/internal/zeroize"
 )
 
 // PublicKey represents a EC-KCDSA public key.
@@ -21,6 +23,28 @@ type PublicKey struct {
 type PrivateKey struct {
 	PublicKey
 	D *big.Int
+}
+
+var (
+	_ krypto.PrivateKey = (*PrivateKey)(nil)
+	_ krypto.PublicKey  = (*PublicKey)(nil)
+
+	_ crypto.Signer     = (*PrivateKey)(nil)
+	_ crypto.SignerOpts = (*SignerOpts)(nil)
+)
+
+func (pub *PublicKey) Zeroize() {
+	pub.Curve = nil
+	zeroize.Zeroize(pub.X)
+	pub.X = nil
+	zeroize.Zeroize(pub.Y)
+	pub.Y = nil
+}
+
+func (priv *PrivateKey) Zeroize() {
+	priv.PublicKey.Zeroize()
+	zeroize.Zeroize(priv.D)
+	priv.D = nil
 }
 
 // Public returns the public key corresponding to priv.
@@ -47,34 +71,47 @@ func (pub *PublicKey) Equal(x crypto.PublicKey) bool {
 		pub.Curve == xx.Curve
 }
 
+// Clone returns a deep copy of pub.
+func (priv PublicKey) Clone() PublicKey {
+	clone := PublicKey{
+		Curve: priv.Curve,
+	}
+	if priv.X != nil {
+		clone.X = new(big.Int).Set(priv.X)
+	}
+	if priv.Y != nil {
+		clone.Y = new(big.Int).Set(priv.Y)
+	}
+	return clone
+}
+
+// Clone returns a deep copy of priv.
+func (priv PrivateKey) Clone() PrivateKey {
+	clone := PrivateKey{
+		PublicKey: priv.PublicKey.Clone(),
+	}
+	if priv.D != nil {
+		clone.D = new(big.Int).Set(priv.D)
+	}
+	return clone
+}
+
 // crypto.Signer
 func (priv *PrivateKey) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
+	if opts == nil || !opts.HashFunc().Available() {
+		return nil, ErrInvalidSignerOpts
+	}
 	return SignASN1(rand, priv, opts.HashFunc().New(), digest)
 }
 
 // SignerOpts contains options for creating and verifying EC-KCDSA signatures.
+//
+// It wraps a crypto.Hash and implements [crypto.SignerOpts].
 type SignerOpts struct {
 	Hash crypto.Hash
 }
 
-// HashFunc returns opts.Hash so that [SignerOpts] implements [crypto.SignerOpts].
+// HashFunc returns opts.Hash, allowing [SignerOpts] to satisfy [crypto.SignerOpts].
 func (opts *SignerOpts) HashFunc() crypto.Hash {
 	return opts.Hash
 }
-
-type (
-	stdPublicKey interface {
-		Equal(x crypto.PublicKey) bool
-	}
-	stdPrivateKey interface {
-		Public() crypto.PublicKey
-		Equal(x crypto.PrivateKey) bool
-	}
-)
-
-var (
-	_ stdPublicKey      = (*PublicKey)(nil)
-	_ stdPrivateKey     = (*PrivateKey)(nil)
-	_ crypto.Signer     = (*PrivateKey)(nil)
-	_ crypto.SignerOpts = (*SignerOpts)(nil)
-)

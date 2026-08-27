@@ -1,21 +1,20 @@
-//go:build !gc || !go1.20
-// +build !gc !go1.20
-
 package memory
 
 import (
-	"reflect"
 	"unsafe"
 )
 
-func ConvertU32S(b []byte) []uint32 {
-	header := *(*reflect.SliceHeader)(unsafe.Pointer(&b)) //nolint:govet
-	header.Len /= 4
-	header.Cap /= 4
-	return *(*[]uint32)(unsafe.Pointer(&header)) //nolint:govet
+func Cast[T any](b []byte) []T {
+	var zero T
+	sd := unsafe.SliceData(b)
+	return unsafe.Slice((*T)(unsafe.Pointer(sd)), uintptr(len(b))/unsafe.Sizeof(zero))
 }
 
-func P8(b []byte) *byte {
-	header := *(*reflect.SliceHeader)(unsafe.Pointer(&b)) //nolint:govet
-	return (*byte)(unsafe.Pointer(header.Data))
+func CastPtr[TTo any](b []byte) *TTo {
+	sd := unsafe.SliceData(b)
+	return (*TTo)(unsafe.Pointer(sd))
+}
+
+func Pointer[S ~[]E, E any](b S) unsafe.Pointer {
+	return unsafe.Pointer(unsafe.SliceData(b))
 }

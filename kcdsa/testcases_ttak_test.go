@@ -1,13 +1,40 @@
-package kcdsa
+package kcdsa_test
 
 import (
-	"crypto/rand"
 	"math/big"
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto/internal"
-	"github.com/RyuaNerin/go-krypto/internal/kcdsaimpl"
+	kcdsa_internal "github.com/RyuaNerin/go-krypto/internal/kcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/randutil"
+	"github.com/RyuaNerin/go-krypto/kcdsa"
+
+	"github.com/stretchr/testify/require"
 )
+
+type testCase struct {
+	Sizes kcdsa.ParameterSizes
+
+	M []byte
+
+	Seedb []byte
+	J     *big.Int
+	Count int
+	P, Q  *big.Int
+
+	H []byte
+	G *big.Int
+
+	XKEY []byte
+	X    *big.Int
+	Y, Z *big.Int
+
+	KKEY *big.Int
+	R    *big.Int
+	S    *big.Int
+
+	Fail bool
+}
 
 func Test_Verify_TestVectors(t *testing.T) {
 	verifyTestCases(t, testCaseTTAK)
@@ -21,9 +48,9 @@ func Test_Sign_Verify_TestVectors(t *testing.T) {
 	for idx, tc := range testCaseTTAK {
 		K := tc.KKEY
 
-		priv := PrivateKey{
-			PublicKey: PublicKey{
-				Parameters: Parameters{
+		priv := kcdsa.PrivateKey{
+			PublicKey: kcdsa.PublicKey{
+				Parameters: kcdsa.Parameters{
 					P: tc.P,
 					Q: tc.Q,
 					G: tc.G,
@@ -33,31 +60,23 @@ func Test_Sign_Verify_TestVectors(t *testing.T) {
 			X: tc.X,
 		}
 
-		domain, _ := kcdsaimpl.GetDomain(int(tc.Sizes))
+		domain, _ := kcdsa_internal.GetDomain(int(tc.Sizes))
 
 		var ok bool
-		tmpBuf, ok = kcdsaimpl.Sign(
+		tmpBuf, ok = kcdsa_internal.Sign(
 			R, S,
 			priv.P, priv.Q, priv.G, priv.Y, priv.X,
 			domain, K, tc.M,
 			tmp,
 			tmpBuf,
 		)
-		if !ok {
-			t.Errorf("%d: error signing", idx)
-			return
-		}
+		require.True(t, ok, "%d: error signing", idx)
 
-		if R.Cmp(tc.R) != 0 || S.Cmp(tc.S) != 0 {
-			t.Errorf("%d: sign failed", idx)
-			return
-		}
+		require.Equal(t, tc.R.Text(16), R.Text(16), "%d: R value mismatch", idx)
+		require.Equal(t, tc.S.Text(16), S.Text(16), "%d: S value mismatch", idx)
 
-		ok = Verify(&priv.PublicKey, tc.Sizes, tc.M, tc.R, tc.S)
-		if ok == tc.Fail {
-			t.Errorf("%d: Verify failed, got:%v want:%v", idx, ok, !tc.Fail)
-			return
-		}
+		ok = kcdsa.Verify(&priv.PublicKey, tc.Sizes, tc.M, tc.R, tc.S)
+		require.True(t, ok, "%d: verify failed", idx)
 	}
 }
 
@@ -72,16 +91,11 @@ func Test_TTAK_GenerateJ(t *testing.T) {
 
 	J := new(big.Int)
 	for _, tc := range testCaseTTAK {
-		d, _ := kcdsaimpl.GetDomain(int(tc.Sizes))
-		buf, ok = kcdsaimpl.GenerateJ(J, buf, tc.Seedb, d.NewHash(), d)
-		if !ok {
-			t.Fail()
-			return
-		}
-		if J.Cmp(tc.J) != 0 {
-			t.Errorf("GenerateTTAKJ failed")
-			return
-		}
+		d, _ := kcdsa_internal.GetDomain(int(tc.Sizes))
+		buf, ok = kcdsa_internal.GenerateJ(J, buf, tc.Seedb, d.NewHash(), d)
+		require.True(t, ok, "GenerateTTAKJ failed")
+
+		require.Equal(t, tc.J.Text(16), J.Text(16), "invalid J")
 	}
 }
 
@@ -98,21 +112,15 @@ func Test_TTAK_GeneratePQ(t *testing.T) {
 	Q := new(big.Int)
 
 	for _, tc := range testCaseTTAK {
-		d, ok := kcdsaimpl.GetDomain(int(tc.Sizes))
-		if !ok {
-			t.Errorf("domain not found")
-			return
-		}
+		d, ok := kcdsa_internal.GetDomain(int(tc.Sizes))
+		require.True(t, ok, "domain not found")
 
-		buf, count, ok = kcdsaimpl.GeneratePQ(P, Q, buf, tc.J, tc.Seedb, d.NewHash(), d)
-		if !ok {
-			t.Fail()
-			return
-		}
-		if P.Cmp(tc.P) != 0 || Q.Cmp(tc.Q) != 0 || count != tc.Count {
-			t.Fail()
-			return
-		}
+		buf, count, ok = kcdsa_internal.GeneratePQ(P, Q, buf, tc.J, tc.Seedb, d.NewHash(), d)
+		require.True(t, ok, "GenerateTTAKPQ failed")
+
+		require.Equal(t, count, tc.Count, "invalid count")
+		require.Equal(t, tc.P.Text(16), P.Text(16), "invalid P")
+		require.Equal(t, tc.Q.Text(16), Q.Text(16), "invalid Q")
 	}
 }
 
@@ -122,6 +130,8 @@ func Test_GenerateHG(t *testing.T) {
 		return
 	}
 
+	rnd, _ := randutil.NewTestRand()
+
 	var buf []byte
 	var err error
 
@@ -129,11 +139,8 @@ func Test_GenerateHG(t *testing.T) {
 	G := new(big.Int)
 
 	for _, tc := range testCaseTTAK {
-		buf, err = kcdsaimpl.GenerateHG(H, G, buf, rand.Reader, tc.P, tc.J)
-		if err != nil {
-			t.Error(err)
-			return
-		}
+		buf, err = kcdsa_internal.GenerateHG(H, G, buf, rnd, tc.P, tc.J)
+		require.NoError(t, err, "GenerateTTAKHG failed")
 	}
 }
 
@@ -145,15 +152,46 @@ func Test_GenerateG(t *testing.T) {
 
 	G := new(big.Int)
 	for _, tc := range testCaseTTAK {
-		ok := kcdsaimpl.GenerateG(G, tc.P, tc.J, new(big.Int).SetBytes(tc.H))
-		if !ok {
-			t.Fail()
-			return
-		}
-		if G.Cmp(tc.G) != 0 {
-			t.Fail()
-			return
-		}
+		ok := kcdsa_internal.GenerateG(G, tc.P, tc.J, new(big.Int).SetBytes(tc.H))
+		require.True(t, ok, "GenerateTTAKG failed")
+
+		require.Equal(t, tc.G.Text(16), G.Text(16), "invalid G")
+	}
+}
+
+func Test_GenerateX(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping Test_GenerateX in short mode")
+		return
+	}
+
+	X := new(big.Int)
+	for _, tc := range testCaseTTAK {
+		d, _ := kcdsa_internal.GetDomain(int(tc.Sizes))
+
+		kcdsa_internal.GenerateX(
+			X,
+			tc.Q, UserProvidedRandomInput, tc.XKEY,
+			d.NewHash(), d,
+		)
+		require.Equal(t, tc.X.Text(16), X.Text(16), "invalid X")
+	}
+}
+
+func Test_GenerateY(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping Test_GenerateY in short mode")
+		return
+	}
+
+	Y := new(big.Int)
+	for _, tc := range testCaseTTAK {
+		kcdsa_internal.GenerateY(
+			Y,
+			tc.P, tc.Q, tc.G, tc.X,
+		)
+
+		require.Equal(t, tc.Y.Text(16), Y.Text(16), "invalid Y")
 	}
 }
 
@@ -163,24 +201,21 @@ func Test_RegenerateParameters(t *testing.T) {
 		return
 	}
 
+	rnd, _ := randutil.NewTestRand()
+
 	for _, tc := range testCaseTTAK {
-		params := Parameters{
-			GenParameters: GenerationParameters{
+		params := kcdsa.Parameters{
+			GenParameters: kcdsa.GenerationParameters{
 				J:     tc.J,
 				Seed:  tc.Seedb,
 				Count: tc.Count,
 			},
 		}
-		err := RegenerateParameters(&params, rnd, tc.Sizes)
-		if err != nil {
-			t.Error(err)
-			return
-		}
+		err := kcdsa.RegenerateParameters(&params, rnd, tc.Sizes)
+		require.NoError(t, err, "RegenerateParameters failed")
 
-		if params.P.Cmp(tc.P) != 0 || params.Q.Cmp(tc.Q) != 0 {
-			t.Fail()
-			return
-		}
+		require.Equal(t, tc.P.Text(16), params.P.Text(16), "invalid P")
+		require.Equal(t, tc.Q.Text(16), params.Q.Text(16), "invalid Q")
 	}
 }
 
@@ -190,26 +225,23 @@ func Test_GenerateKey(t *testing.T) {
 		return
 	}
 
+	rnd, _ := randutil.NewTestRand()
+
 	for _, tc := range testCaseTTAK {
-		priv := PrivateKey{
-			PublicKey: PublicKey{
-				Parameters: Parameters{
+		priv := kcdsa.PrivateKey{
+			PublicKey: kcdsa.PublicKey{
+				Parameters: kcdsa.Parameters{
 					P: tc.P,
 					Q: tc.Q,
 					G: tc.G,
 				},
 			},
 		}
-		_, _, err := GenerateKeyWithSeed(&priv, rnd, tc.XKEY, UserProvidedRandomInput, tc.Sizes)
-		if err != nil {
-			t.Error(err)
-			return
-		}
+		_, _, err := kcdsa.GenerateKeyWithSeed(&priv, rnd, tc.XKEY, UserProvidedRandomInput, tc.Sizes)
+		require.NoError(t, err, "GenerateKeyWithSeed failed")
 
-		if priv.X.Cmp(tc.X) != 0 || priv.Y.Cmp(tc.Y) != 0 {
-			t.Fail()
-			return
-		}
+		require.Equal(t, tc.X.Text(16), priv.X.Text(16), "invalid X")
+		require.Equal(t, tc.Y.Text(16), priv.Y.Text(16), "invalid Y")
 	}
 }
 
@@ -232,7 +264,7 @@ var (
 		// p.30
 		// Ⅱ.1 소수 p, q의 길이 (α, β) = (2048, 224), SHA-224 적용 예
 		{
-			Sizes: A2048B224SHA224,
+			Sizes: kcdsa.A2048B224SHA224,
 			M:     M,
 
 			Seedb: internal.HB(`c0 52 a2 76 41 00 f0 f4 ec 90 6b 9c 5c 6b 10 6e 34 70 df c1 36 9f
@@ -295,7 +327,7 @@ var (
 		// p.36
 		// Ⅱ.2 소수 p, q의 길이 (α, β) = (2048, 224), SHA-256 적용 예
 		{
-			Sizes: A2048B224SHA256,
+			Sizes: kcdsa.A2048B224SHA256,
 			M:     M,
 
 			Seedb: internal.HB(`e1 75 ca d0 ea cb 74 dd b4 5f 15 f1 f2 57 22 bf 15 56 ef 86 0a 0f e0
@@ -358,7 +390,7 @@ var (
 		// p.42
 		// Ⅱ.3 소수 p, q의 길이 (α, β) = (2048, 256), SHA-256 적용 예
 		{
-			Sizes: A2048B256SHA256,
+			Sizes: kcdsa.A2048B256SHA256,
 			M:     M,
 
 			Seedb: internal.HB(`f7 5a bd a0 03 2c e2 18 ce 04 ba f0 a6 dc 92 c8 7e b4 6a a0 56 8c 42
@@ -420,7 +452,7 @@ var (
 		// p.48
 		// Ⅱ.4 소수 p, q의 길이 (α, β) = (3072, 256), SHA-256 적용 예
 		{
-			Sizes: A3072B256SHA256,
+			Sizes: kcdsa.A3072B256SHA256,
 			M:     M,
 
 			Seedb: internal.HB(`b8 56 20 16 38 55 a7 c0 05 76 13 dc d1 f2 ae 61 80 c4 34 d0 98 90 ea
@@ -502,7 +534,7 @@ var (
 		// p.55
 		// Ⅱ.5 소수 p, q의 길이 (α, β) = (1024, 160), HAS-160 적용 예
 		{
-			Sizes: A1024B160HAS160,
+			Sizes: kcdsa.A1024B160HAS160,
 			M:     M,
 
 			Seedb: internal.HB(`68 ad b0 d1 b6 ae f1 44 a9 50 f3 e7 84 c9 89 3d 36 04 09 0e`),

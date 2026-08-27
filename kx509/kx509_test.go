@@ -4,9 +4,12 @@ import (
 	"crypto/elliptic"
 	"testing"
 
+	"github.com/RyuaNerin/elliptic2"
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/internal"
 	"github.com/RyuaNerin/go-krypto/kcdsa"
+
+	"github.com/stretchr/testify/require"
 )
 
 // botan 3.4.0
@@ -312,72 +315,30 @@ var kcdsaTestCases = []struct {
 	},
 }
 
-func eqPubECKCDSA(t *testing.T, a, b *eckcdsa.PublicKey) bool {
-	if a.Curve != b.Curve {
-		t.Errorf("Not equals:\nCurve= expected: %s\n       actual  : %s", curveToName(a.Curve), curveToName(b.Curve))
-		return false
-	}
-	if a.X.Cmp(b.X) != 0 {
-		t.Errorf("Not equals:\nX= expected: %s\n   actual  : %s", a.X.Text(16), b.X.Text(16))
-		return false
-	}
-	if a.Y.Cmp(b.Y) != 0 {
-		t.Errorf("Not equals:\nY= expected: %s\n   actual  : %s", a.Y.Text(16), b.Y.Text(16))
-		return false
-	}
-	return true
+func equalECKCDSAPublicKey(t testing.TB, want, got *eckcdsa.PublicKey) {
+	require.True(t, elliptic2.IsEquivalentCurve(want.Curve, got.Curve), "Curves are not equivalent")
+	require.Equal(t, got.X.Text(16), want.X.Text(16), "X coordinates are not equal")
+	require.Equal(t, got.Y.Text(16), want.Y.Text(16), "Y coordinates are not equal")
 }
 
-func eqPrivECKCDSA(t *testing.T, a, b *eckcdsa.PrivateKey) bool {
-	if !eqPubECKCDSA(t, &a.PublicKey, &b.PublicKey) {
-		return false
-	}
-	if a.D.Cmp(b.D) != 0 {
-		t.Errorf("Not equals:\nD= expected: %s\n   actual  : %s", a.D.Text(16), b.D.Text(16))
-		return false
-	}
-
-	return true
+func equalECKCDSAPrivateKey(t testing.TB, want, got *eckcdsa.PrivateKey) {
+	equalECKCDSAPublicKey(t, &want.PublicKey, &got.PublicKey)
+	require.Equal(t, got.D.Text(16), want.D.Text(16), "Private keys are not equal")
 }
 
-func eqParamKCDSA(t *testing.T, a, b *kcdsa.Parameters) bool {
-	if !a.GenParameters.IsValid() || !b.GenParameters.IsValid() {
-		return true
-	}
-	if a.P.Cmp(b.P) != 0 {
-		t.Errorf("Not equals:\nX= expected: %s\n   actual  : %s", a.P.Text(16), b.P.Text(16))
-		return false
-	}
-	if a.Q.Cmp(b.Q) != 0 {
-		t.Errorf("Not equals:\nY= expected: %s\n   actual  : %s", a.Q.Text(16), b.Q.Text(16))
-		return false
-	}
-	if a.G.Cmp(b.G) != 0 {
-		t.Errorf("Not equals:\nY= expected: %s\n   actual  : %s", a.Q.Text(16), b.Q.Text(16))
-		return false
-	}
-	return true
+func equalKCDSAParameters(t testing.TB, want, got *kcdsa.Parameters) {
+	require.True(t, want.GenParameters.IsValid(), "First parameter is not valid")
+	require.True(t, got.GenParameters.IsValid(), "Second parameter is not valid")
+
+	require.True(t, want.Equal(*got), "Parameters are not equal")
 }
 
-func eqPubKCDSA(t *testing.T, a, b *kcdsa.PublicKey) bool {
-	if !eqParamKCDSA(t, &a.Parameters, &b.Parameters) {
-		return false
-	}
-	if a.Y.Cmp(b.Y) != 0 {
-		t.Errorf("Not equals:\nY= expected: %s\n   actual  : %s", a.Y.Text(16), b.Y.Text(16))
-		return false
-	}
-	return true
+func equalCDSAPublicKey(t testing.TB, want, got *kcdsa.PublicKey) {
+	equalKCDSAParameters(t, &want.Parameters, &got.Parameters)
+	require.True(t, want.Equal(got), "Public keys are not equal")
 }
 
-func eqPrivKCDSA(t *testing.T, a, b *kcdsa.PrivateKey) bool {
-	if !eqPubKCDSA(t, &a.PublicKey, &b.PublicKey) {
-		return false
-	}
-	if a.X.Cmp(b.X) != 0 {
-		t.Errorf("Not equals:\nX= expected: %s\n   actual  : %s", a.X.Text(16), b.X.Text(16))
-		return false
-	}
-
-	return true
+func equalCDSAPrivateKey(t testing.TB, want, got *kcdsa.PrivateKey) {
+	equalCDSAPublicKey(t, &want.PublicKey, &got.PublicKey)
+	require.True(t, want.Equal(got), "Private keys are not equal")
 }

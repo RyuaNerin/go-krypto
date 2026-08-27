@@ -1,8 +1,4 @@
-//go:build gc && (arm64 || amd64) && !purego && go1.18
-// +build gc
-// +build arm64 amd64
-// +build !purego
-// +build go1.18
+//go:build !noasm && !noasm_krypto && !noasm_krypto_lsh256 && (arm64 || amd64)
 
 package lsh256
 

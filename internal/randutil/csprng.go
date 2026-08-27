@@ -5,6 +5,10 @@ import (
 	"crypto/cipher"
 	"crypto/sha512"
 	"io"
+
+	"github.com/RyuaNerin/go-krypto"
+	"github.com/RyuaNerin/go-krypto/internal/zeroize"
+	"github.com/RyuaNerin/go-krypto/kipher"
 )
 
 // https://github.com/golang/go/blob/master/src/crypto/ecdsa/ecdsa.go#L409-L464
@@ -23,6 +27,7 @@ func MixedCSPRNG(rand io.Reader, D []byte, hash []byte) (io.Reader, error) {
 
 	// Get 256 bits of entropy from rand.
 	entropy := make([]byte, 32)
+	defer zeroize.Zeroize(entropy)
 	if _, err := io.ReadFull(rand, entropy); err != nil {
 		return nil, err
 	}
@@ -34,6 +39,7 @@ func MixedCSPRNG(rand io.Reader, D []byte, hash []byte) (io.Reader, error) {
 	md.Write(hash)          // and the input hash;
 	key := md.Sum(nil)[:32] // and compute ChopMD-256(SHA-512),
 	// which is an indifferentiable MAC.
+	defer zeroize.Zeroize(key)
 
 	// Create an AES-CTR instance to use as a CSPRNG.
 	block, err := aes.NewCipher(key)
@@ -44,9 +50,11 @@ func MixedCSPRNG(rand io.Reader, D []byte, hash []byte) (io.Reader, error) {
 	// Create a CSPRNG that xors a stream of zeros with
 	// the output of the AES-CTR instance.
 	const aesIV = "IV for go-krypto"
-	return &cipher.StreamReader{
-		R: zeroReader,
-		S: cipher.NewCTR(block, []byte(aesIV)),
+	return &sr{
+		StreamReader: cipher.StreamReader{
+			R: zeroReader,
+			S: kipher.NewCTR(block, []byte(aesIV)),
+		},
 	}, nil
 }
 
@@ -60,4 +68,17 @@ func (zr) Read(dst []byte) (n int, err error) {
 		dst[i] = 0
 	}
 	return len(dst), nil
+}
+
+type sr struct {
+	cipher.StreamReader
+}
+
+var _ krypto.Zeroizable = (*sr)(nil)
+
+func (s *sr) Zeroize() {
+	zeroize.Zeroize(s.R)
+	zeroize.Zeroize(s.S)
+	s.R = nil
+	s.S = nil
 }

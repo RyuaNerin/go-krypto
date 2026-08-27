@@ -38,14 +38,13 @@ func generate(bits int, prefix string, rand io.Reader) {
 	}
 
 	w := bufio.NewWriter(fs)
-	defer w.Flush()
 
 	fmt.Fprintf(w, "Len = %d, Num = 250000\n\n", bits)
 
 	hw := hex.NewEncoder(w)
 
 	var buf []byte
-	for i := 0; i < 25_0000; i++ {
+	for range 25_0000 {
 		buf, err = internal.ReadBits(buf, rand, bits)
 		if err != nil {
 			panic(err)
@@ -54,6 +53,10 @@ func generate(bits int, prefix string, rand io.Reader) {
 		if _, err = hw.Write(buf); err != nil {
 			panic(err)
 		}
+	}
+
+	if err = w.Flush(); err != nil {
+		panic(err)
 	}
 }
 
@@ -74,7 +77,7 @@ func newCSPRNG(r io.Reader) io.Reader {
 	}
 
 	hash := sha256.Sum256(hashInput)
-	csprng, err := randutil.MixedCSPRNG(rand.Reader, d, hash[:])
+	csprng, err := randutil.MixedCSPRNG(r, d, hash[:])
 	if err != nil {
 		panic(err)
 	}

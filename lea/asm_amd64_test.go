@@ -1,42 +1,33 @@
-//go:build gc && amd64 && !purego && go1.18
-// +build gc,amd64,!purego,go1.18
+//go:build !noasm && !noasm_krypto && !noasm_krypto_lea && amd64
 
 package lea
 
 import (
 	"testing"
-
-	. "github.com/RyuaNerin/testingutil"
 )
 
 var (
-	leaEnc4SSE2 = toAsmFunc(__lea_encrypt_4block)
-	leaDec4SSE2 = toAsmFunc(__lea_decrypt_4block)
-
-	leaEnc8AVX2 = toAsmFunc(__lea_encrypt_8block)
-	leaDec8AVX2 = toAsmFunc(__lea_decrypt_8block)
+	cSSE2   = newCipherAsmSSE2
+	cAVX2   = newCipherAsmAVX2
+	cAVX512 = newCipherAsmAVX512
 )
 
-func Test_Encrypt_4Blocks_SSE2(t *testing.T) { TA(t, as, tb(4, leaEnc4Go, leaEnc4SSE2), false) }
-func Test_Decrypt_4Blocks_SSE2(t *testing.T) { TA(t, as, tb(4, leaDec4Go, leaDec4SSE2), false) }
+func Test_LEA_Block_SSE2(t *testing.T)   { ci.TestBlock(t, cSSE2, false) }
+func Test_LEA_Block_AVX2(t *testing.T)   { ci.TestBlock(t, cAVX2, !hasAVX2) }
+func Test_LEA_Block_AVX512(t *testing.T) { ci.TestBlock(t, cAVX512, !hasAVX512) }
 
-func Test_Encrypt_8Blocks_AVX2(t *testing.T) { TA(t, as, tb(8, leaEnc8Go, leaEnc8AVX2), !hasAVX2) }
-func Test_Decrypt_8Blocks_AVX2(t *testing.T) { TA(t, as, tb(8, leaDec8Go, leaDec8AVX2), !hasAVX2) }
+func Fuzz_LEA_Block_SSE2(f *testing.F)       { ci.FuzzBlock(f, cSSE2, false) }
+func Fuzz_LEA_Wide_SSE2(f *testing.F)        { ci.FuzzWide(f, cSSE2, false) }
+func Fuzz_LEA_ShortBuffer_SSE2(f *testing.F) { ci.FuzzBlockShortBuffer(f, cSSE2, false) }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+func Fuzz_LEA_Block_AVX2(f *testing.F)       { ci.FuzzBlock(f, cAVX2, !hasAVX2) }
+func Fuzz_LEA_Wide_AVX2(f *testing.F)        { ci.FuzzWide(f, cAVX2, !hasAVX2) }
+func Fuzz_LEA_ShortBuffer_AVX2(f *testing.F) { ci.FuzzBlockShortBuffer(f, cAVX2, !hasAVX2) }
 
-func Benchmark_Encrypt_4Blocks_SSE2(b *testing.B) {
-	BBDA(b, as, 0, 4*BlockSize, BIW(NewCipher), bb(leaEnc4SSE2), false)
-}
+func Fuzz_LEA_Block_AVX512(f *testing.F)       { ci.FuzzBlock(f, cAVX512, !hasAVX512) }
+func Fuzz_LEA_Wide_AVX512(f *testing.F)        { ci.FuzzWide(f, cAVX512, !hasAVX512) }
+func Fuzz_LEA_ShortBuffer_AVX512(f *testing.F) { ci.FuzzBlockShortBuffer(f, cAVX512, !hasAVX512) }
 
-func Benchmark_Decrypt_4Blocks_SSE2(b *testing.B) {
-	BBDA(b, as, 0, 4*BlockSize, BIW(NewCipher), bb(leaDec4SSE2), false)
-}
-
-func Benchmark_Encrypt_8Blocks_AVX2(b *testing.B) {
-	BBDA(b, as, 0, 8*BlockSize, BIW(NewCipher), bb(leaEnc8AVX2), !hasAVX2)
-}
-
-func Benchmark_Decrypt_8Blocks_AVX2(b *testing.B) {
-	BBDA(b, as, 0, 8*BlockSize, BIW(NewCipher), bb(leaDec8AVX2), !hasAVX2)
-}
+func Benchmark_LEA_Block_SSE2(b *testing.B)   { ci.BenchBlock4(b, cSSE2, false) }
+func Benchmark_LEA_Block_AVX2(b *testing.B)   { ci.BenchBlock8(b, cAVX2, !hasAVX2) }
+func Benchmark_LEA_Block_AVX512(b *testing.B) { ci.BenchBlock16(b, cAVX512, !hasAVX512) }

@@ -1,5 +1,4 @@
-//go:build !(gc && (arm64 || amd64) && !purego && go1.18)
-// +build !gc !arm64,!amd64 purego !go1.18
+//go:build !(!noasm && !noasm_krypto && !noasm_krypto_lsh512 && (arm64 || amd64))
 
 package lsh512
 

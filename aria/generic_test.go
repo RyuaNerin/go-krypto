@@ -3,21 +3,19 @@ package aria
 import (
 	"testing"
 
-	. "github.com/RyuaNerin/testingutil"
+	"github.com/RyuaNerin/go-krypto/internal"
 )
 
-func Test_ARIA128_Encrypt_Go(t *testing.T) { BTE(t, BIW(newCipherGo), CE, testCases128, false) }
-func Test_ARIA128_Decrypt_Go(t *testing.T) { BTD(t, BIW(newCipherGo), CD, testCases128, false) }
+var cg1 = internal.JustBlockFn(newCipher)
 
-func Test_ARIA196_Encrypt_Go(t *testing.T) { BTE(t, BIW(newCipherGo), CE, testCases196, false) }
-func Test_ARIA196_Decrypt_Go(t *testing.T) { BTD(t, BIW(newCipherGo), CD, testCases196, false) }
+func Test_ARIA_New_Go(t *testing.T)   { ci.TestNewSIMD(t, cg1, false) }
+func Test_ARIA_Block_Go(t *testing.T) { ci.TestBlock(t, cg1, false) }
 
-func Test_ARIA256_Encrypt_Go(t *testing.T) { BTE(t, BIW(newCipherGo), CE, testCases256, false) }
-func Test_ARIA256_Decrypt_Go(t *testing.T) { BTD(t, BIW(newCipherGo), CD, testCases256, false) }
+func Test_ARIA_KAT_Go(t *testing.T) { ci.TestEcbKAT(t, cg1, false) }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+func Fuzz_ARIA_Block_Go(f *testing.F)       { ci.FuzzBlock(f, cg1, false) }
+func Fuzz_ARIA_Wide_Go(f *testing.F)        { ci.FuzzWide(f, cg1, false) }
+func Fuzz_ARIA_ShortBuffer_Go(f *testing.F) { ci.FuzzBlockShortBuffer(f, cg1, false) }
 
-func Benchmark_New_Go(b *testing.B) { BBNA(b, as, 0, BIW(newCipherGo), false) }
-
-func Benchmark_Encrypt_Go(b *testing.B) { BBDA(b, as, 0, BlockSize, BIW(newCipherGo), CE, false) }
-func Benchmark_Decrypt_Go(b *testing.B) { BBDA(b, as, 0, BlockSize, BIW(newCipherGo), CD, false) }
+func Benchmark_ARIA_New_Go(b *testing.B)   { ci.BenchNew(b, cg1, false) }
+func Benchmark_ARIA_Block_Go(b *testing.B) { ci.BenchBlock(b, cg1, false) }

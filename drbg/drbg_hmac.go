@@ -2,96 +2,177 @@ package drbg
 
 import (
 	"crypto/rand"
-	"errors"
-	"fmt"
 	"hash"
+	"sync"
 
-	"github.com/RyuaNerin/go-krypto/internal"
-	"github.com/RyuaNerin/go-krypto/internal/drbg/ctrdrbg"
-	"github.com/RyuaNerin/go-krypto/internal/drbg/hashdrbg"
+	"github.com/RyuaNerin/go-krypto"
 	"github.com/RyuaNerin/go-krypto/internal/drbg/hmacdrbg"
-	"github.com/RyuaNerin/go-krypto/internal/memory"
+	"github.com/RyuaNerin/go-krypto/internal/zeroize"
 )
 
 type hmacDRGB struct {
-	state   *hmacdrbg.State
-	entropy Entropy
-	closed  bool
+	mu sync.Mutex // guards everything below; a DRBG is safe for concurrent use
+
+	z           zeroize.ZeroizedFlag
+	state       hmacdrbg.State
+	entropy     Entropy
+	ownsEntropy bool
 
 	securityStrength int
 }
 
-// New Deterministic Random Bit Generator based on HMAC
-//
-// default entropy: if requireDerivationFunction is true, NewEntropy(rand.Reader, strengthBits, strengthBits*2), otherwise NewEntropy(rand.Reader, blocksize + keysize, blocksize + keysize)
-// If strengthBits is unset or smaller than keySize, strengthBits is set to keySize.
+var _ krypto.Zeroizable = (*hmacDRGB)(nil)
+
+func (h *hmacDRGB) Close() error {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	if err := h.z.ReturnIfZeroized(); err != nil {
+		return err
+	}
+
+	h.zeroize()
+
+	return nil
+}
+
+func (h *hmacDRGB) Zeroize() {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	h.zeroize()
+}
+
+func (h *hmacDRGB) zeroize() {
+	h.z.SetInvalid()
+
+	h.state.Zeroize()
+	if h.ownsEntropy {
+		zeroize.Zeroize(h.entropy)
+	}
+	h.entropy = nil
+	h.ownsEntropy = false
+
+	h.securityStrength = 0
+}
+
+func (h *hmacDRGB) getEntropy() ([]byte, error) {
+	return readEntropy(h.entropy, h.securityStrength, hmacdrbg.MaxLength)
+}
+
+// NewHMACDRBG is a deterministic random bit generator (DRBG) seeded by HMAC.
 //
 // TTAK.KO-12.0332
-func NewHMACDRGB(
+func NewHMACDRBG(
 	h func() hash.Hash,
 	options ...Option,
-) (drbg DRBG, err error) {
+) (krypto.DRBG, error) {
 	var args args
 	for _, v := range options {
 		v(&args)
 	}
+	if args.ctrLen != 0 {
+		return nil, ErrCTROptionUnsupported
+	}
+	return newHMAC(h, args)
+}
 
+// NewHMACDRGB is a misspelled alias of [NewHMACDRBG].
+//
+// Deprecated: Use [NewHMACDRBG] instead.
+func NewHMACDRGB(h func() hash.Hash, options ...Option) (krypto.DRBG, error) {
+	return NewHMACDRBG(h, options...)
+}
+
+func newHMAC(h func() hash.Hash, args args) (krypto.DRBG, error) {
 	hashOutLen := h().Size()
 
-	if args.strengthBits > hashOutLen*8 {
-		return nil, fmt.Errorf(msgInvalidStrengthFormat, hashOutLen*8)
+	maxStrength := min(hashOutLen, maxHashSecurityStrength(hashOutLen))
+	if args.strengthBytes < 0 || args.strengthBytes > maxStrength {
+		return nil, InvalidStrengthError(maxStrength)
 	}
-	if args.strengthBits == 0 {
-		args.strengthBits = hashOutLen * 8
+	if args.strengthBytes == 0 {
+		args.strengthBytes = maxStrength
+	}
+
+	if args.reseedInterval > hmacdrbg.ReseedInterval {
+		return nil, InvalidReseedIntervalError(hmacdrbg.ReseedInterval)
 	}
 
 	if uint64(len(args.personalizationString)) > hmacdrbg.MaxPersonalizationStringLength {
-		return nil, fmt.Errorf(msgPersonalizationStringIsTooLongFormat, hmacdrbg.MaxPersonalizationStringLength)
+		return nil, PersonalizationStringIsTooLongError(hmacdrbg.MaxPersonalizationStringLength)
 	}
 
-	securityStrengthBits := hmacdrbg.GetSecurityStrengthBits(args.strengthBits)
+	securityStrengthBytes := min(
+		hmacdrbg.GetSecurityStrengthBytes(args.strengthBytes),
+		maxHashSecurityStrength(hashOutLen),
+	)
 
-	if args.entropy == nil {
-		args.entropy = newEntropy(rand.Reader, internal.BitsToBytes(securityStrengthBits))
+	ownsEntropy := args.entropy == nil
+	if ownsEntropy {
+		args.entropy = newEntropy(rand.Reader, securityStrengthBytes)
 	}
 
+	var err error
 	entropyInput := args.initEntropy
-	if !args.initEntropyIsSet {
-		entropyInput, err = args.entropy.Get()
-		if err != nil {
-			return nil, err
+	if args.initEntropyIsSet {
+		err = checkEntropy(entropyInput, securityStrengthBytes, hmacdrbg.MaxLength)
+	} else {
+		entropyInput, err = readEntropy(args.entropy, securityStrengthBytes, hmacdrbg.MaxLength)
+	}
+	if err != nil {
+		if ownsEntropy {
+			zeroize.Zeroize(args.entropy)
 		}
+		return nil, err
+	}
+	if !args.initEntropyIsSet {
+		defer clear(entropyInput)
 	}
 
-	state := hmacdrbg.Instantiate(
+	nonce, err := instantiateNonce(args, securityStrengthBytes, len(entropyInput))
+	if err != nil {
+		if ownsEntropy {
+			zeroize.Zeroize(args.entropy)
+		}
+		return nil, err
+	}
+	if !args.nonceIsSet {
+		defer clear(nonce)
+	}
+
+	drbg := &hmacDRGB{
+		entropy:          args.entropy,
+		ownsEntropy:      ownsEntropy,
+		securityStrength: securityStrengthBytes,
+	}
+	drbg.state.Instantiate(
 		h,
 		entropyInput,
-		args.nonce,
+		nonce,
 		args.personalizationString,
 		args.requirePredictionResistance,
 		args.reseedInterval,
 	)
 
-	drbg = &hmacDRGB{
-		state:            state,
-		entropy:          args.entropy,
-		securityStrength: internal.BitsToBytes(securityStrengthBits),
-	}
-
 	return drbg, nil
 }
 
 func (h *hmacDRGB) Read(dst []byte) (n int, err error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	if err = h.z.ReturnIfZeroized(); err != nil {
+		return 0, err
+	}
+
 	remain := len(dst)
 	for remain > 0 {
-		toRead := remain
-		if toRead > hmacdrbg.MaxNoOfBytesPerRequest/8 {
-			toRead = hmacdrbg.MaxNoOfBytesPerRequest / 8
-		}
+		toRead := min(remain, hmacdrbg.MaxNoOfBytesPerRequest)
 
-		_, err = h.Generate(dst[:toRead], nil)
+		_, err = h.generate(dst[len(dst)-remain:len(dst)-remain+toRead], nil)
 		if err != nil {
-			return 0, err
+			return len(dst) - remain, err
 		}
 
 		remain -= toRead
@@ -101,45 +182,52 @@ func (h *hmacDRGB) Read(dst []byte) (n int, err error) {
 }
 
 func (h *hmacDRGB) Generate(dst []byte, additionalInput []byte) (n int, err error) {
-	if h.closed {
-		return 0, errors.New(msgErrorUninstantiated)
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	return h.generate(dst, additionalInput)
+}
+
+func (h *hmacDRGB) generate(dst []byte, additionalInput []byte) (n int, err error) {
+	if err = h.z.ReturnIfZeroized(); err != nil {
+		return 0, err
 	}
 
 	if len(dst) > hmacdrbg.MaxNoOfBytesPerRequest {
-		return 0, fmt.Errorf(msgTooManyBytesRequestedFormat, hmacdrbg.MaxNoOfBytesPerRequest)
+		return 0, TooManyBytesRequestedError(hmacdrbg.MaxNoOfBytesPerRequest)
 	}
 
 	if uint64(len(additionalInput)) > hmacdrbg.MaxAdditionalInputLength {
-		return 0, fmt.Errorf(msgAdditionalInputIsTooLongFormat, hmacdrbg.MaxAdditionalInputLength)
+		return 0, AdditionalInputIsTooLongError(hmacdrbg.MaxAdditionalInputLength)
 	}
 
-	return len(dst), h.state.Generate(dst, h.entropy.Get, additionalInput)
+	// The state consumes reseed entropy synchronously. Retain the owned buffer
+	// only until Generate returns, without changing custom source buffers.
+	var entropyInput []byte
+	defer func() { clear(entropyInput) }()
+	getEntropy := func() (input []byte, err error) {
+		entropyInput, err = h.getEntropy()
+		return entropyInput, err
+	}
+	if err = h.state.Generate(dst, getEntropy, additionalInput); err != nil {
+		return 0, err
+	}
+	return len(dst), nil
 }
 
 func (h *hmacDRGB) ReseedWithEntropy(additionalInput, entropyInput []byte) error {
-	if h.closed {
-		return errors.New(msgErrorUninstantiated)
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	if err := h.z.ReturnIfZeroized(); err != nil {
+		return err
 	}
 
-	if uint64(len(additionalInput)) > hashdrbg.MaxAdditionalInputLength {
-		return fmt.Errorf(msgAdditionalInputIsTooLongFormat, hashdrbg.MaxAdditionalInputLength)
+	if uint64(len(additionalInput)) > hmacdrbg.MaxAdditionalInputLength {
+		return AdditionalInputIsTooLongError(hmacdrbg.MaxAdditionalInputLength)
 	}
 
-	if len(entropyInput) < h.securityStrength && ctrdrbg.MaxLength < uint64(len(entropyInput)) {
-		return fmt.Errorf(msgInvalidEntropyFormat, h.securityStrength, ctrdrbg.MaxLength)
-	}
-
-	h.state.Reseed(entropyInput, additionalInput)
-	return nil
-}
-
-func (h *hmacDRGB) Reseed(additionalInput []byte) error {
-	if h.closed {
-		return errors.New(msgErrorUninstantiated)
-	}
-
-	entropyInput, err := h.entropy.Get()
-	if err != nil {
+	if err := checkEntropy(entropyInput, h.securityStrength, hmacdrbg.MaxLength); err != nil {
 		return err
 	}
 
@@ -147,15 +235,24 @@ func (h *hmacDRGB) Reseed(additionalInput []byte) error {
 	return nil
 }
 
-func (h *hmacDRGB) Close() error {
-	if h.closed {
-		return errors.New(msgErrorUninstantiated)
+func (h *hmacDRGB) Reseed(additionalInput []byte) error {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	if err := h.z.ReturnIfZeroized(); err != nil {
+		return err
 	}
-	h.closed = true
 
-	memory.MemclrI(h.state)
+	if uint64(len(additionalInput)) > hmacdrbg.MaxAdditionalInputLength {
+		return AdditionalInputIsTooLongError(hmacdrbg.MaxAdditionalInputLength)
+	}
 
-	h.state = nil
-	h.entropy = nil
+	entropyInput, err := h.getEntropy()
+	if err != nil {
+		return err
+	}
+	defer clear(entropyInput)
+
+	h.state.Reseed(entropyInput, additionalInput)
 	return nil
 }

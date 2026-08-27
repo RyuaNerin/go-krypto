@@ -1,28 +1,17 @@
-//go:build gc && arm64 && !purego && go1.18
-// +build gc,arm64,!purego,go1.18
+//go:build !noasm && !noasm_krypto && !noasm_krypto_lea && arm64
 
 package lea
 
 import (
 	"testing"
-
-	. "github.com/RyuaNerin/testingutil"
 )
 
-var (
-	leaEnc4NEON = toAsmFunc(__lea_encrypt_4block)
-	leaDec4NEON = toAsmFunc(__lea_decrypt_4block)
-)
+var cNEON = newCipherAsm
 
-func Test_Encrypt_4Blocks_NEON(t *testing.T) { TA(t, as, tb(4, leaEnc4Go, leaEnc4NEON), false) }
-func Test_Decrypt_4Blocks_NEON(t *testing.T) { TA(t, as, tb(4, leaDec4Go, leaDec4NEON), false) }
+func Test_LEA_Block_NEON(t *testing.T) { ci.TestBlock(t, cNEON, false) }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+func Fuzz_LEA_Block_NEON(f *testing.F)       { ci.FuzzBlock(f, cNEON, false) }
+func Fuzz_LEA_Wide_NEON(f *testing.F)        { ci.FuzzWide(f, cNEON, false) }
+func Fuzz_LEA_ShortBuffer_NEON(f *testing.F) { ci.FuzzBlockShortBuffer(f, cNEON, false) }
 
-func Benchmark_Encrypt_4Blocks_NEON(b *testing.B) {
-	BBDA(b, as, 0, 4*BlockSize, BIW(NewCipher), bb(leaEnc4NEON), false)
-}
-
-func Benchmark_Decrypt_4Blocks_NEON(b *testing.B) {
-	BBDA(b, as, 0, 4*BlockSize, BIW(NewCipher), bb(leaDec4NEON), false)
-}
+func Benchmark_LEA_Block_NEON(b *testing.B) { ci.BenchBlock4(b, cNEON, false) }

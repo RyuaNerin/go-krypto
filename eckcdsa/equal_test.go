@@ -14,44 +14,31 @@ import (
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
 	"github.com/RyuaNerin/go-krypto/kx509"
+
+	"github.com/stretchr/testify/require"
 )
 
 func testEqual(t *testing.T, c elliptic.Curve) {
 	private, _ := eckcdsa.GenerateKey(c, rand.Reader)
 	public := &private.PublicKey
 
-	if !public.Equal(public) { //nolint:gocritic
-		t.Errorf("public key is not equal to itself: %v", public)
-	}
-	if !public.Equal(crypto.Signer(private).Public().(*eckcdsa.PublicKey)) {
-		t.Errorf("private.Public() is not Equal to public: %q", public)
-	}
-	if !private.Equal(private) { //nolint:gocritic
-		t.Errorf("private key is not equal to itself: %v", private)
-	}
+	require.True(t, public.Equal(public), "public key is not equal to itself")
+	require.True(t, crypto.Signer(private).Public().(*eckcdsa.PublicKey).Equal(public), "private.Public() is not Equal to public")
+	require.True(t, private.Equal(private), "private key is not equal to itself")
 
 	enc, err := kx509.MarshalPKCS8PrivateKey(private)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
+
 	decoded, err := kx509.ParsePKCS8PrivateKey(enc)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !public.Equal(decoded.(crypto.Signer).Public()) {
-		t.Errorf("public key is not equal to itself after decoding: %v", public)
-	}
-	if !private.Equal(decoded) {
-		t.Errorf("private key is not equal to itself after decoding: %v", private)
-	}
+	require.NoError(t, err)
+	require.IsType(t, &eckcdsa.PrivateKey{}, decoded)
+	require.IsType(t, &eckcdsa.PublicKey{}, decoded.(crypto.Signer).Public())
+	require.True(t, public.Equal(decoded.(crypto.Signer).Public()), "public key is not equal to itself after decoding")
+	require.True(t, private.Equal(decoded), "private key is not equal to itself after decoding")
 
 	other, _ := eckcdsa.GenerateKey(c, rand.Reader)
-	if public.Equal(other.Public()) {
-		t.Errorf("different public keys are Equal")
-	}
-	if private.Equal(other) {
-		t.Errorf("different private keys are Equal")
-	}
+	require.False(t, public.Equal(other.Public()), "different public keys are Equal")
+	require.False(t, private.Equal(other), "different private keys are Equal")
 
 	// Ensure that keys with the same coordinates but on different curves
 	// aren't considered Equal.
@@ -62,9 +49,7 @@ func testEqual(t *testing.T, c elliptic.Curve) {
 	} else {
 		differentCurve.Curve = elliptic.P256()
 	}
-	if public.Equal(differentCurve) {
-		t.Errorf("public keys with different curves are Equal")
-	}
+	require.False(t, public.Equal(differentCurve), "public keys with different curves are Equal")
 }
 
 func TestEqual(t *testing.T) {

@@ -9,6 +9,6 @@ func (k KeySizeError) Error() string {
 }
 
 const (
-	msgInvalidBlockSizeSrcFormat = "krypto/seed: invalid block size %d (src)"
-	msgInvalidBlockSizeDstFormat = "krypto/seed: invalid block size %d (dst)"
+	msgNotFullBlock  = "krypto/seed: not full block"
+	msgBufferOverlap = "krypto/seed: invalid buffer overlap"
 )

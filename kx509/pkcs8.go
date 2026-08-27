@@ -4,47 +4,55 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
-	"errors"
-	"fmt"
 	"math/big"
 
 	"github.com/RyuaNerin/go-krypto/eckcdsa"
-	"github.com/RyuaNerin/go-krypto/internal/kcdsaimpl"
+	kcdsa1 "github.com/RyuaNerin/go-krypto/internal/kcdsa"
+	"github.com/RyuaNerin/go-krypto/internal/zeroize"
 	"github.com/RyuaNerin/go-krypto/kcdsa"
 )
 
 // https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/pkcs8.go#L21-L26
-type pkcs8 struct {
+type pkcds8PrivateKey struct {
 	Version    int
 	Algo       pkix.AlgorithmIdentifier
 	PrivateKey []byte
-	// optional attributes omitted.
 }
 
 // ParsePKCS8PrivateKey parses an unencrypted private key in PKCS #8, ASN.1 DER form.
 //
-// It returns an *eckcdsa.PrivateKey, an *kcdsa.PrivateKey,
-// or the result of crypto/x509.ParsePKCS8PrivateKey
+// It returns an *eckcdsa.PrivateKey, a *kcdsa.PrivateKey,
+// or the result of crypto/x509.ParsePKCS8PrivateKey.
 //
 // This kind of key is commonly encoded in PEM blocks of type "PRIVATE KEY".
-func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
+// Standard id-ecPublicKey keys are parsed by crypto/x509 as ECDSA.
+//
+// The returned *kcdsa.PrivateKey / *eckcdsa.PrivateKey implements Zeroize():
+// call it to erase the private key when it is no longer needed.
+func ParsePKCS8PrivateKey(der []byte) (key any, err error) {
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/pkcs8.go#L35-L45
-	var privKey pkcs8
-	if _, err := asn1.Unmarshal(der, &privKey); err != nil {
-		if _, err := asn1.Unmarshal(der, &eckcPrivateKey{}); err == nil {
-			return nil, errors.New(msgUseParseECKCPrivateKey)
-		}
-		return nil, err
+	var privKey pkcds8PrivateKey
+	rest, unmarshalErr := asn1.Unmarshal(der, &privKey)
+	if unmarshalErr != nil {
+		return x509.ParsePKCS8PrivateKey(der)
+	}
+	if !isECKCDSAPublicKeyAlgorithm(privKey.Algo.Algorithm) &&
+		!isKCDSAPublicKeyAlgorithm(privKey.Algo.Algorithm) {
+		return x509.ParsePKCS8PrivateKey(der)
+	}
+	if len(rest) != 0 {
+		return nil, ErrInvalidPKCS8PrivateKey
+	}
+	if privKey.Version != 0 {
+		return nil, UnknownPKCS8PrivateKeyVersionError(privKey.Version)
 	}
 
 	switch {
-	case privKey.Algo.Algorithm.Equal(oidPublicKeyECKCDSA):
-		fallthrough
-	case privKey.Algo.Algorithm.Equal(oidPublicKeyECKCDSAAlteGOV):
+	case isECKCDSAPublicKeyAlgorithm(privKey.Algo.Algorithm):
 		// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/pkcs8.go#L54-L64
 		bytes := privKey.Algo.Parameters.FullBytes
 		namedCurveOID := new(asn1.ObjectIdentifier)
-		if _, err := asn1.Unmarshal(bytes, namedCurveOID); err != nil {
+		if rest, oidErr := asn1.Unmarshal(bytes, namedCurveOID); oidErr != nil || len(rest) != 0 {
 			namedCurveOID = nil
 		}
 		key, err = parseECKCPrivateKey(namedCurveOID, privKey.PrivateKey)
@@ -53,59 +61,55 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 		}
 		return key, nil
 
-	case privKey.Algo.Algorithm.Equal(oidPublicKeyKCDSA):
-		fallthrough
-	case privKey.Algo.Algorithm.Equal(oidPublicKeyKCDSAAlteGOV):
+	case isKCDSAPublicKeyAlgorithm(privKey.Algo.Algorithm):
 		// Parse X
 		X := new(big.Int)
-		_, err = asn1.Unmarshal(privKey.PrivateKey, &X)
-		if err != nil {
-			return nil, errors.New(msgInvalidPrivateKeyX)
+		rest, unmarshalErr := asn1.Unmarshal(privKey.PrivateKey, &X)
+		if unmarshalErr != nil || len(rest) != 0 {
+			zeroize.Zeroize(X)
+			return nil, ErrInvalidPrivateKeyX
 		}
 
 		// Parse parameters
-		bytes := privKey.Algo.Parameters.FullBytes
-		var params kcdsaParameters
-		if _, err = asn1.Unmarshal(bytes, &params); err != nil {
-			return nil, errors.New(msgInvalidParametersDSA)
+		params, parseErr := parseKCDSAParameters(privKey.Algo.Parameters.FullBytes)
+		if parseErr != nil {
+			zeroize.Zeroize(X)
+			return nil, parseErr
+		}
+		if X.Sign() <= 0 || X.Cmp(params.Q) >= 0 {
+			zeroize.Zeroize(X)
+			return nil, ErrInvalidPrivateKeyX
 		}
 
 		priv := &kcdsa.PrivateKey{
 			X: X,
 			PublicKey: kcdsa.PublicKey{
-				Parameters: kcdsa.Parameters{
-					P: params.P,
-					Q: params.Q,
-					G: params.G,
-					// TODO: Read KCDSA Parameters J, Seed, Count
-					GenParameters: kcdsa.GenerationParameters{
-						J:     params.J,
-						Seed:  params.Seed,
-						Count: params.Count,
-					},
-				},
+				Parameters: params.parameters(),
 			},
 		}
 
 		priv.Y = new(big.Int)
-		kcdsaimpl.GenerateY(priv.Y, priv.P, priv.Q, priv.G, priv.X)
+		kcdsa1.GenerateY(priv.Y, priv.P, priv.Q, priv.G, priv.X)
 
 		return priv, nil
 
-	default:
+	default: // fallback
 		return x509.ParsePKCS8PrivateKey(der)
 	}
 }
 
-func marshalPKCS8PrivateKeyECKCDSA(privKey *pkcs8, k *eckcdsa.PrivateKey) error {
+func marshalPKCS8PrivateKeyECKCDSA(privKey *pkcds8PrivateKey, k *eckcdsa.PrivateKey) error {
+	if k == nil || k.Curve == nil {
+		return ErrUnknownEllipticCurve
+	}
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/pkcs8.go#L112-L129
 	oid, ok := oidFromNamedCurve(k.Curve)
 	if !ok {
-		return errors.New(msgUnknownEllipticCurve)
+		return ErrUnknownEllipticCurve
 	}
 	oidBytes, err := asn1.Marshal(oid)
 	if err != nil {
-		return fmt.Errorf(msgUnknownEllipticCurveOIDFormat, oid.String())
+		return UnknownEllipticCurveOIDFormatError(oid.String())
 	}
 	privKey.Algo = pkix.AlgorithmIdentifier{
 		Algorithm: oidPublicKeyECKCDSA,
@@ -120,20 +124,13 @@ func marshalPKCS8PrivateKeyECKCDSA(privKey *pkcs8, k *eckcdsa.PrivateKey) error 
 	return nil
 }
 
-func marshalPKCS8PrivateKeyKCDSA(privKey *pkcs8, k *kcdsa.PrivateKey) error {
-	params := kcdsaParameters{
-		P: k.P,
-		Q: k.Q,
-		G: k.G,
+func marshalPKCS8PrivateKeyKCDSA(privKey *pkcds8PrivateKey, k *kcdsa.PrivateKey) error {
+	if k == nil || k.X == nil || k.Q == nil || k.X.Sign() <= 0 || k.X.Cmp(k.Q) >= 0 {
+		return ErrInvalidPrivateKeyX
 	}
-	if k.GenParameters.IsValid() {
-		params.J = k.GenParameters.J
-		params.Seed = k.GenParameters.Seed
-		params.Count = k.GenParameters.Count
-	}
-	paramBytes, err := asn1.Marshal(params)
+	paramBytes, err := marshalKCDSAParameters(&k.Parameters)
 	if err != nil {
-		return errors.New(msgInvalidParametersDSA)
+		return err
 	}
 
 	privKey.Algo = pkix.AlgorithmIdentifier{
@@ -144,7 +141,7 @@ func marshalPKCS8PrivateKeyKCDSA(privKey *pkcs8, k *kcdsa.PrivateKey) error {
 	}
 	privKey.PrivateKey, err = asn1.Marshal(k.X)
 	if err != nil {
-		return errors.New(msgInvalidPublicKey)
+		return ErrInvalidPublicKey
 	}
 
 	return nil
@@ -152,27 +149,27 @@ func marshalPKCS8PrivateKeyKCDSA(privKey *pkcs8, k *kcdsa.PrivateKey) error {
 
 // MarshalPKCS8PrivateKey converts a private key to PKCS #8, ASN.1 DER form.
 //
-// supported key types : *eckcdsa.PublicKey and *kcdsa.PublicKey.
+// supported key types : *eckcdsa.PrivateKey and *kcdsa.PrivateKey.
 // for unsupported types, returns the result of crypto/x509.MarshalPKCS8PrivateKey
 //
 // This kind of key is commonly encoded in PEM blocks of type "PRIVATE KEY".
-func MarshalPKCS8PrivateKey(key interface{}) ([]byte, error) {
+func MarshalPKCS8PrivateKey(key any) ([]byte, error) {
 	// https://github.com/golang/go/blob/go1.21.6/src/crypto/x509/pkcs8.go#L101-L102
-	var privKey pkcs8
+	var privKey pkcds8PrivateKey
 
 	var err error
 	switch k := key.(type) {
 	case eckcdsa.PrivateKey:
 		err = marshalPKCS8PrivateKeyECKCDSA(&privKey, &k)
-	case *eckcdsa.PrivateKey: //nolint:typecheck
+	case *eckcdsa.PrivateKey:
 		err = marshalPKCS8PrivateKeyECKCDSA(&privKey, k)
 
 	case kcdsa.PrivateKey:
 		err = marshalPKCS8PrivateKeyKCDSA(&privKey, &k)
-	case *kcdsa.PrivateKey: //nolint:typecheck
+	case *kcdsa.PrivateKey:
 		err = marshalPKCS8PrivateKeyKCDSA(&privKey, k)
 
-	default:
+	default: // fallback
 		return x509.MarshalPKCS8PrivateKey(key)
 	}
 

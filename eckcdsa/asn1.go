@@ -1,13 +1,12 @@
 package eckcdsa
 
 import (
-	"errors"
 	"hash"
 	"io"
 	"math/big"
 
-	"github.com/RyuaNerin/go-krypto/internal/golang.org/x/crypto/cryptobyte"
-	"github.com/RyuaNerin/go-krypto/internal/golang.org/x/crypto/cryptobyte/asn1"
+	"golang.org/x/crypto/cryptobyte"
+	"golang.org/x/crypto/cryptobyte/asn1"
 )
 
 // Sign data using K generated randomly like in crypto/ecdsa packages.
@@ -54,7 +53,7 @@ func addASN1IntBytes(b *cryptobyte.Builder, bytes []byte) {
 		bytes = bytes[1:]
 	}
 	if len(bytes) == 0 {
-		b.SetError(errors.New(msgInvalidInteger))
+		b.SetError(ErrInvalidInteger)
 		return
 	}
 	b.AddASN1(asn1.INTEGER, func(c *cryptobyte.Builder) {
@@ -74,7 +73,7 @@ func parseSignature(sig []byte) (r, s []byte, err error) {
 		!inner.ReadASN1Integer(&r) ||
 		!inner.ReadASN1Integer(&s) ||
 		!inner.Empty() {
-		return nil, nil, errors.New(msgInvalidASN1)
+		return nil, nil, ErrInvalidASN1
 	}
 	return r, s, nil
 }

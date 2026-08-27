@@ -1,3 +1,0 @@
-# go-krypto Performance
-
-TODO

@@ -1,120 +1,69 @@
 package main
 
 import (
-	"crypto/rand"
+	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
-
-	_ "github.com/RyuaNerin/go-krypto/aria"
-	_ "github.com/RyuaNerin/go-krypto/hight"
-	_ "github.com/RyuaNerin/go-krypto/lea"
-	_ "github.com/RyuaNerin/go-krypto/seed"
 )
 
-var rnd = rand.Reader
-
 func main() {
-	var reqList []string
-	if len(os.Args) > 1 {
-		reqList = os.Args[1:]
-	} else {
-		var err error
-		reqList, err = filepath.Glob("*.req")
-		if err != nil {
-			panic(err)
-		}
-		sort.Strings(reqList)
+	if len(os.Args) != 2 {
+		log.Fatalf("usage: %s <dir|zipfile>", filepath.Base(os.Args[0]))
 	}
 
-	for idx, path := range reqList {
-		log.Printf("[%d / %d] %s\n", idx+1, len(reqList), path)
-		filename := filepath.Base(path)
-		if filepath.Ext(filename) != ".req" {
-			return
-		}
-
-		process(path, filename)
+	if err := run(os.Args[1]); err != nil {
+		log.Fatal(err)
 	}
 }
 
-func process(path, filename string) {
+func process(path, filename string) error {
 	filename = strings.ToUpper(filename)
 
 	switch {
-	//////////////////////////////////////////////////
-	// Block
-	case strings.HasPrefix(filename, "ARIA"):
-		processBlock(path, filename)
-	case strings.HasPrefix(filename, "HIGHT"):
-		processBlock(path, filename)
-	case strings.HasPrefix(filename, "LEA"):
-		processBlock(path, filename)
-	case strings.HasPrefix(filename, "SEED"):
-		processBlock(path, filename)
-
-	//////////////////////////////////////////////////
-	// Hash
+	case strings.HasPrefix(filename, "ARIA"),
+		strings.HasPrefix(filename, "HIGHT"),
+		strings.HasPrefix(filename, "LEA"),
+		strings.HasPrefix(filename, "SEED"):
+		return processBlock(path, filename)
 	case strings.HasPrefix(filename, "LSH"):
-		processHash(path, filename)
-
-	//////////////////////////////////////////////////
-	// Sign
+		return processHash(path, filename)
 	case strings.HasPrefix(filename, "KCDSA"):
-		processKCDSA(path, filename)
-
+		return processKCDSA(path, filename)
 	case strings.HasPrefix(filename, "EC-KCDSA"):
-		processECKCDSA(path, filename)
-
-	//////////////////////////////////////////////////
-	// HMAC
+		return processECKCDSA(path, filename)
 	case strings.HasPrefix(filename, "HMAC") && !strings.HasPrefix(filename, "HMAC_DRBG"):
-		processHMAC(path, filename)
-
-	//////////////////////////////////////////////////
-	// CMAC
+		return processHMAC(path, filename)
 	case strings.HasPrefix(filename, "CMAC") && !strings.HasPrefix(filename, "CMAC_DRBG"):
-		processCMAC(path, filename)
-
-	//////////////////////////////////////////////////
-	// HASH_DRBG
+		return processCMAC(path, filename)
 	case strings.HasPrefix(filename, "HASH_DRBG"):
-		processDRBGHash(path, filename)
-
-	//////////////////////////////////////////////////
-	// HMAC_DRBG
+		return processDRBGHash(path, filename)
 	case strings.HasPrefix(filename, "HMAC_DRBG"):
-		processDRBGHMAC(path, filename)
-
-	//////////////////////////////////////////////////
-	// CTR_DRBG
+		return processDRBGHMAC(path, filename)
 	case strings.HasPrefix(filename, "CTR_DRBG"):
-		processDRBGCTR(path, filename)
-
-	//////////////////////////////////////////////////
-	// PBKDF
+		return processDRBGCTR(path, filename)
 	case strings.HasPrefix(filename, "PBKDF"):
-		processPBKDF(path, filename)
-
-	//////////////////////////////////////////////////
-	// KBKDF
+		return processPBKDF(path, filename)
 	case strings.HasPrefix(filename, "KDF"):
-		processKBKDF(path, filename)
-
-	//////////////////////////////////////////////////
-	// GCM
+		return processKBKDF(path, filename)
 	case strings.Contains(filename, "GCM"):
-		processGCM(path, filename)
-
-	//////////////////////////////////////////////////
-	// CCM
+		return processGCM(path, filename)
 	case strings.Contains(filename, "CCM"):
-		processCCM(path, filename)
-
-	//////////////////////////////////////////////////
+		return processCCM(path, filename)
 	default:
-		log.Println("Unknown algorithm: ", filename)
+		return unknownAlgorithm(filename)
 	}
+}
+
+func responsePath(requestPath string) string {
+	ext := filepath.Ext(requestPath)
+	return strings.TrimSuffix(requestPath, ext) + ".rsp"
+}
+
+var errUnknownAlgorithm = errors.New("unknown algorithm")
+
+func unknownAlgorithm(filename string) error {
+	return fmt.Errorf("%w: %s", errUnknownAlgorithm, filename)
 }

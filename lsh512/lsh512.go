@@ -3,7 +3,17 @@ package lsh512
 
 import (
 	"hash"
+
+	"github.com/RyuaNerin/go-krypto"
+	"github.com/RyuaNerin/go-krypto/internal/zeroize"
 )
+
+func init() {
+	krypto.RegisterHash(krypto.LSH512, New)
+	krypto.RegisterHash(krypto.LSH512_384, New384)
+	krypto.RegisterHash(krypto.LSH512_256, New256)
+	krypto.RegisterHash(krypto.LSH512_224, New224)
+}
 
 const (
 	// The size of a LSH-512 checksum in bytes.
@@ -20,6 +30,10 @@ const (
 )
 
 // New returns a new hash.Hash computing the LSH-512 checksum.
+// The returned value is a [krypto.Hash] and therefore implements Zeroize(): call it
+// to erase the hash state when the hasher is no longer needed. After Zeroize() a
+// call to Sum panics and Write returns krypto.ErrStateCleared. All New* variants are
+// zeroizable. The package-level Sum helpers already auto-zeroize their scratch context.
 func New() hash.Hash { return newContext(Size) }
 
 // New384 returns a new hash.Hash computing the LSH-384 checksum.
@@ -55,4 +69,63 @@ func Sum224(data []byte) (sum224 [Size224]byte) {
 	sum := sum(Size224, data)
 	copy(sum224[:], sum[:Size224])
 	return
+}
+
+type (
+	block         [BlockSize]byte
+	lsh512Context struct {
+		lsh512ContextData
+		z zeroize.ZeroizedFlag
+	}
+	lsh512ContextData struct {
+		// 16 bytes aligned
+
+		algType           uint64
+		_                 uint64
+		remainDataByteLen uint64
+		_                 uint64
+		cvL               [8]uint64
+		cvR               [8]uint64
+		lastBlock         block
+	}
+)
+
+var _ krypto.Zeroizable = (*lsh512Context)(nil)
+
+func (ctx *lsh512Context) Zeroize() {
+	ctx.lsh512ContextData.Zeroize()
+	ctx.z.SetInvalid()
+}
+
+func (ctx *lsh512ContextData) Zeroize() {
+	ctx.algType = 0
+	ctx.remainDataByteLen = 0
+	clear(ctx.cvL[:])
+	clear(ctx.cvR[:])
+	clear(ctx.lastBlock[:])
+}
+
+func (ctx *lsh512ContextData) Reset() {
+	switch ctx.algType {
+	case Size224:
+		copy(ctx.cvL[:], iv224[:8])
+		copy(ctx.cvR[:], iv224[8:])
+
+	case Size256:
+		copy(ctx.cvL[:], iv256[:8])
+		copy(ctx.cvR[:], iv256[8:])
+
+	case Size384:
+		copy(ctx.cvL[:], iv384[:8])
+		copy(ctx.cvR[:], iv384[8:])
+
+	case Size:
+		copy(ctx.cvL[:], iv512[:8])
+		copy(ctx.cvR[:], iv512[8:])
+
+	default:
+		panic(msgInvalidSize)
+	}
+	clear(ctx.lastBlock[:])
+	ctx.remainDataByteLen = 0
 }
