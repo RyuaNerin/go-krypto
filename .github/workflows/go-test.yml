@@ -27,6 +27,7 @@ on:
       - '.github/workflows/**'
       - '.golangci.yml'
       - 'bin/*.sh'
+  workflow_dispatch:
 
 defaults:
   run:
