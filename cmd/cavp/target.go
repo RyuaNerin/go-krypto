@@ -135,6 +135,12 @@ func extractZip(input, destination string) error {
 	}
 	defer r.Close()
 
+	root, err := os.OpenRoot(destination)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
+
 	for _, entry := range r.File {
 		if entry.Mode()&os.ModeSymlink != 0 {
 			return fmt.Errorf("ZIP contains a symbolic link: %s", entry.Name)
@@ -143,10 +149,9 @@ func extractZip(input, destination string) error {
 		if name == "." {
 			continue
 		}
-		if filepath.IsAbs(name) || name == ".." || strings.HasPrefix(name, ".."+string(filepath.Separator)) {
+		if !filepath.IsLocal(name) {
 			return fmt.Errorf("ZIP entry escapes destination: %s", entry.Name)
 		}
-		path := filepath.Join(destination, name)
 
 		if entry.FileInfo().IsDir() {
 			continue
@@ -154,24 +159,24 @@ func extractZip(input, destination string) error {
 		if !strings.EqualFold(filepath.Ext(name), ".req") {
 			continue
 		}
-		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		if err := root.MkdirAll(filepath.Dir(name), 0o755); err != nil {
 			return err
 		}
-		if err := extractZipFile(entry, path); err != nil {
+		if err := extractZipFile(entry, root, name); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func extractZipFile(entry *zip.File, path string) error {
+func extractZipFile(entry *zip.File, root *os.Root, name string) error {
 	src, err := entry.Open()
 	if err != nil {
 		return err
 	}
 	defer src.Close()
 
-	dst, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	dst, err := root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return err
 	}
