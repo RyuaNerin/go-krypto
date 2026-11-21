@@ -87,6 +87,7 @@ func newHMAC(h func() hash.Hash, key []byte, tagSize int) krypto.Hash {
 		m.opad[i] ^= 0x5c
 	}
 
+	m.z.SetValid()
 	m.Reset()
 	return m
 }
@@ -105,7 +106,7 @@ type mac struct {
 var _ krypto.Hash = (*mac)(nil)
 
 func (m *mac) Zeroize() {
-	m.z.SetInvalid()
+	m.z.Zeroize()
 
 	zeroize.Zeroize(m.inner)
 	zeroize.Zeroize(m.outer)

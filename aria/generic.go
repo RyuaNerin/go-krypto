@@ -10,6 +10,7 @@ import (
 
 func newCipher(key []byte) (cipher.Block, error) {
 	ctx := new(ariaContext)
+	ctx.z.SetValid()
 	initRoundKey(ctx, key)
 	return ctx, nil
 }

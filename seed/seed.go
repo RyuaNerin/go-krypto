@@ -40,13 +40,14 @@ func NewCipher(key []byte) (cipher.Block, error) {
 	}
 
 	c := new(seedContext)
+	c.z.SetValid()
 	keySchedKeyGo(&c.pdwRoundKey, (*[16]byte)(key))
 	return c, nil
 }
 
 func (s *seedContext) Zeroize() {
 	clear(s.pdwRoundKey[:])
-	s.z.SetInvalid()
+	s.z.Zeroize()
 }
 
 func (s *seedContext) BlockSize() int {

@@ -44,7 +44,7 @@ func (h *hmacDRGB) Zeroize() {
 }
 
 func (h *hmacDRGB) zeroize() {
-	h.z.SetInvalid()
+	h.z.Zeroize()
 
 	h.state.Zeroize()
 	if h.ownsEntropy {
@@ -155,6 +155,7 @@ func newHMAC(h func() hash.Hash, args args) (krypto.DRBG, error) {
 		args.reseedInterval,
 	)
 
+	drbg.z.SetValid()
 	return drbg, nil
 }
 

@@ -94,7 +94,7 @@ var _ krypto.Zeroizable = (*lsh512Context)(nil)
 
 func (ctx *lsh512Context) Zeroize() {
 	ctx.lsh512ContextData.Zeroize()
-	ctx.z.SetInvalid()
+	ctx.z.Zeroize()
 }
 
 func (ctx *lsh512ContextData) Zeroize() {

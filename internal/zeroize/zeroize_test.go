@@ -17,7 +17,7 @@ type state struct {
 }
 
 func (s *state) Zeroize() {
-	s.SetInvalid()
+	s.ZeroizedFlag.Zeroize()
 	zeroize.Zeroize(s.Data)
 	s.Data = nil
 }
@@ -52,6 +52,7 @@ func TestZeroizeBigInt(t *testing.T) {
 
 func TestGuardLifecycle(t *testing.T) {
 	s := &state{Data: []byte{1, 2, 3}}
+	s.SetValid()
 
 	require.NotPanics(t, func() { s.ThrowIfZeroized() })
 
@@ -62,6 +63,7 @@ func TestGuardLifecycle(t *testing.T) {
 
 func TestReturnIfZeroized(t *testing.T) {
 	s := &state{Data: []byte{1, 2, 3}}
+	s.SetValid()
 
 	require.NotPanics(t, func() { s.ThrowIfZeroized() })
 	require.NoError(t, s.ReturnIfZeroized())

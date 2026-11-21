@@ -30,6 +30,7 @@ func init() {
 
 func newCipherAsmSSE2(key []byte) (cipher.Block, error) {
 	ctx := new(leaContextAsm)
+	ctx.z.SetValid()
 	ctx.round = setKeyGo(&ctx.rk, key)
 
 	return ctx, nil
@@ -48,6 +49,7 @@ var (
 
 func newCipherAsmAVX2(key []byte) (cipher.Block, error) {
 	ctx := new(leaContextAsmAVX2)
+	ctx.z.SetValid()
 	ctx.round = setKeyGo(&ctx.rk, key)
 
 	return ctx, nil
@@ -55,6 +57,7 @@ func newCipherAsmAVX2(key []byte) (cipher.Block, error) {
 
 func newCipherAsmAVX512(key []byte) (cipher.Block, error) {
 	ctx := new(leaContextAsmAVX512)
+	ctx.z.SetValid()
 	ctx.round = setKeyGo(&ctx.rk, key)
 
 	return ctx, nil

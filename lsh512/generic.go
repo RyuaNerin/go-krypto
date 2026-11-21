@@ -11,6 +11,7 @@ func newContextGo(size int) hash.Hash {
 			algType: uint64(size),
 		},
 	}
+	ctx.z.SetValid()
 	ctx.Reset()
 
 	return ctx
@@ -24,6 +25,7 @@ func sumGo(size int, data []byte) [Size]byte {
 	}
 	defer ctx.Zeroize()
 
+	ctx.z.SetValid()
 	ctx.Reset()
 	ctx.Write(data)
 

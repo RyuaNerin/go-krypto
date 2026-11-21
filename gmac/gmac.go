@@ -71,6 +71,7 @@ func newGMAC(b cipher.Block, iv []byte, tagSize int) (*ghash, error) {
 	g.gcm.DeriveCounter(&counter, iv)
 	kb.Encrypt(g.tagMask[:], counter[:])
 
+	g.z.SetValid()
 	return g, nil
 }
 
@@ -107,7 +108,7 @@ func (g *ghashData) Zeroize() {
 }
 
 func (g *ghash) Zeroize() {
-	g.z.SetInvalid()
+	g.z.Zeroize()
 	g.ghashData.Zeroize()
 }
 

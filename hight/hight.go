@@ -40,6 +40,7 @@ func NewCipher(key []byte) (cipher.Block, error) {
 	}
 
 	block := new(hightContext)
+	block.z.SetValid()
 
 	for i := range 4 {
 		block.pdwRoundKey[i+0] = key[i+12]
@@ -60,7 +61,7 @@ func NewCipher(key []byte) (cipher.Block, error) {
 
 func (ctx *hightContext) Zeroize() {
 	clear(ctx.pdwRoundKey[:])
-	ctx.z.SetInvalid()
+	ctx.z.Zeroize()
 }
 
 func (ctx *hightContext) BlockSize() int {

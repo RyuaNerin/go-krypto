@@ -29,6 +29,7 @@ const (
 // call to Sum panics and Write returns krypto.ErrStateCleared.
 func New() hash.Hash {
 	ctx := new(has160Context)
+	ctx.z.SetValid()
 	ctx.Reset()
 	return ctx
 }
@@ -36,6 +37,7 @@ func New() hash.Hash {
 // Sum returns the HAS-160 checksum of the data.
 func Sum(data []byte) (sum [Size]byte) {
 	var ctx has160Context
+	ctx.z.SetValid()
 	defer ctx.Zeroize()
 
 	ctx.Reset()
@@ -63,7 +65,7 @@ func (ctx *has160Context) Zeroize() {
 	ctx.boff = 0
 	ctx.length = 0
 
-	ctx.z.SetInvalid()
+	ctx.z.Zeroize()
 }
 
 func (ctx *has160Context) Size() int {

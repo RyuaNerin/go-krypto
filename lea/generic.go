@@ -20,6 +20,7 @@ var _ krypto.Block = (*leaContext)(nil)
 
 func newCipherGo(key []byte) (cipher.Block, error) {
 	ctx := new(leaContext)
+	ctx.z.SetValid()
 	ctx.round = setKeyGo(&ctx.rk, key)
 	return ctx, nil
 }
@@ -27,7 +28,7 @@ func newCipherGo(key []byte) (cipher.Block, error) {
 func (ctx *leaContext) Zeroize() {
 	clear(ctx.rk[:])
 	ctx.round = 0
-	ctx.z.SetInvalid()
+	ctx.z.Zeroize()
 }
 
 func (ctx *leaContext) BlockSize() int {

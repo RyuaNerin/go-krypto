@@ -5,24 +5,37 @@ import (
 	"sync/atomic"
 )
 
+type noCopy struct{}
+
+func (*noCopy) Lock()   {}
+func (*noCopy) Unlock() {}
+
 type ZeroizedFlag struct {
-	once  sync.Once
+	_     noCopy
 	valid atomic.Bool
+	m     sync.Mutex
 }
 
-func (z *ZeroizedFlag) init() {
-	z.once.Do(func() {
-		z.valid.Store(true)
-	})
+// Marks the state as valid.
+func (z *ZeroizedFlag) SetValid() {
+	z.m.Lock()
+	defer z.m.Unlock()
+
+	z.valid.Store(true)
 }
 
-func (z *ZeroizedFlag) SetInvalid() {
-	z.init()
+// Marks the state as zeroized and invalid.
+func (z *ZeroizedFlag) Zeroize() {
+	z.m.Lock()
+	defer z.m.Unlock()
+
 	z.valid.Store(false)
 }
 
 func (z *ZeroizedFlag) ReturnIfZeroized() error {
-	z.init()
+	z.m.Lock()
+	defer z.m.Unlock()
+
 	if z.valid.Load() {
 		return nil
 	}
@@ -30,7 +43,9 @@ func (z *ZeroizedFlag) ReturnIfZeroized() error {
 }
 
 func (z *ZeroizedFlag) ThrowIfZeroized() {
-	z.init()
+	z.m.Lock()
+	defer z.m.Unlock()
+
 	if z.valid.Load() {
 		return
 	}

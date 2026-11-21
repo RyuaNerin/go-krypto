@@ -34,6 +34,7 @@ func newContextWith(size int, simd simdSet) hash.Hash {
 		},
 		backend: simd,
 	}
+	ctx.z.SetValid()
 	ctx.Reset()
 	return ctx
 }
@@ -49,6 +50,7 @@ func sumWith(size int, data []byte, simd simdSet) [Size]byte {
 	}
 	defer ctx.Zeroize()
 
+	ctx.z.SetValid()
 	ctx.Reset()
 	ctx.Write(data)
 	return ctx.backend.final(&ctx.lsh512ContextData)

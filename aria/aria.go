@@ -51,7 +51,7 @@ func (ctx *ariaContext) Zeroize() {
 	clear(ctx.dk[:])
 	ctx.rounds = 0
 
-	ctx.z.SetInvalid()
+	ctx.z.Zeroize()
 }
 
 func (*ariaContext) BlockSize() int { return BlockSize }

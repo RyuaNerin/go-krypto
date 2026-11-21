@@ -6,6 +6,7 @@ import "crypto/cipher"
 
 func newCipherAsm(key []byte) (cipher.Block, error) {
 	ctx := new(leaContextAsm)
+	ctx.z.SetValid()
 	ctx.round = setKeyGo(&ctx.rk, key)
 
 	return ctx, nil

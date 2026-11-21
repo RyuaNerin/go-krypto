@@ -44,7 +44,7 @@ func (h *hashDRGB) Zeroize() {
 }
 
 func (h *hashDRGB) zeroize() {
-	h.z.SetInvalid()
+	h.z.Zeroize()
 
 	h.state.Zeroize()
 	if h.ownsEntropy {
@@ -156,6 +156,7 @@ func newHash(h hash.Hash, args args) (krypto.DRBG, error) {
 		args.reseedInterval,
 	)
 
+	drbg.z.SetValid()
 	return drbg, nil
 }
 

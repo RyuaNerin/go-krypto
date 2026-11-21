@@ -61,6 +61,7 @@ func newCMAC(b cipher.Block, tagSize int) *cmac {
 	c.k2 = c.k1
 	makeCMACSubkey(c.k2[:blockSize])
 
+	c.z.SetValid()
 	return c
 }
 
@@ -97,7 +98,7 @@ type cmac struct {
 var _ krypto.Hash = (*cmac)(nil)
 
 func (ctx *cmac) Zeroize() {
-	ctx.z.SetInvalid()
+	ctx.z.Zeroize()
 
 	zeroize.Zeroize(ctx.block)
 	ctx.block = nil

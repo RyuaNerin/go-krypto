@@ -29,30 +29,36 @@ var (
 )
 
 func wrapBlockMode(cipher cipher.Block, fallback krypto.BlockMode) krypto.BlockMode {
-	return &blockMode{
+	b := &blockMode{
 		wrap[krypto.BlockMode]{
 			cipher:   cipher,
 			fallback: fallback,
 		},
 	}
+	b.z.SetValid()
+	return b
 }
 
 func wrapStream(cipher cipher.Block, fallback krypto.Stream) krypto.Stream {
-	return &stream{
+	b := &stream{
 		wrap[krypto.Stream]{
 			cipher:   cipher,
 			fallback: fallback,
 		},
 	}
+	b.z.SetValid()
+	return b
 }
 
 func wrapAEAD(cipher cipher.Block, fallback krypto.AEAD) krypto.AEAD {
-	return &aead{
+	b := &aead{
 		wrap[krypto.AEAD]{
 			cipher:   cipher,
 			fallback: fallback,
 		},
 	}
+	b.z.SetValid()
+	return b
 }
 
 func (b *wrap[T]) Zeroize() {
@@ -61,7 +67,7 @@ func (b *wrap[T]) Zeroize() {
 	zeroize.Zeroize(b.cipher, b.fallback)
 	b.cipher = nil
 	b.fallback = zero
-	b.z.SetInvalid()
+	b.z.Zeroize()
 }
 
 func (b *blockMode) BlockSize() int { return b.fallback.BlockSize() }

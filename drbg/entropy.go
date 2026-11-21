@@ -36,11 +36,13 @@ type entropy struct {
 var _ krypto.Zeroizable = (*entropy)(nil)
 
 func newEntropy(rand io.Reader, length int) *entropy {
-	return &entropy{rand: rand, length: length}
+	e := &entropy{rand: rand, length: length}
+	e.z.SetValid()
+	return e
 }
 
 func (e *entropy) Zeroize() {
-	e.z.SetInvalid()
+	e.z.Zeroize()
 
 	e.m.Lock()
 	defer e.m.Unlock()

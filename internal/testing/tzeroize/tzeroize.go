@@ -41,19 +41,6 @@ func TestZeroize(t testing.TB, v any) {
 	require.NotEqual(t, want, b, "fnNew returns a value that is already zeroized")
 	zeroize.Zeroize(v)
 
-	// The embedded zeroize guard holds bookkeeping (sync.Once/atomic flags) that
-	// is not required to be all-zero after Zeroize. For such types the byte-level
-	// check is skipped; the field-level check below verifies the secret state.
-	if containsGuard(rv.Type()) {
-		et := rv.Type()
-
-		var bad []string
-		nonZeroFields(rv, et.Name(), &bad)
-		require.Emptyf(t, bad, "non-zero fields after zeroization:\n%s", strings.Join(bad, "\n"))
-
-		return
-	}
-
 	if !bytes.Equal(want, b) {
 		et := rv.Type()
 
@@ -65,29 +52,6 @@ func TestZeroize(t testing.TB, v any) {
 	}
 }
 
-// containsGuard reports whether t embeds a zeroize.Zeroizable guard anywhere in
-// its structure. Such a guard's bookkeeping is not required to be all-zero after
-// Zeroize, so the byte-level zeroize check must not be enforced for it.
-func containsGuard(t reflect.Type) bool {
-	for t.Kind() == reflect.Pointer {
-		t = t.Elem()
-	}
-	if t.Kind() != reflect.Struct {
-		return false
-	}
-	for i := range t.NumField() {
-		if t.Field(i).Type == reflect.TypeFor[zeroize.ZeroizedFlag]() {
-			return true
-		}
-
-		if containsGuard(t.Field(i).Type) {
-			return true
-		}
-	}
-
-	return false
-}
-
 func nonZeroFields(rv reflect.Value, path string, out *[]string) {
 	switch rv.Kind() {
 	case reflect.Slice:
@@ -95,12 +59,6 @@ func nonZeroFields(rv reflect.Value, path string, out *[]string) {
 			nonZeroFields(rv.Index(i), fmt.Sprintf("%s[%d]", path, i), out)
 		}
 	case reflect.Struct:
-		// The embedded zeroize guard holds bookkeeping (sync.Once/atomic flags),
-		// not secret state, and is not required to be all-zero after Zeroize.
-		if rv.Type() == reflect.TypeFor[zeroize.ZeroizedFlag]() {
-			return
-		}
-
 		for i := range rv.NumField() {
 			nonZeroFields(rv.Field(i), path+"."+rv.Type().Field(i).Name, out)
 		}

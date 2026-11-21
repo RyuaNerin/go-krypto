@@ -52,7 +52,7 @@ func (h *ctrDRGB) Zeroize() {
 }
 
 func (h *ctrDRGB) zeroize() {
-	h.z.SetInvalid()
+	h.z.Zeroize()
 
 	h.state.Zeroize()
 	if h.ownsEntropy {
@@ -204,6 +204,7 @@ func newCTR(
 		return nil, err
 	}
 
+	drbg.z.SetValid()
 	return drbg, nil
 }
 
