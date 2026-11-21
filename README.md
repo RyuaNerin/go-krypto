@@ -30,8 +30,6 @@
     go get -v "github.com/RyuaNerin/go-krypto"
     ```
 
-- Sample code available here: [`example/main.go`](example/main.go).
-
 ## Supports
 
 ### SIMD
