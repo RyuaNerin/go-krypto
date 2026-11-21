@@ -43,7 +43,7 @@ func AppendBigUint64[T ~uint64](b []byte, v T) []byte {
 
 func ConsumeBigU8(b []byte) ([]byte, uint8) {
 	_ = b[0]
-	return b[1:], uint8(b[0])
+	return b[1:], b[0]
 }
 
 func ConsumeBigU16(b []byte) ([]byte, uint16) {

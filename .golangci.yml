@@ -38,6 +38,22 @@ linters:
     - unconvert
     - unused
     - whitespace
+  settings:
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+  exclusions:
+    rules:
+      - path: internal/cavp/(.+)\.go
+        linters:
+          - goconst
+      - path: .*test.*\.go
+        linters:
+          - goconst
+      - path: internal/field/simd/(.+)\.go
+        linters:
+          - unused
 
 formatters:
   enable:

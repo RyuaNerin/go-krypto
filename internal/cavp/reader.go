@@ -104,7 +104,7 @@ func parseFields[T any]() ([]fieldInfo, map[string]*fieldInfo, error) {
 	if t == nil || t.Kind() != reflect.Struct {
 		return nil, nil, fmt.Errorf("rsp: type parameter must be a struct")
 	}
-	for i := 0; i < t.NumField(); i++ {
+	for i := range t.NumField() {
 		f := t.Field(i)
 		tag, ok := f.Tag.Lookup("cavp")
 		if !ok || tag == "-" {

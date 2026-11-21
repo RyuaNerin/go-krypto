@@ -36,7 +36,7 @@ func TestZeroizeDerivationBuffers(t *testing.T) {
 			got := pbkdf2.GenerateParallel(nil, []byte("password"), []byte("salt"), 3, 128, newHash, threads)
 			want := pbkdf2.Generate(nil, []byte("password"), []byte("salt"), 3, 128, sha256.New)
 
-			require.Equal(t, got, want, "parallel and sequential derivation outputs differ")
+			require.Equal(t, want, got, "parallel and sequential derivation outputs differ")
 
 			for _, buf := range buffers {
 				require.Equal(t, buf, make([]byte, len(buf)), "U/T derivation buffer was not fully zeroized")

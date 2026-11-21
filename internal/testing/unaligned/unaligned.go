@@ -74,7 +74,8 @@ func Test(t *testing.T, alignment uintptr, test func(residue uintptr)) {
 		nameParts[idx] = "^" + regexp.QuoteMeta(nameParts[idx]) + "$"
 	}
 
-	cmd := exec.Command(
+	cmd := exec.CommandContext(
+		t.Context(),
 		os.Args[0],
 		"-test.run="+strings.Join(nameParts, "/"),
 		"-test.count=1",

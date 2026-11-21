@@ -44,8 +44,10 @@ func Test_PBKDF_Parallel(t *testing.T) {
 		passwordLen := rand.IntN(maxLen-1) + 1
 		seedLen := rand.IntN(maxLen-1) + 1
 
-		rnd.Read(password[:passwordLen])
-		rnd.Read(seed[:seedLen])
+		_, err := rnd.Read(password[:passwordLen])
+		require.NoError(t, err)
+		_, err = rnd.Read(seed[:seedLen])
+		require.NoError(t, err)
 
 		dstSingle = pbkdf2.Generate(dstSingle, password[:passwordLen], seed[:seedLen], 1000, keySize, sha256.New)
 		dstParallel = pbkdf2.GenerateParallel(dstParallel, password[:passwordLen], seed[:seedLen], 1000, keySize, sha256.New, 0)

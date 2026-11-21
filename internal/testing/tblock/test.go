@@ -92,7 +92,7 @@ func (ci *CipherInfo) newInvalidKeySizesTest(r io.Reader, newCipher func([]byte)
 				require.NoErrorf(t, err, "constructor rejected valid key size %d", keySize)
 			} else {
 				require.Nilf(t, b, "constructor returned a non-nil block for undeclared key size %d", keySize)
-				require.ErrorAsf(t, err, &keyError, "constructor returned unexpected error for valid key size %d", keySize)
+				require.ErrorAsf(t, err, keyError, "constructor returned unexpected error for valid key size %d", keySize)
 			}
 		}
 	}
@@ -258,13 +258,6 @@ func testShortBuffers(block krypto.Block) func(t *testing.T) {
 
 func newOverlapTest(reader io.Reader, block krypto.Block) func(*testing.T) {
 	blockSize := block.BlockSize()
-
-	type blockOperation struct {
-		name    string
-		blocks  int
-		encrypt func(dst, src []byte)
-		decrypt func(dst, src []byte)
-	}
 
 	return func(t *testing.T) {
 		t.Helper()

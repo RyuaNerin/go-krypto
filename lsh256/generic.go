@@ -62,7 +62,7 @@ func (ctx *lsh256Context) Write(p []byte) (n int, err error) {
 			return n, nil
 		}
 		copy(ctx.lastBlock[remain:], p[:gap])
-		ctx.compress((*block)(&ctx.lastBlock))
+		ctx.compress(&ctx.lastBlock)
 		ctx.remainDataByteLen = 0
 		p = p[gap:]
 	}

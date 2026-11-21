@@ -31,7 +31,7 @@ func (ctx *has160Context) AppendBinary(b []byte) ([]byte, error) {
 	b = append(b, ctx.block[:]...)
 	clear(b[n+ctx.boff:]) // boff 이후는 명시적으로 0
 	b = append(b, byte(ctx.boff))
-	b = internal.AppendBigUint64(b, uint64(ctx.length))
+	b = internal.AppendBigUint64(b, ctx.length)
 	return b, nil
 }
 

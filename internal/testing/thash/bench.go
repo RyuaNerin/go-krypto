@@ -56,11 +56,6 @@ type HashFunc interface {
 func BenchHash[TNewHash HashFunc](b *testing.B, f TNewHash, size int) {
 	b.Helper()
 
-	const (
-		almost1K = 1024 - 5
-		almost8K = 8*1024 - 5
-	)
-
 	var newHash func() hash.Hash
 	switch fn := any(f).(type) {
 	case func(size int) hash.Hash:
@@ -124,7 +119,8 @@ func (ht *HashTest) BenchHash(b *testing.B, skip bool) {
 				for _, bc := range benchConfigs {
 					b.Run(bc.Name, func(b *testing.B) {
 						buf := make([]byte, bc.Size)
-						r.Read(buf)
+						_, err := r.Read(buf)
+						require.NoError(b, err)
 
 						sum := make([]byte, h.Size())
 
@@ -206,7 +202,8 @@ func benchSumSize[T Digest](
 		for _, bc := range benchConfigs {
 			b.Run(bc.Name, func(b *testing.B) {
 				buf := make([]byte, bc.Size)
-				r.Read(buf)
+				_, err := r.Read(buf)
+				require.NoError(b, err)
 
 				b.SetBytes(int64(bc.Size))
 				for b.Loop() {
@@ -230,7 +227,8 @@ func benchSum[T Digest](
 		for _, bs := range benchmarkInputsizes {
 			b.Run(bs.Name, func(b *testing.B) {
 				buf := make([]byte, bs.Size)
-				r.Read(buf)
+				_, err := r.Read(buf)
+				require.NoError(b, err)
 
 				b.SetBytes(int64(bs.Size))
 				for b.Loop() {

@@ -3,6 +3,7 @@ package kipher
 import (
 	"github.com/RyuaNerin/go-krypto"
 	"github.com/RyuaNerin/go-krypto/internal/alias"
+	"github.com/RyuaNerin/go-krypto/internal/zeroize"
 )
 
 func NewECBEncryptor(b krypto.Block8) *ecbEncrypt {
@@ -40,7 +41,7 @@ var (
 )
 
 func (ecb *ecb) Zeroize() {
-	//zeroize.Zeroize(ecb.b)
+	zeroize.Zeroize(ecb.cipher)
 	ecb.cipher = nil
 	ecb.blockSize = 0
 }

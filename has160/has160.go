@@ -147,7 +147,7 @@ func (ctx *has160ContextData) checkSum() (hash [20]byte) {
 	}
 
 	clear(ctx.block[boff:])
-	binary.LittleEndian.PutUint64(ctx.block[BlockSize-8:], uint64(ctx.length)*8)
+	binary.LittleEndian.PutUint64(ctx.block[BlockSize-8:], ctx.length*8)
 	ctx.stepBlock(&ctx.block)
 
 	binary.LittleEndian.PutUint32(hash[0:], ctx.h[0])

@@ -41,7 +41,7 @@ func TestPKCS8PrivateKey(t *testing.T) {
 			require.Empty(t, rest, "unexpected trailing data after ECPrivateKey")
 
 			wantPrivateKeyLen := (tc.key.Curve.Params().N.BitLen() + 7) / 8
-			require.Equal(t, wantPrivateKeyLen, len(ecKey.PrivateKey), "unexpected EC private key length")
+			require.Len(t, ecKey.PrivateKey, wantPrivateKeyLen, "unexpected EC private key length")
 
 			key, err = ParsePKCS8PrivateKey(actualDER)
 			require.NoError(t, err)

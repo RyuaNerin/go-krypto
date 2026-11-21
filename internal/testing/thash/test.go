@@ -185,7 +185,7 @@ func (ht *HashTest) newSameBlockSizeTest(r io.Reader, newHash func() hash.Hash) 
 		want := h.BlockSize()
 		require.Positive(t, want, "BlockSize must be positive")
 		if ht.HashInfo.BlockSize != 0 {
-			require.Equal(t, ht.HashInfo.BlockSize, want, "BlockSize does not match HashInfo.BlockSize")
+			require.Equal(t, want, ht.HashInfo.BlockSize, "BlockSize does not match HashInfo.BlockSize")
 		}
 
 		h.Write(mustRandomBytes(t, r, 3*want))
@@ -551,7 +551,9 @@ func (ht *HashTest) newSensitivityTest(r io.Reader, rand *rand.Rand, blockSize i
 		t.Run("deterministic", func(t *testing.T) {
 			for round := range randomChunkTrials {
 				src := mustRandomBytes(t, r, rand.IntN(4*blockSize+64))
-				require.Equalf(t, mustSum(t, newHash, src), mustSum(t, newHash, src), "hash is not deterministic, round=%d", round)
+				sum1 := mustSum(t, newHash, src)
+				sum2 := mustSum(t, newHash, src)
+				require.Equalf(t, sum1, sum2, "hash is not deterministic, round=%d", round)
 			}
 		})
 
@@ -886,7 +888,7 @@ func (ht *HashTest) newUnmarshalBinaryTest(r io.Reader, rand *rand.Rand, blockSi
 			h.Write(mustRandomBytes(t, r, blockSize+3))
 			state := mustMarshal(t, h)
 
-			for size := range len(state) {
+			for size := range state {
 				u, ok := mustNewHash(t, newHash).(encoding.BinaryUnmarshaler)
 				require.True(t, ok)
 

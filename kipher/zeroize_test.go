@@ -3,6 +3,7 @@ package kipher_test
 import (
 	"bytes"
 	"crypto/cipher"
+	"errors"
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto"
@@ -34,7 +35,11 @@ func TestZeroizeRepeatedAndBlockKey(t *testing.T) {
 			z.Zeroize()
 
 			defer func() {
-				if recover() != zeroize.ErrStateCleared {
+				e := recover()
+				if e == nil {
+					return
+				}
+				if errors.Is(e.(error), zeroize.ErrStateCleared) {
 					t.Fatal("operation did not reject zeroized state")
 				}
 			}()

@@ -60,7 +60,7 @@ GeneratePrimes:
 			continue
 		}
 
-		for i := 0; i < 4*d.A; i++ {
+		for range 4 * d.A {
 			if buf, err = internal.ReadBits(buf, rand, d.A); err != nil {
 				return generated, err
 			}

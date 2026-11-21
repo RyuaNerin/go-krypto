@@ -27,7 +27,7 @@ func TestVerifyRejectsNilSignature(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
 			ok := eckcdsa.Verify(pub, sha256.New(), []byte("message"), tc.R, tc.S)
-			require.True(t, !ok)
+			require.False(t, ok)
 		})
 	}
 }

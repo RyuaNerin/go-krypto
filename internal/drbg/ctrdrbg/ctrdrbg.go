@@ -238,7 +238,7 @@ func (state *State) update(b krypto.Block8, providedData, block []byte) {
 
 	// c) temp ← leftmost(temp, seedlen )
 	// d) temp ← temp ⊕ provided_data
-	subtle.XORBytes(temp[:], temp[:], providedData)
+	subtle.XORBytes(temp, temp, providedData)
 	// e) Key ← leftmost(temp, keylen )
 	copy(state.Key[:state.KeySize], temp[:state.KeySize])
 	// f) V ← rightmost(temp, blocklen )

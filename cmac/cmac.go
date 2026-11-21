@@ -50,7 +50,7 @@ func newCMAC(b cipher.Block, tagSize int) *cmac {
 
 	c := &cmac{
 		block:   b,
-		tagSize: byte(tagSize),
+		tagSize: tagSize,
 	}
 
 	// k1
@@ -91,8 +91,8 @@ type cmac struct {
 	k1, k2  [maxBlockSize]byte
 	ciph    [maxBlockSize]byte
 	m       [maxBlockSize]byte
-	mIdx    byte
-	tagSize byte
+	mIdx    int
+	tagSize int
 }
 
 var _ krypto.Hash = (*cmac)(nil)
@@ -111,7 +111,7 @@ func (ctx *cmac) Zeroize() {
 	ctx.tagSize = 0
 }
 
-func (c *cmac) Size() int { return int(c.tagSize) }
+func (c *cmac) Size() int { return c.tagSize }
 
 func (c *cmac) BlockSize() int { return c.block.BlockSize() }
 
@@ -130,7 +130,7 @@ func (c *cmac) Write(p []byte) (n int, err error) {
 		return 0, nil
 	}
 
-	blockSize := int(c.block.BlockSize())
+	blockSize := c.block.BlockSize()
 	switch blockSize {
 	case 8:
 	case 16:
@@ -140,13 +140,13 @@ func (c *cmac) Write(p []byte) (n int, err error) {
 
 	ciph, m := c.ciph[:blockSize], c.m[:blockSize]
 
-	mIdx := int(c.mIdx)
+	mIdx := c.mIdx
 	if mIdx > blockSize {
 		panic(msgInvalidInternalState)
 	}
 	if mIdx > 0 {
 		if mIdx+len(p) <= blockSize {
-			c.mIdx += byte(copy(m[mIdx:blockSize], p))
+			c.mIdx += copy(m[mIdx:blockSize], p)
 			return n, nil
 		}
 		p = p[copy(m[mIdx:blockSize], p):]
@@ -162,14 +162,14 @@ func (c *cmac) Write(p []byte) (n int, err error) {
 		p = p[blockSize:]
 	}
 
-	c.mIdx = byte(copy(m[:], p))
+	c.mIdx = copy(m, p)
 	return n, nil
 }
 
 func (c *cmac) Sum(b []byte) []byte {
 	c.z.ThrowIfZeroized()
 
-	blockSize, mIdx, tagSize := int(c.block.BlockSize()), int(c.mIdx), int(c.tagSize)
+	blockSize, mIdx, tagSize := c.block.BlockSize(), c.mIdx, c.tagSize
 	switch blockSize {
 	case 8:
 	case 16:
@@ -186,10 +186,10 @@ func (c *cmac) Sum(b []byte) []byte {
 	defer clear(mac[:])
 
 	if mIdx == blockSize {
-		subtle.XORBytes(mac[:], ciph[:], k1[:]) // CIPH ^ K1
-		subtle.XORBytes(mac[:], mac[:], m[:])   // CIPH ^ K1 ^ M
+		subtle.XORBytes(mac[:], ciph, k1)  // CIPH ^ K1
+		subtle.XORBytes(mac[:], mac[:], m) // CIPH ^ K1 ^ M
 	} else {
-		subtle.XORBytes(mac[:], c.ciph[:], k2[:]) // CIPH ^ K2
+		subtle.XORBytes(mac[:], ciph[:], k2)      // CIPH ^ K2
 		subtle.XORBytes(mac[:], mac[:], m[:mIdx]) // CIPH ^ K2 ^ M
 		mac[mIdx] ^= 0x80
 	}

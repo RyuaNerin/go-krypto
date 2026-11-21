@@ -71,7 +71,7 @@ func Test_CMAC_CustomTagSize(t *testing.T) {
 		require.NoErrorf(t, err, "size %d", size)
 
 		require.Equal(t, size, h.Size(), "size %d: unexpected Size()", size)
-		require.Equal(t, size, len(h.Sum(nil)), "size %d: unexpected Sum() length", size)
+		require.Len(t, h.Sum(nil), size, "size %d: unexpected Sum() length", size)
 	}
 }
 

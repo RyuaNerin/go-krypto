@@ -59,7 +59,7 @@ func initRoundKey(ctx *ariaContext, key []byte) {
 	encKeySetup(&ctx.ek, key)
 
 	ctx.dk = ctx.ek
-	decKeySetup(&ctx.dk, int(ctx.rounds))
+	decKeySetup(&ctx.dk, ctx.rounds)
 }
 
 func encKeySetup(rk *roundKey, mk []byte) {

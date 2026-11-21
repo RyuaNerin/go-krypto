@@ -14,8 +14,8 @@ import (
 //go:embed testdata
 var testdata embed.FS
 
-func Test[T any](TB testing.TB, filename string, fn func(T)) {
-	TB.Helper()
+func Test[T any](tb testing.TB, filename string, fn func(T)) {
+	tb.Helper()
 
 	filename, _ = strings.CutSuffix(filename, ".gz")
 	filename, _ = strings.CutSuffix(filename, ".txt")
@@ -25,12 +25,12 @@ func Test[T any](TB testing.TB, filename string, fn func(T)) {
 	if err == nil {
 		defer fs.Close()
 		gzipReader, err := gzip.NewReader(fs)
-		require.NoError(TB, err)
+		require.NoError(tb, err)
 		defer gzipReader.Close()
 		input = gzipReader
 	} else {
 		fs, err = testdata.Open("testdata/" + filename + ".txt")
-		require.NoError(TB, err)
+		require.NoError(tb, err)
 		defer fs.Close()
 		input = fs
 	}
@@ -42,7 +42,7 @@ func Test[T any](TB testing.TB, filename string, fn func(T)) {
 		if errors.Is(err, io.EOF) {
 			break
 		}
-		require.NoError(TB, err)
+		require.NoError(tb, err)
 		fn(f)
 	}
 }
