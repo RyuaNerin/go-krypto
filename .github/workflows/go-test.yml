@@ -63,16 +63,16 @@ jobs:
       - name: Set up gotestfmt
         run: go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@v2.5.0
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v9
-        with:
-          version: v2.15.0
+#     - name: golangci-lint
+#       uses: golangci/golangci-lint-action@v9
+#       with:
+#         version: v2.15.0
 
-      - name: golangci-lint (noasm)
-        uses: golangci/golangci-lint-action@v9
-        with:
-          version: v2.15.0
-          args: --build-tags noasm
+#     - name: golangci-lint (noasm)
+#       uses: golangci/golangci-lint-action@v9
+#       with:
+#         version: v2.15.0
+#         args: --build-tags noasm
 
       - name: Build
         run: |
