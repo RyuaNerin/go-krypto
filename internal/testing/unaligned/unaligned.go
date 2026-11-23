@@ -39,6 +39,10 @@ func Copy[T any](source T, alignment, residue uintptr) *Value[T] {
 	}
 
 	elemType := sourceValue.Type().Elem()
+	naturalAlignment := uintptr(elemType.Align())
+	if alignment%naturalAlignment != 0 || residue%naturalAlignment != 0 {
+		panic(msgNaturalAlignmentRequired)
+	}
 	size := elemType.Size()
 	storage := make([]byte, size+alignment-1)
 	base := unsafe.Pointer(&storage[0])
@@ -56,14 +60,20 @@ func (v *Value[T]) KeepAlive() {
 	runtime.KeepAlive(v)
 }
 
-func Test(t *testing.T, alignment uintptr, test func(residue uintptr)) {
+// Test checks contexts at offsets from a SIMD alignment boundary while
+// preserving the source type's required alignment, including its atomics.
+func Test(t *testing.T, alignment uintptr, source any, test func(residue uintptr)) {
 	t.Helper()
 
 	require.GreaterOrEqual(t, alignment, uintptr(2), "unaligned: test alignment must be at least 2")
+	sourceValue := reflect.ValueOf(source)
+	require.True(t, sourceValue.Kind() == reflect.Pointer && !sourceValue.IsNil(), msgSourceMustBeNonNilPointer)
+	naturalAlignment := uintptr(sourceValue.Type().Elem().Align())
+	require.Zero(t, alignment%naturalAlignment, msgNaturalAlignmentRequired)
 
 	testName := t.Name()
 	if os.Getenv(isInTestEnv) == testName {
-		for shiftIdx := uintptr(1); shiftIdx < alignment; shiftIdx++ {
+		for shiftIdx := naturalAlignment; shiftIdx < alignment; shiftIdx += naturalAlignment {
 			test(shiftIdx)
 		}
 		return

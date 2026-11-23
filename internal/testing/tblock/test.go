@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
+	"reflect"
 	"slices"
 	"sync"
 	"testing"
@@ -88,11 +89,12 @@ func (ci *CipherInfo) newInvalidKeySizesTest(r io.Reader, newCipher func([]byte)
 			var b cipher.Block
 			require.NotPanicsf(t, func() { b, err = newCipher(key[:keySize]) }, "constructor panicked for undeclared key size %d", keySize)
 			if slices.ContainsFunc(ci.Sizes, func(sz CipherSize) bool { return sz.KeySize == keySize }) {
-				require.NotNilf(t, b, "constructor returned a non-nil block for undeclared key size %d", keySize)
+				require.NotNilf(t, b, "constructor returned a nil block for valid key size %d", keySize)
 				require.NoErrorf(t, err, "constructor rejected valid key size %d", keySize)
 			} else {
 				require.Nilf(t, b, "constructor returned a non-nil block for undeclared key size %d", keySize)
-				require.ErrorAsf(t, err, keyError, "constructor returned unexpected error for valid key size %d", keySize)
+				target := reflect.New(reflect.TypeOf(keyError)).Interface()
+				require.ErrorAsf(t, err, target, "constructor returned unexpected error for invalid key size %d", keySize)
 			}
 		}
 	}
@@ -584,7 +586,7 @@ func (ci *CipherInfo) newUnalignedContextTest(r io.Reader, newCipher func([]byte
 					reference.Encrypt(want[offset:offset+ci.BlockSize], plain[offset:offset+ci.BlockSize])
 				}
 
-				unaligned.Test(t, 32, func(residue uintptr) {
+				unaligned.Test(t, 32, reference, func(residue uintptr) {
 					context := unaligned.Copy(mustNewBlock(t, newCipher, key), 32, residue)
 					block := context.Value
 

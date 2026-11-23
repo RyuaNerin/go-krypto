@@ -3,7 +3,6 @@ package kipher_test
 import (
 	"bytes"
 	"crypto/cipher"
-	"errors"
 	"testing"
 
 	"github.com/RyuaNerin/go-krypto"
@@ -22,28 +21,26 @@ func TestZeroizeRepeatedAndBlockKey(t *testing.T) {
 		"CBCDecrypt": func(b cipher.Block) any { return kipher.NewCBCDecrypter(b, make([]byte, 16)) },
 	} {
 		t.Run(name, func(t *testing.T) {
-			b, _ := lea.NewCipher(bytes.Repeat([]byte{0x42}, 16))
+			b, err := lea.NewCipher(bytes.Repeat([]byte{0x42}, 16))
+			require.NoError(t, err)
 			m := newMode(b)
-			switch m := m.(type) {
-			case cipher.Stream:
-				m.XORKeyStream(make([]byte, 17), make([]byte, 17))
-			case cipher.BlockMode:
-				m.CryptBlocks(make([]byte, 32), make([]byte, 32))
+			operate := func() {
+				switch m := m.(type) {
+				case cipher.Stream:
+					m.XORKeyStream(make([]byte, 17), make([]byte, 17))
+				case cipher.BlockMode:
+					m.CryptBlocks(make([]byte, 32), make([]byte, 32))
+				}
 			}
+			operate()
 			z := m.(krypto.Zeroizable)
 			z.Zeroize()
 			z.Zeroize()
 
-			defer func() {
-				e := recover()
-				if e == nil {
-					return
-				}
-				if errors.Is(e.(error), zeroize.ErrStateCleared) {
-					t.Fatal("operation did not reject zeroized state")
-				}
-			}()
-			b.Encrypt(make([]byte, 16), make([]byte, 16))
+			require.PanicsWithValue(t, zeroize.ErrStateCleared, func() {
+				b.Encrypt(make([]byte, 16), make([]byte, 16))
+			}, "block accepted use after zeroization")
+			require.PanicsWithValue(t, zeroize.ErrStateCleared, operate, "mode accepted use after zeroization")
 		})
 	}
 }

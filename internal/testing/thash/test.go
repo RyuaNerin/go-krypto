@@ -134,7 +134,7 @@ func newUnalignedContextTest(r io.Reader, newHash func() hash.Hash) func(t *test
 		input := mustRandomBytes(t, r, 3*reference.BlockSize()+7)
 		want := mustSum(t, newHash, input)
 
-		unaligned.Test(t, 32, func(residue uintptr) {
+		unaligned.Test(t, 32, reference, func(residue uintptr) {
 			context := unaligned.Copy(mustNewHash(t, newHash), 32, residue)
 			h := context.Value
 			h.Reset()
@@ -147,7 +147,7 @@ func newUnalignedContextTest(r io.Reader, newHash func() hash.Hash) func(t *test
 			n, err = h.Write(input[split:])
 			require.NoErrorf(t, err, "Write failed at address mod 32 = %d", residue)
 			require.Equalf(t, len(input)-split, n, "Write returned a wrong count at address mod 32 = %d", residue)
-			require.Equalf(t, want, h.Sum(nil), "hash failed with an unaligned context (address mod 3lsh512/asm_amd64_sse2.s:452 = %d)", residue)
+			require.Equalf(t, want, h.Sum(nil), "hash failed with an unaligned context (address mod 32 = %d)", residue)
 
 			context.KeepAlive()
 		})
