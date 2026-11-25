@@ -133,6 +133,7 @@ jobs:
   cross-arch-test:
     needs: lint-and-test
     strategy:
+      fail-fast: false
       matrix:
         include:
         - platform: linux/arm/v6
@@ -196,8 +197,21 @@ jobs:
         uses: actions/setup-go@v7
         with:
           go-version: 1.27
+          # Host Go only installs gotestfmt; cross-arch builds use Docker volumes.
+          cache: false
 
       - name: Test
         run: |
           cd bin/
           bash ./docker-qemu.sh "${{ matrix.platform }}" "${{ matrix.image }}"
+
+      - name: Upload QEMU test log
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: qemu-test-log-${{ strategy.job-index }}
+          path: |
+            bin/log/
+            bin/out/
+            bin/qemu.csv
+          if-no-files-found: warn

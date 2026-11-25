@@ -47,6 +47,8 @@ need_cmd tee
 
 DOCKER_PLATFORM="$1"
 DOCKER_IMAGE="$2"
+# Include emulated builds in the outer budget; each test package still has 1h.
+QEMU_TIMEOUT="${QEMU_TIMEOUT:-2h}"
 
 ensure_gotestfmt
 
@@ -126,7 +128,7 @@ EOS
   )
 
   echo "============================== Running Command =============================="
-  printf '%q ' timeout 1h "${docker_cmd[@]}"
+  printf '%q ' timeout "$QEMU_TIMEOUT" "${docker_cmd[@]}"
   echo
   echo "============================================================================="
 
@@ -134,7 +136,7 @@ EOS
 
   # 파이프라인 실패해도 rc를 기록해야 하므로 set +e로 감싸기
   set +e
-  timeout 1h "${docker_cmd[@]}" 2>&1 \
+  timeout "$QEMU_TIMEOUT" "${docker_cmd[@]}" 2>&1 \
     | linebuf tee >( (command -v ts >/dev/null 2>&1 && linebuf ts "%y-%m-%d %H:%M:%S" || cat) > "$raw_log" ) \
     | linebuf awk '
         /^===== GO TEST =====$/ { print; fflush(); found=1; next }
@@ -168,7 +170,7 @@ EOS
 
   # csv에 명령도 남기고 싶다면(콤마/개행 안전하게 하려면 quoting 권장)
   local cmd_str
-  cmd_str="$(printf '%q ' timeout 1h "${docker_cmd[@]}")"
+  cmd_str="$(printf '%q ' timeout "$QEMU_TIMEOUT" "${docker_cmd[@]}")"
 
   echo "${start_time_human},${end_time_human},${elapsed_human},${DOCKER_PLATFORM},${DOCKER_IMAGE},${variant},${docker_rc},${cmd_str}" >> qemu.csv
   return "$docker_rc"
